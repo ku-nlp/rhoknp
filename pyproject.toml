@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "rhoknp"
+version = "0.1.0"
+description = "Yet another Jumanpp/KNP binding for Python"
+authors = ["Hirokazu Kiyomaru <h.kiyomaru@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 88
+target-version = ["py39"]
