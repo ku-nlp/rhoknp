@@ -19,7 +19,7 @@ def test_knp_parse(text: str):
 
 
 @pytest.mark.parametrize(
-    "analysis",
+    "knp",
     [
         """# S-ID:1 KNP:5.0-2ad4f6df DATE:2021/08/05 SCORE:-1.17041
 * -1D <SM-動作><BGH:参政/さんせい+権/けん><文頭><文末><サ変><体言><用言:判><体言止><レベル:C><区切:5-5><ID:（文末）><裸名詞><提題受:30><主節><状態述語><正規化代表表記:外国/がいこく+人/じん+参政/さんせい+権/けん><主辞代表表記:権/けん><主辞’代表表記:参政/さんせい+権/けん>
@@ -34,7 +34,7 @@ def test_knp_parse(text: str):
 EOS"""
     ],
 )
-def test_knp_load(analysis: str):
+def test_knp_load(knp: str):
     pass
-    # doc = load_knp(analysis)
+    # doc = load_knp(knp)
     # assert analysis == doc.to_knp()

@@ -16,7 +16,7 @@ def test_jumanpp_parse(text: str):
 
 
 @pytest.mark.parametrize(
-    "analysis",
+    "jumanpp",
     [
         """外国 がいこく 外国 名詞 6 普通名詞 1 * 0 * 0 "代表表記:外国/がいこく ドメイン:政治 カテゴリ:場所-その他"
 人 じん 人 名詞 6 普通名詞 1 * 0 * 0 "代表表記:人/じん カテゴリ:人 漢字読み:音"
@@ -25,7 +25,7 @@ def test_jumanpp_parse(text: str):
 EOS"""
     ],
 )
-def test_jumanpp_load(analysis: str):
+def test_jumanpp_load(jumanpp: str):
     pass
-    # doc = load_jumanpp(analysis)
+    # doc = load_jumanpp(jumanpp)
     # assert analysis == doc.to_jumanpp()
