@@ -1,5 +1,4 @@
-from rhoknp.units import Document
-from rhoknp.utils import Format
+from rhoknp.units import Document, Morpheme, Sentence
 
 
 def parse(text: str) -> Document:
@@ -8,13 +7,21 @@ def parse(text: str) -> Document:
     return doc
 
 
-def load(analysis: str, fmt: Format) -> Document:
-    return Document()
-
-
 def load_jumanpp(analysis: str) -> Document:
-    return load(analysis, Format.JUMANPP)
+    document = Document()
+    sentences = []
+    sentence = Sentence(document)
+    morphemes = []
+    for line in analysis.split("\n"):
+        if line.strip() == "EOS":
+            sentence.morphemes = morphemes
+            sentences.append(sentence)
+            sentence = Sentence(document)
+            morphemes = []
+        morphemes.append(Morpheme(sentence, line))
+    document.sentences = sentences
+    return document
 
 
 def load_knp(analysis: str) -> Document:
-    return load(analysis, Format.KNP)
+    return Document()

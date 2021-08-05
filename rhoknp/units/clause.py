@@ -6,18 +6,18 @@ if TYPE_CHECKING:
 
 
 class Clause:
-    def __init__(self, sentence: Sentence):
-        self.document = sentence.document
-        self.sentence = sentence
+    def __init__(self, parent: "Sentence"):
+        self.document = parent.document
+        self.sentence = parent
 
-        self.__chunks: list[Chunk] = None
+        self.__chunks: list["Chunk"] = None
 
     @property
     def chunks(self):
         return self.__chunks
 
     @chunks.setter
-    def chunks(self, chunks: list[Chunk]):
+    def chunks(self, chunks: list["Chunk"]):
         self.__chunks = chunks
 
     @property

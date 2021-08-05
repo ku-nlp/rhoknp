@@ -7,7 +7,7 @@ if TYPE_CHECKING:
 class Document:
     def __init__(self):
         self.__text: str = None
-        self.__sentences: list[Sentence] = None
+        self.__sentences: list["Sentence"] = None
 
     @property
     def text(self):
@@ -22,7 +22,7 @@ class Document:
         return self.__sentences
 
     @sentences.setter
-    def sentences(self, sentences: str):
+    def sentences(self, sentences: list["Sentence"]):
         self.__sentences = sentences
 
     @property
@@ -42,3 +42,6 @@ class Document:
         return [
             morpheme for sentence in self.sentences for morpheme in sentence.morphemes
         ]
+
+    def to_jumanpp(self) -> str:
+        return "\n".join(sentence.to_jumanpp() for sentence in self.sentences)

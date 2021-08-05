@@ -6,20 +6,20 @@ if TYPE_CHECKING:
 
 
 class Phrase:
-    def __init__(self, chunk: Chunk, analysis: str):
-        self.document = chunk.document
-        self.sentence = chunk.sentence
-        self.clause = chunk.clause
-        self.chunk = chunk
+    def __init__(self, parent: "Chunk", analysis: str):
+        self.document = parent.document
+        self.sentence = parent.sentence
+        self.clause = parent.clause
+        self.chunk = parent
 
         self.__analysis = analysis
 
-        self.__morphemes: list[Morpheme] = None
+        self.__morphemes: list["Morpheme"] = None
 
     @property
     def morphemes(self):
         return self.__morphemes
 
     @morphemes.setter
-    def morphemes(self, morphemes: list[Morpheme]):
+    def morphemes(self, morphemes: list["Morpheme"]):
         self.__morphemes = morphemes

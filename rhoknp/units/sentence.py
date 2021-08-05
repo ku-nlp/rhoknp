@@ -7,12 +7,12 @@ if TYPE_CHECKING:
 
 
 class Sentence:
-    def __init__(self, document: Document):
-        self.document = document
+    def __init__(self, parent: "Document"):
+        self.document = parent
 
         self.__text: str = None
-        self.__clauses: list[Clause] = None
-        self.__morphemes: list[Morpheme] = None
+        self.__clauses: list["Clause"] = None
+        self.__morphemes: list["Morpheme"] = None
 
     @property
     def text(self):
@@ -39,5 +39,8 @@ class Sentence:
         return self.__morphemes
 
     @morphemes.setter
-    def morphemes(self, morphemes: list[Morpheme]):
+    def morphemes(self, morphemes: list["Morpheme"]):
         self.__morphemes = morphemes
+
+    def to_jumanpp(self):
+        return "\n".join(morpheme.to_jumanpp() for morpheme in self.morphemes) + "\nEOS"

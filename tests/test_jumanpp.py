@@ -2,7 +2,7 @@ from subprocess import PIPE, Popen
 
 import pytest
 
-# from rhoknp import parse, load_jumanpp
+from rhoknp import load_jumanpp
 
 JMN = ["jumanpp"]
 
@@ -26,6 +26,5 @@ EOS"""
     ],
 )
 def test_jumanpp_load(jumanpp: str):
-    pass
-    # doc = load_jumanpp(jumanpp)
-    # assert analysis == doc.to_jumanpp()
+    doc = load_jumanpp(jumanpp)
+    assert jumanpp == doc.to_jumanpp()
