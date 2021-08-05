@@ -1,12 +1,15 @@
 from typing import TYPE_CHECKING
 
+from rhoknp.units.unit import Unit
+
 if TYPE_CHECKING:
     from rhoknp.rhoknp import Parser
     from rhoknp.units.sentence import Sentence
 
 
-class Document:
+class Document(Unit):
     def __init__(self):
+        super().__init__(self)
         self.__parser: "Parser" = None
 
         self.__text: str = None

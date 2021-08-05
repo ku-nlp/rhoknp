@@ -1,13 +1,15 @@
 from typing import TYPE_CHECKING
 
+from rhoknp.units.unit import Unit
+
 if TYPE_CHECKING:
     from rhoknp.units.chunk import Chunk
     from rhoknp.units.morpheme import Morpheme
 
 
-class Phrase:
+class Phrase(Unit):
     def __init__(self, parent: "Chunk", analysis: str):
-        self.document = parent.document
+        super().__init__(parent.document)
         self.sentence = parent.sentence
         self.clause = parent.clause
         self.chunk = parent

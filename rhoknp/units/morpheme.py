@@ -2,22 +2,22 @@ from typing import TYPE_CHECKING, Union
 
 from rhoknp.units.phrase import Phrase
 from rhoknp.units.sentence import Sentence
+from rhoknp.units.unit import Unit
 
 if TYPE_CHECKING:
     from rhoknp.units.chunk import Chunk
     from rhoknp.units.clause import Clause
 
 
-class Morpheme:
+class Morpheme(Unit):
     def __init__(self, parent: Union[Sentence, Phrase], analysis: str):
+        super().__init__(parent.document)
         if isinstance(parent, Sentence):
-            self.document = parent.document
             self.sentence = parent
             self.__clause = None
             self.__chunk = None
             self.__phrase = None
         elif isinstance(parent, Phrase):
-            self.document = parent.document
             self.sentence = parent.sentence
             self.__clause = parent.clause
             self.__chunk = parent.chunk

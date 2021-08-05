@@ -1,14 +1,16 @@
 from typing import TYPE_CHECKING
 
+from rhoknp.units.unit import Unit
+
 if TYPE_CHECKING:
     from rhoknp.units.clause import Clause
     from rhoknp.units.document import Document
     from rhoknp.units.morpheme import Morpheme
 
 
-class Sentence:
+class Sentence(Unit):
     def __init__(self, parent: "Document"):
-        self.document = parent
+        super().__init__(parent.document)
 
         self.__text: str = None
         self.__clauses: list["Clause"] = None
