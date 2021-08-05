@@ -1,13 +1,25 @@
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from rhoknp.rhoknp import Parser
     from rhoknp.units.sentence import Sentence
 
 
 class Document:
     def __init__(self):
+        self.__parser: "Parser" = None
+
         self.__text: str = None
+
         self.__sentences: list["Sentence"] = None
+
+    @property
+    def parser(self) -> "Parser":
+        return self.__parser
+
+    @parser.setter
+    def parser(self, parser: "Parser"):
+        self.__parser = parser
 
     @property
     def text(self):
