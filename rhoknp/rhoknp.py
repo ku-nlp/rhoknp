@@ -3,7 +3,9 @@ from rhoknp.utils import Format
 
 
 def parse(text: str) -> Document:
-    return Document()
+    doc = Document()
+    doc.text = text
+    return doc
 
 
 def load(analysis: str, fmt: Format) -> Document:
