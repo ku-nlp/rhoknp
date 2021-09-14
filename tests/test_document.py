@@ -57,6 +57,6 @@ def test_document_from_sentence(text: str):
 @pytest.mark.parametrize("texts", [["天気がいいので散歩した。"], ["。"]])
 def test_document_from_sentences(texts: list[str]):
     doc_from_sentences = Document.from_sentences([Sentence.from_string(text) for text in texts])
-    doc_from_strings = Document.from_sentences(texts)
+    doc_from_sentence_strings = Document.from_sentences(texts)
     assert doc_from_sentences.text == ''.join(texts)
-    assert doc_from_strings.text == ''.join(texts)
+    assert doc_from_sentence_strings.text == ''.join(texts)
