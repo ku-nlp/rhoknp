@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Union
+from typing import TYPE_CHECKING, Union, List
 
 from rhoknp.units.unit import Unit
 from rhoknp.units.sentence import Sentence
@@ -66,4 +66,17 @@ class Document(Unit):
         sentence.document = doc
         doc.sentences = [sentence]
         doc.text = str(sentence)
+        return doc
+
+    @classmethod
+    def from_sentences(cls, sentences: List[Union[Sentence, str]]) -> "Document":
+        doc = cls()
+        sents = []
+        for sentence in sentences:
+            if isinstance(sentence, str):
+                sentence = Sentence.from_string(sentence)
+            sentence.document = doc
+            sents.append(sentence)
+        doc.sentences = sentences
+        doc.text = ''.join(str(s) for s in sentences)
         return doc
