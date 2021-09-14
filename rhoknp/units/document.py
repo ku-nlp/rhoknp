@@ -10,19 +10,9 @@ if TYPE_CHECKING:
 class Document(Unit):
     def __init__(self):
         super().__init__(self)
-        self.__parser: "Parser" = None
-
         self.__text: str = None
 
         self.__sentences: list["Sentence"] = None
-
-    @property
-    def parser(self) -> "Parser":
-        return self.__parser
-
-    @parser.setter
-    def parser(self, parser: "Parser"):
-        self.__parser = parser
 
     @property
     def text(self):
@@ -60,3 +50,9 @@ class Document(Unit):
 
     def to_jumanpp(self) -> str:
         return "\n".join(sentence.to_jumanpp() for sentence in self.sentences)
+
+    @classmethod
+    def from_string(cls, text: str) -> "Document":
+        doc = cls()
+        doc.text = text
+        return doc

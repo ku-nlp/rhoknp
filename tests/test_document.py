@@ -2,7 +2,7 @@ from dataclasses import astuple, dataclass
 
 import pytest
 
-# from rhoknp import load_knp
+from rhoknp.units import Document
 
 
 @dataclass
@@ -33,7 +33,13 @@ cases = [
 
 
 @pytest.mark.parametrize("knp,text", [astuple(case) for case in cases])
-def test_document(knp: str, text: str):
+def test_document_from_knp(knp: str, text: str):
     # doc = load_knp(knp)
     # assert text == doc.text
     pass
+
+
+@pytest.mark.parametrize("text", ["天気がいいので散歩した。", "。"])
+def test_document_from_string(text: str):
+    doc = Document.from_string(text)
+    assert doc.text == text
