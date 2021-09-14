@@ -28,3 +28,7 @@ class Chunk(Unit):
     @property
     def morphemes(self):
         return [morpheme for phrase in self.phrases for morpheme in phrase.morphemes]
+
+    @property
+    def child_units(self):
+        return self.__phrases

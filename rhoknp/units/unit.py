@@ -7,4 +7,7 @@ if TYPE_CHECKING:
 class Unit:
     def __init__(self, parent_unit: Optional["Unit"]):
         self.parent_unit = parent_unit
-        self.__text = None
+
+    @property
+    def child_units(self) -> Optional[list["Unit"]]:
+        raise NotImplementedError
