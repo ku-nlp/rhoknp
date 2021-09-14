@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
 class Morpheme(Unit):
     def __init__(self, parent: Union[Sentence, Phrase], analysis: str):
-        super().__init__(parent.document)
+        super().__init__(parent)
         if isinstance(parent, Sentence):
             self.sentence = parent
             self.__clause = None

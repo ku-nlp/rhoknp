@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from rhoknp.units.unit import Unit
 
@@ -9,8 +9,8 @@ if TYPE_CHECKING:
 
 
 class Sentence(Unit):
-    def __init__(self, parent: "Document"):
-        super().__init__(parent.document)
+    def __init__(self, document: Optional["Document"] = None):
+        super().__init__(document)
 
         self.__text: str = None
         self.__clauses: list["Clause"] = None
@@ -46,3 +46,12 @@ class Sentence(Unit):
 
     def to_jumanpp(self):
         return "\n".join(morpheme.to_jumanpp() for morpheme in self.morphemes) + "\nEOS"
+
+    @classmethod
+    def from_string(cls, text: str) -> "Sentence":
+        sent = cls()
+        sent.text = text
+        return sent
+
+    def __str__(self) -> str:
+        return self.__text

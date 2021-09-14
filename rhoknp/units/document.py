@@ -1,6 +1,7 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Union
 
 from rhoknp.units.unit import Unit
+from rhoknp.units.sentence import Sentence
 
 if TYPE_CHECKING:
     from rhoknp.rhoknp import Parser
@@ -55,4 +56,14 @@ class Document(Unit):
     def from_string(cls, text: str) -> "Document":
         doc = cls()
         doc.text = text
+        return doc
+
+    @classmethod
+    def from_sentence(cls, sentence: Union[Sentence, str]) -> "Document":
+        doc = cls()
+        if isinstance(sentence, str):
+            sentence = Sentence.from_string(sentence)
+        sentence.document = doc
+        doc.sentences = [sentence]
+        doc.text = str(sentence)
         return doc

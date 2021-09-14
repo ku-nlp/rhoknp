@@ -3,6 +3,7 @@ from dataclasses import astuple, dataclass
 import pytest
 
 from rhoknp.units import Document
+from rhoknp.units import Sentence
 
 
 @dataclass
@@ -43,3 +44,11 @@ def test_document_from_knp(knp: str, text: str):
 def test_document_from_string(text: str):
     doc = Document.from_string(text)
     assert doc.text == text
+
+
+@pytest.mark.parametrize("text", ["天気がいいので散歩した。", "。"])
+def test_document_from_sentence(text: str):
+    doc_from_str = Document.from_sentence(text)
+    doc_from_sentence = Document.from_sentence(Sentence.from_string(text))
+    assert doc_from_str.text == text
+    assert doc_from_sentence.text == text
