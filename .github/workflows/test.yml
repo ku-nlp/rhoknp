@@ -9,7 +9,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: kunlp/jumanpp
+    container: nobug5c9/jumanpp-knp
     strategy:
       max-parallel: 4
       matrix:
@@ -19,7 +19,9 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
     - name: Install required apk packages
-      run: apk add curl python3
+      run: |
+        apt update
+        apt install curl python3-pip
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
