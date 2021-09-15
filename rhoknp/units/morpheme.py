@@ -32,7 +32,12 @@ class Morpheme(Unit):
         self.conjform_ = int(parts[10])
         self.features = {}
         for feature in parts[11].strip('"').split(" "):
-            key, value = feature.split(":")
+            if feature == "NIL":
+                break
+            if ":" in feature:
+                key, value = feature.split(":", maxsplit=1)
+            else:
+                key, value = feature, True
             self.features[key] = value
 
     def __str__(self) -> str:
@@ -43,7 +48,10 @@ class Morpheme(Unit):
         return None
 
     def to_jumanpp(self) -> str:
-        features = [f"{key}:{value}" for key, value in self.features.items()]
+        features = [
+            key if isinstance(value, bool) else f"{key}:{value}"
+            for key, value in self.features.items()
+        ]
         if len(features) > 0:
             features = '"' + " ".join(features) + '"'
         else:
