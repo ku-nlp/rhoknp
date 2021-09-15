@@ -19,7 +19,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
     - name: Install required apk packages
-      run: apk add curl python3-pip
+      run: apk add curl python3
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
