@@ -5,7 +5,7 @@ description = "Yet another Jumanpp/KNP binding for Python"
 authors = ["Hirokazu Kiyomaru <h.kiyomaru@gmail.com>"]
 
 [tool.poetry.dependencies]
-python = ">=3.8,<3.10"
+python = ">=3.9,<3.10"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
