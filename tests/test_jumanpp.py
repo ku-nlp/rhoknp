@@ -24,6 +24,5 @@ EOS"""
     ],
 )
 def test_jumanpp_load(jumanpp: str):
-    # doc = load_jumanpp(jumanpp)
-    # assert jumanpp == doc.to_jumanpp()
-    pass
+    doc = Document.from_jumanpp(jumanpp)
+    assert jumanpp == doc.to_jumanpp()
