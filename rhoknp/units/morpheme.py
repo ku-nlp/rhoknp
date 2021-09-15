@@ -1,7 +1,5 @@
-from typing import Union, TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
-from rhoknp.units.phrase import Phrase
-# from rhoknp.units.sentence import Sentence
 from rhoknp.units.unit import Unit
 
 if TYPE_CHECKING:
@@ -9,20 +7,14 @@ if TYPE_CHECKING:
 
 
 class Morpheme(Unit):
-    def __init__(self, parent: Union["Sentence", Phrase], analysis: str):
-        super().__init__(parent)
-        # if isinstance(parent, Sentence):
-        self.sentence = parent
+    def __init__(self, analysis: str, sentence: Optional["Sentence"] = None):
+        super().__init__(sentence)
+        self.analysis = analysis
+
+        self.sentence = self.parent_unit
         self.clause = None
         self.chunk = None
         self.phrase = None
-        # elif isinstance(parent, Phrase):
-        #     self.sentence = parent.sentence
-        #     self.clause = parent.clause
-        #     self.chunk = parent.chunk
-        #     self.phrase = parent
-
-        self.analysis = analysis
 
         parts = self.analysis.split(" ", maxsplit=11)
 

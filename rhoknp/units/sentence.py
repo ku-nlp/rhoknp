@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, Optional
 
-from rhoknp.units.unit import Unit
 from rhoknp.units.morpheme import Morpheme
+from rhoknp.units.unit import Unit
 
 if TYPE_CHECKING:
     from rhoknp.units.clause import Clause
@@ -48,7 +48,7 @@ class Sentence(Unit):
         for line in jumanpp_text.split("\n"):
             if line.strip() == "EOS":
                 break
-            morphemes.append(Morpheme(sent, line))
+            morphemes.append(Morpheme(line, sent))
         sent.morphemes = morphemes
         sent.text = "".join(str(m) for m in morphemes)
         return sent
