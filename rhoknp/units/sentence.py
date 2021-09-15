@@ -18,6 +18,7 @@ class Sentence(Unit):
         self.index = self.count
 
         self.__text: str = None
+        self.comment: str = None
         self.clauses: list["Clause"] = None
         self.morphemes: list["Morpheme"] = None
 
@@ -45,7 +46,13 @@ class Sentence(Unit):
         self.__text = text
 
     def to_jumanpp(self):
-        return "\n".join(morpheme.to_jumanpp() for morpheme in self.morphemes) + "\nEOS"
+        jumanpp_text = ""
+        if self.comment is not None:
+            jumanpp_text += self.comment + "\n"
+        jumanpp_text += (
+            "\n".join(morpheme.to_jumanpp() for morpheme in self.morphemes) + "\nEOS"
+        )
+        return jumanpp_text
 
     @classmethod
     def from_string(
@@ -60,8 +67,15 @@ class Sentence(Unit):
         cls, jumanpp_text: str, document: Optional["Document"] = None
     ) -> "Sentence":
         sentence = cls(document)
+
+        if jumanpp_text.startswith("#"):
+            comment, jumanpp_text = jumanpp_text.split("\n", maxsplit=1)
+            sentence.comment = comment
+
         morphemes = []
         for line in jumanpp_text.split("\n"):
+            if line.startswith("#"):
+                continue
             if line.strip() == "EOS":
                 break
             morphemes.append(Morpheme(line, sentence))
