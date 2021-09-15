@@ -16,7 +16,10 @@ jobs:
         python-version: [3.9]
 
     steps:
-    - uses: actions/checkout@v2
+    - name: Checkout repository
+      uses: actions/checkout@v2
+    - name: Install required apk packages
+      run: apk add curl python3-pip
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
