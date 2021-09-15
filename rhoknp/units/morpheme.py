@@ -31,9 +31,16 @@ class Morpheme(Unit):
         self.conjform = parts[9]
         self.conjform_ = int(parts[10])
         self.features = {}
-        for feat in parts[11].strip('"').split(" "):
-            key, value = feat.split(":")
+        for feature in parts[11].strip('"').split(" "):
+            key, value = feature.split(":")
             self.features[key] = value
+
+    def __str__(self) -> str:
+        return self.text
+
+    @property
+    def child_units(self) -> Optional[list["Unit"]]:
+        return None
 
     def to_jumanpp(self) -> str:
         features = [f"{key}:{value}" for key, value in self.features.items()]

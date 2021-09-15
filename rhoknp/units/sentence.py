@@ -16,17 +16,22 @@ class Sentence(Unit):
         self.clauses: list["Clause"] = None
         self.morphemes: list["Morpheme"] = None
 
+    def __str__(self) -> str:
+        return self.text
+
+    @property
+    def child_units(self) -> Optional[list["Unit"]]:
+        if self.clauses is not None:
+            return self.clauses
+        else:
+            return self.morphemes
+
     @property
     def text(self):
         if self.__text is not None:
             return self.__text
         else:
-            return "".join(str(m) for m in self.morphemes)
-
-    # @property
-    # def text(self):
-    #     if self.child_units is not None:
-    #         return "".join(str(m) for m in self.child_units)
+            return "".join(str(child_unit) for child_unit in self.child_units)
 
     @text.setter
     def text(self, text: str):
@@ -36,22 +41,22 @@ class Sentence(Unit):
         return "\n".join(morpheme.to_jumanpp() for morpheme in self.morphemes) + "\nEOS"
 
     @classmethod
-    def from_string(cls, text: str) -> "Sentence":
-        sent = cls()
-        sent.text = text
-        return sent
+    def from_string(
+        cls, text: str, document: Optional["Document"] = None
+    ) -> "Sentence":
+        sentence = cls(document)
+        sentence.text = text
+        return sentence
 
     @classmethod
-    def from_jumanpp(cls, jumanpp_text: str) -> "Sentence":
-        sent = cls()
+    def from_jumanpp(
+        cls, jumanpp_text: str, document: Optional["Document"] = None
+    ) -> "Sentence":
+        sentence = cls(document)
         morphemes = []
         for line in jumanpp_text.split("\n"):
             if line.strip() == "EOS":
                 break
-            morphemes.append(Morpheme(line, sent))
-        sent.morphemes = morphemes
-        sent.text = "".join(str(m) for m in morphemes)
-        return sent
-
-    def __str__(self) -> str:
-        return self.__text
+            morphemes.append(Morpheme(line, sentence))
+        sentence.morphemes = morphemes
+        return sentence

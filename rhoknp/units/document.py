@@ -9,14 +9,21 @@ class Document(Unit):
         super().__init__(self)
         self.__text: str = None
 
-        self.__sentences: list["Sentence"] = None
+        self.__sentences: list[Sentence] = None
+
+    def __str__(self) -> str:
+        return self.text
+
+    @property
+    def child_units(self) -> list[Sentence]:
+        return self.sentences
 
     @property
     def text(self):
         if self.__text is not None:
             return self.__text
         else:
-            return "".join(str(m) for m in self.morphemes)
+            return "".join(str(child_unit) for child_unit in self.child_units)
 
     @text.setter
     def text(self, text: str):
@@ -27,7 +34,7 @@ class Document(Unit):
         return self.__sentences
 
     @sentences.setter
-    def sentences(self, sentences: list["Sentence"]):
+    def sentences(self, sentences: list[Sentence]):
         self.__sentences = sentences
 
     @property
@@ -53,29 +60,25 @@ class Document(Unit):
 
     @classmethod
     def from_string(cls, text: str) -> "Document":
-        doc = cls()
-        doc.text = text
-        return doc
+        document = cls()
+        document.text = text
+        return document
 
     @classmethod
     def from_sentence(cls, sentence: Union[Sentence, str]) -> "Document":
-        doc = cls()
+        document = cls()
         if isinstance(sentence, str):
-            sentence = Sentence.from_string(sentence)
-        sentence.document = doc
-        doc.sentences = [sentence]
-        doc.text = str(sentence)
-        return doc
+            sentence = Sentence.from_string(sentence, document)
+        document.sentences = [sentence]
+        return document
 
     @classmethod
     def from_sentences(cls, sentences: List[Union[Sentence, str]]) -> "Document":
-        doc = cls()
-        sents = []
+        document = cls()
+        sentences_ = []
         for sentence in sentences:
             if isinstance(sentence, str):
-                sentence = Sentence.from_string(sentence)
-            sentence.document = doc
-            sents.append(sentence)
-        doc.sentences = sentences
-        doc.text = "".join(str(s) for s in sentences)
-        return doc
+                sentence = Sentence.from_string(sentence, document)
+            sentences_.append(sentence)
+        document.sentences = sentences_
+        return document
