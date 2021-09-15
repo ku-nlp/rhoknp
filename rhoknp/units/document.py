@@ -1,11 +1,7 @@
-from typing import TYPE_CHECKING, Union, List
+from typing import List, Union
 
-from rhoknp.units.unit import Unit
 from rhoknp.units.sentence import Sentence
-
-if TYPE_CHECKING:
-    from rhoknp.rhoknp import Parser
-    from rhoknp.units.sentence import Sentence
+from rhoknp.units.unit import Unit
 
 
 class Document(Unit):
@@ -17,7 +13,10 @@ class Document(Unit):
 
     @property
     def text(self):
-        return self.__text
+        if self.__text is not None:
+            return self.__text
+        else:
+            return "".join(str(m) for m in self.morphemes)
 
     @text.setter
     def text(self, text: str):
@@ -78,5 +77,5 @@ class Document(Unit):
             sentence.document = doc
             sents.append(sentence)
         doc.sentences = sentences
-        doc.text = ''.join(str(s) for s in sentences)
+        doc.text = "".join(str(s) for s in sentences)
         return doc

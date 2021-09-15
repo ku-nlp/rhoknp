@@ -1,9 +1,8 @@
-import copy
-from subprocess import Popen, PIPE
-from typing import Union, Callable
+from subprocess import PIPE, Popen
+from typing import Callable, Union
 
+from rhoknp.processors.processor import Processor
 from rhoknp.units import Document, Sentence
-from .processor import Processor
 
 
 class Jumanpp(Processor):
@@ -11,12 +10,12 @@ class Jumanpp(Processor):
         super().__init__(executor)
 
     def apply(self, document: Document):
-        ret_document = copy.deepcopy(document)
+        ret_document = Document()
+        ret_document.text = document.text
         with Popen(self.executor, stdout=PIPE, stdin=PIPE, encoding="utf-8") as p:
             sentences = []
             for sentence in document.sentences:
                 out, _ = p.communicate(input=sentence.text)
                 sentences.append(Sentence.from_jumanpp(out))
             document.sentences = sentences
-            document.text = ''.join(str(s) for s in sentences)
         return ret_document
