@@ -1,5 +1,5 @@
-from subprocess import Popen, PIPE
 import copy
+from subprocess import Popen, PIPE
 from typing import Union, Callable
 
 from rhoknp.units import Document, Sentence
@@ -9,7 +9,6 @@ from .processor import Processor
 class Jumanpp(Processor):
     def __init__(self, executor: Union[Callable, str] = "jumanpp"):
         super().__init__(executor)
-        self.executor = executor
 
     def apply(self, document: Document):
         ret_document = copy.deepcopy(document)
@@ -20,5 +19,4 @@ class Jumanpp(Processor):
                 sentences.append(Sentence.from_jumanpp(out))
             document.sentences = sentences
             document.text = ''.join(str(s) for s in sentences)
-
         return ret_document

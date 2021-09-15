@@ -6,7 +6,7 @@ from rhoknp.units.document import Document
 
 class Processor(ABC):
     def __init__(self, executor: Union[Callable, str]):
-        pass
+        self.executor = executor
 
     def apply(self, document: Document) -> Document:
         """Apply document processing
