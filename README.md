@@ -1,1 +1,1 @@
-# rhoknp: Yet another Jumanpp/KNP binding for Python
+# rhoknp: Yet another Python binding for Jumanpp/KNP
