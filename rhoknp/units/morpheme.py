@@ -7,6 +7,9 @@ if TYPE_CHECKING:
 
 
 class Morpheme(Unit):
+
+    count = 0
+
     def __init__(self, analysis: str, sentence: Optional["Sentence"] = None):
         super().__init__(sentence)
         self.analysis = analysis
@@ -18,7 +21,8 @@ class Morpheme(Unit):
 
         parts = self.analysis.split(" ", maxsplit=11)
 
-        self.index = 0  # TODO
+        self.index = self.count
+
         self.text = parts[0]
         self.reading = parts[1]
         self.lemma = parts[2]
@@ -39,6 +43,8 @@ class Morpheme(Unit):
             else:
                 key, value = feature, True
             self.features[key] = value
+
+        Morpheme.count += 1
 
     def __str__(self) -> str:
         return self.text

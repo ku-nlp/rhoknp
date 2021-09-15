@@ -9,12 +9,19 @@ if TYPE_CHECKING:
 
 
 class Sentence(Unit):
+
+    count = 0
+
     def __init__(self, document: Optional["Document"] = None):
         super().__init__(document)
+
+        self.index = self.count
 
         self.__text: str = None
         self.clauses: list["Clause"] = None
         self.morphemes: list["Morpheme"] = None
+
+        Sentence.count += 1
 
     def __str__(self) -> str:
         return self.text

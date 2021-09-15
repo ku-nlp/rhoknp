@@ -27,4 +27,5 @@ EOS""",
 def test_morpheme(jumanpp: str, texts: list[str]):
     document = Document.from_jumanpp(jumanpp)
     for i, morpheme in enumerate(document.morphemes):
+        assert i == morpheme.index
         assert texts[i] == morpheme.text

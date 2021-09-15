@@ -1,5 +1,6 @@
 from typing import List, Union
 
+from rhoknp.units.morpheme import Morpheme
 from rhoknp.units.sentence import Sentence
 from rhoknp.units.unit import Unit
 
@@ -7,8 +8,11 @@ from rhoknp.units.unit import Unit
 class Document(Unit):
     def __init__(self):
         super().__init__(self)
-        self.__text: str = None
 
+        Sentence.count = 0
+        Morpheme.count = 0
+
+        self.__text: str = None
         self.__sentences: list[Sentence] = None
 
     def __str__(self) -> str:

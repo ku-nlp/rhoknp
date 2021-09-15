@@ -1,7 +1,4 @@
-from typing import TYPE_CHECKING, Optional
-
-if TYPE_CHECKING:
-    from rhoknp.units.document import Document
+from typing import Optional
 
 
 class Unit:
