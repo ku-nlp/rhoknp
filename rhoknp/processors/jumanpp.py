@@ -2,7 +2,7 @@ from subprocess import PIPE, Popen
 from typing import Callable, Union
 
 from rhoknp.processors.processor import Processor
-from rhoknp.units import Document, Sentence
+from rhoknp.units import Document
 
 
 class Jumanpp(Processor):
@@ -10,12 +10,10 @@ class Jumanpp(Processor):
         super().__init__(executor)
 
     def apply(self, document: Document):
-        ret_document = Document()
-        ret_document.text = document.text
+        jumanpp_text = ""
         with Popen(self.executor, stdout=PIPE, stdin=PIPE, encoding="utf-8") as p:
-            sentences = []
             for sentence in document.sentences:
                 out, _ = p.communicate(input=sentence.text)
-                sentences.append(Sentence.from_jumanpp(out))
-            document.sentences = sentences
+                jumanpp_text += out
+        ret_document = Document.from_jumanpp(jumanpp_text)
         return ret_document

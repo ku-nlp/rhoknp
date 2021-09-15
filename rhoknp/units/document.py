@@ -82,3 +82,15 @@ class Document(Unit):
             sentences_.append(sentence)
         document.sentences = sentences_
         return document
+
+    @classmethod
+    def from_jumanpp(cls, jumanpp_text: str) -> "Document":
+        document = cls()
+        sentences = []
+        for jumanpp_text_sentence in jumanpp_text.split("EOS"):
+            jumanpp_text_sentence = jumanpp_text_sentence.strip()
+            if not jumanpp_text_sentence:
+                continue
+            sentences.append(Sentence.from_jumanpp(jumanpp_text_sentence, document))
+        document.sentences = sentences
+        return document
