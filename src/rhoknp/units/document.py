@@ -91,10 +91,25 @@ class Document(Unit):
     def from_jumanpp(cls, jumanpp_text: str) -> "Document":
         document = cls()
         sentences = []
-        for jumanpp_text_sentence in jumanpp_text.split("EOS"):
+        for jumanpp_text_sentence in jumanpp_text.split(Sentence.EOS):
             jumanpp_text_sentence = jumanpp_text_sentence.strip()
             if not jumanpp_text_sentence:
                 continue
             sentences.append(Sentence.from_jumanpp(jumanpp_text_sentence, document))
+        document.sentences = sentences
+        return document
+
+    @classmethod
+    def from_knp(cls, knp_text: str) -> "Document":
+        document = cls()
+        sentences = []
+        sentence_lines: list[str] = []
+        for line in knp_text.split("\n"):
+            if line.strip() == "":
+                continue
+            sentence_lines.append(line)
+            if line.strip() == Sentence.EOS:
+                sentences.append(Sentence.from_knp("\n".join(sentence_lines) + "\n", parent=document))
+                sentence_lines = []
         document.sentences = sentences
         return document
