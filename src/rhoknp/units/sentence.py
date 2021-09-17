@@ -51,7 +51,7 @@ class Sentence(Unit):
         if self.comment is not None:
             jumanpp_text += self.comment + "\n"
         jumanpp_text += (
-            "\n".join(morpheme.to_jumanpp() for morpheme in self.morphemes) + "\nEOS"
+            "\n".join(morpheme.to_jumanpp() for morpheme in self.morphemes) + "\n" + self.EOS
         )
         return jumanpp_text
 
@@ -77,7 +77,7 @@ class Sentence(Unit):
         for line in jumanpp_text.split("\n"):
             if line.startswith("#"):
                 continue
-            if line.strip() == "EOS":
+            if line.strip() == cls.EOS:
                 break
             morphemes.append(Morpheme(line, sentence))
         sentence.morphemes = morphemes
