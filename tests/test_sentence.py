@@ -38,3 +38,9 @@ EOS
 def test_sentence_from_knp(knp: str, text: str):
     sentence = Sentence.from_knp(knp)
     assert sentence.text == text
+
+
+@pytest.mark.parametrize("text", ["天気がいいので散歩した。", "。"])
+def test_sentence_from_string(text: str):
+    doc = Sentence.from_string(text)
+    assert doc.text == text
