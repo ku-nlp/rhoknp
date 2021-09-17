@@ -1,15 +1,16 @@
+import re
 from typing import TYPE_CHECKING, Optional
 
 from .unit import Unit
 from rhoknp.units.morpheme import Morpheme
+from rhoknp.units.clause import Clause
 
 if TYPE_CHECKING:
-    from rhoknp.units.clause import Clause
     from rhoknp.units.document import Document
 
 
 class Sentence(Unit):
-
+    EOS = "EOS"
     count = 0
 
     def __init__(self, document: Optional["Document"] = None):
@@ -80,4 +81,40 @@ class Sentence(Unit):
                 break
             morphemes.append(Morpheme(line, sentence))
         sentence.morphemes = morphemes
+        return sentence
+
+    @classmethod
+    def from_knp(
+        cls, knp_text: str, parent: Optional["Document"] = None
+    ) -> "Sentence":
+        sentence = cls(parent)
+        clauses: list[Clause] = []
+        clause_lines: list[str] = []
+        for line in knp_text.split("\n"):
+            if line.strip() == "":
+                continue
+            if line.startswith("#"):
+                if sentence.comment:
+                    sentence.comment += "\n" + line
+                else:
+                    sentence.comment = line
+                match = re.match(r"# S-ID: ?(\S*)( .+)?$", sentence.comment)
+                if match:
+                    sentence.sid = match.group(1)
+                continue
+            if line.startswith(";;"):
+                raise Exception(f"Error: {line}")
+            if line.strip() == cls.EOS:
+                clause = Clause.from_knp("\n".join(clause_lines), parent=sentence)
+                clauses.append(clause)
+                break
+            # TODO: find clause boundary
+            if line.startswith("*"):
+                if clause_lines:
+                    clause = Clause.from_knp("\n".join(clause_lines), parent=sentence)
+                    clauses.append(clause)
+                    clause_lines = []
+            clause_lines.append(line)
+
+        sentence.clauses = clauses
         return sentence
