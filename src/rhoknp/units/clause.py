@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from rhoknp.units.unit import Unit
+from .unit import Unit
 
 if TYPE_CHECKING:
     from rhoknp.units.chunk import Chunk

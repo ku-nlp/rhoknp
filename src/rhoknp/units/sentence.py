@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, Optional
 
+from .unit import Unit
 from rhoknp.units.morpheme import Morpheme
-from rhoknp.units.unit import Unit
 
 if TYPE_CHECKING:
     from rhoknp.units.clause import Clause

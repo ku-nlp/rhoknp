@@ -1,6 +1,6 @@
 import re
 
-from rhoknp.processors.processor import Processor
+from .processor import Processor
 from rhoknp.units.document import Document
 
 
@@ -35,16 +35,16 @@ class RegexSenter(Processor):
         candidates = []
         for line in text.split("\n"):
             candidates += re.findall(regex, line + "\n")
-        candidates = self.merge_candidates(candidates)
-        return self.clean_up_candidates(candidates)
+        candidates = self._merge_candidates(candidates)
+        return self._clean_up_candidates(candidates)
 
-    def merge_candidates(self, candidates: list[str]) -> list[str]:
+    def _merge_candidates(self, candidates: list[str]) -> list[str]:
         """Merge sentence candidates."""
-        candidates = self.merge_single_periods(candidates)
-        candidates = self.merge_parenthesis(candidates)
+        candidates = self._merge_single_periods(candidates)
+        candidates = self._merge_parenthesis(candidates)
         return candidates
 
-    def merge_single_periods(self, candidates: list[str]) -> list[str]:
+    def _merge_single_periods(self, candidates: list[str]) -> list[str]:
         """Merge sentence candidates that consist of just a single period."""
         regex = re.compile(f"^[{self.PERIODS}]$")
         merged_candidates = [""]
@@ -57,7 +57,8 @@ class RegexSenter(Processor):
             merged_candidates.pop(0)  # remove the dummy sentence
         return merged_candidates
 
-    def merge_parenthesis(self, sentence_candidates: list[str]) -> list[str]:
+    @staticmethod
+    def _merge_parenthesis(sentence_candidates: list[str]) -> list[str]:
         """Merge sentence candidates so that strings in parentheses or
         brackets are not split.
         """
@@ -95,7 +96,8 @@ class RegexSenter(Processor):
             merged_candidates.append(prefix)
         return merged_candidates
 
-    def clean_up_candidates(self, sentence_candidates: list[str]) -> list[str]:
+    @staticmethod
+    def _clean_up_candidates(sentence_candidates: list[str]) -> list[str]:
         """Remove empty sentence candidates."""
         return [
             sentence_candidate.strip()

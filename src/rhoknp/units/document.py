@@ -1,8 +1,8 @@
 from typing import List, Union
 
+from .unit import Unit
 from rhoknp.units.morpheme import Morpheme
 from rhoknp.units.sentence import Sentence
-from rhoknp.units.unit import Unit
 
 
 class Document(Unit):
