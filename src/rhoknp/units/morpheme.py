@@ -41,7 +41,7 @@ class Morpheme(Unit):
     # language=RegExp
     _SEMANTICS_PATTERN: str = r'(?P<sems>("([^"]|\\")+?")|NIL)'
     JUMANPP_PATTERN: re.Pattern = re.compile(
-        rf"^({MorphemeAttributes.JUMANPP_PATTERN.pattern})\s({_SEMANTICS_PATTERN})(\s{Features.PATTERN.pattern})?$"
+        rf"^({MorphemeAttributes.JUMANPP_PATTERN.pattern})(\s{_SEMANTICS_PATTERN})?(\s{Features.PATTERN.pattern})?$"
     )
 
     count = 0
@@ -108,7 +108,7 @@ class Morpheme(Unit):
         if match is None:
             raise ValueError(f"malformed line: {jumanpp_text}")
         attributes = MorphemeAttributes.from_jumanpp(match.group("attrs"))
-        semantics: str = match.group("sems").strip('"')
+        semantics: str = (match.group("sems") or "").strip('"')
         features = Features.from_fstring(match.group("feats") or "")
         return cls(attributes, semantics, features, sentence=sentence)
 
@@ -116,7 +116,7 @@ class Morpheme(Unit):
         ret = ""
         ret += self._attributes.to_jumanpp()
         if self.semantics:
-            ret += f' "{self.semantics}"'
+            ret += f' "{self.semantics}"' if self.semantics != "NIL" else " NIL"
         if self.features:
             ret += f" {self.features.to_fstring()}"
         return ret

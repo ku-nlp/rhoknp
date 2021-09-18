@@ -41,3 +41,21 @@ def test_morpheme_from_jumanpp(jumanpp: str, text: str):
 def test_morpheme_to_jumanpp(jumanpp: str, texts: list[str]):
     morpheme = Morpheme.from_jumanpp(jumanpp)
     assert morpheme.to_jumanpp() == jumanpp
+
+
+def test_morpheme_semantics():
+    jumanpp = '解析 かいせき 解析 名詞 6 サ変名詞 2 * 0 * 0 "代表表記:解析/かいせき カテゴリ:抽象物 ドメイン:教育・学習;科学・技術"'
+    morpheme = Morpheme.from_jumanpp(jumanpp)
+    assert morpheme.semantics == "代表表記:解析/かいせき カテゴリ:抽象物 ドメイン:教育・学習;科学・技術"
+
+
+def test_morpheme_semantics_nil():
+    jumanpp = "であり であり だ 判定詞 4 * 0 判定詞 25 デアル列基本連用形 18 NIL"
+    morpheme = Morpheme.from_jumanpp(jumanpp)
+    assert morpheme.semantics == "NIL"
+
+
+def test_morpheme_at():
+    jumanpp = "@ @ @ 未定義語 15 その他 1 * 0 * 0"
+    morpheme = Morpheme.from_jumanpp(jumanpp)
+    assert morpheme.text == "@"
