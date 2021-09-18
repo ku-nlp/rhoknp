@@ -1,7 +1,10 @@
-# rhoknp: Yet another Python binding for Jumanpp/KNP
+# rhoknp: Yet another Python binding for Juman++/KNP
 
 [![Run Test](https://github.com/ku-nlp/rhoknp/actions/workflows/test.yml/badge.svg)](https://github.com/ku-nlp/rhoknp/actions/workflows/test.yml)
 
+## Requirements
+- Juman++ v2.0.0-rc3+
+- KNP 5.0+
 
 ## What are the differences from pyknp?
 
