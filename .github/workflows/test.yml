@@ -1,4 +1,4 @@
-name: Run Test
+name: test
 
 on:
   push:
@@ -7,7 +7,8 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  test:
+    name: Run tests with pytest
     runs-on: ubuntu-latest
     container: nobug5c9/jumanpp
     strategy:
@@ -42,6 +43,15 @@ jobs:
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-    - name: Test with pytest
+    - name: Run tests
       run: |
-        poetry run pytest
+        poetry run pytest --cov=kenall --cov-branch -v ./tests/* --cov-report=xml
+    - name: Upload coverage to Codecov
+      if: ${{ matrix.python-version==3.9 }}
+      uses: codecov/codecov-action@v2
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: ./coverage.xml
+        name: codecov-umbrella
+        fail_ci_if_error: true
+        verbose: true
