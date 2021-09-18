@@ -8,11 +8,12 @@ class Features(dict):
     This class parses tags in features string and converts to a dictionary.
     ex. "<正規化代表表記:遅れる/おくれる>" --> {"正規化代表表記": "遅れる/おくれる"}
     """
-    KNP_PATTERN: re.Pattern = re.compile(r"<(?P<key>[^:]+?)(:(?P<value>.+?))?>")
+    PATTERN: re.Pattern = re.compile(r"(?P<feats>(<.+>)*)")
+    TAG_PATTERN: re.Pattern = re.compile(r"<(?P<key>[^:]+?)(:(?P<value>.+?))?>")
 
     def __init__(self, fstring: str):
         super().__init__()
-        for match in self.KNP_PATTERN.finditer(fstring):
+        for match in self.TAG_PATTERN.finditer(fstring):
             self[match.group("key")] = match.group("value") or True
 
     @classmethod

@@ -1,5 +1,5 @@
 import re
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, ClassVar
 from dataclasses import dataclass, fields, astuple
 
 from .unit import Unit
@@ -11,6 +11,8 @@ if TYPE_CHECKING:
 
 @dataclass(frozen=True)
 class MorphemeAttributes:
+    JUMANPP_PATTERN: ClassVar[re.Pattern] = re.compile(r"(?P<attrs>(\S+?\s){10}\S+?)")
+
     surf: str
     reading: str
     lemma: str
@@ -37,13 +39,9 @@ class MorphemeAttributes:
 
 class Morpheme(Unit):
     # language=RegExp
-    _ATTRIBUTES_PATTERN: str = r"(?P<attrs>(\S+?\s){10}\S+?)"
-    # language=RegExp
     _SEMANTICS_PATTERN: str = r'(?P<sems>("([^"]|\\")+?")|NIL)'
-    # language=RegExp
-    _FEATURES_PATTERN: str = r"(?P<feats>(<.+>)*)"
     JUMANPP_PATTERN: re.Pattern = re.compile(
-        rf"^({_ATTRIBUTES_PATTERN})\s({_SEMANTICS_PATTERN})(\s{_FEATURES_PATTERN})?$"
+        rf"^({MorphemeAttributes.JUMANPP_PATTERN.pattern})\s({_SEMANTICS_PATTERN})(\s{Features.PATTERN.pattern})?$"
     )
 
     count = 0

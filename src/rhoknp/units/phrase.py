@@ -25,7 +25,7 @@ class DepType(Enum):
 
 
 class Phrase(Unit):
-    KNP_PATTERN: re.Pattern = re.compile(r"^\+ (?P<pid>-1|\d+)(?P<dtype>[DPAI]) (?P<features>(<.+>)*)$")
+    KNP_PATTERN: re.Pattern = re.compile(fr"^\+ (?P<pid>-1|\d+)(?P<dtype>[DPAI]) {Features.PATTERN.pattern}$")
 
     def __init__(self, parent: "Chunk"):
         super().__init__(parent)
@@ -71,7 +71,7 @@ class Phrase(Unit):
                     raise ValueError(f"malformed line: {line}")
                 phrase.parent_id = int(match.group("pid"))
                 phrase.dep_type = DepType.value_of(match.group("dtype"))
-                phrase.features = Features(match.group("features"))
+                phrase.features = Features(match.group("feats"))
                 continue
             morpheme = Morpheme.from_jumanpp(line, phrase.sentence)
             morphemes.append(morpheme)

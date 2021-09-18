@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
 
 class Chunk(Unit):
-    KNP_PATTERN: re.Pattern = re.compile(r"^\* (?P<pid>-1|\d+)(?P<dtype>[DPAI]) (?P<features>(<.+>)*)$")
+    KNP_PATTERN: re.Pattern = re.compile(fr"^\* (?P<pid>-1|\d+)(?P<dtype>[DPAI]) {Features.PATTERN.pattern}$")
 
     def __init__(self, parent: "Clause"):
         super().__init__(parent)
@@ -65,7 +65,7 @@ class Chunk(Unit):
                     raise ValueError(f"malformed line: {line}")
                 chunk.parent_id = int(match.group("pid"))
                 chunk.dep_type = DepType.value_of(match.group("dtype"))
-                chunk.features = Features(match.group("features"))
+                chunk.features = Features(match.group("feats"))
                 continue
             if line.startswith("+"):
                 if phrase_lines:
