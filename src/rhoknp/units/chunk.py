@@ -62,7 +62,7 @@ class Chunk(Unit):
                 match = cls.KNP_PATTERN.match(line)
                 if match is None:
                     raise ValueError(f"malformed line: {line}")
-                chunk.parent_id = match["pid"]
+                chunk.parent_id = int(match["pid"])
                 chunk.dep_type = DepType.value_of(match["dtype"])
                 chunk.features = match["features"]
                 continue
