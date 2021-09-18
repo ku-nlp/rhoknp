@@ -73,7 +73,7 @@ class Phrase(Unit):
                 phrase.dep_type = DepType.value_of(match.group("dtype"))
                 phrase.features = Features(match.group("features"))
                 continue
-            morpheme = Morpheme(line, phrase.sentence)
+            morpheme = Morpheme.from_jumanpp(line, phrase.sentence)
             morphemes.append(morpheme)
         phrase.morphemes = morphemes
         return phrase

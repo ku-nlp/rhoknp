@@ -69,17 +69,16 @@ class Sentence(Unit):
     ) -> "Sentence":
         sentence = cls(document)
 
-        if jumanpp_text.startswith("#"):
-            comment, jumanpp_text = jumanpp_text.split("\n", maxsplit=1)
-            sentence.comment = comment
-
         morphemes = []
         for line in jumanpp_text.split("\n"):
             if line.startswith("#"):
-                continue
+                if sentence.comment:
+                    sentence.comment += "\n" + line
+                else:
+                    sentence.comment = line
             if line.strip() == cls.EOS:
                 break
-            morphemes.append(Morpheme(line, sentence))
+            morphemes.append(Morpheme.from_jumanpp(line, sentence))
         sentence.morphemes = morphemes
         return sentence
 
