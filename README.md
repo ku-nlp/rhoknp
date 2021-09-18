@@ -2,6 +2,7 @@
 
 [![Run Test](https://github.com/ku-nlp/rhoknp/actions/workflows/test.yml/badge.svg)](https://github.com/ku-nlp/rhoknp/actions/workflows/test.yml)
 [![codecov](https://codecov.io/gh/ku-nlp/rhoknp/branch/main/graph/badge.svg?token=29S0XMLTRG)](https://codecov.io/gh/ku-nlp/rhoknp)
+![License](http://img.shields.io/badge/license-MIT-blue.svg)
 
 ## Requirements
 - Juman++ v2.0.0-rc3+
