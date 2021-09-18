@@ -1,27 +1,12 @@
 from typing import TYPE_CHECKING, Optional
 import re
-from enum import Enum
 
 from .unit import Unit
-from rhoknp.units.phrase import Phrase
+from rhoknp.units.phrase import Phrase, DepType
 
 if TYPE_CHECKING:
     from rhoknp.units.clause import Clause
     from rhoknp.units.phrase import Phrase
-
-
-class DepType(Enum):
-    dependency = "D"
-    parallel = "P"
-    apposition = "A"
-    imperfect_parallel = "I"
-
-    @classmethod
-    def value_of(cls, val) -> "DepType":
-        for e in cls:
-            if e.value == val:
-                return e
-        raise ValueError(f'invalid dependency type name: {val}')
 
 
 class Chunk(Unit):

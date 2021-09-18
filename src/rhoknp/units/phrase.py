@@ -1,4 +1,6 @@
 from typing import TYPE_CHECKING, Optional
+import re
+from enum import Enum
 
 from .unit import Unit
 from rhoknp.units.morpheme import Morpheme
@@ -7,7 +9,23 @@ if TYPE_CHECKING:
     from rhoknp.units.chunk import Chunk
 
 
+class DepType(Enum):
+    dependency = "D"
+    parallel = "P"
+    apposition = "A"
+    imperfect_parallel = "I"
+
+    @classmethod
+    def value_of(cls, val) -> "DepType":
+        for e in cls:
+            if e.value == val:
+                return e
+        raise ValueError(f'invalid dependency type name: {val}')
+
+
 class Phrase(Unit):
+    KNP_PATTERN: re.Pattern = re.compile(r"^\+ (?P<pid>-1|\d+)(?P<dtype>[DPAI]) (?P<features>(<.+>)*)$")
+
     def __init__(self, parent: "Chunk"):
         super().__init__(parent)
         self.sentence = parent.sentence
@@ -15,6 +33,9 @@ class Phrase(Unit):
         self.chunk = parent
 
         self.__morphemes: list["Morpheme"] = None
+        self.parent_id: Optional[int] = None
+        self.dep_type: DepType = None
+        self.features: str = None
 
     def __str__(self) -> str:
         return self.text
@@ -44,7 +65,13 @@ class Phrase(Unit):
         morphemes: list[Morpheme] = []
         for line in knp_text.split("\n"):
             if line.startswith("+"):
-                continue  # TODO: extract feature
+                match = cls.KNP_PATTERN.match(line)
+                if match is None:
+                    raise ValueError(f"malformed line: {line}")
+                phrase.parent_id = match["pid"]
+                phrase.dep_type = DepType.value_of(match["dtype"])
+                phrase.features = match["features"]
+                continue
             morpheme = Morpheme(line, phrase.sentence)
             morphemes.append(morpheme)
         phrase.morphemes = morphemes
