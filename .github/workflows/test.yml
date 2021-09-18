@@ -19,6 +19,10 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
+    - name: Install required apt packages
+      run: |
+        apt update -y
+        apt install -y curl
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
