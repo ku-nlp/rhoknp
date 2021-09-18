@@ -69,8 +69,33 @@ class Morpheme(Unit):
         self.index = self.count
         Morpheme.count += 1
 
-    def __str__(self) -> str:
-        return self.text
+    @property
+    def surf(self) -> str:
+        return self._attributes.surf
+
+    @property
+    def reading(self) -> str:
+        return self._attributes.reading
+
+    @property
+    def lemma(self) -> str:
+        return self._attributes.lemma
+
+    @property
+    def pos(self) -> str:
+        return self._attributes.pos
+
+    @property
+    def subpos(self) -> str:
+        return self._attributes.subpos
+
+    @property
+    def conjtype(self) -> str:
+        return self._attributes.conjtype
+
+    @property
+    def conjform(self) -> str:
+        return self._attributes.conjform
 
     @property
     def child_units(self) -> Optional[list["Unit"]]:
@@ -97,3 +122,6 @@ class Morpheme(Unit):
         if self.features:
             ret += f" {self.features.to_fstring()}"
         return ret
+
+    def __str__(self) -> str:
+        return self.text
