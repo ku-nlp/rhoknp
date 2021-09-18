@@ -9,7 +9,7 @@ if TYPE_CHECKING:
     from rhoknp.units.sentence import Sentence
 
 
-@dataclass
+@dataclass(frozen=True)
 class MorphemeAttributes:
     surf: str
     reading: str
