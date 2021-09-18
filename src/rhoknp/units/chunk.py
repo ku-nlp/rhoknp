@@ -3,6 +3,7 @@ import re
 
 from .unit import Unit
 from rhoknp.units.phrase import Phrase, DepType
+from rhoknp.utils.features import Features
 
 if TYPE_CHECKING:
     from rhoknp.units.clause import Clause
@@ -20,7 +21,7 @@ class Chunk(Unit):
         self.__phrases: list["Phrase"] = None
         self.parent_id: Optional[int] = None
         self.dep_type: DepType = None
-        self.features: str = None
+        self.features: Features = None
 
     def __str__(self) -> str:
         return self.text
@@ -64,7 +65,7 @@ class Chunk(Unit):
                     raise ValueError(f"malformed line: {line}")
                 chunk.parent_id = int(match.group("pid"))
                 chunk.dep_type = DepType.value_of(match.group("dtype"))
-                chunk.features = match.group("features")
+                chunk.features = Features(match.group("features"))
                 continue
             if line.startswith("+"):
                 if phrase_lines:

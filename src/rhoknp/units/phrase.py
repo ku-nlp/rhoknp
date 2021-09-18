@@ -4,6 +4,7 @@ from enum import Enum
 
 from .unit import Unit
 from rhoknp.units.morpheme import Morpheme
+from rhoknp.utils.features import Features
 
 if TYPE_CHECKING:
     from rhoknp.units.chunk import Chunk
@@ -35,7 +36,7 @@ class Phrase(Unit):
         self.__morphemes: list["Morpheme"] = None
         self.parent_id: Optional[int] = None
         self.dep_type: DepType = None
-        self.features: str = None
+        self.features: Features = None
 
     def __str__(self) -> str:
         return self.text
@@ -70,7 +71,7 @@ class Phrase(Unit):
                     raise ValueError(f"malformed line: {line}")
                 phrase.parent_id = int(match.group("pid"))
                 phrase.dep_type = DepType.value_of(match.group("dtype"))
-                phrase.features = match.group("features")
+                phrase.features = Features(match.group("features"))
                 continue
             morpheme = Morpheme(line, phrase.sentence)
             morphemes.append(morpheme)
