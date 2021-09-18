@@ -92,6 +92,8 @@ class Morpheme(Unit):
     def to_jumanpp(self) -> str:
         ret = ""
         ret += self._attributes.to_jumanpp()
-        ret += f' "{self.semantics}"'
-        ret += f" {self.features.to_fstring()}"
+        if self.semantics:
+            ret += f' "{self.semantics}"'
+        if self.features:
+            ret += f" {self.features.to_fstring()}"
         return ret
