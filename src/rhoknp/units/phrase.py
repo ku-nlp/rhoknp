@@ -68,9 +68,9 @@ class Phrase(Unit):
                 match = cls.KNP_PATTERN.match(line)
                 if match is None:
                     raise ValueError(f"malformed line: {line}")
-                phrase.parent_id = int(match["pid"])
-                phrase.dep_type = DepType.value_of(match["dtype"])
-                phrase.features = match["features"]
+                phrase.parent_id = int(match.group("pid"))
+                phrase.dep_type = DepType.value_of(match.group("dtype"))
+                phrase.features = match.group("features")
                 continue
             morpheme = Morpheme(line, phrase.sentence)
             morphemes.append(morpheme)
