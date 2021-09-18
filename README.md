@@ -1,6 +1,7 @@
 # rhoknp: Yet another Python binding for Juman++/KNP
 
 [![Run Test](https://github.com/ku-nlp/rhoknp/actions/workflows/test.yml/badge.svg)](https://github.com/ku-nlp/rhoknp/actions/workflows/test.yml)
+[![codecov](https://codecov.io/gh/ku-nlp/rhoknp/branch/main/graph/badge.svg?token=29S0XMLTRG)](https://codecov.io/gh/ku-nlp/rhoknp)
 
 ## Requirements
 - Juman++ v2.0.0-rc3+
