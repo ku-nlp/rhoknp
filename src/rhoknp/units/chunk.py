@@ -1,4 +1,6 @@
 from typing import TYPE_CHECKING, Optional
+import re
+from enum import Enum
 
 from .unit import Unit
 from rhoknp.units.phrase import Phrase
@@ -8,13 +10,32 @@ if TYPE_CHECKING:
     from rhoknp.units.phrase import Phrase
 
 
+class DepType(Enum):
+    dependency = "D"
+    parallel = "P"
+    apposition = "A"
+    imperfect_parallel = "I"
+
+    @classmethod
+    def value_of(cls, val) -> "DepType":
+        for e in cls:
+            if e.value == val:
+                return e
+        raise ValueError(f'invalid dependency type name: {val}')
+
+
 class Chunk(Unit):
+    KNP_PATTERN: re.Pattern = re.compile(r"^\* (?P<pid>-1|\d+)(?P<dtype>[DPAI]) (?P<features>(<.+>)*)$")
+
     def __init__(self, parent: "Clause"):
         super().__init__(parent)
         self.sentence = parent.sentence
         self.clause = parent
 
         self.__phrases: list["Phrase"] = None
+        self.parent_id: Optional[int] = None
+        self.dep_type: DepType = None
+        self.features: str = None
 
     def __str__(self) -> str:
         return self.text
@@ -53,7 +74,13 @@ class Chunk(Unit):
         phrase_lines = []
         for line in knp_text.split("\n"):
             if line.startswith("*"):
-                continue  # TODO: extract features
+                match = cls.KNP_PATTERN.match(line)
+                if match is None:
+                    raise ValueError(f"malformed line: {line}")
+                chunk.parent_id = match["pid"]
+                chunk.dep_type = DepType.value_of(match["dtype"])
+                chunk.features = match["features"]
+                continue
             if line.startswith("+"):
                 if phrase_lines:
                     phrase = Phrase.from_knp("\n".join(phrase_lines), parent=chunk)
