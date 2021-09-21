@@ -50,7 +50,7 @@ class Phrase(Unit):
         return self.morphemes
 
     @property
-    def morphemes(self):
+    def morphemes(self) -> list[Morpheme]:
         return self.__morphemes
 
     @morphemes.setter

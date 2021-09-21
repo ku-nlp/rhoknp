@@ -34,7 +34,7 @@ class Sentence(Unit):
         else:
             return self.morphemes
 
-    def to_jumanpp(self):
+    def to_jumanpp(self) -> str:
         jumanpp_text = ""
         if self.comment is not None:
             jumanpp_text += self.comment + "\n"

@@ -35,15 +35,15 @@ class Chunk(Unit):
         return self.phrases
 
     @property
-    def phrases(self):
+    def phrases(self) -> list[Phrase]:
         return self.__phrases
 
     @phrases.setter
-    def phrases(self, phrases: list["Phrase"]):
+    def phrases(self, phrases: list[Phrase]) -> None:
         self.__phrases = phrases
 
     @property
-    def morphemes(self):
+    def morphemes(self) -> list[ModuleNotFoundError]:
         return [morpheme for phrase in self.phrases for morpheme in phrase.morphemes]
 
     @classmethod

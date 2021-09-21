@@ -27,7 +27,7 @@ class Clause(Unit):
         return self.chunks
 
     @property
-    def chunks(self):
+    def chunks(self) -> list[Chunk]:
         return self.__chunks
 
     @chunks.setter

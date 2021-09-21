@@ -29,27 +29,27 @@ class Document(Unit):
         return self.sentences
 
     @property
-    def sentences(self):
+    def sentences(self) -> list[Sentence]:
         return self.__sentences
 
     @sentences.setter
-    def sentences(self, sentences: list[Sentence]):
+    def sentences(self, sentences: list[Sentence]) -> None:
         self.__sentences = sentences
 
     @property
-    def clauses(self):
+    def clauses(self) -> list[Clause]:
         return [clause for sentence in self.sentences for clause in sentence.clauses]
 
     @property
-    def chunks(self):
+    def chunks(self) -> list[Clause]:
         return [chunk for sentence in self.sentences for chunk in sentence.chunks]
 
     @property
-    def phrases(self):
+    def phrases(self) -> list[Phrase]:
         return [phrase for sentence in self.sentences for phrase in sentence.phrases]
 
     @property
-    def morphemes(self):
+    def morphemes(self) -> list[Morpheme]:
         return [
             morpheme for sentence in self.sentences for morpheme in sentence.morphemes
         ]

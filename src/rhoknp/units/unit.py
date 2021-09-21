@@ -20,5 +20,5 @@ class Unit:
             return self.__text
 
     @text.setter
-    def text(self, text: str):
+    def text(self, text: str) -> None:
         self.__text = text
