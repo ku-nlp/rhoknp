@@ -8,12 +8,12 @@
 - Juman++ v2.0.0-rc3+
 - KNP 5.0+
 
-## What are the differences from pyknp?
+## Differences from [pyknp](https://github.com/ku-nlp/pyknp/tree/master/pyknp)
 
-- rhoknp supports document, which consists of multiple sentences
-- rhoknp employs more consistent class names
-- rhoknp is strictly type-aware, which provides high readability and usability
-- rhoknp drops a support for Python2 and supports Python3.9+
+- *rhoknp* provides APIs for document-level text analysis
+- *rhoknp* employs more consistent class names
+- *rhoknp* is strictly type-aware, which provides high readability and usability
+- *rhoknp* drops a support for Python2 and supports Python3.9+
 
 
 ## Reference
