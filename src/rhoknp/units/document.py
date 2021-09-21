@@ -19,7 +19,6 @@ class Document(Unit):
         Phrase.count = 0
         Morpheme.count = 0
 
-        self.__text: str = None
         self.__sentences: list[Sentence] = None
 
     def __str__(self) -> str:
@@ -28,17 +27,6 @@ class Document(Unit):
     @property
     def child_units(self) -> list[Sentence]:
         return self.sentences
-
-    @property
-    def text(self):
-        if self.__text is not None:
-            return self.__text
-        else:
-            return "".join(str(child_unit) for child_unit in self.child_units)
-
-    @text.setter
-    def text(self, text: str):
-        self.__text = text
 
     @property
     def sentences(self):

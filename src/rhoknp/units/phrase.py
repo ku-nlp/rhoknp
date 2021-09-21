@@ -49,12 +49,8 @@ class Phrase(Unit):
         return self.text
 
     @property
-    def child_units(self) -> Optional[list["Unit"]]:
+    def child_units(self) -> list[Morpheme]:
         return self.morphemes
-
-    @property
-    def text(self):
-        return "".join(str(child_unit) for child_unit in self.child_units)
 
     @property
     def morphemes(self):

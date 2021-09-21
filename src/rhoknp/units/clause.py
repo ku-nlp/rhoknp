@@ -24,12 +24,8 @@ class Clause(Unit):
         return self.text
 
     @property
-    def child_units(self) -> Optional[list["Unit"]]:
+    def child_units(self) -> list[Chunk]:
         return self.chunks
-
-    @property
-    def text(self):
-        return "".join(str(child_unit) for child_unit in self.child_units)
 
     @property
     def chunks(self):

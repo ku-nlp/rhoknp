@@ -74,6 +74,10 @@ class Morpheme(Unit):
         Morpheme.count += 1
 
     @property
+    def child_units(self) -> None:
+        return None
+
+    @property
     def surf(self) -> str:
         return self._attributes.surf
 
@@ -100,10 +104,6 @@ class Morpheme(Unit):
     @property
     def conjform(self) -> str:
         return self._attributes.conjform
-
-    @property
-    def child_units(self) -> Optional[list["Unit"]]:
-        return None
 
     @classmethod
     def from_jumanpp(

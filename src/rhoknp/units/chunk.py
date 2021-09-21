@@ -33,12 +33,8 @@ class Chunk(Unit):
         return self.text
 
     @property
-    def child_units(self) -> Optional[list["Unit"]]:
+    def child_units(self) -> list[Phrase]:
         return self.phrases
-
-    @property
-    def text(self):
-        return "".join(str(child_unit) for child_unit in self.child_units)
 
     @property
     def phrases(self):

@@ -1,5 +1,5 @@
 import re
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, Union
 
 from .clause import Clause
 from .morpheme import Morpheme
@@ -19,7 +19,6 @@ class Sentence(Unit):
 
         self.index = self.count
 
-        self.__text: str = None
         self.comment: str = None
         self.clauses: list["Clause"] = None
         self.morphemes: list["Morpheme"] = None
@@ -30,22 +29,11 @@ class Sentence(Unit):
         return self.text
 
     @property
-    def child_units(self) -> Optional[list["Unit"]]:
+    def child_units(self) -> Union[list[Clause], list[Morpheme]]:
         if self.clauses is not None:
             return self.clauses
         else:
             return self.morphemes
-
-    @property
-    def text(self):
-        if self.__text is not None:
-            return self.__text
-        else:
-            return "".join(str(child_unit) for child_unit in self.child_units)
-
-    @text.setter
-    def text(self, text: str):
-        self.__text = text
 
     def to_jumanpp(self):
         jumanpp_text = ""
