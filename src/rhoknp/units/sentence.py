@@ -101,7 +101,6 @@ class Sentence(Unit):
         cls, jumanpp_text: str, document: Optional["Document"] = None
     ) -> "Sentence":
         sentence = cls(document)
-
         morphemes = []
         for line in jumanpp_text.split("\n"):
             if line.startswith("#"):

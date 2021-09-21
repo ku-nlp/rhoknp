@@ -59,6 +59,16 @@ class Clause(Unit):
     @classmethod
     def from_knp(cls, knp_text: str, sentence: "Sentence") -> "Clause":
         clause = cls(sentence)
-        chunk = Chunk.from_knp(knp_text, clause)
-        clause.chunks = [chunk]
+        chunks = []
+        chunk_lines: list[str] = []
+        for line in knp_text.split("\n"):
+            if line.startswith("*") and chunk_lines:
+                chunk = Chunk.from_knp("\n".join(chunk_lines), clause)
+                chunks.append(chunk)
+                chunk_lines = []
+            chunk_lines.append(line)
+        else:
+            chunk = Chunk.from_knp("\n".join(chunk_lines), clause)
+            chunks.append(chunk)
+        clause.chunks = chunks
         return clause
