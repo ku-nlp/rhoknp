@@ -1,8 +1,9 @@
 from typing import List, Union
 
-from .unit import Unit
 from rhoknp.units.morpheme import Morpheme
 from rhoknp.units.sentence import Sentence
+
+from .unit import Unit
 
 
 class Document(Unit):
@@ -109,7 +110,9 @@ class Document(Unit):
                 continue
             sentence_lines.append(line)
             if line.strip() == Sentence.EOS:
-                sentences.append(Sentence.from_knp("\n".join(sentence_lines) + "\n", parent=document))
+                sentences.append(
+                    Sentence.from_knp("\n".join(sentence_lines) + "\n", parent=document)
+                )
                 sentence_lines = []
         document.sentences = sentences
         return document

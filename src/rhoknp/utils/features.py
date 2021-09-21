@@ -8,6 +8,7 @@ class Features(dict):
     This class parses tags in features string and converts to a dictionary.
     ex. "<正規化代表表記:遅れる/おくれる>" --> {"正規化代表表記": "遅れる/おくれる"}
     """
+
     PATTERN: re.Pattern = re.compile(r"(?P<feats>(<.+>)*)")
     TAG_PATTERN: re.Pattern = re.compile(r"<(?P<key>[^:]+?)(:(?P<value>.+?))?>")
 

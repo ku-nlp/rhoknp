@@ -1,10 +1,11 @@
-from typing import TYPE_CHECKING, Optional
 import re
 from enum import Enum
+from typing import TYPE_CHECKING, Optional
 
-from .unit import Unit
 from rhoknp.units.morpheme import Morpheme
 from rhoknp.utils.features import Features
+
+from .unit import Unit
 
 if TYPE_CHECKING:
     from rhoknp.units.chunk import Chunk
@@ -21,11 +22,13 @@ class DepType(Enum):
         for e in cls:
             if e.value == val:
                 return e
-        raise ValueError(f'invalid dependency type name: {val}')
+        raise ValueError(f"invalid dependency type name: {val}")
 
 
 class Phrase(Unit):
-    KNP_PATTERN: re.Pattern = re.compile(fr"^\+ (?P<pid>-1|\d+)(?P<dtype>[DPAI]) {Features.PATTERN.pattern}$")
+    KNP_PATTERN: re.Pattern = re.compile(
+        fr"^\+ (?P<pid>-1|\d+)(?P<dtype>[DPAI]) {Features.PATTERN.pattern}$"
+    )
 
     def __init__(self, parent: "Chunk"):
         super().__init__(parent)
@@ -58,10 +61,7 @@ class Phrase(Unit):
         self.__morphemes = morphemes
 
     @classmethod
-    def from_knp(cls,
-                 knp_text: str,
-                 parent: "Chunk"
-                 ) -> "Phrase":
+    def from_knp(cls, knp_text: str, parent: "Chunk") -> "Phrase":
         phrase = cls(parent)
         morphemes: list[Morpheme] = []
         for line in knp_text.split("\n"):

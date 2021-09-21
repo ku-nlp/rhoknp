@@ -1,9 +1,10 @@
 import re
-from typing import TYPE_CHECKING, Optional, ClassVar
-from dataclasses import dataclass, fields, astuple
+from dataclasses import astuple, dataclass, fields
+from typing import TYPE_CHECKING, ClassVar, Optional
+
+from rhoknp.utils.features import Features
 
 from .unit import Unit
-from rhoknp.utils.features import Features
 
 if TYPE_CHECKING:
     from rhoknp.units.sentence import Sentence
@@ -41,17 +42,22 @@ class Morpheme(Unit):
     # language=RegExp
     _SEMANTICS_PATTERN: str = r'(?P<sems>("([^"]|\\")+?")|NIL)'
     JUMANPP_PATTERN: re.Pattern = re.compile(
-        rf"^({MorphemeAttributes.JUMANPP_PATTERN.pattern})(\s{_SEMANTICS_PATTERN})?(\s{Features.PATTERN.pattern})?$"
+        (
+            rf"^({MorphemeAttributes.JUMANPP_PATTERN.pattern})"
+            + rf"(\s{_SEMANTICS_PATTERN})?"
+            + rf"(\s{Features.PATTERN.pattern})?$"
+        )
     )
 
     count = 0
 
-    def __init__(self,
-                 attributes: MorphemeAttributes,
-                 semantics: str,
-                 features: Features,
-                 sentence: Optional["Sentence"] = None,
-                 ):
+    def __init__(
+        self,
+        attributes: MorphemeAttributes,
+        semantics: str,
+        features: Features,
+        sentence: Optional["Sentence"] = None,
+    ):
         super().__init__(sentence)
         self._attributes = attributes
         self.semantics = semantics
@@ -100,10 +106,11 @@ class Morpheme(Unit):
         return None
 
     @classmethod
-    def from_jumanpp(cls,
-                     jumanpp_text: str,
-                     sentence: Optional["Sentence"] = None,
-                     ) -> "Morpheme":
+    def from_jumanpp(
+        cls,
+        jumanpp_text: str,
+        sentence: Optional["Sentence"] = None,
+    ) -> "Morpheme":
         match = cls.JUMANPP_PATTERN.match(jumanpp_text)
         if match is None:
             raise ValueError(f"malformed line: {jumanpp_text}")

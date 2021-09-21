@@ -1,10 +1,10 @@
 from typing import TYPE_CHECKING, Optional
 
-from .unit import Unit
 from rhoknp.units.chunk import Chunk
 
+from .unit import Unit
+
 if TYPE_CHECKING:
-    from rhoknp.units.chunk import Chunk
     from rhoknp.units.sentence import Sentence
 
 
@@ -43,10 +43,7 @@ class Clause(Unit):
         return [morpheme for phrase in self.phrases for morpheme in phrase.morphemes]
 
     @classmethod
-    def from_knp(cls,
-                 knp_text: str,
-                 parent: "Sentence"
-                 ) -> "Clause":
+    def from_knp(cls, knp_text: str, parent: "Sentence") -> "Clause":
         clause = cls(parent)
         chunk = Chunk.from_knp(knp_text, parent=clause)
         clause.chunks = [chunk]

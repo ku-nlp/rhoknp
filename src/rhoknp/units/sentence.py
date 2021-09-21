@@ -1,9 +1,10 @@
 import re
 from typing import TYPE_CHECKING, Optional
 
-from .unit import Unit
-from rhoknp.units.morpheme import Morpheme
 from rhoknp.units.clause import Clause
+from rhoknp.units.morpheme import Morpheme
+
+from .unit import Unit
 
 if TYPE_CHECKING:
     from rhoknp.units.document import Document
@@ -51,7 +52,9 @@ class Sentence(Unit):
         if self.comment is not None:
             jumanpp_text += self.comment + "\n"
         jumanpp_text += (
-            "\n".join(morpheme.to_jumanpp() for morpheme in self.morphemes) + "\n" + self.EOS
+            "\n".join(morpheme.to_jumanpp() for morpheme in self.morphemes)
+            + "\n"
+            + self.EOS
         )
         return jumanpp_text
 
@@ -83,9 +86,7 @@ class Sentence(Unit):
         return sentence
 
     @classmethod
-    def from_knp(
-        cls, knp_text: str, parent: Optional["Document"] = None
-    ) -> "Sentence":
+    def from_knp(cls, knp_text: str, parent: Optional["Document"] = None) -> "Sentence":
         sentence = cls(parent)
         clauses: list[Clause] = []
         clause_lines: list[str] = []

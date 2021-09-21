@@ -1,8 +1,9 @@
 from subprocess import PIPE, Popen
 from typing import Callable, Union
 
-from .processor import Processor
 from rhoknp.units import Document
+
+from .processor import Processor
 
 
 class Jumanpp(Processor):

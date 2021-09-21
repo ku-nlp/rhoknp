@@ -1,7 +1,8 @@
 import re
 
-from .processor import Processor
 from rhoknp.units.document import Document
+
+from .processor import Processor
 
 
 class RegexSenter(Processor):

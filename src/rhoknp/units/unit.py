@@ -1,5 +1,5 @@
-from typing import Optional
 import weakref
+from typing import Optional
 
 
 class Unit:

@@ -1,17 +1,19 @@
-from typing import TYPE_CHECKING, Optional
 import re
+from typing import TYPE_CHECKING, Optional
+
+from rhoknp.units.phrase import DepType, Phrase
+from rhoknp.utils.features import Features
 
 from .unit import Unit
-from rhoknp.units.phrase import Phrase, DepType
-from rhoknp.utils.features import Features
 
 if TYPE_CHECKING:
     from rhoknp.units.clause import Clause
-    from rhoknp.units.phrase import Phrase
 
 
 class Chunk(Unit):
-    KNP_PATTERN: re.Pattern = re.compile(fr"^\* (?P<pid>-1|\d+)(?P<dtype>[DPAI]) {Features.PATTERN.pattern}$")
+    KNP_PATTERN: re.Pattern = re.compile(
+        fr"^\* (?P<pid>-1|\d+)(?P<dtype>[DPAI]) {Features.PATTERN.pattern}$"
+    )
 
     def __init__(self, parent: "Clause"):
         super().__init__(parent)
@@ -46,15 +48,8 @@ class Chunk(Unit):
     def morphemes(self):
         return [morpheme for phrase in self.phrases for morpheme in phrase.morphemes]
 
-    @property
-    def child_units(self):
-        return self.__phrases
-
     @classmethod
-    def from_knp(cls,
-                 knp_text: str,
-                 parent: "Clause"
-                 ) -> "Chunk":
+    def from_knp(cls, knp_text: str, parent: "Clause") -> "Chunk":
         chunk = cls(parent)
         phrases: list[Phrase] = []
         phrase_lines = []
