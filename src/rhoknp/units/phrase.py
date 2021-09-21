@@ -3,12 +3,14 @@ from enum import Enum
 from typing import TYPE_CHECKING, Optional
 
 from .morpheme import Morpheme
-from .utils import Features
-
 from .unit import Unit
+from .utils import Features
 
 if TYPE_CHECKING:
     from .chunk import Chunk
+    from .clause import Clause
+    from .document import Document
+    from .sentence import Sentence
 
 
 class DepType(Enum):
@@ -50,7 +52,27 @@ class Phrase(Unit):
         return self.morphemes
 
     @property
+    def document(self) -> "Document":
+        return self.sentence.document
+
+    @property
+    def sentence(self) -> "Sentence":
+        return self.clause.sentence
+
+    @property
+    def clause(self) -> "Clause":
+        return self.chunk.clause
+
+    @property
+    def chunk(self) -> "Chunk":
+        if self.parent_unit is None:
+            raise AttributeError("This attribute has not been set")
+        return self.parent_unit
+
+    @property
     def morphemes(self) -> list[Morpheme]:
+        if self.__morphemes is None:
+            raise AttributeError("This attribute is not available before applying KNP")
         return self.__morphemes
 
     @morphemes.setter

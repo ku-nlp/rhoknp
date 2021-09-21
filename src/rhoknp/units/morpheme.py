@@ -2,13 +2,15 @@ import re
 from dataclasses import astuple, dataclass, fields
 from typing import TYPE_CHECKING, ClassVar, Optional
 
+from .unit import Unit
 from .utils import Features
 
-from .unit import Unit
-
 if TYPE_CHECKING:
-    from .sentence import Sentence
+    from .chunk import Chunk
+    from .clause import Clause
+    from .document import Document
     from .phrase import Phrase
+    from .sentence import Sentence
 
 
 @dataclass(frozen=True)
@@ -67,12 +69,41 @@ class Morpheme(Unit):
 
         self.text = attributes.surf
 
+        self.__has_phrase_parent = phrase is not None
+
         self.index = self.count
         Morpheme.count += 1
 
     @property
     def child_units(self) -> None:
         return None
+
+    @property
+    def document(self) -> "Document":
+        return self.sentence.document
+
+    @property
+    def sentence(self) -> "Sentence":
+        if self.__has_phrase_parent is True:
+            return self.clause.sentence
+        elif self.parent_unit is not None:
+            return self.parent_unit
+        else:
+            raise AttributeError("This attribute has not been set")
+
+    @property
+    def clause(self) -> "Clause":
+        return self.chunk.clause
+
+    @property
+    def chunk(self) -> "Chunk":
+        return self.phrase.chunk
+
+    @property
+    def phrase(self) -> "Phrase":
+        if self.__has_phrase_parent is False:
+            raise AttributeError("This attribute is not available before applying KNP")
+        return self.parent_unit
 
     @property
     def surf(self) -> str:

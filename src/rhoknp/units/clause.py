@@ -1,10 +1,12 @@
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from .chunk import Chunk
-
+from .morpheme import Morpheme
+from .phrase import Phrase
 from .unit import Unit
 
 if TYPE_CHECKING:
+    from .document import Document
     from .sentence import Sentence
 
 
@@ -27,7 +29,19 @@ class Clause(Unit):
         return self.chunks
 
     @property
+    def document(self) -> "Document":
+        return self.sentence.document
+
+    @property
+    def sentence(self) -> "Sentence":
+        if self.parent_unit is None:
+            raise AttributeError("This attribute has not been set")
+        return self.parent_unit
+
+    @property
     def chunks(self) -> list[Chunk]:
+        if self.__chunks is None:
+            raise AttributeError("This attribute is not available before applying KNP")
         return self.__chunks
 
     @chunks.setter
@@ -35,11 +49,11 @@ class Clause(Unit):
         self.__chunks = chunks
 
     @property
-    def phrases(self):
+    def phrases(self) -> list[Phrase]:
         return [phrase for chunk in self.chunks for phrase in chunk.phrases]
 
     @property
-    def morphemes(self):
+    def morphemes(self) -> list[Morpheme]:
         return [morpheme for phrase in self.phrases for morpheme in phrase.morphemes]
 
     @classmethod

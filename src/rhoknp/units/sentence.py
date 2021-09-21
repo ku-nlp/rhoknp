@@ -1,9 +1,10 @@
 import re
 from typing import TYPE_CHECKING, Optional, Union
 
+from .chunk import Chunk
 from .clause import Clause
 from .morpheme import Morpheme
-
+from .phrase import Phrase
 from .unit import Unit
 
 if TYPE_CHECKING:
@@ -18,8 +19,8 @@ class Sentence(Unit):
         super().__init__(document)
 
         self.comment: str = None
-        self.clauses: list["Clause"] = None
-        self.morphemes: list["Morpheme"] = None
+        self.__clauses: list[Clause] = None
+        self.__morphemes: list[Morpheme] = None
 
         self.index = self.count
         Sentence.count += 1
@@ -28,11 +29,53 @@ class Sentence(Unit):
         return self.text
 
     @property
-    def child_units(self) -> Union[list[Clause], list[Morpheme]]:
-        if self.clauses is not None:
+    def child_units(self) -> Union[list[Clause], list[Morpheme], None]:
+        if self.__clauses is not None:
             return self.clauses
-        else:
+        elif self.__morphemes is not None:
             return self.morphemes
+        return None
+
+    @property
+    def document(self) -> "Document":
+        if self.parent_unit is None:
+            raise AttributeError("This attribute has not been set")
+        return self.parent_unit
+
+    @property
+    def clauses(self) -> list[Clause]:
+        if self.__clauses is None:
+            raise AttributeError("This attribute is not available before applying KNP")
+        return self.__clauses
+
+    @clauses.setter
+    def clauses(self, clauses: list[Clause]) -> None:
+        self.__clauses = clauses
+
+    @property
+    def chunks(self) -> list[Chunk]:
+        return [chunk for clause in self.clauses for chunk in clause.chunks]
+
+    @property
+    def phrases(self) -> list[Phrase]:
+        return [phrase for chunk in self.chunks for phrase in chunk.phrases]
+
+    @property
+    def morphemes(self) -> list[Morpheme]:
+        if self.__morphemes is not None:
+            return self.__morphemes
+        elif self.__clauses is not None:
+            return [
+                morpheme for phrase in self.phrases for morpheme in phrase.morphemes
+            ]
+        else:
+            raise AttributeError(
+                "This attribute is not available before applying Jumanpp"
+            )
+
+    @morphemes.setter
+    def morphemes(self, morphemes: list[Morpheme]) -> None:
+        self.__morphemes = morphemes
 
     def to_jumanpp(self) -> str:
         jumanpp_text = ""
@@ -73,7 +116,9 @@ class Sentence(Unit):
         return sentence
 
     @classmethod
-    def from_knp(cls, knp_text: str, document: Optional["Document"] = None) -> "Sentence":
+    def from_knp(
+        cls, knp_text: str, document: Optional["Document"] = None
+    ) -> "Sentence":
         sentence = cls(document)
         clauses: list[Clause] = []
         clause_lines: list[str] = []

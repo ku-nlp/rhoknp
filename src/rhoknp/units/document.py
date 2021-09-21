@@ -1,11 +1,10 @@
 from typing import List, Union
 
-from .morpheme import Morpheme
-from .sentence import Sentence
-from .clause import Clause
 from .chunk import Chunk
+from .clause import Clause
+from .morpheme import Morpheme
 from .phrase import Phrase
-
+from .sentence import Sentence
 from .unit import Unit
 
 
@@ -42,11 +41,11 @@ class Document(Unit):
 
     @property
     def chunks(self) -> list[Clause]:
-        return [chunk for sentence in self.sentences for chunk in sentence.chunks]
+        return [chunk for clause in self.clauses for chunk in clause.chunks]
 
     @property
     def phrases(self) -> list[Phrase]:
-        return [phrase for sentence in self.sentences for phrase in sentence.phrases]
+        return [phrase for chunk in self.chunks for phrase in chunk.phrases]
 
     @property
     def morphemes(self) -> list[Morpheme]:
