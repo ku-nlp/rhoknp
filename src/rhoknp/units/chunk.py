@@ -2,7 +2,7 @@ import re
 from typing import TYPE_CHECKING, Optional
 
 from rhoknp.units.phrase import DepType, Phrase
-from rhoknp.utils.features import Features
+from .utils import Features
 
 from .unit import Unit
 

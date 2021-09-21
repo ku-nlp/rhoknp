@@ -3,7 +3,7 @@ from enum import Enum
 from typing import TYPE_CHECKING, Optional
 
 from rhoknp.units.morpheme import Morpheme
-from rhoknp.utils.features import Features
+from .utils import Features
 
 from .unit import Unit
 

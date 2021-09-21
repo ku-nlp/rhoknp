@@ -2,7 +2,7 @@ import re
 from dataclasses import astuple, dataclass, fields
 from typing import TYPE_CHECKING, ClassVar, Optional
 
-from rhoknp.utils.features import Features
+from .utils import Features
 
 from .unit import Unit
 
