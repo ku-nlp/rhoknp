@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "rhoknp"
 version = "0.1.0"
-description = "Yet another Juman++/KNP binding for Python"
+description = "Yet another Python binding for Juman++/KNP"
 authors = ["Hirokazu Kiyomaru <h.kiyomaru@gmail.com>", "Nobuhiro Ueda <ueda@nlp.ist.i.kyoto-u.ac.jp>"]
 repository = "https://github.com/ku-nlp/rhoknp"
 license = "MIT"
