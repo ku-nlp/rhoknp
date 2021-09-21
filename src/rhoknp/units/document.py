@@ -1,7 +1,7 @@
 from typing import List, Union
 
-from rhoknp.units.morpheme import Morpheme
-from rhoknp.units.sentence import Sentence
+from .morpheme import Morpheme
+from .sentence import Sentence
 
 from .unit import Unit
 

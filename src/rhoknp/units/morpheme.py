@@ -7,7 +7,7 @@ from .utils import Features
 from .unit import Unit
 
 if TYPE_CHECKING:
-    from rhoknp.units.sentence import Sentence
+    from .sentence import Sentence
 
 
 @dataclass(frozen=True)

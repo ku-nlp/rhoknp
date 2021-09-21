@@ -1,13 +1,13 @@
 import re
 from typing import TYPE_CHECKING, Optional
 
-from rhoknp.units.phrase import DepType, Phrase
+from .phrase import DepType, Phrase
 from .utils import Features
 
 from .unit import Unit
 
 if TYPE_CHECKING:
-    from rhoknp.units.clause import Clause
+    from .clause import Clause
 
 
 class Chunk(Unit):

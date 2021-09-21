@@ -1,11 +1,11 @@
 from typing import TYPE_CHECKING, Optional
 
-from rhoknp.units.chunk import Chunk
+from .chunk import Chunk
 
 from .unit import Unit
 
 if TYPE_CHECKING:
-    from rhoknp.units.sentence import Sentence
+    from .sentence import Sentence
 
 
 class Clause(Unit):

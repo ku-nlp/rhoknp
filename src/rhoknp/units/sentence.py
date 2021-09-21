@@ -1,13 +1,13 @@
 import re
 from typing import TYPE_CHECKING, Optional
 
-from rhoknp.units.clause import Clause
-from rhoknp.units.morpheme import Morpheme
+from .clause import Clause
+from .morpheme import Morpheme
 
 from .unit import Unit
 
 if TYPE_CHECKING:
-    from rhoknp.units.document import Document
+    from .document import Document
 
 
 class Sentence(Unit):

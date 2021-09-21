@@ -2,13 +2,13 @@ import re
 from enum import Enum
 from typing import TYPE_CHECKING, Optional
 
-from rhoknp.units.morpheme import Morpheme
+from .morpheme import Morpheme
 from .utils import Features
 
 from .unit import Unit
 
 if TYPE_CHECKING:
-    from rhoknp.units.chunk import Chunk
+    from .chunk import Chunk
 
 
 class DepType(Enum):
