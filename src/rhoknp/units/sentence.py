@@ -17,12 +17,11 @@ class Sentence(Unit):
     def __init__(self, document: Optional["Document"] = None):
         super().__init__(document)
 
-        self.index = self.count
-
         self.comment: str = None
         self.clauses: list["Clause"] = None
         self.morphemes: list["Morpheme"] = None
 
+        self.index = self.count
         Sentence.count += 1
 
     def __str__(self) -> str:
@@ -74,8 +73,8 @@ class Sentence(Unit):
         return sentence
 
     @classmethod
-    def from_knp(cls, knp_text: str, parent: Optional["Document"] = None) -> "Sentence":
-        sentence = cls(parent)
+    def from_knp(cls, knp_text: str, document: Optional["Document"] = None) -> "Sentence":
+        sentence = cls(document)
         clauses: list[Clause] = []
         clause_lines: list[str] = []
         for line in knp_text.split("\n"):
@@ -93,13 +92,13 @@ class Sentence(Unit):
             if line.startswith(";;"):
                 raise Exception(f"Error: {line}")
             if line.strip() == cls.EOS:
-                clause = Clause.from_knp("\n".join(clause_lines), parent=sentence)
+                clause = Clause.from_knp("\n".join(clause_lines), sentence)
                 clauses.append(clause)
                 break
             # TODO: find clause boundary
             if line.startswith("*"):
                 if clause_lines:
-                    clause = Clause.from_knp("\n".join(clause_lines), parent=sentence)
+                    clause = Clause.from_knp("\n".join(clause_lines), sentence)
                     clauses.append(clause)
                     clause_lines = []
             clause_lines.append(line)

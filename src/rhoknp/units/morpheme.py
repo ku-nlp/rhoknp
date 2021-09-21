@@ -8,6 +8,7 @@ from .unit import Unit
 
 if TYPE_CHECKING:
     from .sentence import Sentence
+    from .phrase import Phrase
 
 
 @dataclass(frozen=True)
@@ -57,16 +58,12 @@ class Morpheme(Unit):
         semantics: str,
         features: Features,
         sentence: Optional["Sentence"] = None,
+        phrase: Optional["Phrase"] = None,
     ):
-        super().__init__(sentence)
+        super().__init__(phrase or sentence)
         self._attributes = attributes
         self.semantics = semantics
         self.features = features
-
-        self.sentence = self.parent_unit
-        self.clause = None
-        self.chunk = None
-        self.phrase = None
 
         self.text = attributes.surf
 
@@ -110,6 +107,7 @@ class Morpheme(Unit):
         cls,
         jumanpp_text: str,
         sentence: Optional["Sentence"] = None,
+        phrase: Optional["Phrase"] = None,
     ) -> "Morpheme":
         match = cls.JUMANPP_PATTERN.match(jumanpp_text)
         if match is None:
@@ -117,7 +115,10 @@ class Morpheme(Unit):
         attributes = MorphemeAttributes.from_jumanpp(match.group("attrs"))
         semantics: str = (match.group("sems") or "").strip('"')
         features = Features.from_fstring(match.group("feats") or "")
-        return cls(attributes, semantics, features, sentence=sentence)
+        if phrase is not None:
+            return cls(attributes, semantics, features, phrase=phrase)
+        else:
+            return cls(attributes, semantics, features, sentence=sentence)
 
     def to_jumanpp(self) -> str:
         ret = ""

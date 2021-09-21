@@ -31,11 +31,8 @@ class Phrase(Unit):
     )
     count = 0
 
-    def __init__(self, parent: "Chunk"):
-        super().__init__(parent)
-        self.sentence = parent.sentence
-        self.clause = parent.clause
-        self.chunk = parent
+    def __init__(self, chunk: "Chunk"):
+        super().__init__(chunk)
 
         self.__morphemes: list["Morpheme"] = None
         self.parent_id: Optional[int] = None
@@ -61,8 +58,8 @@ class Phrase(Unit):
         self.__morphemes = morphemes
 
     @classmethod
-    def from_knp(cls, knp_text: str, parent: "Chunk") -> "Phrase":
-        phrase = cls(parent)
+    def from_knp(cls, knp_text: str, chunk: "Chunk") -> "Phrase":
+        phrase = cls(chunk)
         morphemes: list[Morpheme] = []
         for line in knp_text.split("\n"):
             if line.startswith("+"):
@@ -73,7 +70,7 @@ class Phrase(Unit):
                 phrase.dep_type = DepType.value_of(match.group("dtype"))
                 phrase.features = Features(match.group("feats"))
                 continue
-            morpheme = Morpheme.from_jumanpp(line, phrase.sentence)
+            morpheme = Morpheme.from_jumanpp(line, phrase=phrase)
             morphemes.append(morpheme)
         phrase.morphemes = morphemes
         return phrase

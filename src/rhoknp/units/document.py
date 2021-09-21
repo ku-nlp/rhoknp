@@ -105,7 +105,7 @@ class Document(Unit):
             sentence_lines.append(line)
             if line.strip() == Sentence.EOS:
                 sentences.append(
-                    Sentence.from_knp("\n".join(sentence_lines) + "\n", parent=document)
+                    Sentence.from_knp("\n".join(sentence_lines) + "\n", document)
                 )
                 sentence_lines = []
         document.sentences = sentences

@@ -11,9 +11,8 @@ if TYPE_CHECKING:
 class Clause(Unit):
     count = 0
 
-    def __init__(self, parent: "Sentence"):
-        super().__init__(parent)
-        self.sentence = parent
+    def __init__(self, sentence: "Sentence"):
+        super().__init__(sentence)
 
         self.__chunks: list["Chunk"] = None
 
@@ -44,8 +43,8 @@ class Clause(Unit):
         return [morpheme for phrase in self.phrases for morpheme in phrase.morphemes]
 
     @classmethod
-    def from_knp(cls, knp_text: str, parent: "Sentence") -> "Clause":
-        clause = cls(parent)
-        chunk = Chunk.from_knp(knp_text, parent=clause)
+    def from_knp(cls, knp_text: str, sentence: "Sentence") -> "Clause":
+        clause = cls(sentence)
+        chunk = Chunk.from_knp(knp_text, clause)
         clause.chunks = [chunk]
         return clause

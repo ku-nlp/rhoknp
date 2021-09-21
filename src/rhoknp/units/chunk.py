@@ -16,10 +16,8 @@ class Chunk(Unit):
     )
     count = 0
 
-    def __init__(self, parent: "Clause"):
-        super().__init__(parent)
-        self.sentence = parent.sentence
-        self.clause = parent
+    def __init__(self, clause: "Clause"):
+        super().__init__(clause)
 
         self.__phrases: list["Phrase"] = None
         self.parent_id: Optional[int] = None
@@ -49,8 +47,8 @@ class Chunk(Unit):
         return [morpheme for phrase in self.phrases for morpheme in phrase.morphemes]
 
     @classmethod
-    def from_knp(cls, knp_text: str, parent: "Clause") -> "Chunk":
-        chunk = cls(parent)
+    def from_knp(cls, knp_text: str, clause: "Clause") -> "Chunk":
+        chunk = cls(clause)
         phrases: list[Phrase] = []
         phrase_lines = []
         for line in knp_text.split("\n"):
@@ -64,12 +62,12 @@ class Chunk(Unit):
                 continue
             if line.startswith("+"):
                 if phrase_lines:
-                    phrase = Phrase.from_knp("\n".join(phrase_lines), parent=chunk)
+                    phrase = Phrase.from_knp("\n".join(phrase_lines), chunk)
                     phrases.append(phrase)
                     phrase_lines = []
             phrase_lines.append(line)
         else:
-            phrase = Phrase.from_knp("\n".join(phrase_lines), parent=chunk)
+            phrase = Phrase.from_knp("\n".join(phrase_lines), chunk)
             phrases.append(phrase)
 
         chunk.phrases = phrases
