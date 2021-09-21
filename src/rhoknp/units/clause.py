@@ -9,11 +9,16 @@ if TYPE_CHECKING:
 
 
 class Clause(Unit):
+    count = 0
+
     def __init__(self, parent: "Sentence"):
         super().__init__(parent)
         self.sentence = parent
 
         self.__chunks: list["Chunk"] = None
+
+        self.index = self.count
+        Clause.count += 1
 
     def __str__(self) -> str:
         return self.text

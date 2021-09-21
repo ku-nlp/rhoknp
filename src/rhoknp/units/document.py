@@ -2,6 +2,9 @@ from typing import List, Union
 
 from .morpheme import Morpheme
 from .sentence import Sentence
+from .clause import Clause
+from .chunk import Chunk
+from .phrase import Phrase
 
 from .unit import Unit
 
@@ -11,6 +14,9 @@ class Document(Unit):
         super().__init__(self)
 
         Sentence.count = 0
+        Clause.count = 0
+        Chunk.count = 0
+        Phrase.count = 0
         Morpheme.count = 0
 
         self.__text: str = None

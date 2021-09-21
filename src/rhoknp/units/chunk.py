@@ -14,6 +14,7 @@ class Chunk(Unit):
     KNP_PATTERN: re.Pattern = re.compile(
         fr"^\* (?P<pid>-1|\d+)(?P<dtype>[DPAI]) {Features.PATTERN.pattern}$"
     )
+    count = 0
 
     def __init__(self, parent: "Clause"):
         super().__init__(parent)
@@ -24,6 +25,9 @@ class Chunk(Unit):
         self.parent_id: Optional[int] = None
         self.dep_type: DepType = None
         self.features: Features = None
+
+        self.index = self.count
+        Chunk.count += 1
 
     def __str__(self) -> str:
         return self.text
