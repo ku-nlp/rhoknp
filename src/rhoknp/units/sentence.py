@@ -122,6 +122,7 @@ class Sentence(Unit):
         sentence = cls(document)
         clauses: list[Clause] = []
         clause_lines: list[str] = []
+        is_clause_end = False
         for line in knp_text.split("\n"):
             if line.strip() == "":
                 continue
@@ -136,17 +137,18 @@ class Sentence(Unit):
                 continue
             if line.startswith(";;"):
                 raise Exception(f"Error: {line}")
+            if line.startswith("+"):
+                if "<節-区切:" in line:
+                    is_clause_end = True
             if line.strip() == cls.EOS:
                 clause = Clause.from_knp("\n".join(clause_lines), sentence)
                 clauses.append(clause)
                 break
-            # TODO: find clause boundary
-            if line.startswith("*"):
-                if clause_lines:
-                    clause = Clause.from_knp("\n".join(clause_lines), sentence)
-                    clauses.append(clause)
-                    clause_lines = []
+            if line.startswith("*") and is_clause_end is True:
+                clause = Clause.from_knp("\n".join(clause_lines), sentence)
+                clauses.append(clause)
+                clause_lines = []
+                is_clause_end = False
             clause_lines.append(line)
-
         sentence.clauses = clauses
         return sentence
