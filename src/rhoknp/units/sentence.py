@@ -137,9 +137,8 @@ class Sentence(Unit):
                 continue
             if line.startswith(";;"):
                 raise Exception(f"Error: {line}")
-            if line.startswith("+"):
-                if "<節-区切:" in line:
-                    is_clause_end = True
+            if line.startswith("+") and "節-区切" in line:
+                is_clause_end = True
             if line.strip() == cls.EOS:
                 clause = Clause.from_knp("\n".join(clause_lines), sentence)
                 clauses.append(clause)

@@ -1,20 +1,10 @@
-from dataclasses import astuple, dataclass
-
 import pytest
 
-from rhoknp.units import Document
-from rhoknp.units import Sentence
+from rhoknp.units import Document, Sentence
 
 
-@dataclass
-class DocumentTestCase:
-    knp: str
-    text: str
-
-
-cases = [
-    DocumentTestCase(
-        knp="""# S-ID:1 KNP:5.0-2ad4f6df DATE:2021/08/05 SCORE:-10.73865
+def test_document_from_knp_0():
+    knp = """# S-ID:1 KNP:5.0-2ad4f6df DATE:2021/08/05 SCORE:-10.73865
 * 1D <BGH:天気/てんき><文頭><ガ><助詞><体言><係:ガ格><区切:0-0><格要素><連用要素><正規化代表表記:天気/てんき><主辞代表表記:天気/てんき>
 + 1D <BGH:天気/てんき><文頭><ガ><助詞><体言><係:ガ格><区切:0-0><格要素><連用要素><名詞項候補><先行詞候補><正規化代表表記:天気/てんき><主辞代表表記:天気/てんき><解析格:ガ>
 天気 てんき 天気 名詞 6 普通名詞 1 * 0 * 0 "代表表記:天気/てんき カテゴリ:抽象物" <代表表記:天気/てんき><カテゴリ:抽象物><正規化代表表記:天気/てんき><漢字><かな漢字><名詞相当語><文頭><自立><内容語><タグ単位始><文節始><文節主辞>
@@ -29,16 +19,9 @@ cases = [
 した した する 動詞 2 * 0 サ変動詞 16 タ形 10 "代表表記:する/する 自他動詞:自:成る/なる 付属動詞候補（基本）" <代表表記:する/する><自他動詞:自:成る/なる><付属動詞候補（基本）><正規化代表表記:する/する><かな漢字><ひらがな><活用語><表現文末><とタ系連用テ形複合辞><付属>
 。 。 。 特殊 1 句点 1 * 0 * 0 NIL <英記号><記号><文末><付属>
 EOS
-""",
-        text="天気がいいので散歩した。",
-    )
-]
-
-
-@pytest.mark.parametrize("knp,text", [astuple(case) for case in cases])
-def test_document_from_knp(knp: str, text: str):
+"""
     doc = Document.from_knp(knp)
-    assert doc.text == text
+    assert doc.text == "天気がいいので散歩した。"
 
 
 @pytest.mark.parametrize("text", ["天気がいいので散歩した。", "。"])
@@ -57,7 +40,9 @@ def test_document_from_sentence(text: str):
 
 @pytest.mark.parametrize("texts", [["天気がいいので散歩した。"], ["。"]])
 def test_document_from_sentences(texts: list[str]):
-    doc_from_sentences = Document.from_sentences([Sentence.from_string(text) for text in texts])
+    doc_from_sentences = Document.from_sentences(
+        [Sentence.from_string(text) for text in texts]
+    )
     doc_from_sentence_strings = Document.from_sentences(texts)
-    assert doc_from_sentences.text == ''.join(texts)
-    assert doc_from_sentence_strings.text == ''.join(texts)
+    assert doc_from_sentences.text == "".join(texts)
+    assert doc_from_sentence_strings.text == "".join(texts)
