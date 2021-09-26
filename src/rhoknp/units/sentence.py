@@ -156,5 +156,5 @@ class Sentence(Unit):
         ret = self.comment + "\n"
         for clause in self.clauses:
             ret += clause.to_knp()
-        ret += "EOS\n"
+        ret += self.EOS + "\n"
         return ret
