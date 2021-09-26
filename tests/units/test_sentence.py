@@ -5,12 +5,6 @@ import pytest
 from rhoknp.units import Sentence
 
 
-@pytest.mark.parametrize("text", ["天気がいいので散歩した。", "EOSは特殊記号です。", "。"])
-def test_sentence_from_string(text: str):
-    doc = Sentence.from_string(text)
-    assert doc.text == text
-
-
 @dataclass(frozen=True)
 class JumanppTestCase:
     jumanpp: str
@@ -54,6 +48,12 @@ EOS
         text="。",
     ),
 ]
+
+
+@pytest.mark.parametrize("jumanpp,text", [astuple(case) for case in jumanpp_test_cases])
+def test_sentence_from_string(jumanpp: str, text: str):
+    sentence = Sentence.from_string(text)
+    assert sentence.text == text
 
 
 @pytest.mark.parametrize("jumanpp,text", [astuple(case) for case in jumanpp_test_cases])
