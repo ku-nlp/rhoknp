@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 @dataclass(frozen=True)
 class MorphemeAttributes:
     JUMANPP_PATTERN: ClassVar[re.Pattern] = re.compile(
-        r"(?P<attrs>([^ ]+? ){10}[^ ]+?)"
+        r"(?P<attrs>([^ ]+ [^ ]+ [^ ]+ \w+ \d+ \D+ \d+ \D+ \d+ \D+ \d+))"
     )
 
     surf: str
