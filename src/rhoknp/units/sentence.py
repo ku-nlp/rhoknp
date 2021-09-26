@@ -85,6 +85,7 @@ class Sentence(Unit):
             "\n".join(morpheme.to_jumanpp() for morpheme in self.morphemes)
             + "\n"
             + self.EOS
+            + "\n"
         )
         return jumanpp_text
 

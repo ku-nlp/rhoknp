@@ -1,3 +1,5 @@
+from dataclasses import astuple, dataclass
+
 import pytest
 
 from rhoknp.units import Document, Sentence
@@ -9,8 +11,21 @@ def test_sentence_from_string(text: str):
     assert doc.text == text
 
 
-def test_document_from_jumanpp_0():
-    jumanpp = """天気 てんき 天気 名詞 6 普通名詞 1 * 0 * 0 "代表表記:天気/てんき カテゴリ:抽象物"
+@dataclass(frozen=True)
+class JumanppTestCase:
+    jumanpp: str
+    text: str
+
+
+@dataclass(frozen=True)
+class KnpTestCase:
+    knp: str
+    text: str
+
+
+jumanpp_test_cases = [
+    JumanppTestCase(
+        jumanpp="""天気 てんき 天気 名詞 6 普通名詞 1 * 0 * 0 "代表表記:天気/てんき カテゴリ:抽象物"
 が が が 助詞 9 格助詞 1 * 0 * 0 NIL
 いい いい いい 形容詞 3 * 0 イ形容詞イ段 19 基本形 2 "代表表記:良い/よい 反義:形容詞:悪い/わるい"
 ので ので のだ 助動詞 5 * 0 ナ形容詞 21 ダ列タ系連用テ形 12 NIL
@@ -18,30 +33,39 @@ def test_document_from_jumanpp_0():
 した した する 動詞 2 * 0 サ変動詞 16 タ形 10 "代表表記:する/する 自他動詞:自:成る/なる 付属動詞候補（基本）"
 。 。 。 特殊 1 句点 1 * 0 * 0 NIL
 EOS
-"""
-    doc = Document.from_jumanpp(jumanpp)
-    assert [str(sentence) for sentence in doc.sentences] == ["天気がいいので散歩した。"]
-
-
-def test_document_from_jumanpp_1():
-    jumanpp = """EOS EOS EOS 未定義語 15 アルファベット 3 * 0 * 0 "未知語:ローマ字 品詞推定:名詞"
+""",
+        text="天気がいいので散歩した。",
+    ),
+    JumanppTestCase(
+        jumanpp="""EOS EOS EOS 未定義語 15 アルファベット 3 * 0 * 0 "未知語:ローマ字 品詞推定:名詞"
 は は は 助詞 9 副助詞 2 * 0 * 0 NIL
 特殊 とくしゅ 特殊だ 形容詞 3 * 0 ナノ形容詞 22 語幹 1 "代表表記:特殊だ/とくしゅだ 反義:名詞-普通名詞:一般/いっぱん;名詞-普通名詞:普遍/ふへん"
 記号 きごう 記号 名詞 6 普通名詞 1 * 0 * 0 "代表表記:記号/きごう カテゴリ:抽象物"
 です です だ 判定詞 4 * 0 判定詞 25 デス列基本形 27 NIL
 。 。 。 特殊 1 句点 1 * 0 * 0 NIL
 EOS
-"""
-    doc = Document.from_jumanpp(jumanpp)
-    assert [str(sentence) for sentence in doc.sentences] == ["EOSは特殊記号です。"]
-
-
-def test_document_from_jumanpp_2():
-    jumanpp = """。 。 。 特殊 1 句点 1 * 0 * 0 NIL
+""",
+        text="EOSは特殊記号です。",
+    ),
+    JumanppTestCase(
+        jumanpp="""。 。 。 特殊 1 句点 1 * 0 * 0 NIL
 EOS
-"""
-    doc = Document.from_jumanpp(jumanpp)
-    assert [str(sentence) for sentence in doc.sentences] == ["。"]
+""",
+        text="。",
+    ),
+]
+
+
+@pytest.mark.parametrize("jumanpp,text", [astuple(case) for case in jumanpp_test_cases])
+def test_sentence_from_jumanpp(jumanpp: str, text: str):
+    sentence = Sentence.from_jumanpp(jumanpp)
+    assert str(sentence) == text
+
+
+@pytest.mark.parametrize("jumanpp,text", [astuple(case) for case in jumanpp_test_cases])
+def test_sentence_to_jumanpp(jumanpp: str, text: str):
+    sentence = Sentence.from_jumanpp(jumanpp)
+    assert sentence.to_jumanpp() == jumanpp
 
 
 def test_document_from_knp_0():
