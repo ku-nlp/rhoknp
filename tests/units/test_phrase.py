@@ -1,4 +1,4 @@
-from rhoknp.units import Document
+from rhoknp.units import Document, Phrase
 
 
 def test_document_from_knp_0():
@@ -50,3 +50,12 @@ EOS
 """
     doc = Document.from_knp(knp)
     assert [str(phrase) for phrase in doc.phrases] == ["。"]
+
+
+def test_phrase_to_knp():
+    knp = """+ 1D <BGH:天気/てんき><文頭><ガ><助詞><体言><係:ガ格><区切:0-0><格要素><連用要素><名詞項候補><先行詞候補><正規化代表表記:天気/てんき><主辞代表表記:天気/てんき><解析格:ガ>
+天気 てんき 天気 名詞 6 普通名詞 1 * 0 * 0 "代表表記:天気/てんき カテゴリ:抽象物" <代表表記:天気/てんき><カテゴリ:抽象物><正規化代表表記:天気/てんき><漢字><かな漢字><名詞相当語><文頭><自立><内容語><タグ単位始><文節始><文節主辞>
+が が が 助詞 9 格助詞 1 * 0 * 0 NIL <かな漢字><ひらがな><付属>
+"""
+    phrase = Phrase.from_knp(knp, None)
+    assert phrase.to_knp() == knp

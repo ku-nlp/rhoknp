@@ -70,6 +70,8 @@ class Chunk(Unit):
         phrases: list[Phrase] = []
         phrase_lines = []
         for line in knp_text.split("\n"):
+            if not line.strip():
+                continue
             if line.startswith("*"):
                 match = cls.KNP_PATTERN.match(line)
                 if match is None:
@@ -90,3 +92,13 @@ class Chunk(Unit):
 
         chunk.phrases = phrases
         return chunk
+
+    def to_knp(self) -> str:
+        ret = "* {pid}{dtype} {feats}\n".format(
+            pid=self.parent_id,
+            dtype=self.dep_type.value,
+            feats=self.features.to_fstring(),
+        )
+        for phrase in self.phrases:
+            ret += phrase.to_knp()
+        return ret

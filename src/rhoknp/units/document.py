@@ -114,3 +114,9 @@ class Document(Unit):
                 sentence_lines = []
         document.sentences = sentences
         return document
+
+    def to_knp(self) -> str:
+        ret = ""
+        for sentence in self.sentences:
+            ret += sentence.to_knp()
+        return ret

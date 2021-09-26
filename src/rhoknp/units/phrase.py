@@ -29,7 +29,7 @@ class DepType(Enum):
 
 class Phrase(Unit):
     KNP_PATTERN: re.Pattern = re.compile(
-        fr"^\+ (?P<pid>-1|\d+)(?P<dtype>[DPAI]) {Features.PATTERN.pattern}$"
+        fr"^\+ (?P<pid>-1|\d+)(?P<dtype>[{''.join(e.value for e in DepType)}]) {Features.PATTERN.pattern}$"
     )
     count = 0
 
@@ -84,6 +84,8 @@ class Phrase(Unit):
         phrase = cls(chunk)
         morphemes: list[Morpheme] = []
         for line in knp_text.split("\n"):
+            if not line.strip():
+                continue
             if line.startswith("+"):
                 match = cls.KNP_PATTERN.match(line)
                 if match is None:
@@ -96,3 +98,13 @@ class Phrase(Unit):
             morphemes.append(morpheme)
         phrase.morphemes = morphemes
         return phrase
+
+    def to_knp(self) -> str:
+        ret = "+ {pid}{dtype} {feats}\n".format(
+            pid=self.parent_id,
+            dtype=self.dep_type.value,
+            feats=self.features.to_fstring(),
+        )
+        for morpheme in self.morphemes:
+            ret += morpheme.to_jumanpp() + "\n"
+        return ret

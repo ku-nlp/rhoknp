@@ -123,7 +123,7 @@ class Sentence(Unit):
         clause_lines: list[str] = []
         is_clause_end = False
         for line in knp_text.split("\n"):
-            if line.strip() == "":
+            if not line.strip():
                 continue
             if line.startswith("#"):
                 if sentence.comment:
@@ -150,3 +150,10 @@ class Sentence(Unit):
             clause_lines.append(line)
         sentence.clauses = clauses
         return sentence
+
+    def to_knp(self) -> str:
+        ret = self.comment + "\n"
+        for clause in self.clauses:
+            ret += clause.to_knp()
+        ret += "EOS\n"
+        return ret

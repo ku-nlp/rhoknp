@@ -62,6 +62,8 @@ class Clause(Unit):
         chunks = []
         chunk_lines: list[str] = []
         for line in knp_text.split("\n"):
+            if not line.strip():
+                continue
             if line.startswith("*") and chunk_lines:
                 chunk = Chunk.from_knp("\n".join(chunk_lines), clause)
                 chunks.append(chunk)
@@ -72,3 +74,9 @@ class Clause(Unit):
             chunks.append(chunk)
         clause.chunks = chunks
         return clause
+
+    def to_knp(self) -> str:
+        ret = ""
+        for chunk in self.chunks:
+            ret += chunk.to_knp()
+        return ret
