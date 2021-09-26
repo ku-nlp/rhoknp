@@ -135,6 +135,10 @@ class Morpheme(Unit):
     def conjform(self) -> str:
         return self._attributes.conjform
 
+    @property
+    def fstring(self) -> str:
+        return self.features.to_fstring()
+
     @classmethod
     def from_jumanpp(
         cls,

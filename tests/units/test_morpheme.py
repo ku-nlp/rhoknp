@@ -109,6 +109,19 @@ def test_morpheme_to_jumanpp(jumanpp: str, texts: list[str]):
     assert morpheme.to_jumanpp() == jumanpp
 
 
+def test_morpheme_attributes():
+    jumanpp_text = "であり であり だ 判定詞 4 * 0 判定詞 25 デアル列基本連用形 18\n"
+    morpheme = Morpheme.from_jumanpp(jumanpp_text)
+    assert morpheme.surf == "であり"
+    assert morpheme.reading == "であり"
+    assert morpheme.lemma == "だ"
+    assert morpheme.pos == "判定詞"
+    assert morpheme.subpos == "*"
+    assert morpheme.conjtype == "判定詞"
+    assert morpheme.conjform == "デアル列基本連用形"
+    assert morpheme.fstring == ""
+
+
 def test_morpheme_semantics():
     jumanpp = '解析 かいせき 解析 名詞 6 サ変名詞 2 * 0 * 0 "代表表記:解析/かいせき カテゴリ:抽象物 ドメイン:教育・学習;科学・技術"'
     morpheme = Morpheme.from_jumanpp(jumanpp)
