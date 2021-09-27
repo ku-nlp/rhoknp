@@ -5,7 +5,7 @@ from rhoknp.units import Document
 
 
 @pytest.mark.parametrize(
-    "document,sentence_strings",
+    "document, sentence_strings",
     [
         (
             "天気がいいので散歩した。",
@@ -75,9 +75,7 @@ from rhoknp.units import Document
 )
 def test_document_from_string(document: str, sentence_strings):
     doc = Document.from_string(document)
-
     senter = RegexSenter()
     doc = senter.apply(doc)
-
     for i, sentence in enumerate(doc.sentences):
         assert sentence.text == sentence_strings[i]
