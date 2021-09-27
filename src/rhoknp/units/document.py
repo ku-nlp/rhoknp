@@ -49,9 +49,7 @@ class Document(Unit):
 
     @property
     def morphemes(self) -> list[Morpheme]:
-        return [
-            morpheme for sentence in self.sentences for morpheme in sentence.morphemes
-        ]
+        return [morpheme for sentence in self.sentences for morpheme in sentence.morphemes]
 
     def to_jumanpp(self) -> str:
         return "\n".join(sentence.to_jumanpp() for sentence in self.sentences)
@@ -91,9 +89,7 @@ class Document(Unit):
                 continue
             sentence_lines.append(line)
             if line.strip() == Sentence.EOS:
-                sentences.append(
-                    Sentence.from_jumanpp("\n".join(sentence_lines) + "\n", document)
-                )
+                sentences.append(Sentence.from_jumanpp("\n".join(sentence_lines) + "\n", document))
                 sentence_lines = []
         document.sentences = sentences
         return document
@@ -108,9 +104,7 @@ class Document(Unit):
                 continue
             sentence_lines.append(line)
             if line.strip() == Sentence.EOS:
-                sentences.append(
-                    Sentence.from_knp("\n".join(sentence_lines) + "\n", document)
-                )
+                sentences.append(Sentence.from_knp("\n".join(sentence_lines) + "\n", document))
                 sentence_lines = []
         document.sentences = sentences
         return document

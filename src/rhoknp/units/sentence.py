@@ -65,13 +65,9 @@ class Sentence(Unit):
         if self.__morphemes is not None:
             return self.__morphemes
         elif self.__clauses is not None:
-            return [
-                morpheme for phrase in self.phrases for morpheme in phrase.morphemes
-            ]
+            return [morpheme for phrase in self.phrases for morpheme in phrase.morphemes]
         else:
-            raise AttributeError(
-                "This attribute is not available before applying Jumanpp"
-            )
+            raise AttributeError("This attribute is not available before applying Jumanpp")
 
     @morphemes.setter
     def morphemes(self, morphemes: list[Morpheme]) -> None:
@@ -81,26 +77,17 @@ class Sentence(Unit):
         jumanpp_text = ""
         if self.comment is not None:
             jumanpp_text += self.comment + "\n"
-        jumanpp_text += (
-            "\n".join(morpheme.to_jumanpp() for morpheme in self.morphemes)
-            + "\n"
-            + self.EOS
-            + "\n"
-        )
+        jumanpp_text += "\n".join(morpheme.to_jumanpp() for morpheme in self.morphemes) + "\n" + self.EOS + "\n"
         return jumanpp_text
 
     @classmethod
-    def from_string(
-        cls, text: str, document: Optional["Document"] = None
-    ) -> "Sentence":
+    def from_string(cls, text: str, document: Optional["Document"] = None) -> "Sentence":
         sentence = cls(document)
         sentence.text = text
         return sentence
 
     @classmethod
-    def from_jumanpp(
-        cls, jumanpp_text: str, document: Optional["Document"] = None
-    ) -> "Sentence":
+    def from_jumanpp(cls, jumanpp_text: str, document: Optional["Document"] = None) -> "Sentence":
         sentence = cls(document)
         morphemes = []
         for line in jumanpp_text.split("\n"):
@@ -116,9 +103,7 @@ class Sentence(Unit):
         return sentence
 
     @classmethod
-    def from_knp(
-        cls, knp_text: str, document: Optional["Document"] = None
-    ) -> "Sentence":
+    def from_knp(cls, knp_text: str, document: Optional["Document"] = None) -> "Sentence":
         sentence = cls(document)
         clauses: list[Clause] = []
         clause_lines: list[str] = []

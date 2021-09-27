@@ -100,8 +100,4 @@ class RegexSenter(Processor):
     @staticmethod
     def _clean_up_candidates(sentence_candidates: list[str]) -> list[str]:
         """Remove empty sentence candidates."""
-        return [
-            sentence_candidate.strip()
-            for sentence_candidate in sentence_candidates
-            if sentence_candidate.strip()
-        ]
+        return [sentence_candidate.strip() for sentence_candidate in sentence_candidates if sentence_candidate.strip()]
