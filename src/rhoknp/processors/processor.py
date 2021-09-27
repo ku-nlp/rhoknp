@@ -5,7 +5,7 @@ from rhoknp.units.document import Document
 
 
 class Processor(ABC):
-    def __init__(self, executor: Union[Callable, str]):
+    def __init__(self, executor: Union[Callable, str, list[str]]):
         self.executor = executor
 
     def apply(self, document: Document) -> Document:
