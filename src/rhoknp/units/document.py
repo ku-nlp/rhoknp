@@ -40,7 +40,7 @@ class Document(Unit):
         return [clause for sentence in self.sentences for clause in sentence.clauses]
 
     @property
-    def chunks(self) -> list[Clause]:
+    def chunks(self) -> list[Chunk]:
         return [chunk for clause in self.clauses for chunk in clause.chunks]
 
     @property
@@ -50,9 +50,6 @@ class Document(Unit):
     @property
     def morphemes(self) -> list[Morpheme]:
         return [morpheme for sentence in self.sentences for morpheme in sentence.morphemes]
-
-    def to_jumanpp(self) -> str:
-        return "\n".join(sentence.to_jumanpp() for sentence in self.sentences)
 
     @classmethod
     def from_string(cls, text: str) -> "Document":
@@ -108,6 +105,9 @@ class Document(Unit):
                 sentence_lines = []
         document.sentences = sentences
         return document
+
+    def to_jumanpp(self) -> str:
+        return "\n".join(sentence.to_jumanpp() for sentence in self.sentences)
 
     def to_knp(self) -> str:
         ret = ""

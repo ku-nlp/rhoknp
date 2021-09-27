@@ -18,9 +18,10 @@ class Sentence(Unit):
     def __init__(self, document: Optional["Document"] = None):
         super().__init__(document)
 
-        self.comment: str = None
-        self.__clauses: list[Clause] = None
-        self.__morphemes: list[Morpheme] = None
+        self.sid: Optional[str] = None
+        self.comment: Optional[str] = None
+        self.__clauses: Optional[list[Clause]] = None
+        self.__morphemes: Optional[list[Morpheme]] = None
 
         self.index = self.count
         Sentence.count += 1
@@ -72,13 +73,6 @@ class Sentence(Unit):
     @morphemes.setter
     def morphemes(self, morphemes: list[Morpheme]) -> None:
         self.__morphemes = morphemes
-
-    def to_jumanpp(self) -> str:
-        jumanpp_text = ""
-        if self.comment is not None:
-            jumanpp_text += self.comment + "\n"
-        jumanpp_text += "\n".join(morpheme.to_jumanpp() for morpheme in self.morphemes) + "\n" + self.EOS + "\n"
-        return jumanpp_text
 
     @classmethod
     def from_string(cls, text: str, document: Optional["Document"] = None) -> "Sentence":
@@ -137,8 +131,17 @@ class Sentence(Unit):
         sentence.clauses = clauses
         return sentence
 
+    def to_jumanpp(self) -> str:
+        jumanpp_text = ""
+        if self.comment is not None:
+            jumanpp_text += self.comment + "\n"
+        jumanpp_text += "\n".join(morpheme.to_jumanpp() for morpheme in self.morphemes) + "\n" + self.EOS + "\n"
+        return jumanpp_text
+
     def to_knp(self) -> str:
-        ret = self.comment + "\n"
+        ret = ""
+        if self.comment is not None:
+            self.comment + "\n"
         for clause in self.clauses:
             ret += clause.to_knp()
         ret += self.EOS + "\n"

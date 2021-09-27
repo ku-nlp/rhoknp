@@ -76,6 +76,9 @@ class Morpheme(Unit):
         self.index = self.count
         Morpheme.count += 1
 
+    def __str__(self) -> str:
+        return self.text
+
     @property
     def child_units(self) -> None:
         return None
@@ -165,6 +168,3 @@ class Morpheme(Unit):
         if self.features:
             ret += f" {self.features.to_fstring()}"
         return ret
-
-    def __str__(self) -> str:
-        return self.text

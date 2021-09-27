@@ -66,7 +66,7 @@ class Chunk(Unit):
     def from_knp(cls, knp_text: str, clause: "Clause") -> "Chunk":
         chunk = cls(clause)
         phrases: list[Phrase] = []
-        phrase_lines = []
+        phrase_lines: list[str] = []
         for line in knp_text.split("\n"):
             if not line.strip():
                 continue
