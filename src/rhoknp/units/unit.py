@@ -1,13 +1,15 @@
+from abc import ABC, abstractmethod
 from typing import Optional
 
 
-class Unit:
+class Unit(ABC):
     def __init__(self, parent_unit: Optional["Unit"]):
         self.parent_unit = parent_unit
 
         self.__text: Optional[str] = None
 
     @property
+    @abstractmethod
     def child_units(self) -> Optional[list["Unit"]]:
         raise NotImplementedError
 

@@ -141,7 +141,7 @@ class Sentence(Unit):
     def to_knp(self) -> str:
         ret = ""
         if self.comment is not None:
-            self.comment + "\n"
+            ret += self.comment + "\n"
         for clause in self.clauses:
             ret += clause.to_knp()
         ret += self.EOS + "\n"
