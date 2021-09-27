@@ -99,7 +99,7 @@ EOS
     assert len(sent.clauses) == 2
 
 
-def test_sentence_clauses2():
+def test_sentence_clauses_error():
     doc = Document.from_sentence("天気がいいので散歩した。")
     try:
         _ = doc.clauses
@@ -131,7 +131,7 @@ EOS
     assert len(sent.chunks) == 3
 
 
-def test_sentence_chunks2():
+def test_sentence_chunks_error():
     doc = Document.from_sentence("天気がいいので散歩した。")
     try:
         _ = doc.chunks
@@ -163,7 +163,7 @@ EOS
     assert len(sent.phrases) == 3
 
 
-def test_sentence_phrases2():
+def test_sentence_phrases_error():
     doc = Document.from_sentence("天気がいいので散歩した。")
     try:
         _ = doc.phrases
@@ -195,7 +195,7 @@ EOS
     assert len(sent.morphemes) == 7
 
 
-def test_sentence_morphemes2():
+def test_sentence_morphemes_error():
     doc = Document.from_sentence("天気がいいので散歩した。")
     try:
         _ = doc.morphemes

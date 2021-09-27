@@ -124,3 +124,13 @@ def test_morpheme_semantics_nil():
     jumanpp = "であり であり だ 判定詞 4 * 0 判定詞 25 デアル列基本連用形 18 NIL"
     morpheme = Morpheme.from_jumanpp(jumanpp)
     assert morpheme.semantics == "NIL"
+
+
+def test_morpheme_error():
+    jumanpp = "であり であり だ 判定詞 4 * 0 判定詞 25 デアル列基本連用形 18"
+    try:
+        _ = Morpheme.from_jumanpp(jumanpp)
+    except ValueError:
+        pass
+    except Exception:
+        raise Exception
