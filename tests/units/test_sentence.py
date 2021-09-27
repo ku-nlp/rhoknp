@@ -99,6 +99,16 @@ EOS
     assert len(sent.clauses) == 2
 
 
+def test_sentence_clauses2():
+    doc = Document.from_sentence("天気がいいので散歩した。")
+    try:
+        _ = doc.clauses
+    except AttributeError:
+        pass
+    except Exception:
+        raise Exception
+
+
 def test_sentence_chunks():
     knp = """# S-ID:1 KNP:5.0-2ad4f6df DATE:2021/08/05 SCORE:-10.73865
 * 1D <BGH:天気/てんき><文頭><ガ><助詞><体言><係:ガ格><区切:0-0><格要素><連用要素><正規化代表表記:天気/てんき><主辞代表表記:天気/てんき>
@@ -119,6 +129,16 @@ EOS
     doc = Document.from_knp(knp)
     sent = doc.sentences[0]
     assert len(sent.chunks) == 3
+
+
+def test_sentence_chunks2():
+    doc = Document.from_sentence("天気がいいので散歩した。")
+    try:
+        _ = doc.chunks
+    except AttributeError:
+        pass
+    except Exception:
+        raise Exception
 
 
 def test_sentence_phrases():
@@ -143,6 +163,16 @@ EOS
     assert len(sent.phrases) == 3
 
 
+def test_sentence_phrases2():
+    doc = Document.from_sentence("天気がいいので散歩した。")
+    try:
+        _ = doc.phrases
+    except AttributeError:
+        pass
+    except Exception:
+        raise Exception
+
+
 def test_sentence_morphemes():
     knp = """# S-ID:1 KNP:5.0-2ad4f6df DATE:2021/08/05 SCORE:-10.73865
 * 1D <BGH:天気/てんき><文頭><ガ><助詞><体言><係:ガ格><区切:0-0><格要素><連用要素><正規化代表表記:天気/てんき><主辞代表表記:天気/てんき>
@@ -163,6 +193,16 @@ EOS
     doc = Document.from_knp(knp)
     sent = doc.sentences[0]
     assert len(sent.morphemes) == 7
+
+
+def test_sentence_morphemes2():
+    doc = Document.from_sentence("天気がいいので散歩した。")
+    try:
+        _ = doc.morphemes
+    except AttributeError:
+        pass
+    except Exception:
+        raise Exception
 
 
 @pytest.mark.parametrize(
