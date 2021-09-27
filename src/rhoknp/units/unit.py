@@ -1,10 +1,9 @@
-import weakref
 from typing import Optional
 
 
 class Unit:
     def __init__(self, parent_unit: Optional["Unit"]):
-        self.parent_unit = parent_unit and weakref.ref(parent_unit)
+        self.parent_unit = parent_unit
 
         self.__text: str = None
 
