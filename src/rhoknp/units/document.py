@@ -9,6 +9,8 @@ from .unit import Unit
 
 
 class Document(Unit):
+    count = 0
+
     def __init__(self):
         super().__init__(self)
 
@@ -19,6 +21,9 @@ class Document(Unit):
         Morpheme.count = 0
 
         self.__sentences: list[Sentence] = None
+
+        self.index = self.count
+        Document.count += 1
 
     def __str__(self) -> str:
         return self.text
