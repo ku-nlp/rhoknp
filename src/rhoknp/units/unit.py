@@ -1,12 +1,21 @@
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Any, Optional
 
 
 class Unit(ABC):
     def __init__(self, parent_unit: Optional["Unit"]):
         self.parent_unit = parent_unit
 
+        self.index: Optional[int] = None
+
         self.__text: Optional[str] = None
+
+    def __eq__(self, other: Any) -> bool:
+        if isinstance(other, type(self)):
+            if self.parent_unit != other.parent_unit:
+                return False
+            return self.index == other.index
+        return False
 
     @property
     @abstractmethod

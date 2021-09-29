@@ -12,7 +12,7 @@ class Document(Unit):
     count = 0
 
     def __init__(self):
-        super().__init__(self)
+        super().__init__(None)
 
         Sentence.count = 0
         Clause.count = 0
