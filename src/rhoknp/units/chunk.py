@@ -98,6 +98,8 @@ class Chunk(Unit):
         return chunk
 
     def to_knp(self) -> str:
+        if self.parent_id is None or self.dep_type is None or self.features is None:
+            raise AttributeError
         ret = "* {pid}{dtype} {feats}\n".format(
             pid=self.parent_id,
             dtype=self.dep_type.value,
