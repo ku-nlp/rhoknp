@@ -12,9 +12,6 @@ class RegexSenter(Processor):
 
     PERIODS = "。．？！♪☆★…?!"
 
-    def __init__(self):
-        super().__init__(None)
-
     def apply(self, document: Document) -> Document:
         """Apply document processing
 
