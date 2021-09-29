@@ -187,11 +187,44 @@ def test_document_reference(knp: str):
     document = Document.from_knp(knp)
     for sentence in document.sentences:
         assert sentence.document == document
+        assert sentence == sentence
         for clause in sentence.clauses:
+            assert clause.document == document
             assert clause.sentence == sentence
+            assert clause == clause
             for chunk in clause.chunks:
+                assert chunk.document == document
+                assert chunk.sentence == sentence
                 assert chunk.clause == clause
                 for phrase in chunk.phrases:
+                    assert phrase.document == document
+                    assert phrase.sentence == sentence
                     assert phrase.chunk == chunk
+                    assert phrase == phrase
                     for morpheme in phrase.morphemes:
+                        assert morpheme.document == document
+                        assert morpheme.sentence == sentence
+                        assert morpheme.clause == clause
+                        assert morpheme.chunk == chunk
                         assert morpheme.phrase == phrase
+                        assert morpheme == morpheme
+                for morpheme in chunk.morphemes:
+                    assert morpheme.chunk == chunk
+            for phrase in clause.phrases:
+                assert phrase.clause == clause
+            for morpheme in clause.morphemes:
+                assert morpheme.clause == clause
+        for chunk in sentence.chunks:
+            assert chunk.sentence == sentence
+        for phrase in sentence.phrases:
+            assert phrase.sentence == sentence
+        for morpheme in sentence.morphemes:
+            assert morpheme.sentence == sentence
+    for clause in document.clauses:
+        assert clause.document == document
+    for chunk in document.chunks:
+        assert chunk.document == document
+    for phrase in document.phrases:
+        assert phrase.document == document
+    for morpheme in document.morphemes:
+        assert morpheme.document == document
