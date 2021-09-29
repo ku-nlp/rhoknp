@@ -44,7 +44,7 @@ jobs:
         poetry run flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Run tests
       run: |
-        poetry run pytest --mypy --cov=rhoknp --cov-branch -v ./tests --cov-report=xml
+        poetry run pytest --mypy --cov-config=./.coveragerc --cov=rhoknp --cov-branch --cov-report=xml -v ./tests
     - name: Upload coverage to Codecov
       if: ${{ matrix.python-version==3.9 }}
       uses: codecov/codecov-action@v2
