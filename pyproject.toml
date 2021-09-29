@@ -25,4 +25,3 @@ target-version = ["py39"]
 
 [mypy]
 python_version = 3.9
-exclude = "tests/"
