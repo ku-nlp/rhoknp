@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 class Clause(Unit):
     count = 0
 
-    def __init__(self, sentence: "Sentence"):
+    def __init__(self, sentence: Optional["Sentence"] = None):
         super().__init__()
 
         self.__sentence = sentence
@@ -63,7 +63,7 @@ class Clause(Unit):
         return [morpheme for phrase in self.phrases for morpheme in phrase.morphemes]
 
     @classmethod
-    def from_knp(cls, knp_text: str, sentence: "Sentence") -> "Clause":
+    def from_knp(cls, knp_text: str, sentence: Optional["Sentence"] = None) -> "Clause":
         clause = cls(sentence)
         chunks = []
         chunk_lines: list[str] = []

@@ -16,7 +16,7 @@ class Chunk(Unit):
     KNP_PATTERN: re.Pattern = re.compile(fr"^\* (?P<pid>-1|\d+)(?P<dtype>[DPAI]) {Features.PATTERN.pattern}$")
     count = 0
 
-    def __init__(self, clause: "Clause"):
+    def __init__(self, clause: Optional["Clause"] = None):
         super().__init__()
 
         self.__clause = clause
@@ -69,7 +69,7 @@ class Chunk(Unit):
         return [morpheme for phrase in self.phrases for morpheme in phrase.morphemes]
 
     @classmethod
-    def from_knp(cls, knp_text: str, clause: "Clause") -> "Chunk":
+    def from_knp(cls, knp_text: str, clause: Optional["Clause"] = None) -> "Chunk":
         chunk = cls(clause)
         phrases: list[Phrase] = []
         phrase_lines: list[str] = []

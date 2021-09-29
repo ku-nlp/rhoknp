@@ -91,5 +91,5 @@ EOS EOS EOS 名詞 6 組織名 6 * 0 * 0 "未知語:ローマ字 品詞推定:�
     ],
 )
 def test_phrase_to_knp(knp: str):
-    phrase = Phrase.from_knp(knp, None)
+    phrase = Phrase.from_knp(knp)
     assert phrase.to_knp() == knp

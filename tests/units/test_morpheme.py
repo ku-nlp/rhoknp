@@ -97,7 +97,7 @@ def test_morpheme_from_jumanpp(jumanpp: str, text: str):
     ],
 )
 def test_morpheme_to_jumanpp(jumanpp: str):
-    morpheme = Morpheme.from_jumanpp(jumanpp, None)
+    morpheme = Morpheme.from_jumanpp(jumanpp)
     assert morpheme.to_jumanpp() == jumanpp
 
 

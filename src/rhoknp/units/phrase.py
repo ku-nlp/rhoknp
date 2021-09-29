@@ -33,7 +33,7 @@ class Phrase(Unit):
     )
     count = 0
 
-    def __init__(self, chunk: "Chunk"):
+    def __init__(self, chunk: Optional["Chunk"] = None):
         super().__init__()
 
         self.__chunk = chunk
@@ -86,7 +86,7 @@ class Phrase(Unit):
         self.__morphemes = morphemes
 
     @classmethod
-    def from_knp(cls, knp_text: str, chunk: "Chunk") -> "Phrase":
+    def from_knp(cls, knp_text: str, chunk: Optional["Chunk"] = None) -> "Phrase":
         phrase = cls(chunk)
         morphemes: list[Morpheme] = []
         for line in knp_text.split("\n"):
