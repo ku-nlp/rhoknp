@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from .chunk import Chunk
 from .morpheme import Morpheme
@@ -16,7 +16,7 @@ class Clause(Unit):
     def __init__(self, sentence: "Sentence"):
         super().__init__(sentence)
 
-        self.__chunks: list["Chunk"] = None
+        self.__chunks: Optional[list["Chunk"]] = None
 
         self.index = self.count
         Clause.count += 1

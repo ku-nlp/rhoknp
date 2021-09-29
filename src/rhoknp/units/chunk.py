@@ -19,10 +19,10 @@ class Chunk(Unit):
     def __init__(self, clause: "Clause"):
         super().__init__(clause)
 
-        self.__phrases: list["Phrase"] = None
+        self.__phrases: Optional[list["Phrase"]] = None
         self.parent_id: Optional[int] = None
-        self.dep_type: DepType = None
-        self.features: Features = None
+        self.dep_type: Optional[DepType] = None
+        self.features: Optional[Features] = None
 
         self.index = self.count
         Chunk.count += 1

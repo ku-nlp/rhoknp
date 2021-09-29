@@ -36,10 +36,10 @@ class Phrase(Unit):
     def __init__(self, chunk: "Chunk"):
         super().__init__(chunk)
 
-        self.__morphemes: list["Morpheme"] = None
+        self.__morphemes: Optional[list["Morpheme"]] = None
         self.parent_id: Optional[int] = None
-        self.dep_type: DepType = None
-        self.features: Features = None
+        self.dep_type: Optional[DepType] = None
+        self.features: Optional[Features] = None
 
         self.index = self.count
         Phrase.count += 1
