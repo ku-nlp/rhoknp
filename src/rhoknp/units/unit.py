@@ -1,11 +1,9 @@
 from abc import ABC, abstractmethod
-from typing import Any, Optional
+from typing import Any, Optional, Sequence
 
 
 class Unit(ABC):
-    def __init__(self, parent_unit: Optional["Unit"]):
-        self.parent_unit = parent_unit
-
+    def __init__(self):
         self.index: Optional[int] = None
 
         self.__text: Optional[str] = None
@@ -18,8 +16,12 @@ class Unit(ABC):
         return False
 
     @property
+    def parent_unit(self) -> Optional["Unit"]:
+        raise NotImplementedError
+
+    @property
     @abstractmethod
-    def child_units(self) -> Optional[list["Unit"]]:
+    def child_units(self) -> Optional[Sequence["Unit"]]:
         raise NotImplementedError
 
     @property

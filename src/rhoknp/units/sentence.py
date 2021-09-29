@@ -16,7 +16,9 @@ class Sentence(Unit):
     count = 0
 
     def __init__(self, document: Optional["Document"] = None):
-        super().__init__(document)
+        super().__init__()
+
+        self.__document = document
 
         self.sid: Optional[str] = None
         self.comment: Optional[str] = None
@@ -28,6 +30,10 @@ class Sentence(Unit):
 
     def __str__(self) -> str:
         return self.text
+
+    @property
+    def parent_unit(self) -> Optional["Document"]:
+        return self.__document
 
     @property
     def child_units(self) -> Union[list[Clause], list[Morpheme], None]:

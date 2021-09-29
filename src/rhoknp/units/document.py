@@ -1,4 +1,4 @@
-from typing import List, Union
+from typing import Sequence, Union
 
 from .chunk import Chunk
 from .clause import Clause
@@ -12,7 +12,7 @@ class Document(Unit):
     count = 0
 
     def __init__(self):
-        super().__init__(None)
+        super().__init__()
 
         Sentence.count = 0
         Clause.count = 0
@@ -27,6 +27,10 @@ class Document(Unit):
 
     def __str__(self) -> str:
         return self.text
+
+    @property
+    def parent_unit(self) -> None:
+        return None
 
     @property
     def child_units(self) -> list[Sentence]:
@@ -71,7 +75,7 @@ class Document(Unit):
         return document
 
     @classmethod
-    def from_sentences(cls, sentences: List[Union[Sentence, str]]) -> "Document":
+    def from_sentences(cls, sentences: Sequence[Union[Sentence, str]]) -> "Document":
         document = cls()
         sentences_ = []
         for sentence in sentences:

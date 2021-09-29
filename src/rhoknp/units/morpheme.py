@@ -1,6 +1,6 @@
 import re
 from dataclasses import astuple, dataclass, fields
-from typing import TYPE_CHECKING, ClassVar, Optional
+from typing import TYPE_CHECKING, ClassVar, Optional, Union
 
 from .unit import Unit
 from .utils import Features
@@ -64,20 +64,30 @@ class Morpheme(Unit):
         sentence: Optional["Sentence"] = None,
         phrase: Optional["Phrase"] = None,
     ):
-        super().__init__(phrase or sentence)
+        super().__init__()
+
+        self.__phrase = phrase
+        self.__sentence = sentence
+
         self._attributes = attributes
         self.semantics = semantics
         self.features = features
 
         self.text = attributes.surf
 
-        self.__has_phrase_parent = phrase is not None
-
         self.index = self.count
         Morpheme.count += 1
 
     def __str__(self) -> str:
         return self.text
+
+    @property
+    def parent_unit(self) -> Optional[Union["Phrase", "Sentence"]]:
+        if self.__phrase is not None:
+            return self.__phrase
+        if self.__sentence is not None:
+            return self.__sentence
+        return None
 
     @property
     def child_units(self) -> None:
@@ -89,12 +99,11 @@ class Morpheme(Unit):
 
     @property
     def sentence(self) -> "Sentence":
-        if self.__has_phrase_parent is True:
+        if self.__sentence is not None:
+            return self.__sentence
+        if self.__phrase is not None:
             return self.clause.sentence
-        elif self.parent_unit is not None:
-            return self.parent_unit
-        else:
-            raise AttributeError("This attribute has not been set")
+        raise AttributeError("This attribute has not been set")
 
     @property
     def clause(self) -> "Clause":
@@ -106,9 +115,9 @@ class Morpheme(Unit):
 
     @property
     def phrase(self) -> "Phrase":
-        if self.__has_phrase_parent is False:
+        if self.__phrase is None:
             raise AttributeError("This attribute is not available before applying KNP")
-        return self.parent_unit
+        return self.__phrase
 
     @property
     def surf(self) -> str:

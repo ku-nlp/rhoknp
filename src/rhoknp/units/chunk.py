@@ -17,7 +17,9 @@ class Chunk(Unit):
     count = 0
 
     def __init__(self, clause: "Clause"):
-        super().__init__(clause)
+        super().__init__()
+
+        self.__clause = clause
 
         self.__phrases: Optional[list["Phrase"]] = None
         self.parent_id: Optional[int] = None
@@ -29,6 +31,10 @@ class Chunk(Unit):
 
     def __str__(self) -> str:
         return self.text
+
+    @property
+    def parent_unit(self) -> Optional["Clause"]:
+        return self.__clause
 
     @property
     def child_units(self) -> list[Phrase]:

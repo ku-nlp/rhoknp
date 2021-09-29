@@ -34,7 +34,9 @@ class Phrase(Unit):
     count = 0
 
     def __init__(self, chunk: "Chunk"):
-        super().__init__(chunk)
+        super().__init__()
+
+        self.__chunk = chunk
 
         self.__morphemes: Optional[list["Morpheme"]] = None
         self.parent_id: Optional[int] = None
@@ -46,6 +48,10 @@ class Phrase(Unit):
 
     def __str__(self) -> str:
         return self.text
+
+    @property
+    def parent_unit(self) -> Optional["Chunk"]:
+        return self.__chunk
 
     @property
     def child_units(self) -> list[Morpheme]:

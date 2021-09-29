@@ -14,7 +14,9 @@ class Clause(Unit):
     count = 0
 
     def __init__(self, sentence: "Sentence"):
-        super().__init__(sentence)
+        super().__init__()
+
+        self.__sentence = sentence
 
         self.__chunks: Optional[list["Chunk"]] = None
 
@@ -23,6 +25,10 @@ class Clause(Unit):
 
     def __str__(self) -> str:
         return self.text
+
+    @property
+    def parent_unit(self) -> Optional["Sentence"]:
+        return self.__sentence
 
     @property
     def child_units(self) -> list[Chunk]:
