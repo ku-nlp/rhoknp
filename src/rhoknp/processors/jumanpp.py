@@ -1,5 +1,5 @@
 from subprocess import PIPE, Popen
-from typing import Union
+from typing import Sequence, Union
 
 from rhoknp.units import Document
 
@@ -7,7 +7,7 @@ from .processor import Processor
 
 
 class Jumanpp(Processor):
-    def __init__(self, executor: Union[str, list[str]] = "jumanpp"):
+    def __init__(self, executor: Union[str, Sequence[str]] = "jumanpp"):
         self.executor = executor
 
     def apply(self, document: Document) -> Document:
