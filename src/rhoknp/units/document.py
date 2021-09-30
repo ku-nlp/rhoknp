@@ -116,10 +116,7 @@ class Document(Unit):
         return document
 
     def to_jumanpp(self) -> str:
-        return "\n".join(sentence.to_jumanpp() for sentence in self.sentences)
+        return "".join(sentence.to_jumanpp() for sentence in self.sentences)
 
     def to_knp(self) -> str:
-        ret = ""
-        for sentence in self.sentences:
-            ret += sentence.to_knp()
-        return ret
+        return "".join(sentence.to_knp() for sentence in self.sentences)

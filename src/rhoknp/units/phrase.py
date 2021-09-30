@@ -113,6 +113,5 @@ class Phrase(Unit):
             dtype=self.dep_type.value,
             feats=self.features.to_fstring(),
         )
-        for morpheme in self.morphemes:
-            ret += morpheme.to_jumanpp() + "\n"
+        ret += "".join(morpheme.to_jumanpp() for morpheme in self.morphemes)
         return ret

@@ -105,6 +105,5 @@ class Chunk(Unit):
             dtype=self.dep_type.value,
             feats=self.features.to_fstring(),
         )
-        for phrase in self.phrases:
-            ret += phrase.to_knp()
+        ret += "".join(phrase.to_knp() for phrase in self.phrases)
         return ret

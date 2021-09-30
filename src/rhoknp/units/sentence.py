@@ -138,17 +138,15 @@ class Sentence(Unit):
         return sentence
 
     def to_jumanpp(self) -> str:
-        jumanpp_text = ""
+        ret = ""
         if self.comment is not None:
-            jumanpp_text += self.comment + "\n"
-        jumanpp_text += "\n".join(morpheme.to_jumanpp() for morpheme in self.morphemes) + "\n" + self.EOS + "\n"
-        return jumanpp_text
+            ret += self.comment + "\n"
+        ret += "".join(morpheme.to_jumanpp() for morpheme in self.morphemes) + self.EOS + "\n"
+        return ret
 
     def to_knp(self) -> str:
         ret = ""
         if self.comment is not None:
             ret += self.comment + "\n"
-        for clause in self.clauses:
-            ret += clause.to_knp()
-        ret += self.EOS + "\n"
+        ret += "".join(clause.to_knp() for clause in self.clauses) + self.EOS + "\n"
         return ret

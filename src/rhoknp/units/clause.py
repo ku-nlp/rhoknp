@@ -82,7 +82,4 @@ class Clause(Unit):
         return clause
 
     def to_knp(self) -> str:
-        ret = ""
-        for chunk in self.chunks:
-            ret += chunk.to_knp()
-        return ret
+        return "".join(chunk.to_knp() for chunk in self.chunks)

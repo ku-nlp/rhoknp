@@ -176,4 +176,5 @@ class Morpheme(Unit):
             ret += f' "{self.semantics}"' if self.semantics != "NIL" else " NIL"
         if self.features:
             ret += f" {self.features.to_fstring()}"
+        ret += "\n"
         return ret
