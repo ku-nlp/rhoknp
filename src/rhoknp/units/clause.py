@@ -16,9 +16,9 @@ class Clause(Unit):
     def __init__(self, sentence: Optional["Sentence"] = None):
         super().__init__()
 
-        self.__sentence = sentence
+        self._sentence = sentence
 
-        self.__chunks: Optional[list["Chunk"]] = None
+        self._chunks: Optional[list[Chunk]] = None
 
         self.index = self.count
         Clause.count += 1
@@ -28,7 +28,7 @@ class Clause(Unit):
 
     @property
     def parent_unit(self) -> Optional["Sentence"]:
-        return self.__sentence
+        return self._sentence
 
     @property
     def child_units(self) -> list[Chunk]:
@@ -46,13 +46,13 @@ class Clause(Unit):
 
     @property
     def chunks(self) -> list[Chunk]:
-        if self.__chunks is None:
+        if self._chunks is None:
             raise AttributeError("This attribute is not available before applying KNP")
-        return self.__chunks
+        return self._chunks
 
     @chunks.setter
     def chunks(self, chunks: list["Chunk"]):
-        self.__chunks = chunks
+        self._chunks = chunks
 
     @property
     def phrases(self) -> list[Phrase]:

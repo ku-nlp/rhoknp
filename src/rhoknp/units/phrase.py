@@ -36,9 +36,9 @@ class Phrase(Unit):
     def __init__(self, chunk: Optional["Chunk"] = None):
         super().__init__()
 
-        self.__chunk = chunk
+        self._chunk = chunk
 
-        self.__morphemes: Optional[list["Morpheme"]] = None
+        self._morphemes: Optional[list[Morpheme]] = None
         self.parent_id: Optional[int] = None
         self.dep_type: Optional[DepType] = None
         self.features: Optional[Features] = None
@@ -51,7 +51,7 @@ class Phrase(Unit):
 
     @property
     def parent_unit(self) -> Optional["Chunk"]:
-        return self.__chunk
+        return self._chunk
 
     @property
     def child_units(self) -> list[Morpheme]:
@@ -77,13 +77,13 @@ class Phrase(Unit):
 
     @property
     def morphemes(self) -> list[Morpheme]:
-        if self.__morphemes is None:
+        if self._morphemes is None:
             raise AttributeError("This attribute is not available before applying KNP")
-        return self.__morphemes
+        return self._morphemes
 
     @morphemes.setter
     def morphemes(self, morphemes: list["Morpheme"]):
-        self.__morphemes = morphemes
+        self._morphemes = morphemes
 
     @classmethod
     def from_knp(cls, knp_text: str, chunk: Optional["Chunk"] = None) -> "Phrase":

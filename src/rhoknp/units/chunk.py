@@ -19,9 +19,9 @@ class Chunk(Unit):
     def __init__(self, clause: Optional["Clause"] = None):
         super().__init__()
 
-        self.__clause = clause
+        self._clause = clause
 
-        self.__phrases: Optional[list["Phrase"]] = None
+        self._phrases: Optional[list[Phrase]] = None
         self.parent_id: Optional[int] = None
         self.dep_type: Optional[DepType] = None
         self.features: Optional[Features] = None
@@ -34,7 +34,7 @@ class Chunk(Unit):
 
     @property
     def parent_unit(self) -> Optional["Clause"]:
-        return self.__clause
+        return self._clause
 
     @property
     def child_units(self) -> list[Phrase]:
@@ -56,13 +56,13 @@ class Chunk(Unit):
 
     @property
     def phrases(self) -> list[Phrase]:
-        if self.__phrases is None:
+        if self._phrases is None:
             raise AttributeError("This attribute is not available before applying KNP")
-        return self.__phrases
+        return self._phrases
 
     @phrases.setter
     def phrases(self, phrases: list[Phrase]) -> None:
-        self.__phrases = phrases
+        self._phrases = phrases
 
     @property
     def morphemes(self) -> list[Morpheme]:

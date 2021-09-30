@@ -66,8 +66,8 @@ class Morpheme(Unit):
     ):
         super().__init__()
 
-        self.__phrase = phrase
-        self.__sentence = sentence
+        self._phrase = phrase
+        self._sentence = sentence
 
         self._attributes = attributes
         self.semantics = semantics
@@ -83,10 +83,10 @@ class Morpheme(Unit):
 
     @property
     def parent_unit(self) -> Optional[Union["Phrase", "Sentence"]]:
-        if self.__phrase is not None:
-            return self.__phrase
-        if self.__sentence is not None:
-            return self.__sentence
+        if self._phrase is not None:
+            return self._phrase
+        if self._sentence is not None:
+            return self._sentence
         return None
 
     @property
@@ -99,9 +99,9 @@ class Morpheme(Unit):
 
     @property
     def sentence(self) -> "Sentence":
-        if self.__sentence is not None:
-            return self.__sentence
-        if self.__phrase is not None:
+        if self._sentence is not None:
+            return self._sentence
+        if self._phrase is not None:
             return self.clause.sentence
         raise AttributeError("This attribute has not been set")
 
@@ -115,9 +115,9 @@ class Morpheme(Unit):
 
     @property
     def phrase(self) -> "Phrase":
-        if self.__phrase is None:
+        if self._phrase is None:
             raise AttributeError("This attribute is not available before applying KNP")
-        return self.__phrase
+        return self._phrase
 
     @property
     def surf(self) -> str:

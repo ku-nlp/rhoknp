@@ -20,7 +20,7 @@ class Document(Unit):
         Phrase.count = 0
         Morpheme.count = 0
 
-        self.__sentences: list[Sentence] = None
+        self._sentences: list[Sentence] = None
 
         self.index = self.count
         Document.count += 1
@@ -38,11 +38,11 @@ class Document(Unit):
 
     @property
     def sentences(self) -> list[Sentence]:
-        return self.__sentences
+        return self._sentences
 
     @sentences.setter
     def sentences(self, sentences: list[Sentence]) -> None:
-        self.__sentences = sentences
+        self._sentences = sentences
 
     @property
     def clauses(self) -> list[Clause]:
