@@ -30,8 +30,7 @@ class Unit(ABC):
             return "".join(str(child_unit) for child_unit in self.child_units)
         elif self._text is not None:
             return self._text
-        else:
-            raise ValueError("Failed to construct a text representation")
+        raise AssertionError
 
     @text.setter
     def text(self, text: str) -> None:
