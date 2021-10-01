@@ -151,6 +151,18 @@ class Morpheme(Unit):
     def fstring(self) -> str:
         return self.features.to_fstring()
 
+    @property
+    def parent(self) -> Optional["Morpheme"]:
+        if self.phrase.head == self:
+            if self.phrase.parent is not None:
+                return self.phrase.parent.head
+            return None
+        return self.phrase.head
+
+    @property
+    def children(self) -> list["Morpheme"]:
+        return [morpheme for morpheme in self.sentence.morphemes if morpheme.parent == self]
+
     @classmethod
     def from_jumanpp(
         cls,

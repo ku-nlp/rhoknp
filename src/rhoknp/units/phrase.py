@@ -82,8 +82,24 @@ class Phrase(Unit):
         return self._morphemes
 
     @morphemes.setter
-    def morphemes(self, morphemes: list["Morpheme"]):
+    def morphemes(self, morphemes: list[Morpheme]):
         self._morphemes = morphemes
+
+    @property
+    def head(self) -> Morpheme:
+        head = None
+        for morpheme in self.morphemes:
+            if morpheme.features is None:
+                continue
+            if "内容語" in morpheme.features and head is None:
+                # Consider the first content word as the head
+                head = morpheme
+            if "準内容語" in morpheme.features:
+                # Sub-content words overwrite the head
+                head = morpheme
+        if head:
+            return head
+        return self.morphemes[0]
 
     @property
     def parent(self) -> Optional["Phrase"]:
