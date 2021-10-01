@@ -10,7 +10,7 @@
 - Juman++ v2.0.0-rc3+
 - KNP 5.0+
 
-## Why not [pyknp](https://github.com/ku-nlp/pyknp/tree/master/pyknp)?
+## Why not [pyknp](https://github.com/ku-nlp/pyknp)?
 
 `pyknp` is the official Python binding that has been developed over a long time.
 During its development, features have been added incrementally while keeping the basic design intact.
