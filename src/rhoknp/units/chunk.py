@@ -68,6 +68,18 @@ class Chunk(Unit):
     def morphemes(self) -> list[Morpheme]:
         return [morpheme for phrase in self.phrases for morpheme in phrase.morphemes]
 
+    @property
+    def parent(self) -> Optional["Chunk"]:
+        if self.parent_id is None:
+            raise AttributeError
+        if self.parent_id == -1:
+            return None
+        return self.sentence.chunks[self.parent_id]
+
+    @property
+    def children(self) -> list["Chunk"]:
+        return [chunk for chunk in self.sentence.chunks if chunk.parent == self]
+
     @classmethod
     def from_knp(cls, knp_text: str, clause: Optional["Clause"] = None) -> "Chunk":
         chunk = cls(clause)

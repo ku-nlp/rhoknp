@@ -85,6 +85,18 @@ class Phrase(Unit):
     def morphemes(self, morphemes: list["Morpheme"]):
         self._morphemes = morphemes
 
+    @property
+    def parent(self) -> Optional["Phrase"]:
+        if self.parent_id is None:
+            raise AttributeError
+        if self.parent_id == -1:
+            return None
+        return self.sentence.phrases[self.parent_id]
+
+    @property
+    def children(self) -> list["Phrase"]:
+        return [phrase for phrase in self.sentence.phrases if phrase.parent == self]
+
     @classmethod
     def from_knp(cls, knp_text: str, chunk: Optional["Chunk"] = None) -> "Phrase":
         phrase = cls(chunk)
