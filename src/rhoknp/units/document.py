@@ -75,12 +75,19 @@ class Document(Unit):
         return document
 
     @classmethod
-    def from_sentences(cls, sentences: Sequence[Union[Sentence, str]]) -> "Document":
+    def from_sentences(cls, sentences: Union[Sequence[Union[Sentence, str]], str]) -> "Document":
         document = cls()
         sentences_ = []
+        sentence_lines: list[str] = []
+        if isinstance(sentences, str):
+            sentences = sentences.split("\n")
         for sentence in sentences:
             if isinstance(sentence, str):
-                sentence = Sentence.from_string(sentence, document)
+                sentence_lines.append(sentence)
+                if sentence.startswith("# "):
+                    continue
+                sentence = Sentence.from_string("\n".join(sentence_lines), document)
+                sentence_lines = []
             sentences_.append(sentence)
         document.sentences = sentences_
         return document

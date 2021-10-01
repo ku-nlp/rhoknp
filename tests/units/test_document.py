@@ -70,15 +70,32 @@ def test_document_from_sentence(sentence_string: str):
     assert doc_from_sentence.text == sentence_string
 
 
-@pytest.mark.parametrize("sentence_strings", [["天気がいいので散歩した。"], ["。"]])
-def test_document_from_sentences(sentence_strings: list[str]):
+@pytest.mark.parametrize("sentence_strings", [["天気がいいので散歩した。", "途中で先生に会った。"], ["。"]])
+def test_document_from_sentences_0(sentence_strings: list[str]):
     doc_from_strings = Document.from_sentences(sentence_strings)
     assert doc_from_strings.text == "".join(sentence_strings)
 
+
+@pytest.mark.parametrize("sentence_strings", [["天気がいいので散歩した。", "途中で先生に会った。"], ["。"]])
+def test_document_from_sentences_1(sentence_strings: list[str]):
     doc_from_sentences = Document.from_sentences(
         [Sentence.from_string(sentence_string) for sentence_string in sentence_strings]
     )
     assert doc_from_sentences.text == "".join(sentence_strings)
+
+
+@pytest.mark.parametrize(
+    "sentence_strings",
+    [
+        """天気がいいので散歩した。
+途中で先生に会った。
+""",
+        """。""",
+    ],
+)
+def test_document_from_sentences_2(sentence_strings: str):
+    doc_from_strings = Document.from_sentences(sentence_strings)
+    assert doc_from_strings.text == "".join(sentence_strings.split("\n"))
 
 
 @pytest.mark.parametrize(
