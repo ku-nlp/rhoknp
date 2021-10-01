@@ -22,7 +22,7 @@ class Chunk(Unit):
         self._clause = clause
 
         self._phrases: Optional[list[Phrase]] = None
-        self.parent_id: Optional[int] = None
+        self.parent_index: Optional[int] = None
         self.dep_type: Optional[DepType] = None
         self.features: Optional[Features] = None
 
@@ -70,11 +70,11 @@ class Chunk(Unit):
 
     @property
     def parent(self) -> Optional["Chunk"]:
-        if self.parent_id is None:
+        if self.parent_index is None:
             raise AttributeError
-        if self.parent_id == -1:
+        if self.parent_index == -1:
             return None
-        return self.sentence.chunks[self.parent_id]
+        return self.sentence.chunks[self.parent_index]
 
     @property
     def children(self) -> list["Chunk"]:
@@ -92,7 +92,7 @@ class Chunk(Unit):
                 match = cls.KNP_PATTERN.match(line)
                 if match is None:
                     raise ValueError(f"malformed line: {line}")
-                chunk.parent_id = int(match.group("pid"))
+                chunk.parent_index = int(match.group("pid"))
                 chunk.dep_type = DepType.value_of(match.group("dtype"))
                 chunk.features = Features(match.group("feats"))
                 continue
@@ -110,10 +110,10 @@ class Chunk(Unit):
         return chunk
 
     def to_knp(self) -> str:
-        if self.parent_id is None or self.dep_type is None or self.features is None:
+        if self.parent_index is None or self.dep_type is None or self.features is None:
             raise AttributeError
         ret = "* {pid}{dtype} {feats}\n".format(
-            pid=self.parent_id,
+            pid=self.parent_index,
             dtype=self.dep_type.value,
             feats=self.features.to_fstring(),
         )
