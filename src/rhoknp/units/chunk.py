@@ -13,24 +13,28 @@ if TYPE_CHECKING:
 
 
 class Chunk(Unit):
-    KNP_PATTERN: re.Pattern = re.compile(
-        fr"^\* (?P<pid>-1|\d+)(?P<dtype>[DPAI]) {Features.PATTERN.pattern}$"
-    )
+    KNP_PATTERN: re.Pattern = re.compile(fr"^\* (?P<pid>-1|\d+)(?P<dtype>[DPAI]) {Features.PATTERN.pattern}$")
     count = 0
 
-    def __init__(self, clause: "Clause"):
-        super().__init__(clause)
+    def __init__(self, clause: Optional["Clause"] = None):
+        super().__init__()
 
-        self.__phrases: list["Phrase"] = None
+        self._clause = clause
+
+        self._phrases: Optional[list[Phrase]] = None
         self.parent_id: Optional[int] = None
-        self.dep_type: DepType = None
-        self.features: Features = None
+        self.dep_type: Optional[DepType] = None
+        self.features: Optional[Features] = None
 
         self.index = self.count
         Chunk.count += 1
 
     def __str__(self) -> str:
         return self.text
+
+    @property
+    def parent_unit(self) -> Optional["Clause"]:
+        return self._clause
 
     @property
     def child_units(self) -> list[Phrase]:
@@ -52,23 +56,23 @@ class Chunk(Unit):
 
     @property
     def phrases(self) -> list[Phrase]:
-        if self.__phrases is None:
+        if self._phrases is None:
             raise AttributeError("This attribute is not available before applying KNP")
-        return self.__phrases
+        return self._phrases
 
     @phrases.setter
     def phrases(self, phrases: list[Phrase]) -> None:
-        self.__phrases = phrases
+        self._phrases = phrases
 
     @property
     def morphemes(self) -> list[Morpheme]:
         return [morpheme for phrase in self.phrases for morpheme in phrase.morphemes]
 
     @classmethod
-    def from_knp(cls, knp_text: str, clause: "Clause") -> "Chunk":
+    def from_knp(cls, knp_text: str, clause: Optional["Clause"] = None) -> "Chunk":
         chunk = cls(clause)
         phrases: list[Phrase] = []
-        phrase_lines = []
+        phrase_lines: list[str] = []
         for line in knp_text.split("\n"):
             if not line.strip():
                 continue
@@ -94,11 +98,12 @@ class Chunk(Unit):
         return chunk
 
     def to_knp(self) -> str:
+        if self.parent_id is None or self.dep_type is None or self.features is None:
+            raise AttributeError
         ret = "* {pid}{dtype} {feats}\n".format(
             pid=self.parent_id,
             dtype=self.dep_type.value,
             feats=self.features.to_fstring(),
         )
-        for phrase in self.phrases:
-            ret += phrase.to_knp()
+        ret += "".join(phrase.to_knp() for phrase in self.phrases)
         return ret

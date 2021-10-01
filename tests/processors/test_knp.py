@@ -1,39 +1,22 @@
-import pytest
-
-# from rhoknp import parse, load_knp
-
-JMN = ["jumanpp"]
-KNP = ["knp", "-tab"]
-
-
-@pytest.mark.parametrize("text", ["外国人参政権"])
-def test_knp_parse(text: str):
-    pass
-    # with Popen(JMN, stdout=PIPE, stdin=PIPE, encoding="utf-8") as p_jmn:
-    #     with Popen(KNP, stdout=PIPE, stdin=PIPE, encoding="utf-8") as p_knp:
-    #         out, _ = p_jmn.communicate(input=text)
-    #         out, _ = p_knp.communicate(input=out)
-    # doc = parse(text)
-    # assert out == doc.to_knp()
-
-
-@pytest.mark.parametrize(
-    "knp",
-    [
-        """# S-ID:1 KNP:5.0-2ad4f6df DATE:2021/08/05 SCORE:-1.17041
-* -1D <SM-動作><BGH:参政/さんせい+権/けん><文頭><文末><サ変><体言><用言:判><体言止><レベル:C><区切:5-5><ID:（文末）><裸名詞><提題受:30><主節><状態述語><正規化代表表記:外国/がいこく+人/じん+参政/さんせい+権/けん><主辞代表表記:権/けん><主辞’代表表記:参政/さんせい+権/けん>
-+ 1D <SM-場所><BGH:外国/がいこく><文節内><係:文節内><文頭><体言><名詞項候補><先行詞候補><正規化代表表記:外国/がいこく>
-外国 がいこく 外国 名詞 6 普通名詞 1 * 0 * 0 "代表表記:外国/がいこく ドメイン:政治 カテゴリ:場所-その他" <代表表記:外国/がいこく><ドメイン:政治><カテゴリ:場所-その他><正規化代表表記:外国/がいこく><漢字><かな漢字><名詞相当語><文頭><自立><内容語><タグ単位始><文節始>
-+ 2D <SM-主体><SM-人><BGH:人/じん><文節内><係:文節内><体言><一文字漢字><名詞項候補><先行詞候補><正規化代表表記:人/じん><Wikipedia上位語:なし><Wikipediaエントリ:外国人>
-人 じん 人 名詞 6 普通名詞 1 * 0 * 0 "代表表記:人/じん カテゴリ:人 漢字読み:音" <代表表記:人/じん><カテゴリ:人><漢字読み:音><正規化代表表記:人/じん><Wikipedia上位語:なし:0-1><Wikipediaエントリ:外国人:0-1><漢字><かな漢字><名詞相当語><自立><複合←><内容語><タグ単位始>
-+ 3D <文節内><係:文節内><サ変><体言><名詞項候補><先行詞候補><非用言格解析:動><態:未定><正規化代表表記:参政/さんせい>
-参政 さんせい 参政 名詞 6 サ変名詞 2 * 0 * 0 "代表表記:参政/さんせい ドメイン:政治 カテゴリ:抽象物" <代表表記:参政/さんせい><ドメイン:政治><カテゴリ:抽象物><正規化代表表記:参政/さんせい><漢字><かな漢字><名詞相当語><サ変><自立><複合←><内容語><タグ単位始><用言表記先頭><用言表記末尾><用言意味表記末尾>
-+ -1D <SM-動作><BGH:参政/さんせい+権/けん><文末><体言><用言:判><体言止><レベル:C><区切:5-5><ID:（文末）><裸名詞><提題受:30><主節><状態述語><一文字漢字><判定詞句><名詞項候補><先行詞候補><正規化代表表記:権/けん><主辞代表表記:権/けん><主辞’代表表記:参政/さんせい+権/けん><用言代表表記:権/けん><節-区切><節-主辞><Wikipedia上位語:総称/そうしょう><Wikipediaエントリ:参政権><時制:非過去><格解析結果:権/けん:判0:ガ/U/-/-/-/-;ニ/U/-/-/-/-;デ/U/-/-/-/-;カラ/U/-/-/-/-;ノ/U/-/-/-/-><標準用言代表表記:権/けん>
-権 けん 権 名詞 6 普通名詞 1 * 0 * 0 "代表表記:権/けん カテゴリ:抽象物 漢字読み:音" <代表表記:権/けん><カテゴリ:抽象物><漢字読み:音><正規化代表表記:権/けん><Wikipedia上位語:総称/そうしょう:2-3><Wikipediaエントリ:参政権:2-3><漢字><かな漢字><名詞相当語><文末><表現文末><自立><複合←><内容語><タグ単位始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
-EOS"""
-    ],
-)
-def test_knp_load(knp: str):
-    pass
-    # doc = load_knp(knp)
-    # assert analysis == doc.to_knp()
+# import pytest
+#
+# from rhoknp.processors import KNP, Jumanpp
+# from rhoknp.units import Document
+#
+# @pytest.mark.parametrize(
+#     "text",
+#     [
+#         "外国人参政権",
+#         "望遠鏡で泳いでいる少女を見た。",
+#         "エネルギーを素敵にENEOS",  # EOS
+#         "Canon EOS 80D買った",  # EOS
+#         '"最高"の気分',  # double quotes
+#         "&lt;tag&gt;\\エス'ケープ",  # escape
+#         # "これは\rどう",  # carriage return  # TODO
+#     ],
+# )
+# def test_knp_apply(text: str):
+#     jumanpp = Jumanpp()
+#     knp = KNP()
+#     document = knp.apply(jumanpp.apply(Document.from_sentence(text)))
+#     assert document.text == text.replace(" ", "　").replace('"', "”")

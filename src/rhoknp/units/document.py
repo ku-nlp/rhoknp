@@ -1,4 +1,4 @@
-from typing import List, Union
+from typing import Sequence, Union
 
 from .chunk import Chunk
 from .clause import Clause
@@ -9,8 +9,10 @@ from .unit import Unit
 
 
 class Document(Unit):
+    count = 0
+
     def __init__(self):
-        super().__init__(self)
+        super().__init__()
 
         Sentence.count = 0
         Clause.count = 0
@@ -18,10 +20,17 @@ class Document(Unit):
         Phrase.count = 0
         Morpheme.count = 0
 
-        self.__sentences: list[Sentence] = None
+        self._sentences: list[Sentence] = None
+
+        self.index = self.count
+        Document.count += 1
 
     def __str__(self) -> str:
         return self.text
+
+    @property
+    def parent_unit(self) -> None:
+        return None
 
     @property
     def child_units(self) -> list[Sentence]:
@@ -29,18 +38,18 @@ class Document(Unit):
 
     @property
     def sentences(self) -> list[Sentence]:
-        return self.__sentences
+        return self._sentences
 
     @sentences.setter
     def sentences(self, sentences: list[Sentence]) -> None:
-        self.__sentences = sentences
+        self._sentences = sentences
 
     @property
     def clauses(self) -> list[Clause]:
         return [clause for sentence in self.sentences for clause in sentence.clauses]
 
     @property
-    def chunks(self) -> list[Clause]:
+    def chunks(self) -> list[Chunk]:
         return [chunk for clause in self.clauses for chunk in clause.chunks]
 
     @property
@@ -49,12 +58,7 @@ class Document(Unit):
 
     @property
     def morphemes(self) -> list[Morpheme]:
-        return [
-            morpheme for sentence in self.sentences for morpheme in sentence.morphemes
-        ]
-
-    def to_jumanpp(self) -> str:
-        return "\n".join(sentence.to_jumanpp() for sentence in self.sentences)
+        return [morpheme for sentence in self.sentences for morpheme in sentence.morphemes]
 
     @classmethod
     def from_string(cls, text: str) -> "Document":
@@ -71,7 +75,7 @@ class Document(Unit):
         return document
 
     @classmethod
-    def from_sentences(cls, sentences: List[Union[Sentence, str]]) -> "Document":
+    def from_sentences(cls, sentences: Sequence[Union[Sentence, str]]) -> "Document":
         document = cls()
         sentences_ = []
         for sentence in sentences:
@@ -91,9 +95,7 @@ class Document(Unit):
                 continue
             sentence_lines.append(line)
             if line.strip() == Sentence.EOS:
-                sentences.append(
-                    Sentence.from_jumanpp("\n".join(sentence_lines) + "\n", document)
-                )
+                sentences.append(Sentence.from_jumanpp("\n".join(sentence_lines) + "\n", document))
                 sentence_lines = []
         document.sentences = sentences
         return document
@@ -108,15 +110,13 @@ class Document(Unit):
                 continue
             sentence_lines.append(line)
             if line.strip() == Sentence.EOS:
-                sentences.append(
-                    Sentence.from_knp("\n".join(sentence_lines) + "\n", document)
-                )
+                sentences.append(Sentence.from_knp("\n".join(sentence_lines) + "\n", document))
                 sentence_lines = []
         document.sentences = sentences
         return document
 
+    def to_jumanpp(self) -> str:
+        return "".join(sentence.to_jumanpp() for sentence in self.sentences)
+
     def to_knp(self) -> str:
-        ret = ""
-        for sentence in self.sentences:
-            ret += sentence.to_knp()
-        return ret
+        return "".join(sentence.to_knp() for sentence in self.sentences)

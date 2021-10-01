@@ -1,13 +1,10 @@
-from abc import ABC
-from typing import Callable, Union
+from abc import ABC, abstractmethod
 
 from rhoknp.units.document import Document
 
 
 class Processor(ABC):
-    def __init__(self, executor: Union[Callable, str]):
-        self.executor = executor
-
+    @abstractmethod
     def apply(self, document: Document) -> Document:
         """Apply document processing
 

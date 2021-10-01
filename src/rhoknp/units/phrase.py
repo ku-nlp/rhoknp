@@ -33,19 +33,25 @@ class Phrase(Unit):
     )
     count = 0
 
-    def __init__(self, chunk: "Chunk"):
-        super().__init__(chunk)
+    def __init__(self, chunk: Optional["Chunk"] = None):
+        super().__init__()
 
-        self.__morphemes: list["Morpheme"] = None
+        self._chunk = chunk
+
+        self._morphemes: Optional[list[Morpheme]] = None
         self.parent_id: Optional[int] = None
-        self.dep_type: DepType = None
-        self.features: Features = None
+        self.dep_type: Optional[DepType] = None
+        self.features: Optional[Features] = None
 
         self.index = self.count
         Phrase.count += 1
 
     def __str__(self) -> str:
         return self.text
+
+    @property
+    def parent_unit(self) -> Optional["Chunk"]:
+        return self._chunk
 
     @property
     def child_units(self) -> list[Morpheme]:
@@ -71,16 +77,16 @@ class Phrase(Unit):
 
     @property
     def morphemes(self) -> list[Morpheme]:
-        if self.__morphemes is None:
+        if self._morphemes is None:
             raise AttributeError("This attribute is not available before applying KNP")
-        return self.__morphemes
+        return self._morphemes
 
     @morphemes.setter
     def morphemes(self, morphemes: list["Morpheme"]):
-        self.__morphemes = morphemes
+        self._morphemes = morphemes
 
     @classmethod
-    def from_knp(cls, knp_text: str, chunk: "Chunk") -> "Phrase":
+    def from_knp(cls, knp_text: str, chunk: Optional["Chunk"] = None) -> "Phrase":
         phrase = cls(chunk)
         morphemes: list[Morpheme] = []
         for line in knp_text.split("\n"):
@@ -100,11 +106,12 @@ class Phrase(Unit):
         return phrase
 
     def to_knp(self) -> str:
+        if self.parent_id is None or self.dep_type is None or self.features is None:
+            raise AttributeError
         ret = "+ {pid}{dtype} {feats}\n".format(
             pid=self.parent_id,
             dtype=self.dep_type.value,
             feats=self.features.to_fstring(),
         )
-        for morpheme in self.morphemes:
-            ret += morpheme.to_jumanpp() + "\n"
+        ret += "".join(morpheme.to_jumanpp() for morpheme in self.morphemes)
         return ret

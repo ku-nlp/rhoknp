@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from .chunk import Chunk
 from .morpheme import Morpheme
@@ -13,16 +13,22 @@ if TYPE_CHECKING:
 class Clause(Unit):
     count = 0
 
-    def __init__(self, sentence: "Sentence"):
-        super().__init__(sentence)
+    def __init__(self, sentence: Optional["Sentence"] = None):
+        super().__init__()
 
-        self.__chunks: list["Chunk"] = None
+        self._sentence = sentence
+
+        self._chunks: Optional[list[Chunk]] = None
 
         self.index = self.count
         Clause.count += 1
 
     def __str__(self) -> str:
         return self.text
+
+    @property
+    def parent_unit(self) -> Optional["Sentence"]:
+        return self._sentence
 
     @property
     def child_units(self) -> list[Chunk]:
@@ -40,13 +46,13 @@ class Clause(Unit):
 
     @property
     def chunks(self) -> list[Chunk]:
-        if self.__chunks is None:
+        if self._chunks is None:
             raise AttributeError("This attribute is not available before applying KNP")
-        return self.__chunks
+        return self._chunks
 
     @chunks.setter
     def chunks(self, chunks: list["Chunk"]):
-        self.__chunks = chunks
+        self._chunks = chunks
 
     @property
     def phrases(self) -> list[Phrase]:
@@ -57,7 +63,7 @@ class Clause(Unit):
         return [morpheme for phrase in self.phrases for morpheme in phrase.morphemes]
 
     @classmethod
-    def from_knp(cls, knp_text: str, sentence: "Sentence") -> "Clause":
+    def from_knp(cls, knp_text: str, sentence: Optional["Sentence"] = None) -> "Clause":
         clause = cls(sentence)
         chunks = []
         chunk_lines: list[str] = []
@@ -76,7 +82,4 @@ class Clause(Unit):
         return clause
 
     def to_knp(self) -> str:
-        ret = ""
-        for chunk in self.chunks:
-            ret += chunk.to_knp()
-        return ret
+        return "".join(chunk.to_knp() for chunk in self.chunks)
