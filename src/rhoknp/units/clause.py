@@ -51,7 +51,7 @@ class Clause(Unit):
         return self._chunks
 
     @chunks.setter
-    def chunks(self, chunks: list["Chunk"]):
+    def chunks(self, chunks: list[Chunk]):
         self._chunks = chunks
 
     @property
@@ -61,6 +61,27 @@ class Clause(Unit):
     @property
     def morphemes(self) -> list[Morpheme]:
         return [morpheme for phrase in self.phrases for morpheme in phrase.morphemes]
+
+    @property
+    def head(self) -> Phrase:
+        for phrase in self.phrases:
+            if phrase.features and "節-主辞" in phrase.features:
+                return phrase
+        raise AssertionError
+
+    @property
+    def parent(self) -> Optional["Clause"]:
+        head_parent = self.head.parent
+        while head_parent in self.phrases:
+            head_parent = head_parent.parent
+        for clause in self.sentence.clauses:
+            if head_parent in clause.phrases:
+                return clause
+        return None
+
+    @property
+    def children(self) -> list["Clause"]:
+        return [clause for clause in self.sentence.clauses if clause.parent == self]
 
     @classmethod
     def from_knp(cls, knp_text: str, sentence: Optional["Sentence"] = None) -> "Clause":
