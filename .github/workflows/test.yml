@@ -10,7 +10,7 @@ jobs:
   test:
     name: Run tests with pytest
     runs-on: ubuntu-latest
-    container: nobug5c9/jumanpp
+    container: nobug5c9/jumanpp-knp:ubuntu
     strategy:
       max-parallel: 4
       matrix:
