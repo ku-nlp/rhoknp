@@ -33,15 +33,15 @@ class Phrase(Unit):
     )
     count = 0
 
-    def __init__(self, chunk: Optional["Chunk"] = None):
+    def __init__(self, chunk: Optional["Chunk"], parent_index: int, dep_type: DepType, features: Features):
         super().__init__()
 
         self._chunk = chunk
 
         self._morphemes: Optional[list[Morpheme]] = None
-        self.parent_index: Optional[int] = None
-        self.dep_type: Optional[DepType] = None
-        self.features: Optional[Features] = None
+        self.parent_index: int = parent_index
+        self.dep_type: DepType = dep_type
+        self.features: Features = features
 
         self.index = self.count
         Phrase.count += 1
@@ -115,18 +115,18 @@ class Phrase(Unit):
 
     @classmethod
     def from_knp(cls, knp_text: str, chunk: Optional["Chunk"] = None) -> "Phrase":
-        phrase = cls(chunk)
+        first_line, *lines = knp_text.split("\n")
+        match = cls.KNP_PATTERN.match(first_line)
+        if match is None:
+            raise ValueError(f"malformed line: {first_line}")
+        parent_index = int(match.group("pid"))
+        dep_type = DepType.value_of(match.group("dtype"))
+        features = Features(match.group("feats"))
+        phrase = cls(chunk, parent_index, dep_type, features)
+
         morphemes: list[Morpheme] = []
-        for line in knp_text.split("\n"):
+        for line in lines:
             if not line.strip():
-                continue
-            if line.startswith("+"):
-                match = cls.KNP_PATTERN.match(line)
-                if match is None:
-                    raise ValueError(f"malformed line: {line}")
-                phrase.parent_index = int(match.group("pid"))
-                phrase.dep_type = DepType.value_of(match.group("dtype"))
-                phrase.features = Features(match.group("feats"))
                 continue
             morpheme = Morpheme.from_jumanpp(line, phrase=phrase)
             morphemes.append(morpheme)
