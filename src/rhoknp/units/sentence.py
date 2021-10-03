@@ -25,7 +25,7 @@ class Sentence(Unit):
         self._clauses: Optional[list[Clause]] = None
         self._morphemes: Optional[list[Morpheme]] = None
 
-        self.index = self.count
+        self.index: int = self.count
         Sentence.count += 1
 
     def __str__(self) -> str:
