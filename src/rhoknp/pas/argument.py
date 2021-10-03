@@ -75,7 +75,7 @@ class Argument(BaseArgument):
         return self.phrase.chunk
 
     def __repr__(self) -> str:
-        return f"Argument(phrase={repr(self.phrase)}, arg_type={repr(self.type)})"
+        return f"{self.__class__.__name__}(phrase={repr(self.phrase)}, arg_type={repr(self.type)})"
 
     def __str__(self) -> str:
         return self.phrase.text
@@ -98,7 +98,7 @@ class SpecialArgument(BaseArgument):
         self.eid: int = eid
 
     def __repr__(self) -> str:
-        return f"SpecialArgument(exophor={self.exophor}, eid={self.eid})"
+        return f"{self.__class__.__name__}(exophor={self.exophor}, eid={self.eid})"
 
     def __str__(self) -> str:
         return self.exophor
