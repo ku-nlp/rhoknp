@@ -97,6 +97,8 @@ class Chunk(Unit):
         phrases: list[Phrase] = []
         phrase_lines: list[str] = []
         for line in lines:
+            if not line.strip():
+                continue
             if line.startswith("+") and phrase_lines:
                 phrase = Phrase.from_knp("\n".join(phrase_lines), chunk)
                 phrases.append(phrase)
