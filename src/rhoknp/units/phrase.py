@@ -124,10 +124,6 @@ class Phrase(Unit):
         return phrase
 
     def to_knp(self) -> str:
-        ret = "+ {pid}{dtype} {feats}\n".format(
-            pid=self.parent_index,
-            dtype=self.dep_type.value,
-            feats=self.features.to_fstring(),
-        )
+        ret = f"+ {self.parent_index}{self.dep_type.value} {self.features}\n"
         ret += "".join(morpheme.to_jumanpp() for morpheme in self.morphemes)
         return ret

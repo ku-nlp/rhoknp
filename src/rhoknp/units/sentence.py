@@ -147,5 +147,6 @@ class Sentence(Unit):
         ret = ""
         if self.comment is not None:
             ret += self.comment + "\n"
-        ret += "".join(clause.to_knp() for clause in self.clauses) + self.EOS + "\n"
+        ret += "".join(clause.to_knp() for clause in self.clauses)
+        ret += self.EOS + "\n"
         return ret

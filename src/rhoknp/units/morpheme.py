@@ -186,8 +186,8 @@ class Morpheme(Unit):
             return cls(attributes, semantics, features, sentence=sentence)
 
     def to_jumanpp(self) -> str:
-        ret = f"{self._attributes.to_jumanpp()} {self.semantics.to_sstring()}"
+        ret = f"{self._attributes.to_jumanpp()} {self.semantics}"
         if self.features:
-            ret += f" {self.features.to_fstring()}"
+            ret += f" {self.features}"
         ret += "\n"
         return ret
