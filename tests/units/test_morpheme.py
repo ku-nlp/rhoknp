@@ -214,6 +214,21 @@ def test_morpheme_to_jumanpp(jumanpp: str):
     assert morpheme.to_jumanpp() == jumanpp
 
 
+@pytest.mark.parametrize(
+    "jumanpp, canon",
+    [
+        ('外国 がいこく 外国 名詞 6 普通名詞 1 * 0 * 0 "代表表記:外国/がいこく ドメイン:政治 カテゴリ:場所-その他"\n', "外国/がいこく"),
+        ('人 じん 人 名詞 6 普通名詞 1 * 0 * 0 "代表表記:人/じん カテゴリ:人 漢字読み:音"\n', "人/じん"),
+        ('参政 さんせい 参政 名詞 6 サ変名詞 2 * 0 * 0 "代表表記:参政/さんせい ドメイン:政治 カテゴリ:抽象物"\n', "参政/さんせい"),
+        ('権 けん 権 名詞 6 普通名詞 1 * 0 * 0 "代表表記:権/けん カテゴリ:抽象物 漢字読み:音"\n', "権/けん"),
+        ("。 。 。 特殊 1 句点 1 * 0 * 0 NIL", None),
+    ],
+)
+def test_morpheme_canon(jumanpp: str, canon: str):
+    morpheme = Morpheme.from_jumanpp(jumanpp)
+    assert morpheme.canon == canon
+
+
 def test_morpheme_attributes():
     jumanpp_text = "であり であり だ 判定詞 4 * 0 判定詞 25 デアル列基本連用形 18\n"
     morpheme = Morpheme.from_jumanpp(jumanpp_text)

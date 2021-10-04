@@ -132,6 +132,10 @@ class Morpheme(Unit):
         return self._attributes.lemma
 
     @property
+    def canon(self) -> str:
+        return self.semantics.get("代表表記", None)
+
+    @property
     def pos(self) -> str:
         return self._attributes.pos
 
