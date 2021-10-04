@@ -73,8 +73,7 @@ class Sentence(Unit):
             return self._morphemes
         elif self._clauses is not None:
             return [morpheme for phrase in self.phrases for morpheme in phrase.morphemes]
-        else:
-            raise AttributeError("This attribute is not available before applying Jumanpp")
+        raise AttributeError("This attribute is not available before applying Jumanpp")
 
     @morphemes.setter
     def morphemes(self, morphemes: list[Morpheme]) -> None:

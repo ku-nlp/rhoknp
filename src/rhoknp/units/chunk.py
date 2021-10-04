@@ -16,15 +16,21 @@ class Chunk(Unit):
     KNP_PATTERN: re.Pattern = re.compile(fr"^\* (?P<pid>-1|\d+)(?P<dtype>[DPAI]) {Features.PATTERN.pattern}$")
     count = 0
 
-    def __init__(self, clause: Optional["Clause"] = None):
+    def __init__(
+        self,
+        parent_index: int,
+        dep_type: DepType,
+        features: Features,
+        clause: Optional["Clause"] = None,
+    ):
         super().__init__()
 
         self._clause = clause
 
         self._phrases: Optional[list[Phrase]] = None
-        self.parent_index: Optional[int] = None
-        self.dep_type: Optional[DepType] = None
-        self.features: Optional[Features] = None
+        self.parent_index: int = parent_index
+        self.dep_type: DepType = dep_type
+        self.features: Features = features
 
         self.index = self.count
         Chunk.count += 1
@@ -56,8 +62,7 @@ class Chunk(Unit):
 
     @property
     def phrases(self) -> list[Phrase]:
-        if self._phrases is None:
-            raise AttributeError("This attribute is not available before applying KNP")
+        assert self._phrases is not None
         return self._phrases
 
     @phrases.setter
@@ -70,8 +75,6 @@ class Chunk(Unit):
 
     @property
     def parent(self) -> Optional["Chunk"]:
-        if self.parent_index is None:
-            raise AttributeError
         if self.parent_index == -1:
             return None
         return self.sentence.chunks[self.parent_index]
@@ -82,36 +85,30 @@ class Chunk(Unit):
 
     @classmethod
     def from_knp(cls, knp_text: str, clause: Optional["Clause"] = None) -> "Chunk":
-        chunk = cls(clause)
+        first_line, *lines = knp_text.split("\n")
+        match = cls.KNP_PATTERN.match(first_line)
+        if match is None:
+            raise ValueError(f"malformed line: {first_line}")
+        parent_index = int(match.group("pid"))
+        dep_type = DepType.value_of(match.group("dtype"))
+        features = Features(match.group("feats"))
+        chunk = cls(parent_index, dep_type, features, clause)
+
         phrases: list[Phrase] = []
         phrase_lines: list[str] = []
-        for line in knp_text.split("\n"):
-            if not line.strip():
-                continue
-            if line.startswith("*"):
-                match = cls.KNP_PATTERN.match(line)
-                if match is None:
-                    raise ValueError(f"malformed line: {line}")
-                chunk.parent_index = int(match.group("pid"))
-                chunk.dep_type = DepType.value_of(match.group("dtype"))
-                chunk.features = Features(match.group("feats"))
-                continue
-            if line.startswith("+"):
-                if phrase_lines:
-                    phrase = Phrase.from_knp("\n".join(phrase_lines), chunk)
-                    phrases.append(phrase)
-                    phrase_lines = []
+        for line in lines:
+            if line.startswith("+") and phrase_lines:
+                phrase = Phrase.from_knp("\n".join(phrase_lines), chunk)
+                phrases.append(phrase)
+                phrase_lines = []
             phrase_lines.append(line)
         else:
             phrase = Phrase.from_knp("\n".join(phrase_lines), chunk)
             phrases.append(phrase)
-
         chunk.phrases = phrases
         return chunk
 
     def to_knp(self) -> str:
-        if self.parent_index is None or self.dep_type is None or self.features is None:
-            raise AttributeError
         ret = "* {pid}{dtype} {feats}\n".format(
             pid=self.parent_index,
             dtype=self.dep_type.value,
