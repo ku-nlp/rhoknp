@@ -10,19 +10,12 @@ class ArgumentType(Enum):
     ref: https://nlp.ist.i.kyoto-u.ac.jp/index.php?KNP%2F%E6%A0%BC%E8%A7%A3%E6%9E%90%E7%B5%90%E6%9E%9C%E6%9B%B8%E5%BC%8F
     """
 
-    case_explicit = "C"  # a.k.a. overt
-    case_hidden = "N"
-    omission = "O"
-    demonstrative = "D"
-    exophor = "E"
-    unassigned = "U"
-
-    @classmethod
-    def value_of(cls, val) -> "ArgumentType":
-        for e in cls:
-            if e.value == val:
-                return e
-        raise ValueError(f"invalid argument type name: {val}")
+    CASE_EXPLICIT = "C"  # a.k.a. overt
+    CASE_HIDDEN = "N"
+    OMISSION = "O"
+    DEMONSTRATIVE = "D"
+    EXOPHOR = "E"
+    UNASSIGNED = "U"
 
 
 class BaseArgument(ABC):
@@ -34,7 +27,7 @@ class BaseArgument(ABC):
 
     @property
     def is_special(self) -> bool:
-        return self.type == ArgumentType.exophor
+        return self.type == ArgumentType.EXOPHOR
 
     @abstractmethod
     def __str__(self) -> str:
@@ -93,7 +86,7 @@ class SpecialArgument(BaseArgument):
     """
 
     def __init__(self, exophor: str, eid: int):
-        super().__init__(ArgumentType.exophor)
+        super().__init__(ArgumentType.EXOPHOR)
         self.exophor: str = exophor
         self.eid: int = eid
 

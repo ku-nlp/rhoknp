@@ -41,17 +41,17 @@ class Pas:
             return cls(predicate, {})
 
         for match_arg in cls.ARGUMENT_PATTERN.finditer(match.group("args")):
-            case, caseflag, midasi, sdist_, tid_, eid_ = match_arg.group(0).split("/")
-            if caseflag in ("U", "-"):
+            case, case_flag, surf, sdist_, tid_, eid_ = match_arg.group(0).split("/")
+            if case_flag in ("U", "-"):
                 continue
             sdist, tid, eid = int(sdist_), int(tid_), int(eid_)
-            arg_type = ArgumentType.value_of(caseflag)
+            arg_type = ArgumentType(case_flag)
             arg: BaseArgument
-            if arg_type == ArgumentType.exophor:
-                arg = SpecialArgument(exophor=midasi, eid=eid)
+            if arg_type == ArgumentType.EXOPHOR:
+                arg = SpecialArgument(exophor=surf, eid=eid)
             else:
                 arg_phrase = phrase.document.sentences[phrase.sentence.index - sdist].phrases[tid]
-                assert midasi in arg_phrase.text
+                assert surf in arg_phrase.text
                 arg = Argument(phrase=arg_phrase, arg_type=arg_type)
             arguments[case].append(arg)
 

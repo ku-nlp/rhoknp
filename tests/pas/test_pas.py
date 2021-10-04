@@ -65,7 +65,7 @@ def test_pas_pas():
     argument_phrase = doc.phrases[0]  # 彼は
     argument = pas.arguments["ガ"][0]
     assert isinstance(argument, Argument)
-    assert argument.type == ArgumentType.value_of("N")
+    assert argument.type == ArgumentType("N")
     assert argument.phrase == argument_phrase
     assert argument.chunk == argument_phrase.chunk
     assert argument.clause == argument_phrase.clause
@@ -75,6 +75,6 @@ def test_pas_pas():
     # 著者 ニ 行く
     argument = pas.arguments["ニ"][0]
     assert isinstance(argument, SpecialArgument)
-    assert argument.type == ArgumentType.value_of("E")
+    assert argument.type == ArgumentType("E")
     assert argument.exophor == "著者"
     assert argument.eid == 0

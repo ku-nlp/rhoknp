@@ -90,7 +90,7 @@ class Chunk(Unit):
         if match is None:
             raise ValueError(f"malformed line: {first_line}")
         parent_index = int(match.group("pid"))
-        dep_type = DepType.value_of(match.group("dtype"))
+        dep_type = DepType(match.group("dtype"))
         features = Features(match.group("feats"))
         chunk = cls(parent_index, dep_type, features, clause)
 

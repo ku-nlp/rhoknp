@@ -14,17 +14,10 @@ if TYPE_CHECKING:
 
 
 class DepType(Enum):
-    dependency = "D"
-    parallel = "P"
-    apposition = "A"
-    imperfect_parallel = "I"
-
-    @classmethod
-    def value_of(cls, val) -> "DepType":
-        for e in cls:
-            if e.value == val:
-                return e
-        raise ValueError(f"invalid dependency type name: {val}")
+    DEPENDENCY = "D"
+    PARALLEL = "P"
+    APPOSITION = "A"
+    IMPERFECT_PARALLEL = "I"
 
 
 class Phrase(Unit):
@@ -117,7 +110,7 @@ class Phrase(Unit):
         if match is None:
             raise ValueError(f"malformed line: {first_line}")
         parent_index = int(match.group("pid"))
-        dep_type = DepType.value_of(match.group("dtype"))
+        dep_type = DepType(match.group("dtype"))
         features = Features(match.group("feats"))
         phrase = cls(parent_index, dep_type, features, chunk)
 
