@@ -1,5 +1,6 @@
 import re
 from enum import Enum
+from functools import cached_property
 from typing import TYPE_CHECKING, Optional
 
 from .morpheme import Morpheme
@@ -77,7 +78,7 @@ class Phrase(Unit):
     def morphemes(self, morphemes: list[Morpheme]):
         self._morphemes = morphemes
 
-    @property
+    @cached_property
     def head(self) -> Morpheme:
         head = None
         for morpheme in self.morphemes:
@@ -99,7 +100,7 @@ class Phrase(Unit):
             return None
         return self.sentence.phrases[self.parent_index]
 
-    @property
+    @cached_property
     def children(self) -> list["Phrase"]:
         return [phrase for phrase in self.sentence.phrases if phrase.parent == self]
 

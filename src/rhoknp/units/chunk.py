@@ -1,4 +1,5 @@
 import re
+from functools import cached_property
 from typing import TYPE_CHECKING, Optional
 
 from .morpheme import Morpheme
@@ -79,7 +80,7 @@ class Chunk(Unit):
             return None
         return self.sentence.chunks[self.parent_index]
 
-    @property
+    @cached_property
     def children(self) -> list["Chunk"]:
         return [chunk for chunk in self.sentence.chunks if chunk.parent == self]
 

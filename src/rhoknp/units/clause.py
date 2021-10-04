@@ -1,3 +1,4 @@
+from functools import cached_property
 from typing import TYPE_CHECKING, Optional
 
 from .chunk import Chunk
@@ -61,14 +62,14 @@ class Clause(Unit):
     def morphemes(self) -> list[Morpheme]:
         return [morpheme for phrase in self.phrases for morpheme in phrase.morphemes]
 
-    @property
+    @cached_property
     def head(self) -> Phrase:
         for phrase in self.phrases:
             if phrase.features and "節-主辞" in phrase.features:
                 return phrase
         raise AssertionError
 
-    @property
+    @cached_property
     def parent(self) -> Optional["Clause"]:
         head_parent = self.head.parent
         while head_parent in self.phrases:
@@ -78,7 +79,7 @@ class Clause(Unit):
                 return clause
         return None
 
-    @property
+    @cached_property
     def children(self) -> list["Clause"]:
         return [clause for clause in self.sentence.clauses if clause.parent == self]
 

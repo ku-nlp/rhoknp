@@ -1,5 +1,6 @@
 import re
 from dataclasses import astuple, dataclass, fields
+from functools import cached_property
 from typing import TYPE_CHECKING, ClassVar, Optional, Union
 
 from .unit import Unit
@@ -44,8 +45,6 @@ class MorphemeAttributes:
 
 
 class Morpheme(Unit):
-    # language=RegExp
-    _SEMANTICS_PATTERN: str = r'(?P<sems>("([^"]|\\")+?")|NIL)'
     JUMANPP_PATTERN: re.Pattern = re.compile(
         (
             rf"^({MorphemeAttributes.JUMANPP_PATTERN.pattern})"
@@ -155,7 +154,7 @@ class Morpheme(Unit):
     def fstring(self) -> str:
         return self.features.to_fstring()
 
-    @property
+    @cached_property
     def parent(self) -> Optional["Morpheme"]:
         if self.phrase.head == self:
             if self.phrase.parent is not None:
@@ -163,7 +162,7 @@ class Morpheme(Unit):
             return None
         return self.phrase.head
 
-    @property
+    @cached_property
     def children(self) -> list["Morpheme"]:
         return [morpheme for morpheme in self.sentence.morphemes if morpheme.parent == self]
 
