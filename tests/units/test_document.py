@@ -118,6 +118,9 @@ EOS
 。 。 。 特殊 1 句点 1 * 0 * 0 NIL <英記号><記号><文末><付属>
 EOS
 """,
+        """@ @ @ 特殊 1 記号 5 * 0 * 0 NIL
+EOS
+""",
     ],
 )
 def test_document_to_jumanpp(jumanpp: str):
