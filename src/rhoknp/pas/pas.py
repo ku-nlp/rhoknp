@@ -1,12 +1,18 @@
 import re
 import sys
 from collections import defaultdict
+from enum import Enum, auto
 from typing import Dict, List
 
 from rhoknp.units import Phrase
 
 from .argument import Argument, ArgumentType, BaseArgument, SpecialArgument
 from .predicate import Predicate
+
+
+class CaseInfoFormat(Enum):
+    CASE = auto()  # 格解析フォーマット
+    PAS = auto()  # 述語項構造フォーマット
 
 
 class Pas:
@@ -16,12 +22,8 @@ class Pas:
         self.predicate = predicate
         self.arguments = arguments
 
-    # @classmethod
-    # def from_case_analysis_string(cls, fstring: str) -> "Pas":
-    #     return cls()
-
     @classmethod
-    def from_pas_string(cls, phrase: Phrase, fstring: str) -> "Pas":
+    def from_pas_string(cls, phrase: Phrase, fstring: str, format_: CaseInfoFormat) -> "Pas":
         arguments: Dict[str, List[BaseArgument]] = defaultdict(list)
 
         # language=RegExp
@@ -41,25 +43,38 @@ class Pas:
             return cls(predicate, {})
 
         for match_arg in cls.ARGUMENT_PATTERN.finditer(match.group("args")):
-            case, caseflag, midasi, sdist_, tid_, eid_ = match_arg.group(0).split("/")
+            case, caseflag, midasi, *fields = match_arg.group(0).split("/")
             if caseflag in ("U", "-"):
                 continue
-            sdist, tid, eid = int(sdist_), int(tid_), int(eid_)
             arg_type = ArgumentType.value_of(caseflag)
             arg: BaseArgument
-            if arg_type == ArgumentType.exophor:
-                arg = SpecialArgument(exophor=midasi, eid=eid)
-            else:
+            if format_ == CaseInfoFormat.CASE:
+                tid, sdist, sid = int(fields[0]), int(fields[1]), fields[2]
+                assert arg_type != ArgumentType.exophor
+                assert phrase.document.sentences[phrase.sentence.index - sdist].sid == sid
                 arg_phrase = phrase.document.sentences[phrase.sentence.index - sdist].phrases[tid]
                 assert midasi in arg_phrase.text
                 arg = Argument(phrase=arg_phrase, arg_type=arg_type)
+            else:
+                assert format_ == CaseInfoFormat.PAS
+                sdist, tid, eid = int(fields[0]), int(fields[1]), int(fields[2])
+                if arg_type == ArgumentType.exophor:
+                    arg = SpecialArgument(exophor=midasi, eid=eid)
+                else:
+                    arg_phrase = phrase.document.sentences[phrase.sentence.index - sdist].phrases[tid]
+                    assert midasi in arg_phrase.text
+                    arg = Argument(phrase=arg_phrase, arg_type=arg_type)
             arguments[case].append(arg)
 
         return cls(predicate, arguments)
 
     @classmethod
     def from_phrase(cls, phrase: Phrase) -> "Pas":
-        if "述語項構造" not in phrase.features:
+        if "述語項構造" in phrase.features:
+            pas_string = phrase.features["述語項構造"]
+            return cls.from_pas_string(phrase, pas_string, format_=CaseInfoFormat.PAS)
+        elif "格解析結果" in phrase.features:
+            pas_string = phrase.features["格解析結果"]
+            return cls.from_pas_string(phrase, pas_string, format_=CaseInfoFormat.CASE)
+        else:
             return cls(Predicate(phrase), {})
-        pas_string = phrase.features["述語項構造"]
-        return cls.from_pas_string(phrase, pas_string)
