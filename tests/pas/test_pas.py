@@ -36,7 +36,7 @@ EOS
     argument_phrase = doc.phrases[0]  # 彼は
     argument = pas.arguments["ガ"][0]
     assert isinstance(argument, Argument)
-    assert argument.type == ArgumentType.value_of("N")
+    assert argument.type == ArgumentType("N")
     assert argument.phrase == argument_phrase
     assert argument.chunk == argument_phrase.chunk
     assert argument.clause == argument_phrase.clause
@@ -47,7 +47,7 @@ EOS
     argument_phrase = doc.phrases[3]  # 大学へ
     argument = pas.arguments["ヘ"][0]
     assert isinstance(argument, Argument)
-    assert argument.type == ArgumentType.value_of("C")
+    assert argument.type == ArgumentType("C")
     assert argument.phrase == argument_phrase
     assert argument.chunk == argument_phrase.chunk
     assert argument.clause == argument_phrase.clause
@@ -143,7 +143,7 @@ EOS
     argument_phrase = doc.phrases[1]  # ;
     argument = pas.arguments["ガ"][0]
     assert isinstance(argument, Argument)
-    assert argument.type == ArgumentType.value_of("N")
+    assert argument.type == ArgumentType("N")
     assert argument.phrase == argument_phrase
     assert argument.chunk == argument_phrase.chunk
     assert argument.clause == argument_phrase.clause
