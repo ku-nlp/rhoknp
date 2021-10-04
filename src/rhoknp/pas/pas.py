@@ -16,7 +16,7 @@ class CaseInfoFormat(Enum):
 
 
 class Pas:
-    ARGUMENT_PATTERN = re.compile(r"([^/;]+/[CNODEU-]/[^/;]+/(-?\d*)/(-?\d*)/[^/;]+)")  # ガ/N/彼/0/0/5
+    ARGUMENT_PATTERN = re.compile(r"([^/;]+/[CNODEU-]/[^/]+/(-?\d*)/(-?\d*)/[^/;]+)")  # ガ/N/彼/0/0/5
 
     def __init__(self, predicate: Predicate, arguments: Dict[str, List[BaseArgument]]):
         self.predicate = predicate
