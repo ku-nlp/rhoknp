@@ -3,7 +3,7 @@ from dataclasses import astuple, dataclass, fields
 from typing import TYPE_CHECKING, ClassVar, Optional, Union
 
 from .unit import Unit
-from .utils import Features
+from .utils import Features, Semantics
 
 if TYPE_CHECKING:
     from .chunk import Chunk
@@ -49,7 +49,7 @@ class Morpheme(Unit):
     JUMANPP_PATTERN: re.Pattern = re.compile(
         (
             rf"^({MorphemeAttributes.JUMANPP_PATTERN.pattern})"
-            + rf"(\s{_SEMANTICS_PATTERN})?"
+            + rf"(\s{Semantics.PATTERN.pattern})?"
             + rf"(\s{Features.PATTERN.pattern})?$"
         )
     )
@@ -59,7 +59,7 @@ class Morpheme(Unit):
     def __init__(
         self,
         attributes: MorphemeAttributes,
-        semantics: str,
+        semantics: Semantics,
         features: Features,
         sentence: Optional["Sentence"] = None,
         phrase: Optional["Phrase"] = None,
@@ -174,7 +174,7 @@ class Morpheme(Unit):
         if match is None:
             raise ValueError(f"malformed line: {jumanpp_text}")
         attributes = MorphemeAttributes.from_jumanpp(match.group("attrs"))
-        semantics: str = (match.group("sems") or "").strip('"')
+        semantics = Semantics.from_sstring(match.group("sems") or "")
         features = Features.from_fstring(match.group("feats") or "")
         if phrase is not None:
             return cls(attributes, semantics, features, phrase=phrase)
@@ -182,10 +182,7 @@ class Morpheme(Unit):
             return cls(attributes, semantics, features, sentence=sentence)
 
     def to_jumanpp(self) -> str:
-        ret = ""
-        ret += self._attributes.to_jumanpp()
-        if self.semantics:
-            ret += f' "{self.semantics}"' if self.semantics != "NIL" else " NIL"
+        ret = f"{self._attributes.to_jumanpp()} {self.semantics.to_sstring()}"
         if self.features:
             ret += f" {self.features.to_fstring()}"
         ret += "\n"
