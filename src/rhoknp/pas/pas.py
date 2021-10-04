@@ -43,26 +43,26 @@ class Pas:
             return cls(predicate, {})
 
         for match_arg in cls.ARGUMENT_PATTERN.finditer(match.group("args")):
-            case, caseflag, midasi, *fields = match_arg.group(0).split("/")
-            if caseflag in ("U", "-"):
+            case, case_flag, surf, *fields = match_arg.group(0).split("/")
+            if case_flag in ("U", "-"):
                 continue
-            arg_type = ArgumentType.value_of(caseflag)
+            arg_type = ArgumentType(case_flag)
             arg: BaseArgument
             if format_ == CaseInfoFormat.CASE:
                 tid, sdist, sid = int(fields[0]), int(fields[1]), fields[2]
-                assert arg_type != ArgumentType.exophor
+                assert arg_type != ArgumentType.EXOPHOR
                 assert phrase.document.sentences[phrase.sentence.index - sdist].sid == sid
                 arg_phrase = phrase.document.sentences[phrase.sentence.index - sdist].phrases[tid]
-                assert midasi in arg_phrase.text
+                assert surf in arg_phrase.text
                 arg = Argument(phrase=arg_phrase, arg_type=arg_type)
             else:
                 assert format_ == CaseInfoFormat.PAS
                 sdist, tid, eid = int(fields[0]), int(fields[1]), int(fields[2])
-                if arg_type == ArgumentType.exophor:
-                    arg = SpecialArgument(exophor=midasi, eid=eid)
+                if arg_type == ArgumentType.EXOPHOR:
+                    arg = SpecialArgument(exophor=surf, eid=eid)
                 else:
                     arg_phrase = phrase.document.sentences[phrase.sentence.index - sdist].phrases[tid]
-                    assert midasi in arg_phrase.text
+                    assert surf in arg_phrase.text
                     arg = Argument(phrase=arg_phrase, arg_type=arg_type)
             arguments[case].append(arg)
 

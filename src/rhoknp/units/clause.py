@@ -46,8 +46,7 @@ class Clause(Unit):
 
     @property
     def chunks(self) -> list[Chunk]:
-        if self._chunks is None:
-            raise AttributeError("This attribute is not available before applying KNP")
+        assert self._chunks is not None
         return self._chunks
 
     @chunks.setter

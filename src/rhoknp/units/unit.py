@@ -8,6 +8,9 @@ class Unit(ABC):
 
         self._text: Optional[str] = None
 
+    def __repr__(self) -> str:
+        return f'{self.__class__.__name__}(index={self.index}, text="{self.text}")'
+
     def __eq__(self, other: Any) -> bool:
         if isinstance(other, type(self)):
             if self.parent_unit != other.parent_unit:
