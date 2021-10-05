@@ -255,13 +255,9 @@ def test_morpheme_semantics_nil():
 
 
 def test_morpheme_error():
-    jumanpp = "であり であり だ 判定詞 4 * 0 判定詞 25 デアル列基本連用形 18\n"
-    try:
+    jumanpp = "であり であり だ 判定詞 4 * 0 判定詞 25 デアル列基本連用形 18 MALFORMED_STRING\n"
+    with pytest.raises(ValueError):
         _ = Morpheme.from_jumanpp(jumanpp)
-    except ValueError:
-        pass
-    except Exception:
-        raise Exception
 
 
 def test_morpheme_homograph():
