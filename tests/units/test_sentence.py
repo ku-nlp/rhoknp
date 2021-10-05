@@ -78,12 +78,8 @@ EOS
 
 def test_sentence_clauses_error():
     doc = Document.from_sentence("天気がいいので散歩した。")
-    try:
+    with pytest.raises(AttributeError):
         _ = doc.clauses
-    except AttributeError:
-        pass
-    except Exception:
-        raise Exception
 
 
 def test_sentence_chunks():
@@ -109,12 +105,8 @@ EOS
 
 def test_sentence_chunks_error():
     sent = Sentence.from_string("天気がいいので散歩した。")
-    try:
+    with pytest.raises(AttributeError):
         _ = sent.chunks
-    except AttributeError:
-        pass
-    except Exception:
-        raise Exception
 
 
 def test_sentence_phrases():
@@ -140,12 +132,8 @@ EOS
 
 def test_sentence_phrases_error():
     sent = Sentence.from_string("天気がいいので散歩した。")
-    try:
+    with pytest.raises(AttributeError):
         _ = sent.phrases
-    except AttributeError:
-        pass
-    except Exception:
-        raise Exception
 
 
 def test_sentence_morphemes():
@@ -171,12 +159,8 @@ EOS
 
 def test_sentence_morphemes_error():
     sent = Sentence.from_string("天気がいいので散歩した。")
-    try:
+    with pytest.raises(AttributeError):
         _ = sent.morphemes
-    except AttributeError:
-        pass
-    except Exception:
-        raise Exception
 
 
 @pytest.mark.parametrize(
