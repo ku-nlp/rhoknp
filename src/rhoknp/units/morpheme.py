@@ -105,7 +105,7 @@ class Morpheme(Unit):
             return self._sentence
         if self._phrase is not None:
             return self.clause.sentence
-        raise AttributeError("This attribute has not been set")
+        raise AttributeError("sentence has not been set")
 
     @property
     def clause(self) -> "Clause":
@@ -118,7 +118,7 @@ class Morpheme(Unit):
     @property
     def phrase(self) -> "Phrase":
         if self._phrase is None:
-            raise AttributeError("This attribute is not available before applying KNP")
+            raise AttributeError("not available before applying KNP")
         return self._phrase
 
     @property

@@ -66,12 +66,13 @@ class Phrase(Unit):
     @property
     def chunk(self) -> "Chunk":
         if self.parent_unit is None:
-            raise AttributeError("This attribute has not been set")
+            raise AttributeError("chunk has not been set")
         return self.parent_unit
 
     @property
     def morphemes(self) -> list[Morpheme]:
-        assert self._morphemes is not None
+        if self._morphemes is None:
+            raise AttributeError("morphemes have not been set")
         return self._morphemes
 
     @morphemes.setter

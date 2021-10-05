@@ -58,12 +58,13 @@ class Chunk(Unit):
     @property
     def clause(self) -> "Clause":
         if self.parent_unit is None:
-            raise AttributeError("This attribute has not been set")
+            raise AttributeError("clause has not been set")
         return self.parent_unit
 
     @property
     def phrases(self) -> list[Phrase]:
-        assert self._phrases is not None
+        if self._phrases is None:
+            raise AttributeError("phrases have not been set")
         return self._phrases
 
     @phrases.setter

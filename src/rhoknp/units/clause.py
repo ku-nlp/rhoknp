@@ -42,12 +42,13 @@ class Clause(Unit):
     @property
     def sentence(self) -> "Sentence":
         if self.parent_unit is None:
-            raise AttributeError("This attribute has not been set")
+            raise AttributeError("sentence has not been set")
         return self.parent_unit
 
     @property
     def chunks(self) -> list[Chunk]:
-        assert self._chunks is not None
+        if self._chunks is None:
+            raise AttributeError("chunks have not been set")
         return self._chunks
 
     @chunks.setter

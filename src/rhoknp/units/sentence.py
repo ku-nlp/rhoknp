@@ -46,13 +46,13 @@ class Sentence(Unit):
     @property
     def document(self) -> "Document":
         if self.parent_unit is None:
-            raise AttributeError("This attribute has not been set")
+            raise AttributeError("document has not been set")
         return self.parent_unit
 
     @property
     def clauses(self) -> list[Clause]:
         if self._clauses is None:
-            raise AttributeError("This attribute is not available before applying KNP")
+            raise AttributeError("not available before applying KNP")
         return self._clauses
 
     @clauses.setter
@@ -73,7 +73,7 @@ class Sentence(Unit):
             return self._morphemes
         elif self._clauses is not None:
             return [morpheme for phrase in self.phrases for morpheme in phrase.morphemes]
-        raise AttributeError("This attribute is not available before applying Jumanpp")
+        raise AttributeError("not available before applying Jumanpp")
 
     @morphemes.setter
     def morphemes(self, morphemes: list[Morpheme]) -> None:

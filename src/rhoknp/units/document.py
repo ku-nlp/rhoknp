@@ -38,6 +38,8 @@ class Document(Unit):
 
     @property
     def sentences(self) -> list[Sentence]:
+        if self._sentences is None:
+            raise AttributeError("not available before applying a sentence splitter")
         return self._sentences
 
     @sentences.setter
