@@ -1,7 +1,6 @@
 import pytest
 
-from rhoknp.processors.senter import RegexSenter
-from rhoknp.units import Document
+from rhoknp import Document, RegexSenter
 
 
 @pytest.mark.parametrize(

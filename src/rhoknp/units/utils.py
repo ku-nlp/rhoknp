@@ -21,6 +21,8 @@ class Semantics(dict):
     def to_sstring(self) -> str:
         if self.is_nil:
             return self.NIL
+        if len(self) == 0:
+            return ""
         return f'"{" ".join(self._item2sem_string(k, v) for k, v in self.items())}"'
 
     @staticmethod

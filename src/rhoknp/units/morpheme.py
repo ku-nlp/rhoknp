@@ -154,6 +154,10 @@ class Morpheme(Unit):
         return self._attributes.conjform
 
     @property
+    def sstring(self) -> str:
+        return self.semantics.to_sstring()
+
+    @property
     def fstring(self) -> str:
         return self.features.to_fstring()
 

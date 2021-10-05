@@ -1,7 +1,6 @@
 import pytest
 
-from rhoknp.processors import KNP, Jumanpp
-from rhoknp.units import Document
+from rhoknp import KNP, Document, Jumanpp
 
 
 @pytest.mark.parametrize(
