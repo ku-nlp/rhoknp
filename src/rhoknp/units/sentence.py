@@ -1,5 +1,5 @@
 import re
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, List, Optional, Union
 
 from .chunk import Chunk
 from .clause import Clause
@@ -88,16 +88,26 @@ class Sentence(Unit):
     @classmethod
     def from_jumanpp(cls, jumanpp_text: str, document: Optional["Document"] = None) -> "Sentence":
         sentence = cls(document)
-        morphemes = []
+        morphemes: List[Morpheme] = []
+        jumanpp_lines: List[str] = []
         for line in jumanpp_text.split("\n"):
+            if not line.strip():
+                continue
             if line.startswith("#"):
                 if sentence.comment:
                     sentence.comment += "\n" + line
                 else:
                     sentence.comment = line
+            if line.startswith("@") and not line.startswith("@ @"):
+                # homograph
+                pass
+            elif jumanpp_lines:
+                morpheme = Morpheme.from_jumanpp("\n".join(jumanpp_lines), sentence=sentence)
+                morphemes.append(morpheme)
+                jumanpp_lines = []
+            jumanpp_lines.append(line)
             if line.strip() == cls.EOS:
                 break
-            morphemes.append(Morpheme.from_jumanpp(line, sentence))
         sentence.morphemes = morphemes
         return sentence
 
