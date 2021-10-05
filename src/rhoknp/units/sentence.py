@@ -98,6 +98,10 @@ class Sentence(Unit):
                     sentence.comment += "\n" + line
                 else:
                     sentence.comment = line
+                match = re.match(r"# S-ID: ?(\S*)( .+)?$", sentence.comment)
+                if match:
+                    sentence.sid = match.group(1)
+                continue
             if line.startswith("@") and not line.startswith("@ @"):
                 # homograph
                 pass
