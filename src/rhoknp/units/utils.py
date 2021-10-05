@@ -36,6 +36,9 @@ class Semantics(dict):
     def __str__(self) -> str:
         return self.to_sstring()
 
+    def __bool__(self) -> bool:
+        return bool(dict(self)) or self.is_nil
+
 
 class Features(dict):
     """A class to represent a feature information for a chunk or a phrase

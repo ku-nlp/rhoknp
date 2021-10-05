@@ -210,7 +210,7 @@ class Morpheme(Unit):
 
     def to_jumanpp(self) -> str:
         ret = self._attributes.to_jumanpp()
-        if str(self.semantics) != '""':
+        if self.semantics:
             ret += f" {self.semantics}"
         if self.features:
             ret += f" {self.features}"
