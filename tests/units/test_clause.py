@@ -1,6 +1,6 @@
 import pytest
 
-from rhoknp.units import Clause, Document, Sentence
+from rhoknp import Clause, Document, Sentence
 
 
 @pytest.mark.parametrize(
