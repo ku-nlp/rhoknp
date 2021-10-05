@@ -262,3 +262,20 @@ def test_morpheme_error():
         pass
     except Exception:
         raise Exception
+
+
+def test_morpheme_homograph():
+    jumanpp = """母 はは 母 名詞 6 普通名詞 1 * 0 * 0 "代表表記:母/はは 漢字読み:訓 カテゴリ:人 ドメイン:家庭・暮らし"
+@ 母 ぼ 母 名詞 6 普通名詞 1 * 0 * 0 "代表表記:母/ぼ 漢字読み:音 カテゴリ:人"
+"""
+    morpheme = Morpheme.from_jumanpp(jumanpp)
+    assert len(morpheme.homographs) == 1
+    homograph = morpheme.homographs[0]
+    assert homograph.surf == "母"
+    assert homograph.reading == "ぼ"
+    assert homograph.lemma == "母"
+    assert homograph.pos == "名詞"
+    assert homograph.subpos == "普通名詞"
+    assert homograph.conjtype == "*"
+    assert homograph.conjform == "*"
+    assert homograph.fstring == ""

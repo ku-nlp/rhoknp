@@ -1,7 +1,7 @@
 import re
 from enum import Enum
 from functools import cached_property
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, List, Optional
 
 from .morpheme import Morpheme
 from .unit import Unit
@@ -116,11 +116,22 @@ class Phrase(Unit):
         phrase = cls(parent_index, dep_type, features, chunk)
 
         morphemes: list[Morpheme] = []
+        jumanpp_lines: List[str] = []
         for line in lines:
             if not line.strip():
                 continue
-            morpheme = Morpheme.from_jumanpp(line, phrase=phrase)
-            morphemes.append(morpheme)
+            if line.startswith("@") and not line.startswith("@ @"):
+                # homograph
+                pass
+            elif jumanpp_lines:
+                morpheme = Morpheme.from_jumanpp("\n".join(jumanpp_lines), phrase=phrase)
+                morphemes.append(morpheme)
+                jumanpp_lines = []
+            jumanpp_lines.append(line)
+        else:
+            if jumanpp_lines:
+                morpheme = Morpheme.from_jumanpp("\n".join(jumanpp_lines), phrase=phrase)
+                morphemes.append(morpheme)
         phrase.morphemes = morphemes
         return phrase
 

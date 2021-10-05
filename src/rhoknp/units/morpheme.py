@@ -1,7 +1,7 @@
 import re
 from dataclasses import astuple, dataclass, fields
 from functools import cached_property
-from typing import TYPE_CHECKING, ClassVar, Optional, Union
+from typing import TYPE_CHECKING, ClassVar, List, Optional, Union
 
 from .unit import Unit
 from .utils import Features, Semantics
@@ -62,6 +62,7 @@ class Morpheme(Unit):
         features: Features,
         sentence: Optional["Sentence"] = None,
         phrase: Optional["Phrase"] = None,
+        homograph: bool = False,
     ):
         super().__init__()
 
@@ -71,11 +72,13 @@ class Morpheme(Unit):
         self._attributes = attributes
         self.semantics = semantics
         self.features = features
+        self.homographs: List["Morpheme"] = []
 
         self.text = attributes.surf
 
         self.index = self.count
-        Morpheme.count += 1
+        if homograph is False:
+            Morpheme.count += 1
 
     def __str__(self) -> str:
         return self.text
@@ -173,16 +176,33 @@ class Morpheme(Unit):
         sentence: Optional["Sentence"] = None,
         phrase: Optional["Phrase"] = None,
     ) -> "Morpheme":
-        match = cls.JUMANPP_PATTERN.match(jumanpp_text)
+        first_line, *lines = jumanpp_text.rstrip().split("\n")
+        morpheme = cls.from_jumanpp_line(first_line, sentence=sentence, phrase=phrase)
+        for line in lines:
+            assert line.startswith("@ ")
+            homograph = cls.from_jumanpp_line(line[2:], sentence=sentence, phrase=phrase, homograph=True)
+            morpheme.homographs.append(homograph)
+        return morpheme
+
+    @classmethod
+    def from_jumanpp_line(
+        cls,
+        jumanpp_line: str,
+        sentence: Optional["Sentence"] = None,
+        phrase: Optional["Phrase"] = None,
+        homograph: bool = False,
+    ) -> "Morpheme":
+        assert "\n" not in jumanpp_line.strip()
+        match = cls.JUMANPP_PATTERN.match(jumanpp_line)
         if match is None:
-            raise ValueError(f"malformed line: {jumanpp_text}")
+            raise ValueError(f"malformed line: {jumanpp_line}")
         attributes = MorphemeAttributes.from_jumanpp(match.group("attrs"))
         semantics = Semantics.from_sstring(match.group("sems") or "")
         features = Features.from_fstring(match.group("feats") or "")
         if phrase is not None:
-            return cls(attributes, semantics, features, phrase=phrase)
+            return cls(attributes, semantics, features, phrase=phrase, homograph=homograph)
         else:
-            return cls(attributes, semantics, features, sentence=sentence)
+            return cls(attributes, semantics, features, sentence=sentence, homograph=homograph)
 
     def to_jumanpp(self) -> str:
         ret = f"{self._attributes.to_jumanpp()} {self.semantics}"
