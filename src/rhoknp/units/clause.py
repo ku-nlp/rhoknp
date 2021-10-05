@@ -32,8 +32,8 @@ class Clause(Unit):
         return self._sentence
 
     @property
-    def child_units(self) -> list[Chunk]:
-        return self.chunks
+    def child_units(self) -> Optional[list[Chunk]]:
+        return self._chunks
 
     @property
     def document(self) -> "Document":

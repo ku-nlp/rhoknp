@@ -36,11 +36,11 @@ class Sentence(Unit):
         return self._document
 
     @property
-    def child_units(self) -> Union[list[Clause], list[Morpheme], None]:
+    def child_units(self) -> Optional[Union[list[Clause], list[Morpheme]]]:
         if self._clauses is not None:
-            return self.clauses
+            return self._clauses
         elif self._morphemes is not None:
-            return self.morphemes
+            return self._morphemes
         return None
 
     @property

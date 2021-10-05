@@ -48,8 +48,8 @@ class Phrase(Unit):
         return self._chunk
 
     @property
-    def child_units(self) -> list[Morpheme]:
-        return self.morphemes
+    def child_units(self) -> Optional[list[Morpheme]]:
+        return self._morphemes
 
     @property
     def document(self) -> "Document":

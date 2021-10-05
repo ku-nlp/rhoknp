@@ -44,8 +44,8 @@ class Chunk(Unit):
         return self._clause
 
     @property
-    def child_units(self) -> list[Phrase]:
-        return self.phrases
+    def child_units(self) -> Optional[list[Phrase]]:
+        return self._phrases
 
     @property
     def document(self) -> "Document":

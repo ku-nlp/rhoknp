@@ -1,4 +1,4 @@
-from typing import Sequence, Union
+from typing import Optional, Sequence, Union
 
 from .chunk import Chunk
 from .clause import Clause
@@ -33,8 +33,8 @@ class Document(Unit):
         return None
 
     @property
-    def child_units(self) -> list[Sentence]:
-        return self.sentences
+    def child_units(self) -> Optional[list[Sentence]]:
+        return self._sentences
 
     @property
     def sentences(self) -> list[Sentence]:
