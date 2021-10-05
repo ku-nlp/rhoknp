@@ -205,8 +205,12 @@ class Morpheme(Unit):
             return cls(attributes, semantics, features, sentence=sentence, homograph=homograph)
 
     def to_jumanpp(self) -> str:
-        ret = f"{self._attributes.to_jumanpp()} {self.semantics}"
+        ret = self._attributes.to_jumanpp()
+        if str(self.semantics) != '""':
+            ret += f" {self.semantics}"
         if self.features:
             ret += f" {self.features}"
         ret += "\n"
+        for homograph in self.homographs:
+            ret += f"@ {homograph.to_jumanpp()}"
         return ret
