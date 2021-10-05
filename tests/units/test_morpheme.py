@@ -243,7 +243,7 @@ def test_morpheme_attributes():
 
 
 def test_morpheme_semantics():
-    jumanpp = '解析 かいせき 解析 名詞 6 サ変名詞 2 * 0 * 0 "代表表記:解析/かいせき カテゴリ:抽象物 ドメイン:教育・学習;科学・技術\n"'
+    jumanpp = '解析 かいせき 解析 名詞 6 サ変名詞 2 * 0 * 0 "代表表記:解析/かいせき カテゴリ:抽象物 ドメイン:教育・学習;科学・技術"\n'
     morpheme = Morpheme.from_jumanpp(jumanpp)
     assert str(morpheme.semantics) == '"代表表記:解析/かいせき カテゴリ:抽象物 ドメイン:教育・学習;科学・技術"'
 
