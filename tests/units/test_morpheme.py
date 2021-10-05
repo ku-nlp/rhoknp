@@ -239,6 +239,7 @@ def test_morpheme_attributes():
     assert morpheme.subpos == "*"
     assert morpheme.conjtype == "判定詞"
     assert morpheme.conjform == "デアル列基本連用形"
+    assert morpheme.sstring == ""
     assert morpheme.fstring == ""
 
 
@@ -274,4 +275,5 @@ def test_morpheme_homograph():
     assert homograph.subpos == "普通名詞"
     assert homograph.conjtype == "*"
     assert homograph.conjform == "*"
+    assert homograph.sstring == '"代表表記:母/ぼ 漢字読み:音 カテゴリ:人"'
     assert homograph.fstring == ""
