@@ -12,7 +12,8 @@ jobs:
     runs-on: ubuntu-latest
     container: nobug5c9/jumanpp-knp:ubuntu
     strategy:
-      max-parallel: 4
+      max-parallel: 2
+      fail-fast: false
       matrix:
         python-version: ["3.9", "3.10"]
 
