@@ -7,7 +7,7 @@ repository = "https://github.com/ku-nlp/rhoknp"
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = ">=3.9,<3.10"
+python = ">=3.9,<3.11"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2"
@@ -21,7 +21,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.black]
 line-length = 120
-target-version = ["py39"]
+target-version = ["py39", "py310"]
 
 [mypy]
 python_version = 3.9
