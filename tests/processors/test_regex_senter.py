@@ -1,6 +1,6 @@
 import pytest
 
-from rhoknp import Document, RegexSenter
+from rhoknp import RegexSenter
 
 
 @pytest.mark.parametrize(
@@ -73,8 +73,7 @@ from rhoknp import Document, RegexSenter
     ],
 )
 def test_document_from_string(document: str, sentence_strings):
-    doc = Document.from_string(document)
     senter = RegexSenter()
-    doc = senter.apply(doc)
+    doc = senter.apply(document)
     for i, sentence in enumerate(doc.sentences):
         assert sentence.text == sentence_strings[i]

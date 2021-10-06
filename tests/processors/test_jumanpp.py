@@ -1,6 +1,6 @@
 import pytest
 
-from rhoknp import Document, Jumanpp
+from rhoknp import Jumanpp
 
 
 @pytest.mark.parametrize(
@@ -45,23 +45,22 @@ def test_jumanpp_batch_apply():
         "望遠鏡で泳いでいる少女を見た。",
         "エネルギーを素敵にENEOS",
     ]
-    documents = list(map(Document.from_sentence, texts))
     jumanpp = Jumanpp()
-    documents = jumanpp.batch_apply(documents)
+    documents = jumanpp.batch_apply(texts)
     assert [document.text for document in documents] == texts
 
     # parallel
-    documents = jumanpp.batch_apply(documents, processes=2)
+    documents = jumanpp.batch_apply(texts, processes=2)
     assert [document.text for document in documents] == texts
 
-    documents = jumanpp.batch_apply(documents, processes=4)
+    documents = jumanpp.batch_apply(texts, processes=4)
     assert [document.text for document in documents] == texts
 
 
 def test_jumanpp_normal():
     jumanpp = Jumanpp()
     text = "この文を解析してください。"
-    document = jumanpp.apply(Document.from_sentence(text))
+    document = jumanpp.apply(text)
     assert len(document.morphemes) == 7
     assert "".join(m.text for m in document.morphemes) == text
 
@@ -69,7 +68,7 @@ def test_jumanpp_normal():
 def test_jumanpp_nominalization():
     jumanpp = Jumanpp()
     text = "音の響きを感じる。"
-    document = jumanpp.apply(Document.from_sentence(text))
+    document = jumanpp.apply(text)
     assert len(document.morphemes) == 6
     assert "".join(m.text for m in document.morphemes) == text
     assert document.morphemes[2].surf == "響き"
@@ -79,7 +78,7 @@ def test_jumanpp_nominalization():
 def test_jumanpp_whitespace():
     jumanpp = Jumanpp()
     text = "半角 スペース"
-    document = jumanpp.apply(Document.from_sentence(text))
+    document = jumanpp.apply(text)
     assert len(document.morphemes) == 3
     assert "".join(m.text for m in document.morphemes) == text.replace(" ", "　")
     assert document.morphemes[1].pos == "特殊"

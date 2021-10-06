@@ -1,6 +1,6 @@
 import pytest
 
-from rhoknp import KNP, Document
+from rhoknp import KNP
 
 
 @pytest.mark.parametrize(
@@ -45,14 +45,13 @@ def test_knp_batch_apply():
         "望遠鏡で泳いでいる少女を見た。",
         "エネルギーを素敵にENEOS",
     ]
-    documents = list(map(Document.from_sentence, texts))
     knp = KNP()
-    documents = knp.batch_apply(documents)
+    documents = knp.batch_apply(texts)
     assert [document.text for document in documents] == [text.replace(" ", "　").replace('"', "”") for text in texts]
 
     # parallel
-    documents = knp.batch_apply(documents, processes=2)
+    documents = knp.batch_apply(texts, processes=2)
     assert [document.text for document in documents] == [text.replace(" ", "　").replace('"', "”") for text in texts]
 
-    documents = knp.batch_apply(documents, processes=4)
+    documents = knp.batch_apply(texts, processes=4)
     assert [document.text for document in documents] == [text.replace(" ", "　").replace('"', "”") for text in texts]
