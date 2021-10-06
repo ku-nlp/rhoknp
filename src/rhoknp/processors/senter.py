@@ -16,7 +16,7 @@ class RegexSenter(Processor):
 
     PERIODS = "。．？！♪☆★…?!"
 
-    def apply(self, document: Union[Document, str]) -> Document:
+    def apply_to_document(self, document: Union[Document, str]) -> Document:
         if isinstance(document, str):
             document = Document.from_string(document)
         sentence_texts = self._split_document(document.text)
