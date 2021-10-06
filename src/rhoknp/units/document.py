@@ -65,6 +65,22 @@ class Document(Unit):
     def morphemes(self) -> list[Morpheme]:
         return [morpheme for sentence in self.sentences for morpheme in sentence.morphemes]
 
+    @property
+    def need_senter(self) -> bool:
+        return self._sentences is None
+
+    @property
+    def need_jumanpp(self) -> bool:
+        if self.need_senter:
+            return True
+        return any(sentence.need_jumanpp for sentence in self.sentences)
+
+    @property
+    def need_knp(self) -> bool:
+        if self.need_jumanpp:
+            return True
+        return any(sentence.need_knp for sentence in self.sentences)
+
     @classmethod
     def from_string(cls, text: str) -> "Document":
         document = cls()

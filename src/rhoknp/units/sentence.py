@@ -90,6 +90,16 @@ class Sentence(Unit):
             morpheme.sentence = self
         self._morphemes = morphemes
 
+    @property
+    def need_jumanpp(self) -> bool:
+        return self._morphemes is None
+
+    @property
+    def need_knp(self) -> bool:
+        if self.need_jumanpp:
+            return True
+        return self._clauses is None
+
     @classmethod
     def from_string(cls, text: str) -> "Sentence":
         sentence = cls()

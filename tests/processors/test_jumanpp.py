@@ -17,7 +17,7 @@ from rhoknp import Document, Jumanpp
 )
 def test_jumanpp_apply(text: str):
     jumanpp = Jumanpp()
-    document = jumanpp.apply(Document.from_sentence(text))
+    document = jumanpp.apply(text)
     assert document.text == text.replace(" ", "　").replace('"', "”")
 
 

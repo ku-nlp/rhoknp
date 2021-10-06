@@ -1,6 +1,6 @@
 import pytest
 
-from rhoknp import KNP, Document, Jumanpp
+from rhoknp import KNP, Document
 
 
 @pytest.mark.parametrize(
@@ -16,9 +16,8 @@ from rhoknp import KNP, Document, Jumanpp
     ],
 )
 def test_knp_apply(text: str):
-    jumanpp = Jumanpp()
     knp = KNP()
-    document = knp.apply(jumanpp.apply(Document.from_sentence(text)))
+    document = knp.apply(text)
     assert document.text == text.replace(" ", "　").replace('"', "”")
 
 
@@ -29,14 +28,13 @@ def test_knp_batch_apply():
         "エネルギーを素敵にENEOS",
     ]
     documents = list(map(Document.from_sentence, texts))
-    jumanpp = Jumanpp()
     knp = KNP()
-    documents = knp.batch_apply(jumanpp.batch_apply(documents))
+    documents = knp.batch_apply(documents)
     assert [document.text for document in documents] == [text.replace(" ", "　").replace('"', "”") for text in texts]
 
     # parallel
-    documents = knp.batch_apply(jumanpp.batch_apply(documents), processes=2)
+    documents = knp.batch_apply(documents, processes=2)
     assert [document.text for document in documents] == [text.replace(" ", "　").replace('"', "”") for text in texts]
 
-    documents = knp.batch_apply(jumanpp.batch_apply(documents), processes=4)
+    documents = knp.batch_apply(documents, processes=4)
     assert [document.text for document in documents] == [text.replace(" ", "　").replace('"', "”") for text in texts]

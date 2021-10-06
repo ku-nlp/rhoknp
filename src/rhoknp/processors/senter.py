@@ -1,8 +1,12 @@
 import re
+from logging import Logger, getLogger
+from typing import Union
 
 from rhoknp.units.document import Document
 
 from .processor import Processor
+
+logger: Logger = getLogger(__file__)
 
 
 class RegexSenter(Processor):
@@ -12,20 +16,13 @@ class RegexSenter(Processor):
 
     PERIODS = "。．？！♪☆★…?!"
 
-    def apply(self, document: Document) -> Document:
-        """Apply document processing
+    def apply(self, document: Union[Document, str]) -> Document:
+        if isinstance(document, str):
+            document = Document.from_string(document)
+        sentence_texts = self._split_document(document.text)
+        return Document.from_sentences(sentence_texts)
 
-        Args:
-            document: Document
-
-        Returns: Document
-
-        """
-        sentence_texts = self.split_document(document.text)
-        ret_document = Document.from_sentences(sentence_texts)
-        return ret_document
-
-    def split_document(self, text: str) -> list[str]:
+    def _split_document(self, text: str) -> list[str]:
         """Split text into sentences by regular expressions."""
         base = f"[^{self.PERIODS}]*[f{self.PERIODS}]"
         eol = f"[^{self.PERIODS}]*$"
