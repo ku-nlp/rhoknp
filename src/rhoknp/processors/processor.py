@@ -1,11 +1,15 @@
 from abc import ABC, abstractmethod
 from multiprocessing import Pool
+from typing import Union
 
-from rhoknp.units.document import Document
+from rhoknp.units.document import Document, Sentence
 
 
 class Processor(ABC):
     @abstractmethod
+    def apply_to_sentence(self, sentence: Union[Sentence, str]) -> Sentence:
+        raise NotImplementedError
+
     def apply(self, document: Document) -> Document:
         raise NotImplementedError
 

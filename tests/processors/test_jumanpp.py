@@ -21,6 +21,24 @@ def test_jumanpp_apply(text: str):
     assert document.text == text.replace(" ", "　").replace('"', "”")
 
 
+@pytest.mark.parametrize(
+    "text",
+    [
+        "外国人参政権",
+        "望遠鏡で泳いでいる少女を見た。",
+        "エネルギーを素敵にENEOS",  # EOS
+        "Canon EOS 80D買った",  # EOS
+        '"最高"の気分',  # double quotes
+        "&lt;tag&gt;\\エス'ケープ",  # escape
+        # "これは\rどう",  # carriage return  # TODO
+    ],
+)
+def test_jumanpp_apply_to_sentence(text: str):
+    jumanpp = Jumanpp()
+    sentence = jumanpp.apply_to_sentence(text)
+    assert sentence.text == text.replace(" ", "　").replace('"', "”")
+
+
 def test_jumanpp_batch_apply():
     texts = [
         "外国人参政権",

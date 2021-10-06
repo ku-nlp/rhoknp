@@ -2,7 +2,7 @@ from logging import Logger, getLogger
 from subprocess import PIPE, Popen
 from typing import Optional, Sequence, Union
 
-from rhoknp.units import Document
+from rhoknp.units import Document, Sentence
 
 from .processor import Processor
 from .senter import RegexSenter
@@ -36,3 +36,11 @@ class Jumanpp(Processor):
                 out, _ = p.communicate(input=sentence.text)
                 jumanpp_text += out
         return Document.from_jumanpp(jumanpp_text)
+
+    def apply_to_sentence(self, sentence: Union[Sentence, str]) -> Sentence:
+        if isinstance(sentence, str):
+            sentence = Sentence.from_string(sentence)
+
+        with Popen(self.executor, stdout=PIPE, stdin=PIPE, encoding="utf-8") as p:
+            jumanpp_text, _ = p.communicate(input=sentence.text)
+        return Sentence.from_jumanpp(jumanpp_text)

@@ -2,7 +2,7 @@ from logging import Logger, getLogger
 from subprocess import PIPE, Popen
 from typing import Optional, Sequence, Union
 
-from rhoknp.units import Document
+from rhoknp.units import Document, Sentence
 
 from .jumanpp import Jumanpp
 from .processor import Processor
@@ -46,3 +46,18 @@ class KNP(Processor):
                 out, _ = p.communicate(input=sentence.to_jumanpp())
                 knp_text += out
         return Document.from_knp(knp_text)
+
+    def apply_to_sentence(self, sentence: Union[Sentence, str]) -> Sentence:
+        if isinstance(sentence, str):
+            sentence = Sentence.from_string(sentence)
+
+        if sentence.need_jumanpp:
+            logger.debug("sentence needs to be processed by Juman++")
+            if self.jumanpp is None:
+                logger.info("jumanpp is not specified when initializing KNP: use Jumanpp with no option")
+                self.jumanpp = Jumanpp()
+            sentence = self.jumanpp.apply_to_sentence(sentence)
+
+        with Popen(self.executor, stdout=PIPE, stdin=PIPE, encoding="utf-8") as p:
+            knp_text, _ = p.communicate(input=sentence.to_jumanpp())
+        return Sentence.from_knp(knp_text)

@@ -2,7 +2,7 @@ import re
 from logging import Logger, getLogger
 from typing import Union
 
-from rhoknp.units.document import Document
+from rhoknp.units.document import Document, Sentence
 
 from .processor import Processor
 
@@ -21,6 +21,11 @@ class RegexSenter(Processor):
             document = Document.from_string(document)
         sentence_texts = self._split_document(document.text)
         return Document.from_sentences(sentence_texts)
+
+    def apply_to_sentence(self, sentence: Union[Sentence, str]) -> Sentence:
+        if isinstance(sentence, str):
+            sentence = Sentence.from_string(sentence)
+        return sentence
 
     def _split_document(self, text: str) -> list[str]:
         """Split text into sentences by regular expressions."""
