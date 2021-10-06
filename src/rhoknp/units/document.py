@@ -20,6 +20,7 @@ class Document(Unit):
         Phrase.count = 0
         Morpheme.count = 0
 
+        # child units
         self._sentences: list[Sentence] = None
 
         self.index = self.count
@@ -44,6 +45,8 @@ class Document(Unit):
 
     @sentences.setter
     def sentences(self, sentences: list[Sentence]) -> None:
+        for sentence in sentences:
+            sentence.document = self
         self._sentences = sentences
 
     @property
@@ -72,7 +75,7 @@ class Document(Unit):
     def from_sentence(cls, sentence: Union[Sentence, str]) -> "Document":
         document = cls()
         if isinstance(sentence, str):
-            sentence = Sentence.from_string(sentence, document)
+            sentence = Sentence.from_string(sentence)
         document.sentences = [sentence]
         return document
 
@@ -88,7 +91,7 @@ class Document(Unit):
                 sentence_lines.append(sentence)
                 if sentence.startswith("# "):
                     continue
-                sentence = Sentence.from_string("\n".join(sentence_lines), document)
+                sentence = Sentence.from_string("\n".join(sentence_lines))
                 sentence_lines = []
             sentences_.append(sentence)
         document.sentences = sentences_
@@ -104,7 +107,7 @@ class Document(Unit):
                 continue
             sentence_lines.append(line)
             if line.strip() == Sentence.EOS:
-                sentences.append(Sentence.from_jumanpp("\n".join(sentence_lines) + "\n", document))
+                sentences.append(Sentence.from_jumanpp("\n".join(sentence_lines) + "\n"))
                 sentence_lines = []
         document.sentences = sentences
         return document
@@ -119,7 +122,7 @@ class Document(Unit):
                 continue
             sentence_lines.append(line)
             if line.strip() == Sentence.EOS:
-                sentences.append(Sentence.from_knp("\n".join(sentence_lines) + "\n", document))
+                sentences.append(Sentence.from_knp("\n".join(sentence_lines) + "\n"))
                 sentence_lines = []
         document.sentences = sentences
         return document

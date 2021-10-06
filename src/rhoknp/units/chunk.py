@@ -17,18 +17,15 @@ class Chunk(Unit):
     KNP_PATTERN: re.Pattern = re.compile(fr"^\* (?P<pid>-1|\d+)(?P<dtype>[DPAI]) {Features.PATTERN.pattern}$")
     count = 0
 
-    def __init__(
-        self,
-        parent_index: int,
-        dep_type: DepType,
-        features: Features,
-        clause: Optional["Clause"] = None,
-    ):
+    def __init__(self, parent_index: int, dep_type: DepType, features: Features):
         super().__init__()
 
-        self._clause = clause
+        # parent unit
+        self._clause: Optional["Clause"] = None
 
+        # child units
         self._phrases: Optional[list[Phrase]] = None
+
         self.parent_index: int = parent_index
         self.dep_type: DepType = dep_type
         self.features: Features = features
@@ -57,9 +54,13 @@ class Chunk(Unit):
 
     @property
     def clause(self) -> "Clause":
-        if self.parent_unit is None:
+        if self._clause is None:
             raise AttributeError("clause has not been set")
-        return self.parent_unit
+        return self._clause
+
+    @clause.setter
+    def clause(self, clause: "Clause") -> None:
+        self._clause = clause
 
     @property
     def phrases(self) -> list[Phrase]:
@@ -69,6 +70,8 @@ class Chunk(Unit):
 
     @phrases.setter
     def phrases(self, phrases: list[Phrase]) -> None:
+        for phrase in phrases:
+            phrase.chunk = self
         self._phrases = phrases
 
     @property
@@ -86,7 +89,7 @@ class Chunk(Unit):
         return [chunk for chunk in self.sentence.chunks if chunk.parent == self]
 
     @classmethod
-    def from_knp(cls, knp_text: str, clause: Optional["Clause"] = None) -> "Chunk":
+    def from_knp(cls, knp_text: str) -> "Chunk":
         first_line, *lines = knp_text.split("\n")
         match = cls.KNP_PATTERN.match(first_line)
         if match is None:
@@ -94,7 +97,7 @@ class Chunk(Unit):
         parent_index = int(match.group("pid"))
         dep_type = DepType(match.group("dtype"))
         features = Features(match.group("feats"))
-        chunk = cls(parent_index, dep_type, features, clause)
+        chunk = cls(parent_index, dep_type, features)
 
         phrases: list[Phrase] = []
         phrase_lines: list[str] = []
@@ -102,12 +105,12 @@ class Chunk(Unit):
             if not line.strip():
                 continue
             if line.startswith("+") and phrase_lines:
-                phrase = Phrase.from_knp("\n".join(phrase_lines), chunk)
+                phrase = Phrase.from_knp("\n".join(phrase_lines))
                 phrases.append(phrase)
                 phrase_lines = []
             phrase_lines.append(line)
         else:
-            phrase = Phrase.from_knp("\n".join(phrase_lines), chunk)
+            phrase = Phrase.from_knp("\n".join(phrase_lines))
             phrases.append(phrase)
         chunk.phrases = phrases
         return chunk

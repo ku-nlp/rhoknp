@@ -60,14 +60,13 @@ class Morpheme(Unit):
         attributes: MorphemeAttributes,
         semantics: Semantics,
         features: Features,
-        sentence: Optional["Sentence"] = None,
-        phrase: Optional["Phrase"] = None,
         homograph: bool = False,
     ):
         super().__init__()
 
-        self._phrase = phrase
-        self._sentence = sentence
+        # parent unit
+        self._phrase: Optional["Phrase"] = None
+        self._sentence: Optional["Sentence"] = None
 
         self._attributes = attributes
         self.semantics = semantics
@@ -107,6 +106,10 @@ class Morpheme(Unit):
             return self.clause.sentence
         raise AttributeError("sentence has not been set")
 
+    @sentence.setter
+    def sentence(self, sentence: "Sentence") -> None:
+        self._sentence = sentence
+
     @property
     def clause(self) -> "Clause":
         return self.chunk.clause
@@ -120,6 +123,10 @@ class Morpheme(Unit):
         if self._phrase is None:
             raise AttributeError("not available before applying KNP")
         return self._phrase
+
+    @phrase.setter
+    def phrase(self, phrase: "Phrase") -> None:
+        self._phrase = phrase
 
     @property
     def surf(self) -> str:
@@ -174,28 +181,17 @@ class Morpheme(Unit):
         return [morpheme for morpheme in self.sentence.morphemes if morpheme.parent == self]
 
     @classmethod
-    def from_jumanpp(
-        cls,
-        jumanpp_text: str,
-        sentence: Optional["Sentence"] = None,
-        phrase: Optional["Phrase"] = None,
-    ) -> "Morpheme":
+    def from_jumanpp(cls, jumanpp_text: str) -> "Morpheme":
         first_line, *lines = jumanpp_text.rstrip().split("\n")
-        morpheme = cls.from_jumanpp_line(first_line, sentence=sentence, phrase=phrase)
+        morpheme = cls.from_jumanpp_line(first_line)
         for line in lines:
             assert line.startswith("@ ")
-            homograph = cls.from_jumanpp_line(line[2:], sentence=sentence, phrase=phrase, homograph=True)
+            homograph = cls.from_jumanpp_line(line[2:], homograph=True)
             morpheme.homographs.append(homograph)
         return morpheme
 
     @classmethod
-    def from_jumanpp_line(
-        cls,
-        jumanpp_line: str,
-        sentence: Optional["Sentence"] = None,
-        phrase: Optional["Phrase"] = None,
-        homograph: bool = False,
-    ) -> "Morpheme":
+    def from_jumanpp_line(cls, jumanpp_line: str, homograph: bool = False) -> "Morpheme":
         assert "\n" not in jumanpp_line.strip()
         match = cls.JUMANPP_PATTERN.match(jumanpp_line)
         if match is None:
@@ -203,10 +199,7 @@ class Morpheme(Unit):
         attributes = MorphemeAttributes.from_jumanpp(match.group("attrs"))
         semantics = Semantics.from_sstring(match.group("sems") or "")
         features = Features.from_fstring(match.group("feats") or "")
-        if phrase is not None:
-            return cls(attributes, semantics, features, phrase=phrase, homograph=homograph)
-        else:
-            return cls(attributes, semantics, features, sentence=sentence, homograph=homograph)
+        return cls(attributes, semantics, features, homograph=homograph)
 
     def to_jumanpp(self) -> str:
         ret = self._attributes.to_jumanpp()

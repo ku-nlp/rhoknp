@@ -27,12 +27,15 @@ class Phrase(Unit):
     )
     count = 0
 
-    def __init__(self, parent_index: int, dep_type: DepType, features: Features, chunk: Optional["Chunk"] = None):
+    def __init__(self, parent_index: int, dep_type: DepType, features: Features):
         super().__init__()
 
-        self._chunk = chunk
+        # parent unit
+        self._chunk: Optional["Chunk"] = None
 
+        # child units
         self._morphemes: Optional[list[Morpheme]] = None
+
         self.parent_index: int = parent_index
         self.dep_type: DepType = dep_type
         self.features: Features = features
@@ -65,9 +68,13 @@ class Phrase(Unit):
 
     @property
     def chunk(self) -> "Chunk":
-        if self.parent_unit is None:
+        if self._chunk is None:
             raise AttributeError("chunk has not been set")
-        return self.parent_unit
+        return self._chunk
+
+    @chunk.setter
+    def chunk(self, chunk: "Chunk") -> None:
+        self._chunk = chunk
 
     @property
     def morphemes(self) -> list[Morpheme]:
@@ -77,6 +84,8 @@ class Phrase(Unit):
 
     @morphemes.setter
     def morphemes(self, morphemes: list[Morpheme]):
+        for morpheme in morphemes:
+            morpheme.phrase = self
         self._morphemes = morphemes
 
     @cached_property
@@ -106,7 +115,7 @@ class Phrase(Unit):
         return [phrase for phrase in self.sentence.phrases if phrase.parent == self]
 
     @classmethod
-    def from_knp(cls, knp_text: str, chunk: Optional["Chunk"] = None) -> "Phrase":
+    def from_knp(cls, knp_text: str) -> "Phrase":
         first_line, *lines = knp_text.split("\n")
         match = cls.KNP_PATTERN.match(first_line)
         if match is None:
@@ -114,13 +123,13 @@ class Phrase(Unit):
         parent_index = int(match.group("pid"))
         dep_type = DepType(match.group("dtype"))
         features = Features(match.group("feats"))
-        phrase = cls(parent_index, dep_type, features, chunk)
+        phrase = cls(parent_index, dep_type, features)
 
         morphemes: list[Morpheme] = []
         for line in lines:
             if not line.strip():
                 continue
-            morpheme = Morpheme.from_jumanpp(line, phrase=phrase)
+            morpheme = Morpheme.from_jumanpp(line)
             morphemes.append(morpheme)
         phrase.morphemes = morphemes
         return phrase

@@ -15,17 +15,20 @@ class Sentence(Unit):
     EOS = "EOS"
     count = 0
 
-    def __init__(self, document: Optional["Document"] = None):
+    def __init__(self):
         super().__init__()
 
-        self._document = document
+        # parent unit
+        self._document: Optional["Document"] = None
 
-        self.sid: Optional[str] = None
-        self.comment: Optional[str] = None
+        # child units
         self._clauses: Optional[list[Clause]] = None
         self._morphemes: Optional[list[Morpheme]] = None
 
-        self.index: int = self.count
+        self.sid: Optional[str] = None
+        self.comment: Optional[str] = None
+
+        self.index = self.count
         Sentence.count += 1
 
     def __str__(self) -> str:
@@ -49,6 +52,10 @@ class Sentence(Unit):
             raise AttributeError("document has not been set")
         return self.parent_unit
 
+    @document.setter
+    def document(self, document: "Document") -> None:
+        self._document = document
+
     @property
     def clauses(self) -> list[Clause]:
         if self._clauses is None:
@@ -57,6 +64,8 @@ class Sentence(Unit):
 
     @clauses.setter
     def clauses(self, clauses: list[Clause]) -> None:
+        for clause in clauses:
+            clause.sentence = self
         self._clauses = clauses
 
     @property
@@ -77,17 +86,19 @@ class Sentence(Unit):
 
     @morphemes.setter
     def morphemes(self, morphemes: list[Morpheme]) -> None:
+        for morpheme in morphemes:
+            morpheme.sentence = self
         self._morphemes = morphemes
 
     @classmethod
-    def from_string(cls, text: str, document: Optional["Document"] = None) -> "Sentence":
-        sentence = cls(document)
+    def from_string(cls, text: str) -> "Sentence":
+        sentence = cls()
         sentence.text = text
         return sentence
 
     @classmethod
-    def from_jumanpp(cls, jumanpp_text: str, document: Optional["Document"] = None) -> "Sentence":
-        sentence = cls(document)
+    def from_jumanpp(cls, jumanpp_text: str) -> "Sentence":
+        sentence = cls()
         morphemes: List[Morpheme] = []
         jumanpp_lines: List[str] = []
         for line in jumanpp_text.split("\n"):
@@ -106,7 +117,7 @@ class Sentence(Unit):
                 # homograph
                 pass
             elif jumanpp_lines:
-                morpheme = Morpheme.from_jumanpp("\n".join(jumanpp_lines), sentence=sentence)
+                morpheme = Morpheme.from_jumanpp("\n".join(jumanpp_lines))
                 morphemes.append(morpheme)
                 jumanpp_lines = []
             jumanpp_lines.append(line)
@@ -116,8 +127,8 @@ class Sentence(Unit):
         return sentence
 
     @classmethod
-    def from_knp(cls, knp_text: str, document: Optional["Document"] = None) -> "Sentence":
-        sentence = cls(document)
+    def from_knp(cls, knp_text: str) -> "Sentence":
+        sentence = cls()
         clauses: list[Clause] = []
         clause_lines: list[str] = []
         is_clause_end = False
@@ -138,11 +149,11 @@ class Sentence(Unit):
             if line.startswith("+") and "節-区切" in line:
                 is_clause_end = True
             if line.strip() == cls.EOS:
-                clause = Clause.from_knp("\n".join(clause_lines), sentence)
+                clause = Clause.from_knp("\n".join(clause_lines))
                 clauses.append(clause)
                 break
             if line.startswith("*") and is_clause_end is True:
-                clause = Clause.from_knp("\n".join(clause_lines), sentence)
+                clause = Clause.from_knp("\n".join(clause_lines))
                 clauses.append(clause)
                 clause_lines = []
                 is_clause_end = False

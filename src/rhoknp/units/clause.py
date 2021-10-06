@@ -14,11 +14,13 @@ if TYPE_CHECKING:
 class Clause(Unit):
     count = 0
 
-    def __init__(self, sentence: Optional["Sentence"] = None):
+    def __init__(self):
         super().__init__()
 
-        self._sentence = sentence
+        # parent unit
+        self._sentence: Optional["Sentence"] = None
 
+        # child units
         self._chunks: Optional[list[Chunk]] = None
 
         self.index = self.count
@@ -45,6 +47,10 @@ class Clause(Unit):
             raise AttributeError("sentence has not been set")
         return self.parent_unit
 
+    @sentence.setter
+    def sentence(self, sentence: "Sentence") -> None:
+        self._sentence = sentence
+
     @property
     def chunks(self) -> list[Chunk]:
         if self._chunks is None:
@@ -53,6 +59,8 @@ class Clause(Unit):
 
     @chunks.setter
     def chunks(self, chunks: list[Chunk]):
+        for chunk in chunks:
+            chunk.clause = self
         self._chunks = chunks
 
     @property
@@ -85,20 +93,20 @@ class Clause(Unit):
         return [clause for clause in self.sentence.clauses if clause.parent == self]
 
     @classmethod
-    def from_knp(cls, knp_text: str, sentence: Optional["Sentence"] = None) -> "Clause":
-        clause = cls(sentence)
+    def from_knp(cls, knp_text: str) -> "Clause":
+        clause = cls()
         chunks = []
         chunk_lines: list[str] = []
         for line in knp_text.split("\n"):
             if not line.strip():
                 continue
             if line.startswith("*") and chunk_lines:
-                chunk = Chunk.from_knp("\n".join(chunk_lines), clause)
+                chunk = Chunk.from_knp("\n".join(chunk_lines))
                 chunks.append(chunk)
                 chunk_lines = []
             chunk_lines.append(line)
         else:
-            chunk = Chunk.from_knp("\n".join(chunk_lines), clause)
+            chunk = Chunk.from_knp("\n".join(chunk_lines))
             chunks.append(chunk)
         clause.chunks = chunks
         return clause
