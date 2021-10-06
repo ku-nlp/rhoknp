@@ -12,26 +12,27 @@ jobs:
     runs-on: ubuntu-latest
     container: nobug5c9/jumanpp-knp:ubuntu
     strategy:
-      max-parallel: 4
+      max-parallel: 2
+      fail-fast: false
       matrix:
-        python-version: [3.9]
+        python-version: ["3.9", "3.10"]
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
     - name: Install required apt packages
       run: |
-        apt update -y
-        apt install -y curl libsqlite3-dev
+        apt-get update -y
+        apt-get install -y curl libsqlite3-dev libffi-dev python3-pip
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install Poetry
       run: |
-        curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python3 -
+        curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/install-poetry.py | python -
     - name: Add path for Poetry
-      run: echo "$HOME/.poetry/bin" >> $GITHUB_PATH
+      run: echo "$HOME/.local/bin" >> $GITHUB_PATH
     - name: Install dependencies
       run: |
         poetry config virtualenvs.create false
@@ -41,7 +42,7 @@ jobs:
         # stop the build if there are Python syntax errors or undefined names
         poetry run flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        poetry run flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+        poetry run flake8 . --count --exit-zero --max-complexity=10 --max-line-length=120 --statistics
     - name: Run tests
       run: |
         poetry run pytest --mypy --cov-config=./.coveragerc --cov=rhoknp --cov-branch --cov-report=xml -v ./tests
