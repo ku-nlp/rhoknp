@@ -23,7 +23,7 @@ jobs:
     - name: Install required apt packages
       run: |
         apt-get update -y
-        apt-get install -y curl libsqlite3-dev
+        apt-get install -y curl libsqlite3-dev libffi-dev python3-pip
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
