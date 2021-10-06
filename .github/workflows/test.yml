@@ -14,15 +14,15 @@ jobs:
     strategy:
       max-parallel: 4
       matrix:
-        python-version: [3.9, 3.10]
+        python-version: ["3.9", "3.10"]
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
     - name: Install required apt packages
       run: |
-        apt update -y
-        apt install -y curl libsqlite3-dev
+        apt-get update -y
+        apt-get install -y curl libsqlite3-dev
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
