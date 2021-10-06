@@ -21,7 +21,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.black]
 line-length = 120
-target-version = ["py39", "py310"]
+target-version = ["py39"]  # "py310" is not supported yet
 
 [mypy]
 python_version = 3.9
