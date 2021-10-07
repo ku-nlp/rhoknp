@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
 class Phrase(Unit):
     KNP_PATTERN: re.Pattern = re.compile(
-        fr"^\+ (?P<pid>-1|\d+)(?P<dtype>[{''.join(e.value for e in DepType)}]) {Features.PATTERN.pattern}$"
+        fr"^\+ (?P<pid>-1|\d+)(?P<dtype>[{''.join(e.value for e in DepType)}])( {Features.PATTERN.pattern})?$"
     )
     count = 0
 
@@ -114,7 +114,7 @@ class Phrase(Unit):
             raise ValueError(f"malformed line: {first_line}")
         parent_index = int(match.group("pid"))
         dep_type = DepType(match.group("dtype"))
-        features = Features(match.group("feats"))
+        features = Features(match.group("feats") or "")
         phrase = cls(parent_index, dep_type, features)
 
         morphemes: list[Morpheme] = []
@@ -127,6 +127,9 @@ class Phrase(Unit):
         return phrase
 
     def to_knp(self) -> str:
-        ret = f"+ {self.parent_index}{self.dep_type.value} {self.features}\n"
+        ret = f"+ {self.parent_index}{self.dep_type.value}"
+        if self.features:
+            ret += f" {self.features}"
+        ret += "\n"
         ret += "".join(morpheme.to_jumanpp() for morpheme in self.morphemes)
         return ret

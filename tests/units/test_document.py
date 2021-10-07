@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 
 from rhoknp import Document, Sentence
@@ -164,6 +166,13 @@ EOS
     ],
 )
 def test_document_to_knp(knp: str):
+    doc = Document.from_knp(knp)
+    assert doc.to_knp() == knp
+
+
+def test_document_to_knp_kwdlc():
+    doc_id = "w201106-0000060050"
+    knp = Path(f"tests/data/{doc_id}.knp").read_text()
     doc = Document.from_knp(knp)
     assert doc.to_knp() == knp
 

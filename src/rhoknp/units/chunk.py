@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 
 class Chunk(Unit):
-    KNP_PATTERN: re.Pattern = re.compile(fr"^\* (?P<pid>-1|\d+)(?P<dtype>[DPAI]) {Features.PATTERN.pattern}$")
+    KNP_PATTERN: re.Pattern = re.compile(fr"^\* (?P<pid>-1|\d+)(?P<dtype>[DPAI])( {Features.PATTERN.pattern})?$")
     count = 0
 
     def __init__(self, parent_index: int, dep_type: DepType, features: Features):
@@ -96,7 +96,7 @@ class Chunk(Unit):
             raise ValueError(f"malformed line: {first_line}")
         parent_index = int(match.group("pid"))
         dep_type = DepType(match.group("dtype"))
-        features = Features(match.group("feats"))
+        features = Features(match.group("feats") or "")
         chunk = cls(parent_index, dep_type, features)
 
         phrases: list[Phrase] = []
@@ -116,6 +116,9 @@ class Chunk(Unit):
         return chunk
 
     def to_knp(self) -> str:
-        ret = f"* {self.parent_index}{self.dep_type.value} {self.features}\n"
+        ret = f"* {self.parent_index}{self.dep_type.value}"
+        if self.features:
+            ret += f" {self.features}"
+        ret += "\n"
         ret += "".join(phrase.to_knp() for phrase in self.phrases)
         return ret
