@@ -17,8 +17,8 @@ from rhoknp import Jumanpp
 )
 def test_jumanpp_apply(text: str):
     jumanpp = Jumanpp()
-    document = jumanpp.apply(text)
-    assert document.text == text.replace(" ", "　").replace('"', "”")
+    sent = jumanpp.apply(text)
+    assert sent.text == text.replace(" ", "　").replace('"', "”")
 
 
 @pytest.mark.parametrize(
@@ -33,10 +33,10 @@ def test_jumanpp_apply(text: str):
         # "これは\rどう",  # carriage return  # TODO
     ],
 )
-def test_jumanpp_apply_to_sentence(text: str):
+def test_jumanpp_apply_to_document(text: str):
     jumanpp = Jumanpp()
-    sentence = jumanpp.apply_to_sentence(text)
-    assert sentence.text == text.replace(" ", "　").replace('"', "”")
+    doc = jumanpp.apply_to_document(text)
+    assert doc.text == text.replace(" ", "　").replace('"', "”")
 
 
 def test_jumanpp_batch_apply():
@@ -46,40 +46,58 @@ def test_jumanpp_batch_apply():
         "エネルギーを素敵にENEOS",
     ]
     jumanpp = Jumanpp()
-    documents = jumanpp.batch_apply(texts)
-    assert [document.text for document in documents] == texts
+    sents = jumanpp.batch_apply(texts)
+    assert [sent.text for sent in sents] == texts
 
     # parallel
-    documents = jumanpp.batch_apply(texts, processes=2)
-    assert [document.text for document in documents] == texts
+    sents = jumanpp.batch_apply(texts, processes=2)
+    assert [sent.text for sent in sents] == texts
 
-    documents = jumanpp.batch_apply(texts, processes=4)
-    assert [document.text for document in documents] == texts
+    sents = jumanpp.batch_apply(texts, processes=4)
+    assert [sent.text for sent in sents] == texts
+
+
+def test_jumanpp_batch_apply_to_documents():
+    texts = [
+        "外国人参政権",
+        "望遠鏡で泳いでいる少女を見た。",
+        "エネルギーを素敵にENEOS",
+    ]
+    jumanpp = Jumanpp()
+    docs = jumanpp.batch_apply_to_documents(texts)
+    assert [doc.text for doc in docs] == texts
+
+    # parallel
+    docs = jumanpp.batch_apply_to_documents(texts, processes=2)
+    assert [doc.text for doc in docs] == texts
+
+    docs = jumanpp.batch_apply_to_documents(texts, processes=4)
+    assert [doc.text for doc in docs] == texts
 
 
 def test_jumanpp_normal():
     jumanpp = Jumanpp()
     text = "この文を解析してください。"
-    document = jumanpp.apply(text)
-    assert len(document.morphemes) == 7
-    assert "".join(m.text for m in document.morphemes) == text
+    sent = jumanpp.apply(text)
+    assert len(sent.morphemes) == 7
+    assert "".join(m.text for m in sent.morphemes) == text
 
 
 def test_jumanpp_nominalization():
     jumanpp = Jumanpp()
     text = "音の響きを感じる。"
-    document = jumanpp.apply(text)
-    assert len(document.morphemes) == 6
-    assert "".join(m.text for m in document.morphemes) == text
-    assert document.morphemes[2].surf == "響き"
-    assert document.morphemes[2].pos == "名詞"
+    sent = jumanpp.apply(text)
+    assert len(sent.morphemes) == 6
+    assert "".join(m.text for m in sent.morphemes) == text
+    assert sent.morphemes[2].surf == "響き"
+    assert sent.morphemes[2].pos == "名詞"
 
 
 def test_jumanpp_whitespace():
     jumanpp = Jumanpp()
     text = "半角 スペース"
-    document = jumanpp.apply(text)
-    assert len(document.morphemes) == 3
-    assert "".join(m.text for m in document.morphemes) == text.replace(" ", "　")
-    assert document.morphemes[1].pos == "特殊"
-    assert document.morphemes[1].subpos == "空白"
+    sent = jumanpp.apply(text)
+    assert len(sent.morphemes) == 3
+    assert "".join(m.text for m in sent.morphemes) == text.replace(" ", "　")
+    assert sent.morphemes[1].pos == "特殊"
+    assert sent.morphemes[1].subpos == "空白"

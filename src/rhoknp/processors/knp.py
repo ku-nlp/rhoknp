@@ -1,4 +1,4 @@
-from logging import Logger, getLogger
+from logging import getLogger
 from subprocess import PIPE, Popen
 from typing import Optional, Sequence, Union
 
@@ -8,7 +8,7 @@ from .jumanpp import Jumanpp
 from .processor import Processor
 from .senter import RegexSenter
 
-logger: Logger = getLogger(__file__)
+logger = getLogger(__file__)
 
 
 class KNP(Processor):
@@ -31,14 +31,14 @@ class KNP(Processor):
             if self.senter is None:
                 logger.debug("senter is not specified when initializing KNP: use RegexSenter with no option")
                 self.senter = RegexSenter()
-            document = self.senter.apply(document)
+            document = self.senter.apply_to_document(document)
 
         if document.need_jumanpp:
             logger.debug("document needs to be processed by Juman++")
             if self.jumanpp is None:
                 logger.info("jumanpp is not specified when initializing KNP: use Jumanpp with no option")
                 self.jumanpp = Jumanpp()
-            document = self.jumanpp.apply(document)
+            document = self.jumanpp.apply_to_document(document)
 
         knp_text = ""
         with Popen(self.executor, stdout=PIPE, stdin=PIPE, encoding="utf-8") as p:

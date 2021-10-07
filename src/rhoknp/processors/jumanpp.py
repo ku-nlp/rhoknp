@@ -1,4 +1,4 @@
-from logging import Logger, getLogger
+from logging import getLogger
 from subprocess import PIPE, Popen
 from typing import Optional, Sequence, Union
 
@@ -7,7 +7,7 @@ from rhoknp.units import Document, Sentence
 from .processor import Processor
 from .senter import RegexSenter
 
-logger: Logger = getLogger(__file__)
+logger = getLogger(__file__)
 
 
 class Jumanpp(Processor):
@@ -28,7 +28,7 @@ class Jumanpp(Processor):
             if self.senter is None:
                 logger.debug("senter is not specified when initializing KNP: use RegexSenter with no option")
                 self.senter = RegexSenter()
-            document = self.senter.apply(document)
+            document = self.senter.apply_to_document(document)
 
         jumanpp_text = ""
         with Popen(self.executor, stdout=PIPE, stdin=PIPE, encoding="utf-8") as p:

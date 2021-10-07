@@ -17,8 +17,8 @@ from rhoknp import KNP
 )
 def test_knp_apply(text: str):
     knp = KNP()
-    document = knp.apply(text)
-    assert document.text == text.replace(" ", "　").replace('"', "”")
+    sent = knp.apply(text)
+    assert sent.text == text.replace(" ", "　").replace('"', "”")
 
 
 @pytest.mark.parametrize(
@@ -33,10 +33,10 @@ def test_knp_apply(text: str):
         # "これは\rどう",  # carriage return  # TODO
     ],
 )
-def test_knp_apply_to_sentence(text: str):
+def test_knp_apply_to_document(text: str):
     knp = KNP()
-    sentence = knp.apply_to_sentence(text)
-    assert sentence.text == text.replace(" ", "　").replace('"', "”")
+    doc = knp.apply_to_document(text)
+    assert doc.text == text.replace(" ", "　").replace('"', "”")
 
 
 def test_knp_batch_apply():
@@ -46,12 +46,30 @@ def test_knp_batch_apply():
         "エネルギーを素敵にENEOS",
     ]
     knp = KNP()
-    documents = knp.batch_apply(texts)
-    assert [document.text for document in documents] == [text.replace(" ", "　").replace('"', "”") for text in texts]
+    sents = knp.batch_apply(texts)
+    assert [sent.text for sent in sents] == [text.replace(" ", "　").replace('"', "”") for text in texts]
 
     # parallel
-    documents = knp.batch_apply(texts, processes=2)
-    assert [document.text for document in documents] == [text.replace(" ", "　").replace('"', "”") for text in texts]
+    sents = knp.batch_apply(texts, processes=2)
+    assert [sent.text for sent in sents] == [text.replace(" ", "　").replace('"', "”") for text in texts]
 
-    documents = knp.batch_apply(texts, processes=4)
-    assert [document.text for document in documents] == [text.replace(" ", "　").replace('"', "”") for text in texts]
+    sents = knp.batch_apply(texts, processes=4)
+    assert [sent.text for sent in sents] == [text.replace(" ", "　").replace('"', "”") for text in texts]
+
+
+def test_knp_batch_apply_to_documents():
+    texts = [
+        "外国人参政権",
+        "望遠鏡で泳いでいる少女を見た。",
+        "エネルギーを素敵にENEOS",
+    ]
+    knp = KNP()
+    docs = knp.batch_apply_to_documents(texts)
+    assert [doc.text for doc in docs] == [text.replace(" ", "　").replace('"', "”") for text in texts]
+
+    # parallel
+    docs = knp.batch_apply_to_documents(texts, processes=2)
+    assert [doc.text for doc in docs] == [text.replace(" ", "　").replace('"', "”") for text in texts]
+
+    docs = knp.batch_apply_to_documents(texts, processes=4)
+    assert [doc.text for doc in docs] == [text.replace(" ", "　").replace('"', "”") for text in texts]
