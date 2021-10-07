@@ -3,9 +3,9 @@ from functools import cached_property
 from typing import TYPE_CHECKING, Optional
 
 from .morpheme import Morpheme
-from .phrase import DepType, Phrase
+from .phrase import Phrase
 from .unit import Unit
-from .utils import Features
+from .utils import DepType, Features
 
 if TYPE_CHECKING:
     from .clause import Clause
