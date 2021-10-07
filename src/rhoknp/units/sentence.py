@@ -1,6 +1,8 @@
 import re
 from typing import TYPE_CHECKING, List, Optional, Union
 
+from rhoknp.utils.draw_tree import draw_tree
+
 from .chunk import Chunk
 from .clause import Clause
 from .morpheme import Morpheme
@@ -185,3 +187,6 @@ class Sentence(Unit):
         ret += "".join(clause.to_knp() for clause in self.clauses)
         ret += self.EOS + "\n"
         return ret
+
+    def draw_phrase_tree(self, show_pos: bool = True):
+        draw_tree(self.phrases, show_pos=show_pos)
