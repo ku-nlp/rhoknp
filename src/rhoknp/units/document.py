@@ -15,10 +15,6 @@ class Document(Unit):
         super().__init__()
 
         Sentence.count = 0
-        Clause.count = 0
-        Chunk.count = 0
-        Phrase.count = 0
-        Morpheme.count = 0
 
         # child units
         self._sentences: list[Sentence] = None

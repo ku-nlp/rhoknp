@@ -20,6 +20,11 @@ class Sentence(Unit):
     def __init__(self):
         super().__init__()
 
+        Clause.count = 0
+        Chunk.count = 0
+        Phrase.count = 0
+        Morpheme.count = 0
+
         # parent unit
         self._document: Optional["Document"] = None
 
