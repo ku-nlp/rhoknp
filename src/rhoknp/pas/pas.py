@@ -51,6 +51,7 @@ class Pas:
             if format_ == CaseInfoFormat.CASE:
                 tid, sdist, sid = int(fields[0]), int(fields[1]), fields[2]
                 assert arg_type != ArgumentType.EXOPHOR
+                assert phrase.sentence.index is not None  # to suppress mypy error
                 assert phrase.document.sentences[phrase.sentence.index - sdist].sid == sid
                 arg_phrase = phrase.document.sentences[phrase.sentence.index - sdist].phrases[tid]
                 assert surf in arg_phrase.text
@@ -61,6 +62,7 @@ class Pas:
                 if arg_type == ArgumentType.EXOPHOR:
                     arg = SpecialArgument(exophor=surf, eid=eid)
                 else:
+                    assert phrase.sentence.index is not None  # to suppress mypy error
                     arg_phrase = phrase.document.sentences[phrase.sentence.index - sdist].phrases[tid]
                     assert surf in arg_phrase.text
                     arg = Argument(phrase=arg_phrase, arg_type=arg_type)

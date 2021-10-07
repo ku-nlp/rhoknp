@@ -91,7 +91,7 @@ class SpecialArgument(BaseArgument):
         self.eid: int = eid
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(exophor={self.exophor}, eid={self.eid})"
+        return f"{self.__class__.__name__}(exophor={repr(self.exophor)}, eid={repr(self.eid)})"
 
     def __str__(self) -> str:
         return self.exophor
