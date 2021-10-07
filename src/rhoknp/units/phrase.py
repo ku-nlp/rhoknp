@@ -1,24 +1,16 @@
 import re
-from enum import Enum
 from functools import cached_property
 from typing import TYPE_CHECKING, Optional
 
 from .morpheme import Morpheme
 from .unit import Unit
-from .utils import Features
+from .utils import DepType, Features
 
 if TYPE_CHECKING:
     from .chunk import Chunk
     from .clause import Clause
     from .document import Document
     from .sentence import Sentence
-
-
-class DepType(Enum):
-    DEPENDENCY = "D"
-    PARALLEL = "P"
-    APPOSITION = "A"
-    IMPERFECT_PARALLEL = "I"
 
 
 class Phrase(Unit):

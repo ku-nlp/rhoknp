@@ -1,5 +1,13 @@
 import re
+from enum import Enum
 from typing import Union
+
+
+class DepType(Enum):
+    DEPENDENCY = "D"
+    PARALLEL = "P"
+    APPOSITION = "A"
+    IMPERFECT_PARALLEL = "I"
 
 
 class Semantics(dict):
