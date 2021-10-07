@@ -10,16 +10,24 @@ class Processor(ABC):
     def apply_to_document(self, document: Union[Document, str]) -> Document:
         raise NotImplementedError
 
+    def batch_apply_to_documents(self, documents: list[Union[Document, str]], processes: int = 0) -> list[Document]:
+        if processes < 1:
+            return list(map(self.apply_to_document, documents))
+        with Pool(processes=processes) as pool:
+            return pool.map(self.apply_to_document, documents)
+
     @abstractmethod
     def apply_to_sentence(self, sentence: Union[Sentence, str]) -> Sentence:
         raise NotImplementedError
 
-    def apply(self, document: Union[Document, str]) -> Document:
-        return self.apply_to_document(document)
-
-    def batch_apply(self, documents: list[Union[Document, str]], processes: int = 0) -> list[Document]:
+    def batch_apply_to_sentences(self, sentences: list[Union[Sentence, str]], processes: int = 0) -> list[Sentence]:
         if processes < 1:
-            return list(map(self.apply, documents))
-
+            return list(map(self.apply, sentences))
         with Pool(processes=processes) as pool:
-            return pool.map(self.apply, documents)
+            return pool.map(self.apply, sentences)
+
+    def apply(self, sentence: Union[Sentence, str]) -> Sentence:
+        return self.apply_to_sentence(sentence)
+
+    def batch_apply(self, sentences: list[Union[Sentence, str]], processes: int = 0) -> list[Sentence]:
+        return self.batch_apply_to_sentences(sentences)
