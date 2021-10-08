@@ -1,4 +1,5 @@
 import re
+import weakref
 from typing import TYPE_CHECKING, List, Optional, Union
 
 from rhoknp.utils.draw_tree import draw_tree
@@ -72,7 +73,7 @@ class Sentence(Unit):
     @clauses.setter
     def clauses(self, clauses: list[Clause]) -> None:
         for clause in clauses:
-            clause.sentence = self
+            clause.sentence = weakref.proxy(self)
         self._clauses = clauses
 
     @property

@@ -1,4 +1,5 @@
 import re
+import weakref
 from functools import cached_property
 from typing import TYPE_CHECKING, Optional
 
@@ -77,7 +78,7 @@ class Phrase(Unit):
     @morphemes.setter
     def morphemes(self, morphemes: list[Morpheme]):
         for morpheme in morphemes:
-            morpheme.phrase = self
+            morpheme.phrase = weakref.proxy(self)
         self._morphemes = morphemes
 
     @cached_property

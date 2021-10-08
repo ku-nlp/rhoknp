@@ -1,3 +1,4 @@
+import weakref
 from functools import cached_property
 from typing import TYPE_CHECKING, Optional
 
@@ -60,7 +61,7 @@ class Clause(Unit):
     @chunks.setter
     def chunks(self, chunks: list[Chunk]):
         for chunk in chunks:
-            chunk.clause = self
+            chunk.clause = weakref.proxy(self)
         self._chunks = chunks
 
     @property

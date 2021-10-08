@@ -1,3 +1,4 @@
+import weakref
 from typing import Optional, Sequence, Union
 
 from .chunk import Chunk
@@ -42,7 +43,7 @@ class Document(Unit):
     @sentences.setter
     def sentences(self, sentences: list[Sentence]) -> None:
         for sentence in sentences:
-            sentence.document = self
+            sentence.document = weakref.proxy(self)
         self._sentences = sentences
 
     @property

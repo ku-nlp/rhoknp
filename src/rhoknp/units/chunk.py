@@ -1,4 +1,5 @@
 import re
+import weakref
 from functools import cached_property
 from typing import TYPE_CHECKING, Optional
 
@@ -71,7 +72,7 @@ class Chunk(Unit):
     @phrases.setter
     def phrases(self, phrases: list[Phrase]) -> None:
         for phrase in phrases:
-            phrase.chunk = self
+            phrase.chunk = weakref.proxy(self)
         self._phrases = phrases
 
     @property
