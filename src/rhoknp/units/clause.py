@@ -27,9 +27,6 @@ class Clause(Unit):
         self.index = self.count
         Clause.count += 1
 
-    def __str__(self) -> str:
-        return self.text
-
     @property
     def parent_unit(self) -> Optional["Sentence"]:
         return self._sentence

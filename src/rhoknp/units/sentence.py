@@ -39,9 +39,6 @@ class Sentence(Unit):
         self.index = self.count
         Sentence.count += 1
 
-    def __str__(self) -> str:
-        return self.text
-
     @property
     def parent_unit(self) -> Optional["Document"]:
         return self._document

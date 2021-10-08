@@ -79,9 +79,6 @@ class Morpheme(Unit):
         if homograph is False:
             Morpheme.count += 1
 
-    def __str__(self) -> str:
-        return self.text
-
     @property
     def parent_unit(self) -> Optional[Union["Phrase", "Sentence"]]:
         if self._phrase is not None:

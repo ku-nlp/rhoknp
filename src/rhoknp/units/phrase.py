@@ -36,9 +36,6 @@ class Phrase(Unit):
         self.index = self.count
         Phrase.count += 1
 
-    def __str__(self) -> str:
-        return self.text
-
     @property
     def parent_unit(self) -> Optional["Chunk"]:
         return self._chunk
