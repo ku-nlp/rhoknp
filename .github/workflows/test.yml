@@ -13,6 +13,7 @@ jobs:
     container: kunlp/jumanpp-knp:ubuntu
     strategy:
       max-parallel: 2
+      fail-fast: false
       matrix:
         python-version: ["3.9", "3.10"]
 
@@ -29,9 +30,11 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install Poetry
       run: |
-        curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python3 -
-    - name: Add path for Poetry
-      run: echo "$HOME/.poetry/bin" >> $GITHUB_PATH
+        python3 -m pip install --user pipx
+        python3 -m pipx ensurepath
+        pipx install poetry
+    - name: Add path for Python packages
+      run: echo "$HOME/.local/bin" >> $GITHUB_PATH
     - name: Install dependencies
       run: |
         poetry config virtualenvs.create false
