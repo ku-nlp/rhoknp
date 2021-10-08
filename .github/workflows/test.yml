@@ -32,7 +32,7 @@ jobs:
       run: |
         python3 -m pip install --user pipx
         python3 -m pipx ensurepath
-        pipx install poetry
+        python3 -m pipx install poetry
     - name: Add path for Python packages
       run: echo "$HOME/.local/bin" >> $GITHUB_PATH
     - name: Install dependencies
