@@ -23,9 +23,6 @@ class Document(Unit):
         self.index = self.count
         Document.count += 1
 
-    def __str__(self) -> str:
-        return self.text
-
     @property
     def parent_unit(self) -> None:
         return None

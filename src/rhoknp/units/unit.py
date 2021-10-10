@@ -8,6 +8,9 @@ class Unit(ABC):
 
         self._text: Optional[str] = None
 
+    def __str__(self) -> str:
+        return self.text
+
     def __repr__(self) -> str:
         return f'{self.__class__.__name__}(index={self.index}, text="{self.text}")'
 

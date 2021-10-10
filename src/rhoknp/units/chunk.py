@@ -34,9 +34,6 @@ class Chunk(Unit):
         self.index = self.count
         Chunk.count += 1
 
-    def __str__(self) -> str:
-        return self.text
-
     @property
     def parent_unit(self) -> Optional["Clause"]:
         return self._clause
