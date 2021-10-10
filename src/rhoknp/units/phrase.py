@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Optional
 
 from .morpheme import Morpheme
 from .unit import Unit
-from .utils import DepType, Features
+from .utils import DepType, Features, Rels
 
 if TYPE_CHECKING:
     from .chunk import Chunk
@@ -20,7 +20,7 @@ class Phrase(Unit):
     )
     count = 0
 
-    def __init__(self, parent_index: int, dep_type: DepType, features: Features):
+    def __init__(self, parent_index: int, dep_type: DepType, features: Features, rels: Rels):
         super().__init__()
 
         # parent unit
@@ -32,6 +32,7 @@ class Phrase(Unit):
         self.parent_index: int = parent_index
         self.dep_type: DepType = dep_type
         self.features: Features = features
+        self.rels: Rels = rels
 
         self.index = self.count
         Phrase.count += 1
@@ -116,7 +117,8 @@ class Phrase(Unit):
         parent_index = int(match.group("pid"))
         dep_type = DepType(match.group("dtype"))
         features = Features(match.group("feats") or "")
-        phrase = cls(parent_index, dep_type, features)
+        rels = Rels.from_fstring(match.group("feats") or "")
+        phrase = cls(parent_index, dep_type, features, rels)
 
         morphemes: list[Morpheme] = []
         for line in lines:

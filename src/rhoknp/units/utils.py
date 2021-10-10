@@ -1,6 +1,7 @@
 import re
+from dataclasses import dataclass
 from enum import Enum
-from typing import Union
+from typing import ClassVar, Iterable, Optional, Union
 
 
 class DepType(Enum):
@@ -77,6 +78,56 @@ class Features(dict):
         if value is True:
             return f"<{key}>"
         return f"<{key}:{value}>"
+
+    def __str__(self) -> str:
+        return self.to_fstring()
+
+
+@dataclass
+class Rel:
+    PATTERN: ClassVar[re.Pattern] = re.compile(
+        r'<rel type="(?P<type>\S+?)"( mode="(?P<mode>[^>]+?)")? target="(?P<target>.+?)"( sid="(?P<sid>.+?)" '
+        r'id="(?P<id>\d+?)")?/>'
+    )
+    type: str
+    target: str
+    sid: Optional[str]
+    phrase_index: Optional[int]
+    mode: Optional[str]
+
+    def to_fstring(self) -> str:
+        ret = f'<rel type="{self.type}"'
+        if self.mode is not None:
+            ret += f' mode="{self.mode}"'
+        ret += f' target="{self.target}"'
+        if self.sid is not None:
+            assert self.phrase_index is not None
+            ret += f' sid="{self.sid}" id="{self.phrase_index}"'
+        ret += "/>"
+        return ret
+
+
+class Rels(list):
+    def __init__(self, rels: Iterable[Rel]):
+        super().__init__(rels)
+
+    @classmethod
+    def from_fstring(cls, fstring: str) -> "Rels":
+        rels = []
+        for match in Rel.PATTERN.finditer(fstring):
+            rels.append(
+                Rel(
+                    type=match["type"],
+                    target=match["target"],
+                    sid=match["sid"],
+                    phrase_index=match["id"] and int(match["id"]),
+                    mode=match["mode"],
+                )
+            )
+        return cls(rels)
+
+    def to_fstring(self) -> str:
+        return "".join(rel.to_fstring() for rel in self)
 
     def __str__(self) -> str:
         return self.to_fstring()
