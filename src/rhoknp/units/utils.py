@@ -56,7 +56,7 @@ class Features(dict):
     ex. "<正規化代表表記:遅れる/おくれる>" --> {"正規化代表表記": "遅れる/おくれる"}
     """
 
-    PATTERN: re.Pattern = re.compile(r"(?P<feats>(<.+>)*)")
+    PATTERN: re.Pattern = re.compile(r"(?P<feats>(<[^>]+>)*)")
     TAG_PATTERN: re.Pattern = re.compile(r"<(?P<key>[^:]+?)(:(?P<value>.+?))?>")
 
     def __init__(self, fstring: str):

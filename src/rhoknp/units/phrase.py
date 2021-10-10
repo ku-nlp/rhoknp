@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 class Phrase(Unit):
     KNP_PATTERN: re.Pattern = re.compile(
-        fr"^\+ (?P<pid>-1|\d+)(?P<dtype>[{''.join(e.value for e in DepType)}])( {Features.PATTERN.pattern})?$"
+        fr"^\+ (?P<pid>-1|\d+)(?P<dtype>[{''.join(e.value for e in DepType)}])( (?P<tags>(<[^>]+>)*))?$"
     )
     count = 0
 
@@ -113,8 +113,8 @@ class Phrase(Unit):
             raise ValueError(f"malformed line: {first_line}")
         parent_index = int(match.group("pid"))
         dep_type = DepType(match.group("dtype"))
-        features = Features(match.group("feats") or "")
-        rels = Rels.from_fstring(match.group("feats") or "")
+        features = Features(match.group("tags") or "")
+        rels = Rels.from_fstring(match.group("tags") or "")
         phrase = cls(parent_index, dep_type, features, rels)
 
         morphemes: list[Morpheme] = []
