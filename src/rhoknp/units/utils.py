@@ -1,7 +1,7 @@
 import re
 from dataclasses import dataclass
 from enum import Enum
-from typing import ClassVar, Iterable, Optional, Union
+from typing import ClassVar, Optional, Union
 
 
 class DepType(Enum):
@@ -108,14 +108,10 @@ class Rel:
 
 
 class Rels(list):
-    def __init__(self, rels: Iterable[Rel]):
-        super().__init__(rels)
-
-    @classmethod
-    def from_fstring(cls, fstring: str) -> "Rels":
-        rels = []
+    def __init__(self, fstring: str):
+        super().__init__()
         for match in Rel.PATTERN.finditer(fstring):
-            rels.append(
+            self.append(
                 Rel(
                     type=match["type"],
                     target=match["target"],
@@ -124,7 +120,10 @@ class Rels(list):
                     mode=match["mode"],
                 )
             )
-        return cls(rels)
+
+    @classmethod
+    def from_fstring(cls, fstring: str) -> "Rels":
+        return cls(fstring)
 
     def to_fstring(self) -> str:
         return "".join(rel.to_fstring() for rel in self)
