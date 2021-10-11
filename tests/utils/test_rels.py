@@ -1,4 +1,4 @@
-from rhoknp.units.utils import Rels
+from rhoknp.units.utils import RelMode, Rels
 
 fstring = """<rel type="=≒" target="オフェンス" sid="w201106-0001519365-1" id="3"/><rel type="=≒" mode="AND" target="ディフェンス" sid="w201106-0001519365-1" id="4"/><rel type="ノ？" target="著者"/>"""
 
@@ -19,7 +19,7 @@ def test_rels_from_fstring():
     assert rel.target == "ディフェンス"
     assert rel.sid == "w201106-0001519365-1"
     assert rel.phrase_index == 4
-    assert rel.mode == "AND"
+    assert rel.mode == RelMode.AND
 
     rel = rels[2]
     assert rel.type == "ノ？"
