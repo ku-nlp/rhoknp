@@ -22,6 +22,7 @@ rhoknp.units.clause module
 
 .. automodule:: rhoknp.units.clause
    :members:
+   :special-members:
    :undoc-members:
    :show-inheritance:
 
@@ -29,30 +30,18 @@ rhoknp.units.chunk module
 -------------------------
 
 .. automodule:: rhoknp.units.chunk
-   :members:
-   :undoc-members:
-   :show-inheritance:
 
 rhoknp.units.phrase module
 --------------------------
 
 .. automodule:: rhoknp.units.phrase
-   :members:
-   :undoc-members:
-   :show-inheritance:
 
 rhoknp.units.morpheme module
 ----------------------------
 
 .. automodule:: rhoknp.units.morpheme
-   :members:
-   :undoc-members:
-   :show-inheritance:
 
 rhoknp.units.unit module
 ------------------------
 
 .. automodule:: rhoknp.units.unit
-   :members:
-   :undoc-members:
-   :show-inheritance:
