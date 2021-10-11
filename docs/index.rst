@@ -10,8 +10,9 @@ rhoknp
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
 
+   install/index
+   reference/index
 
 
 Indices and tables
