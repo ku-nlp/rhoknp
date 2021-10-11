@@ -29,6 +29,7 @@ author = "Hirokazu Kiyomaru and Nobuhiro Ueda"
 # ones.
 extensions = [
     "sphinx.ext.autodoc",
+    "sphinx.ext.viewcode",
     "sphinx.ext.napoleon",
 ]
 
