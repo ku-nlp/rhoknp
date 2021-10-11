@@ -14,14 +14,28 @@ class Document(Unit):
 
     count = 0
 
-    def __init__(self):
-        """Documentクラスのインスタンスを初期化．"""
+    def __init__(self, text: Optional[str] = None):
+        """Documentクラスのインスタンスを初期化．
+
+        Args:
+            text: 文書の文字列．
+
+        Example::
+
+            from rhoknp import Document
+
+            doc_text = "天気が良かったので散歩した。途中で先生に会った。"  # 文書の文字列
+            doc = Document(doc_text)
+        """
         super().__init__()
 
         Sentence.count = 0
 
         # child units
-        self._sentences: list[Sentence] = None
+        self._sentences: Optional[list[Sentence]] = None
+
+        if text is not None:
+            self.text = text
 
         self.index = self.count
         Document.count += 1
@@ -129,9 +143,7 @@ class Document(Unit):
             doc_text = "天気が良かったので散歩した。途中で先生に会った。"  # 文書の文字列
             doc = Document.from_string(doc_text)
         """
-        document = cls()
-        document.text = text
-        return document
+        return cls(text)
 
     @classmethod
     def from_sentence(cls, sentence: Union[Sentence, str]) -> "Document":
