@@ -175,7 +175,9 @@ class Morpheme(Unit):
 
     @cached_property
     def children(self) -> list["Morpheme"]:
-        return [morpheme for morpheme in self.sentence.morphemes if morpheme.parent == self]
+        return [
+            morpheme for morpheme in self.sentence.morphemes if morpheme.parent == self
+        ]
 
     @classmethod
     def from_jumanpp(cls, jumanpp_text: str) -> "Morpheme":
@@ -188,7 +190,9 @@ class Morpheme(Unit):
         return morpheme
 
     @classmethod
-    def from_jumanpp_line(cls, jumanpp_line: str, homograph: bool = False) -> "Morpheme":
+    def from_jumanpp_line(
+        cls, jumanpp_line: str, homograph: bool = False
+    ) -> "Morpheme":
         assert "\n" not in jumanpp_line.strip()
         match = cls.JUMANPP_PATTERN.match(jumanpp_line)
         if match is None:

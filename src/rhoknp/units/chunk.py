@@ -15,7 +15,9 @@ if TYPE_CHECKING:
 
 
 class Chunk(Unit):
-    KNP_PATTERN: re.Pattern = re.compile(fr"^\* (?P<pid>-1|\d+)(?P<dtype>[DPAI])( {Features.PATTERN.pattern})?$")
+    KNP_PATTERN: re.Pattern = re.compile(
+        fr"^\* (?P<pid>-1|\d+)(?P<dtype>[DPAI])( {Features.PATTERN.pattern})?$"
+    )
     count = 0
 
     def __init__(self, parent_index: int, dep_type: DepType, features: Features):

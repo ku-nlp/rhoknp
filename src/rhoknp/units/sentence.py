@@ -86,7 +86,9 @@ class Sentence(Unit):
         if self._morphemes is not None:
             return self._morphemes
         elif self._clauses is not None:
-            return [morpheme for phrase in self.phrases for morpheme in phrase.morphemes]
+            return [
+                morpheme for phrase in self.phrases for morpheme in phrase.morphemes
+            ]
         raise AttributeError("not available before applying Jumanpp")
 
     @morphemes.setter
@@ -180,7 +182,11 @@ class Sentence(Unit):
         ret = ""
         if self.comment is not None:
             ret += self.comment + "\n"
-        ret += "".join(morpheme.to_jumanpp() for morpheme in self.morphemes) + self.EOS + "\n"
+        ret += (
+            "".join(morpheme.to_jumanpp() for morpheme in self.morphemes)
+            + self.EOS
+            + "\n"
+        )
         return ret
 
     def to_knp(self) -> str:

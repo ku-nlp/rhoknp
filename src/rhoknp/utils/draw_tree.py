@@ -29,7 +29,11 @@ POS_MARK = {
 }
 
 
-def draw_tree(leaves: Sequence[Union[Chunk, Phrase]], fh: TextIO = sys.stdout, show_pos: bool = True) -> None:
+def draw_tree(
+    leaves: Sequence[Union[Chunk, Phrase]],
+    fh: TextIO = sys.stdout,
+    show_pos: bool = True,
+) -> None:
     """構文木を指定された fh に出力する．"""
     print(sprint_tree(leaves, show_pos=show_pos), file=fh, end="")
 

@@ -20,7 +20,9 @@ class Phrase(Unit):
     )
     count = 0
 
-    def __init__(self, parent_index: int, dep_type: DepType, features: Features, rels: Rels):
+    def __init__(
+        self, parent_index: int, dep_type: DepType, features: Features, rels: Rels
+    ):
         super().__init__()
 
         # parent unit

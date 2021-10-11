@@ -29,14 +29,18 @@ class KNP(Processor):
         if document.need_senter:
             logger.debug("document needs to be split into sentences")
             if self.senter is None:
-                logger.debug("senter is not specified when initializing KNP: use RegexSenter with no option")
+                logger.debug(
+                    "senter is not specified when initializing KNP: use RegexSenter with no option"
+                )
                 self.senter = RegexSenter()
             document = self.senter.apply_to_document(document)
 
         if document.need_jumanpp:
             logger.debug("document needs to be processed by Juman++")
             if self.jumanpp is None:
-                logger.info("jumanpp is not specified when initializing KNP: use Jumanpp with no option")
+                logger.info(
+                    "jumanpp is not specified when initializing KNP: use Jumanpp with no option"
+                )
                 self.jumanpp = Jumanpp()
             document = self.jumanpp.apply_to_document(document)
 
@@ -54,7 +58,9 @@ class KNP(Processor):
         if sentence.need_jumanpp:
             logger.debug("sentence needs to be processed by Juman++")
             if self.jumanpp is None:
-                logger.info("jumanpp is not specified when initializing KNP: use Jumanpp with no option")
+                logger.info(
+                    "jumanpp is not specified when initializing KNP: use Jumanpp with no option"
+                )
                 self.jumanpp = Jumanpp()
             sentence = self.jumanpp.apply_to_sentence(sentence)
 

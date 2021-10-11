@@ -16,20 +16,27 @@ class CaseInfoFormat(Enum):
 
 
 class Pas:
-    ARGUMENT_PATTERN = re.compile(r"([^/;]+/[CNODEU-]/[^/]+/(-?\d*)/(-?\d*)/[^/;]+)")  # ガ/N/彼/0/0/5
+    ARGUMENT_PATTERN = re.compile(
+        r"([^/;]+/[CNODEU-]/[^/]+/(-?\d*)/(-?\d*)/[^/;]+)"
+    )  # ガ/N/彼/0/0/5
 
     def __init__(self, predicate: Predicate, arguments: Dict[str, List[BaseArgument]]):
         self.predicate = predicate
         self.arguments = arguments
 
     @classmethod
-    def from_pas_string(cls, phrase: Phrase, fstring: str, format_: CaseInfoFormat) -> "Pas":
+    def from_pas_string(
+        cls, phrase: Phrase, fstring: str, format_: CaseInfoFormat
+    ) -> "Pas":
         arguments: Dict[str, List[BaseArgument]] = defaultdict(list)
 
         # language=RegExp
         cfid_pat = r"(.*?):([^:/]+?)"  # 食べる/たべる:動1
         match = re.match(
-            r"{cfid}(:(?P<args>{args}(;{args})*))?$".format(cfid=cfid_pat, args=cls.ARGUMENT_PATTERN.pattern), fstring
+            r"{cfid}(:(?P<args>{args}(;{args})*))?$".format(
+                cfid=cfid_pat, args=cls.ARGUMENT_PATTERN.pattern
+            ),
+            fstring,
         )
 
         if match is None:
@@ -52,8 +59,12 @@ class Pas:
                 tid, sdist, sid = int(fields[0]), int(fields[1]), fields[2]
                 assert arg_type != ArgumentType.EXOPHOR
                 assert phrase.sentence.index is not None  # to suppress mypy error
-                assert phrase.document.sentences[phrase.sentence.index - sdist].sid == sid
-                arg_phrase = phrase.document.sentences[phrase.sentence.index - sdist].phrases[tid]
+                assert (
+                    phrase.document.sentences[phrase.sentence.index - sdist].sid == sid
+                )
+                arg_phrase = phrase.document.sentences[
+                    phrase.sentence.index - sdist
+                ].phrases[tid]
                 assert surf in arg_phrase.text
                 arg = Argument(phrase=arg_phrase, arg_type=arg_type)
             else:
@@ -63,7 +74,9 @@ class Pas:
                     arg = SpecialArgument(exophor=surf, eid=eid)
                 else:
                     assert phrase.sentence.index is not None  # to suppress mypy error
-                    arg_phrase = phrase.document.sentences[phrase.sentence.index - sdist].phrases[tid]
+                    arg_phrase = phrase.document.sentences[
+                        phrase.sentence.index - sdist
+                    ].phrases[tid]
                     assert surf in arg_phrase.text
                     arg = Argument(phrase=arg_phrase, arg_type=arg_type)
             arguments[case].append(arg)

@@ -57,7 +57,9 @@ class Document(Unit):
 
     @property
     def morphemes(self) -> list[Morpheme]:
-        return [morpheme for sentence in self.sentences for morpheme in sentence.morphemes]
+        return [
+            morpheme for sentence in self.sentences for morpheme in sentence.morphemes
+        ]
 
     @property
     def need_senter(self) -> bool:
@@ -90,7 +92,9 @@ class Document(Unit):
         return document
 
     @classmethod
-    def from_sentences(cls, sentences: Union[Sequence[Union[Sentence, str]], str]) -> "Document":
+    def from_sentences(
+        cls, sentences: Union[Sequence[Union[Sentence, str]], str]
+    ) -> "Document":
         document = cls()
         sentences_ = []
         sentence_lines: list[str] = []
@@ -117,7 +121,9 @@ class Document(Unit):
                 continue
             sentence_lines.append(line)
             if line.strip() == Sentence.EOS:
-                sentences.append(Sentence.from_jumanpp("\n".join(sentence_lines) + "\n"))
+                sentences.append(
+                    Sentence.from_jumanpp("\n".join(sentence_lines) + "\n")
+                )
                 sentence_lines = []
         document.sentences = sentences
         return document
