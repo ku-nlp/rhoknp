@@ -101,3 +101,11 @@ def test_jumanpp_whitespace():
     assert "".join(m.text for m in sent.morphemes) == text.replace(" ", "　")
     assert sent.morphemes[1].pos == "特殊"
     assert sent.morphemes[1].subpos == "空白"
+
+
+def test_jumanpp_is_available():
+    jumanpp = Jumanpp()
+    assert jumanpp.is_available() is True
+
+    jumanpp = Jumanpp("jumanp")
+    assert jumanpp.is_available() is False
