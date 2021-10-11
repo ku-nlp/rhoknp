@@ -10,6 +10,50 @@
 - Juman++ v2.0.0-rc3+
 - KNP 5.0+
 
+<!--- uncomment here after publication
+## Installation
+```shell
+pip install rhoknp
+```
+-->
+
+## Typical usage
+
+```python
+from rhoknp import KNP, Sentence
+
+# create a KNP instance
+knp = KNP()
+# create a raw sentence
+sentence = Sentence.from_string("電気抵抗率は、どんな材料が電気を通しにくいかを比較するために、用いられる物性値である。")
+# parse the sentence using KNP
+parsed_sentence = knp.apply(sentence)
+# print the syntactic tree
+parsed_sentence.draw_phrase_tree()
+
+"""
+ 電気n┐
+   抵抗n┐
+ 率sはp、*────────┐
+     どんなd┐　　　　　　│
+      材料nがp─┐　　　　│
+        電気nをp┤　　　　│
+通しvにくいsかpをp┐　　　│
+          比較nするv┐　　│
+           ためnにp、*┐　│
+            用いvられるs─┤
+                     物性n┤
+               値nであるc。*
+"""
+```
+
+## Differences from [pyknp](https://github.com/ku-nlp/pyknp/tree/master/pyknp)
+
+- *rhoknp* provides APIs for document-level text analysis
+- *rhoknp* employs more consistent class names
+- *rhoknp* is strictly type-aware, which provides high readability and usability
+- *rhoknp* drops a support for Python2 and supports Python3.9+
+
 ## Why not [pyknp](https://github.com/ku-nlp/pyknp)?
 
 `pyknp` is the official Python binding that has been developed over a long time.
