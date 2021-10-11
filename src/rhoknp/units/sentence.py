@@ -18,8 +18,10 @@ class Sentence(Unit):
     EOS = "EOS"
     count = 0
 
-    def __init__(self):
+    def __init__(self, text: Optional[str] = None):
         super().__init__()
+        if text is not None:
+            self.text = text
 
         Clause.count = 0
         Chunk.count = 0
@@ -109,9 +111,7 @@ class Sentence(Unit):
 
     @classmethod
     def from_string(cls, text: str) -> "Sentence":
-        sentence = cls()
-        sentence.text = text
-        return sentence
+        return cls(text)
 
     @classmethod
     def from_jumanpp(cls, jumanpp_text: str) -> "Sentence":

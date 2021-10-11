@@ -25,7 +25,7 @@ from rhoknp import KNP, Sentence
 # create a KNP instance
 knp = KNP()
 # create a raw sentence
-sentence = Sentence.from_string("電気抵抗率は、どんな材料が電気を通しにくいかを比較するために、用いられる物性値である。")
+sentence = Sentence("電気抵抗率は、どんな材料が電気を通しにくいかを比較するために、用いられる物性値である。")
 # parse the sentence using KNP
 parsed_sentence = knp.apply(sentence)
 # print the syntactic tree
