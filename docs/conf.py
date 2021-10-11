@@ -31,6 +31,7 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.viewcode",
     "sphinx.ext.napoleon",
+    "sphinx-prompt",
 ]
 
 # sphinx.ext.autodoc

@@ -16,6 +16,7 @@ flake8 = "^3.9"
 pytest-mypy = "^0.8.1"
 Sphinx = "^4.2.0"
 furo = "^2021.10.9"
+sphinx-prompt = "^1.5.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

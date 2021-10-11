@@ -20,6 +20,7 @@ Installation
 
 We recommend to install rhoknp with pip:
 
-.. code-block::
+.. prompt::
+	:prompts: $
 
-	$ pip install rhoknp
+	pip install rhoknp
