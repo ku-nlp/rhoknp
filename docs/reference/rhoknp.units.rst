@@ -31,6 +31,11 @@ rhoknp.units.morpheme module
 
 .. automodule:: rhoknp.units.morpheme
 
+rhoknp.units.utils module
+-------------------------
+
+.. automodule:: rhoknp.units.utils
+
 rhoknp.units.unit module
 ------------------------
 
