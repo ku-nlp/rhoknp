@@ -5,26 +5,16 @@ rhoknp.units.document module
 ----------------------------
 
 .. automodule:: rhoknp.units.document
-   :members:
-   :undoc-members:
-   :show-inheritance:
 
 rhoknp.units.sentence module
 ----------------------------
 
 .. automodule:: rhoknp.units.sentence
-   :members:
-   :undoc-members:
-   :show-inheritance:
 
 rhoknp.units.clause module
 --------------------------
 
 .. automodule:: rhoknp.units.clause
-   :members:
-   :special-members:
-   :undoc-members:
-   :show-inheritance:
 
 rhoknp.units.chunk module
 -------------------------
