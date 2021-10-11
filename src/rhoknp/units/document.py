@@ -10,7 +10,7 @@ from .unit import Unit
 
 
 class Document(Unit):
-    """文書を保持するクラス．"""
+    """文書クラス．"""
 
     count = 0
 
@@ -28,24 +28,17 @@ class Document(Unit):
 
     @property
     def parent_unit(self) -> None:
-        """上位の言語単位を返却．Document は最上位の言語単位なので None を返却．"""
+        """上位の言語単位．Document は最上位の言語単位なので常に None．"""
         return None
 
     @property
     def child_units(self) -> Optional[list[Sentence]]:
-        """下位の言語単位（文）のリストを返却．
-
-        Returns:
-            下位の言語単位（文）のリスト．文のリストにアクセスできない場合は None．
-        """
+        """下位の言語単位（文）のリスト．アクセスできないなら None．"""
         return self._sentences
 
     @property
     def sentences(self) -> list[Sentence]:
         """文のリストを返却．
-
-        Returns:
-            下位の言語単位（文）のリスト．
 
         Raises:
             AttributeError: 文のリストにアクセスできない場合．
@@ -69,9 +62,6 @@ class Document(Unit):
     def clauses(self) -> list[Clause]:
         """節のリストを返却．
 
-        Returns:
-            節のリスト．
-
         Raises:
             AttributeError: 節のリストにアクセスできない場合．
         """
@@ -79,10 +69,7 @@ class Document(Unit):
 
     @property
     def chunks(self) -> list[Chunk]:
-        """文節のリストを返却．
-
-        Returns:
-            文節のリスト．
+        """文節のリスト．
 
         Raises:
             AttributeError: 文節のリストにアクセスできない場合．
@@ -91,10 +78,7 @@ class Document(Unit):
 
     @property
     def phrases(self) -> list[Phrase]:
-        """基本句のリストを返却．
-
-        Returns:
-            基本句のリスト．
+        """基本句のリスト．
 
         Raises:
             AttributeError: 基本句のリストにアクセスできない場合．
@@ -103,10 +87,7 @@ class Document(Unit):
 
     @property
     def morphemes(self) -> list[Morpheme]:
-        """形態素のリストを返却．
-
-        Returns:
-            形態素のリスト．
+        """形態素のリスト．
 
         Raises:
             AttributeError: 形態素のリストにアクセスできない場合．
@@ -117,31 +98,19 @@ class Document(Unit):
 
     @property
     def need_senter(self) -> bool:
-        """文分割がまだなら True，済んでいるなら False を返却．
-
-        Returns:
-            文分割がまだなら True．済んでいるなら False．
-        """
+        """文分割がまだなら True，済んでいるなら False．"""
         return self._sentences is None
 
     @property
     def need_jumanpp(self) -> bool:
-        """Juman++ による解析がまだなら True，済んでいるなら False を返却．
-
-        Returns:
-            Juman++ による解析がまだなら True．済んでいるなら False．
-        """
+        """Juman++ による解析がまだなら True，済んでいるなら False．"""
         if self.need_senter:
             return True
         return any(sentence.need_jumanpp for sentence in self.sentences)
 
     @property
     def need_knp(self) -> bool:
-        """KNP による解析がまだなら True，済んでいるなら False を返却．
-
-        Returns:
-            KNP による解析がまだなら True．済んでいるなら False．
-        """
+        """KNP による解析がまだなら True，済んでいるなら False．"""
         if self.need_jumanpp:
             return True
         return any(sentence.need_knp for sentence in self.sentences)
