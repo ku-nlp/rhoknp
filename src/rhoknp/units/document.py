@@ -10,9 +10,12 @@ from .unit import Unit
 
 
 class Document(Unit):
+    """文書を保持するクラス．"""
+
     count = 0
 
     def __init__(self):
+        """Documentクラスのインスタンスを初期化．"""
         super().__init__()
 
         Sentence.count = 0
@@ -25,66 +28,157 @@ class Document(Unit):
 
     @property
     def parent_unit(self) -> None:
+        """上位の言語単位を返却．Document は最上位の言語単位なので None を返却．"""
         return None
 
     @property
     def child_units(self) -> Optional[list[Sentence]]:
+        """下位の言語単位（文）のリストを返却．
+
+        Returns:
+            下位の言語単位（文）のリスト．文のリストにアクセスできない場合は None．
+        """
         return self._sentences
 
     @property
     def sentences(self) -> list[Sentence]:
+        """文のリストを返却．
+
+        Returns:
+            下位の言語単位（文）のリスト．
+
+        Raises:
+            AttributeError: 文のリストにアクセスできない場合．
+        """
         if self._sentences is None:
             raise AttributeError("not available before applying a sentence splitter")
         return self._sentences
 
     @sentences.setter
     def sentences(self, sentences: list[Sentence]) -> None:
+        """文のリストを登録．
+
+        Args:
+            sentences: 文のリスト．
+        """
         for sentence in sentences:
             sentence.document = weakref.proxy(self)
         self._sentences = sentences
 
     @property
     def clauses(self) -> list[Clause]:
+        """節のリストを返却．
+
+        Returns:
+            節のリスト．
+
+        Raises:
+            AttributeError: 節のリストにアクセスできない場合．
+        """
         return [clause for sentence in self.sentences for clause in sentence.clauses]
 
     @property
     def chunks(self) -> list[Chunk]:
+        """文節のリストを返却．
+
+        Returns:
+            文節のリスト．
+
+        Raises:
+            AttributeError: 文節のリストにアクセスできない場合．
+        """
         return [chunk for clause in self.clauses for chunk in clause.chunks]
 
     @property
     def phrases(self) -> list[Phrase]:
+        """基本句のリストを返却．
+
+        Returns:
+            基本句のリスト．
+
+        Raises:
+            AttributeError: 基本句のリストにアクセスできない場合．
+        """
         return [phrase for chunk in self.chunks for phrase in chunk.phrases]
 
     @property
     def morphemes(self) -> list[Morpheme]:
+        """形態素のリストを返却．
+
+        Returns:
+            形態素のリスト．
+
+        Raises:
+            AttributeError: 形態素のリストにアクセスできない場合．
+        """
         return [
             morpheme for sentence in self.sentences for morpheme in sentence.morphemes
         ]
 
     @property
     def need_senter(self) -> bool:
+        """文分割がまだなら True，済んでいるなら False を返却．
+
+        Returns:
+            文分割がまだなら True．済んでいるなら False．
+        """
         return self._sentences is None
 
     @property
     def need_jumanpp(self) -> bool:
+        """Juman++ による解析がまだなら True，済んでいるなら False を返却．
+
+        Returns:
+            Juman++ による解析がまだなら True．済んでいるなら False．
+        """
         if self.need_senter:
             return True
         return any(sentence.need_jumanpp for sentence in self.sentences)
 
     @property
     def need_knp(self) -> bool:
+        """KNP による解析がまだなら True，済んでいるなら False を返却．
+
+        Returns:
+            KNP による解析がまだなら True．済んでいるなら False．
+        """
         if self.need_jumanpp:
             return True
         return any(sentence.need_knp for sentence in self.sentences)
 
     @classmethod
     def from_string(cls, text: str) -> "Document":
+        """文書クラスのインスタンスを文字列から初期化．
+
+        Args:
+            text: 文書の文字列．
+
+        Example::
+
+            from rhoknp import Document
+
+            doc_text = "天気が良かったので散歩した。途中で先生に会った。"  # 文書の文字列
+            doc = Document.from_string(doc_text)
+        """
         document = cls()
         document.text = text
         return document
 
     @classmethod
     def from_sentence(cls, sentence: Union[Sentence, str]) -> "Document":
+        """文書クラスのインスタンスを文から初期化．
+
+        Args:
+            sentence: 文もしくは文の文字列．
+
+        Example::
+
+            from rhoknp import Document
+
+            sent_text = "天気が良かったので散歩した。"  # 文の文字列
+            doc = Document.from_sentence(sent_text)
+            print(len(doc.sentences))  # -> 1
+        """
         document = cls()
         if isinstance(sentence, str):
             sentence = Sentence.from_string(sentence)
@@ -95,6 +189,30 @@ class Document(Unit):
     def from_sentences(
         cls, sentences: Union[Sequence[Union[Sentence, str]], str]
     ) -> "Document":
+        """文書クラスのインスタンスを文のリストから初期化．
+
+        Args:
+            sentences: 文（文の文字列）のリストもしくは一行一文形式の文字列．
+
+        Example::
+
+            from rhoknp import Document
+
+            sent_texts = ["天気が良かったので散歩した。", "途中で先生に会った。"]  # 文（の文字列）のリスト
+            doc = Document.from_sentences(sent_texts)
+            print(len(doc.sentences))  # -> 2
+
+            sent_texts = \"\"\"# S-ID: 1
+            天気が良かったので散歩した。
+            # S-ID: 2
+            途中で先生に会った。
+            \"\"\"  # 一行一文形式の文字列
+            doc = Document.from_sentences(sent_texts)
+            print(len(doc.sentences))  # -> 2
+
+        .. note::
+            一行一文形式の文字列を入力とするとき，# から始まる行はコメントとして認識される．
+        """
         document = cls()
         sentences_ = []
         sentence_lines: list[str] = []
@@ -113,6 +231,36 @@ class Document(Unit):
 
     @classmethod
     def from_jumanpp(cls, jumanpp_text: str) -> "Document":
+        """文書クラスのインスタンスを Juman++ の解析結果から初期化．
+
+        Args:
+            jumanpp_text: Juman++ の解析結果．
+
+        Example::
+
+            from rhoknp import Document
+
+            jumanpp_text = \"\"\"天気 てんき 天気 名詞 6 普通名詞 1 * 0 * 0 "代表表記:天気/てんき カテゴリ:抽象物" <代表表記:天気/てんき><カテゴリ:抽象物><正規化代表表記:天気/てんき><漢字><かな漢字><名詞相当語><文頭><自立><内容語><タグ単位始><文節始><文節主辞>
+            が が が 助詞 9 格助詞 1 * 0 * 0 NIL <かな漢字><ひらがな><付属>
+            良かった よかった 良い 形容詞 3 * 0 イ形容詞アウオ段 18 タ形 8 "代表表記:良い/よい 反義:形容詞:悪い/わるい"
+            ので ので のだ 助動詞 5 * 0 ナ形容詞 21 ダ列タ系連用テ形 12 NIL <かな漢字><ひらがな><活用語><付属>
+            散歩 さんぽ 散歩 名詞 6 サ変名詞 2 * 0 * 0 "代表表記:散歩/さんぽ ドメイン:レクリエーション カテゴリ:抽象物" <代表表記:散歩/さんぽ><ドメイン:レクリエーション><カテゴリ:抽象物><正規化代表表記:散歩/さんぽ><漢字><かな漢字><名詞相当語><サ変><サ変動詞><自立><内容語><タグ単位始><文節始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
+            した した する 動詞 2 * 0 サ変動詞 16 タ形 10 "代表表記:する/する 自他動詞:自:成る/なる 付属動詞候補（基本）" <代表表記:する/する><自他動詞:自:成る/なる><付属動詞候補（基本）><正規化代表表記:する/する><かな漢字><ひらがな><活用語><表現文末><とタ系連用テ形複合辞><付属>
+            。 。 。 特殊 1 句点 1 * 0 * 0 NIL <英記号><記号><文末><付属>
+            EOS
+            途中 とちゅう 途中 名詞 6 時相名詞 10 * 0 * 0 "代表表記:途中/とちゅう カテゴリ:抽象物 弱時相名詞 修飾（デ格）"
+            で で で 助詞 9 格助詞 1 * 0 * 0 NIL
+            先生 せんせい 先生 名詞 6 普通名詞 1 * 0 * 0 "代表表記:先生/せんせい ドメイン:教育・学習 カテゴリ:人 人名末尾"
+            に に に 助詞 9 格助詞 1 * 0 * 0 NIL
+            会った あった 会う 動詞 2 * 0 子音動詞ワ行 12 タ形 10 "代表表記:会う/あう 反義:動詞:分かれる/わかれる;動詞:別れる/わかれる"
+            EOS
+            \"\"\"  # Juman++ による解析結果．
+            doc = Document.from_jumanpp(jumanpp_text)
+            print(len(doc.sentences))  # -> 2
+
+        .. note::
+            複数文の解析結果が含まれている場合，それらは一つの文書として扱われる．．
+        """
         document = cls()
         sentences = []
         sentence_lines: list[str] = []
@@ -130,6 +278,51 @@ class Document(Unit):
 
     @classmethod
     def from_knp(cls, knp_text: str) -> "Document":
+        """文書クラスのインスタンスを KNP の解析結果から初期化．
+
+        Args:
+            knp_text: KNP の解析結果．
+
+        Example::
+
+            from rhoknp import Document
+
+            knp_text = \"\"\"# S-ID: 1
+            * 1D <BGH:天気/てんき><文頭><ガ><助詞><体言><係:ガ格><区切:0-0><格要素><連用要素><正規化代表表記:天気/てんき><主辞代表表記:天気/てんき>
+            + 1D <BGH:天気/てんき><文頭><ガ><助詞><体言><係:ガ格><区切:0-0><格要素><連用要素><名詞項候補><先行詞候補><正規化代表表記:天気/てんき><主辞代表表記:天気/てんき><解析格:ガ>
+            天気 てんき 天気 名詞 6 普通名詞 1 * 0 * 0 "代表表記:天気/てんき カテゴリ:抽象物" <代表表記:天気/てんき><カテゴリ:抽象物><正規化代表表記:天気/てんき><漢字><かな漢字><名詞相当語><文頭><自立><内容語><タグ単位始><文節始><文節主辞>
+            が が が 助詞 9 格助詞 1 * 0 * 0 NIL <かな漢字><ひらがな><付属>
+            * 2D <BGH:良い/よい><時制:過去><用言:形><係:連用><レベル:B+><区切:3-5><ID:〜ので><提題受:20><連用要素><連用節><状態述語><正規化代表表記:良い/よい><主辞代表表記:良い/よい>
+            + 2D <BGH:良い/よい><時制:過去><用言:形><係:連用><レベル:B+><区切:3-5><ID:〜ので><提題受:20><連用要素><連用節><状態述語><節-機能-原因・理由:ので><正規化代表表記:良い/よい><主辞代表表記:良い/よい><用言代表表記:良い/よい><節-区切><節-主辞><格関係0:ガ:天気><格解析結果:良い/よい:形5:ガ/C/天気/0/0/1;カラ/U/-/-/-/-;時間/U/-/-/-/-><標準用言代表表記:良い/よい>
+            良かった よかった 良い 形容詞 3 * 0 イ形容詞アウオ段 18 タ形 8 "代表表記:良い/よい 反義:形容詞:悪い/わるい" <代表表記:良い/よい><反義:形容詞:悪い/わるい><正規化代表表記:良い/よい><かな漢字><活用語><自立><内容語><タグ単位始><文節始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
+            ので ので のだ 助動詞 5 * 0 ナ形容詞 21 ダ列タ系連用テ形 12 NIL <かな漢字><ひらがな><活用語><付属>
+            * -1D <BGH:散歩/さんぽ+する/する><文末><サ変><サ変動詞><時制:過去><句点><用言:動><レベル:C><区切:5-5><ID:（文末）><係:文末><提題受:30><主節><格要素><連用要素><動態述語><正規化代表表記:散歩/さんぽ><主辞代表表記:散歩/さんぽ>
+            + -1D <BGH:散歩/さんぽ+する/する><文末><サ変動詞><時制:過去><句点><用言:動><レベル:C><区切:5-5><ID:（文末）><係:文末><提題受:30><主節><格要素><連用要素><動態述語><サ変><正規化代表表記:散歩/さんぽ><主辞代表表記:散歩/さんぽ><用言代表表記:散歩/さんぽ><節-区切><節-主辞><主題格:一人称優位><格解析結果:散歩/さんぽ:動0:ガ/U/-/-/-/-;ヲ/U/-/-/-/-;ニ/U/-/-/-/-;ト/U/-/-/-/-;デ/U/-/-/-/-;カラ/U/-/-/-/-;マデ/U/-/-/-/-;時間/U/-/-/-/-><標準用言代表表記:散歩/さんぽ>
+            散歩 さんぽ 散歩 名詞 6 サ変名詞 2 * 0 * 0 "代表表記:散歩/さんぽ ドメイン:レクリエーション カテゴリ:抽象物" <代表表記:散歩/さんぽ><ドメイン:レクリエーション><カテゴリ:抽象物><正規化代表表記:散歩/さんぽ><漢字><かな漢字><名詞相当語><サ変><サ変動詞><自立><内容語><タグ単位始><文節始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
+            した した する 動詞 2 * 0 サ変動詞 16 タ形 10 "代表表記:する/する 自他動詞:自:成る/なる 付属動詞候補（基本）" <代表表記:する/する><自他動詞:自:成る/なる><付属動詞候補（基本）><正規化代表表記:する/する><かな漢字><ひらがな><活用語><表現文末><とタ系連用テ形複合辞><付属>
+            。 。 。 特殊 1 句点 1 * 0 * 0 NIL <英記号><記号><文末><付属>
+            EOS
+            # S-ID: 2
+            * 2D <SM-動作><BGH:途中/とちゅう><文頭><時間><デ><助詞><体言><修飾><係:デ格><区切:0-0><格要素><連用要素><正規化代表表記:途中/とちゅう><主辞代表表記:途中/とちゅう>
+            + 2D <SM-動作><BGH:途中/とちゅう><文頭><時間><デ><助詞><体言><修飾><係:デ格><区切:0-0><格要素><連用要素><名詞項候補><正規化代表表記:途中/とちゅう><主辞代表表記:途中/とちゅう><解析格:時間>
+            途中 とちゅう 途中 名詞 6 時相名詞 10 * 0 * 0 "代表表記:途中/とちゅう カテゴリ:抽象物 弱時相名詞 修飾（デ格）" <代表表記:途中/とちゅう><カテゴリ:抽象物><弱時相名詞><修飾（デ格）><正規化代表表記:途中/とちゅう><漢字><かな漢字><名詞相当語><文頭><自立><内容語><タグ単位始><文節始><文節主辞>
+            で で で 助詞 9 格助詞 1 * 0 * 0 NIL <かな漢字><ひらがな><付属>
+            * 2D <SM-主体><SM-人><BGH:先生/せんせい><ニ><助詞><体言><係:ニ格><区切:0-0><格要素><連用要素><正規化代表表記:先生/せんせい><主辞代表表記:先生/せんせい>
+            + 2D <SM-主体><SM-人><BGH:先生/せんせい><ニ><助詞><体言><係:ニ格><区切:0-0><格要素><連用要素><名詞項候補><先行詞候補><正規化代表表記:先生/せんせい><主辞代表表記:先生/せんせい><解析格:ニ>
+            先生 せんせい 先生 名詞 6 普通名詞 1 * 0 * 0 "代表表記:先生/せんせい ドメイン:教育・学習 カテゴリ:人 人名末尾" <代表表記:先生/せんせい><ドメイン:教育・学習><カテゴリ:人><人名末尾><正規化代表表記:先生/せんせい><漢字><かな漢字><名詞相当語><自立><内容語><タグ単位始><文節始><文節主辞>
+            に に に 助詞 9 格助詞 1 * 0 * 0 NIL <かな漢字><ひらがな><付属>
+            * -1D <BGH:会う/あう><文末><時制:過去><句点><用言:動><レベル:C><区切:5-5><ID:（文末）><係:文末><提題受:30><主節><格要素><連用要素><動態述語><正規化代表表記:会う/あう><主辞代表表記:会う/あう>
+            + -1D <BGH:会う/あう><文末><時制:過去><句点><用言:動><レベル:C><区切:5-5><ID:（文末）><係:文末><提題受:30><主節><格要素><連用要素><動態述語><正規化代表表記:会う/あう><主辞代表表記:会う/あう><用言代表表記:会う/あう><節-区切><節-主辞><主題格:一人称優位><格関係0:時間:途中><格関係1:ニ:先生><格解析結果:会う/あう:動2:ガ/U/-/-/-/-;ニ/C/先生/1/0/2;ト/U/-/-/-/-;デ/U/-/-/-/-;カラ/U/-/-/-/-;時間/C/途中/0/0/2><標準用言代表表記:会う/あう>
+            会った あった 会う 動詞 2 * 0 子音動詞ワ行 12 タ形 10 "代表表記:会う/あう 反義:動詞:分かれる/わかれる;動詞:別れる/わかれる" <代表表記:会う/あう><反義:動詞:分かれる/わかれる;動詞:別れる/わかれる><正規化代表表記:会う/あう><かな漢字><活用語><表現文末><自立><内容語><タグ単位始><文節始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
+            。 。 。 特殊 1 句点 1 * 0 * 0 NIL <英記号><記号><文末><付属>
+            EOS
+            \"\"\"  # KNP による解析結果．
+            doc = Document.from_knp(knp_text)
+            print(len(doc.sentences))  # -> 2
+
+        .. note::
+            複数文の解析結果が含まれている場合，それらは一つの文書として扱われる．
+        """
         document = cls()
         sentences = []
         sentence_lines: list[str] = []
@@ -144,7 +337,17 @@ class Document(Unit):
         return document
 
     def to_jumanpp(self) -> str:
+        """Juman++ フォーマットの文字列に変換．
+
+        Returns:
+            Juman++ フォーマットの文字列．
+        """
         return "".join(sentence.to_jumanpp() for sentence in self.sentences)
 
     def to_knp(self) -> str:
+        """KNP フォーマットの文字列に変換．
+
+        Returns:
+            KNP フォーマットの文字列．
+        """
         return "".join(sentence.to_knp() for sentence in self.sentences)
