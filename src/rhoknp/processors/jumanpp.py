@@ -14,9 +14,20 @@ class Jumanpp(Processor):
     def __init__(
         self,
         executable: str = "jumanpp",
+        options: Optional[list[str]] = None,
         senter: Optional[Processor] = None,
     ):
+        """Jumanpp のインスタンスを作成する．
+
+        Args:
+            executable: Jumanpp のパス．
+            options: Jumanpp のオプション．
+            senter:　文分割器のインスタンス．入力テキストが文単位になっていなければ，先にこのインスタンスを用いて文分割を行う．
+                入力テキストが文単位になっておらずかつこれが未設定の場合， RefexSenter で文分割が行われる．
+        """
         self.executable = executable
+        self.options = options
+
         self.senter = senter
 
     def apply_to_document(self, document: Union[Document, str]) -> Document:
@@ -31,7 +42,7 @@ class Jumanpp(Processor):
             document = self.senter.apply_to_document(document)
 
         jumanpp_text = ""
-        with Popen(self.executable, stdout=PIPE, stdin=PIPE, encoding="utf-8") as p:
+        with Popen(self.run_command, stdout=PIPE, stdin=PIPE, encoding="utf-8") as p:
             for sentence in document.sentences:
                 out, _ = p.communicate(input=sentence.text)
                 jumanpp_text += out
@@ -41,15 +52,26 @@ class Jumanpp(Processor):
         if isinstance(sentence, str):
             sentence = Sentence.from_string(sentence)
 
-        with Popen(self.executable, stdout=PIPE, stdin=PIPE, encoding="utf-8") as p:
+        with Popen(self.run_command, stdout=PIPE, stdin=PIPE, encoding="utf-8") as p:
             jumanpp_text, _ = p.communicate(input=sentence.text)
         return Sentence.from_jumanpp(jumanpp_text)
 
     def is_available(self):
         try:
-            p = run([self.executable, "-v"], stdout=PIPE, stdin=PIPE, encoding="utf-8")
+            p = run(self.version_command, stdout=PIPE, stdin=PIPE, encoding="utf-8")
             logger.info(p.stdout.strip())
             return True
         except Exception as e:
             logger.warning(e)
             return False
+
+    @property
+    def run_command(self) -> list[str]:
+        command = [self.executable]
+        if self.options:
+            command += self.options
+        return command
+
+    @property
+    def version_command(self) -> list[str]:
+        return [self.executable, "-v"]
