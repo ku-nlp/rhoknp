@@ -1,22 +1,10 @@
 rhoknp.processors package
 =========================
 
-rhoknp.processors.jumanpp module
---------------------------------
+.. toctree::
+   :maxdepth: 4
 
-.. automodule:: rhoknp.processors.jumanpp
-
-rhoknp.processors.knp module
-----------------------------
-
-.. automodule:: rhoknp.processors.knp
-
-rhoknp.processors.senter module
--------------------------------
-
-.. automodule:: rhoknp.processors.senter
-
-rhoknp.processors.processor module
-----------------------------------
-
-.. automodule:: rhoknp.processors.processor
+   rhoknp.processors.senter
+   rhoknp.processors.jumanpp
+   rhoknp.processors.knp
+   rhoknp.processors.processor
