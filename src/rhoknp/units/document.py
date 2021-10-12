@@ -47,15 +47,15 @@ class Document(Unit):
 
     @property
     def child_units(self) -> Optional[list[Sentence]]:
-        """下位の言語単位（文）のリスト．アクセスできないなら None．"""
+        """下位の言語単位のリスト．解析結果にアクセスできないなら None．"""
         return self._sentences
 
     @property
     def sentences(self) -> list[Sentence]:
-        """文のリストを返却．
+        """文のリスト．
 
         Raises:
-            AttributeError: 文のリストにアクセスできない場合．
+            AttributeError: 解析結果にアクセスできない場合．
         """
         if self._sentences is None:
             raise AttributeError("not available before applying a sentence splitter")
@@ -63,7 +63,7 @@ class Document(Unit):
 
     @sentences.setter
     def sentences(self, sentences: list[Sentence]) -> None:
-        """文のリストを登録．
+        """文のリスト．
 
         Args:
             sentences: 文のリスト．
@@ -74,10 +74,10 @@ class Document(Unit):
 
     @property
     def clauses(self) -> list[Clause]:
-        """節のリストを返却．
+        """節のリスト．
 
         Raises:
-            AttributeError: 節のリストにアクセスできない場合．
+            AttributeError: 解析結果にアクセスできない場合．
         """
         return [clause for sentence in self.sentences for clause in sentence.clauses]
 
@@ -86,7 +86,7 @@ class Document(Unit):
         """文節のリスト．
 
         Raises:
-            AttributeError: 文節のリストにアクセスできない場合．
+            AttributeError: 解析結果にアクセスできない場合．
         """
         return [chunk for clause in self.clauses for chunk in clause.chunks]
 
@@ -95,7 +95,7 @@ class Document(Unit):
         """基本句のリスト．
 
         Raises:
-            AttributeError: 基本句のリストにアクセスできない場合．
+            AttributeError: 解析結果にアクセスできない場合．
         """
         return [phrase for chunk in self.chunks for phrase in chunk.phrases]
 
@@ -104,7 +104,7 @@ class Document(Unit):
         """形態素のリスト．
 
         Raises:
-            AttributeError: 形態素のリストにアクセスできない場合．
+            AttributeError: 解析結果にアクセスできない場合．
         """
         return [
             morpheme for sentence in self.sentences for morpheme in sentence.morphemes
@@ -117,14 +117,14 @@ class Document(Unit):
 
     @property
     def need_jumanpp(self) -> bool:
-        """Juman++ による解析がまだなら True，済んでいるなら False．"""
+        """Juman++ による形態素解析がまだなら True，済んでいるなら False．"""
         if self.need_senter:
             return True
         return any(sentence.need_jumanpp for sentence in self.sentences)
 
     @property
     def need_knp(self) -> bool:
-        """KNP による解析がまだなら True，済んでいるなら False．"""
+        """KNP による構文解析がまだなら True，済んでいるなら False．"""
         if self.need_jumanpp:
             return True
         return any(sentence.need_knp for sentence in self.sentences)
@@ -179,15 +179,17 @@ class Document(Unit):
 
             from rhoknp import Document
 
-            sent_texts = ["天気が良かったので散歩した。", "途中で先生に会った。"]  # 文（の文字列）のリスト
+            # 文（の文字列）のリスト
+            sent_texts = ["天気が良かったので散歩した。", "途中で先生に会った。"]
             doc = Document.from_sentences(sent_texts)
             print(len(doc.sentences))  # -> 2
 
+            # 一行一文形式の文字列
             sent_texts = \"\"\"# S-ID: 1
             天気が良かったので散歩した。
             # S-ID: 2
             途中で先生に会った。
-            \"\"\"  # 一行一文形式の文字列
+            \"\"\"
             doc = Document.from_sentences(sent_texts)
             print(len(doc.sentences))  # -> 2
 
@@ -221,6 +223,7 @@ class Document(Unit):
 
             from rhoknp import Document
 
+            # Juman++ の解析結果
             jumanpp_text = \"\"\"天気 てんき 天気 名詞 6 普通名詞 1 * 0 * 0 "代表表記:天気/てんき カテゴリ:抽象物" <代表表記:天気/てんき><カテゴリ:抽象物><正規化代表表記:天気/てんき><漢字><かな漢字><名詞相当語><文頭><自立><内容語><タグ単位始><文節始><文節主辞>
             が が が 助詞 9 格助詞 1 * 0 * 0 NIL <かな漢字><ひらがな><付属>
             良かった よかった 良い 形容詞 3 * 0 イ形容詞アウオ段 18 タ形 8 "代表表記:良い/よい 反義:形容詞:悪い/わるい"
@@ -235,12 +238,12 @@ class Document(Unit):
             に に に 助詞 9 格助詞 1 * 0 * 0 NIL
             会った あった 会う 動詞 2 * 0 子音動詞ワ行 12 タ形 10 "代表表記:会う/あう 反義:動詞:分かれる/わかれる;動詞:別れる/わかれる"
             EOS
-            \"\"\"  # Juman++ による解析結果．
+            \"\"\"
             doc = Document.from_jumanpp(jumanpp_text)
             print(len(doc.sentences))  # -> 2
 
         .. note::
-            複数文の解析結果が含まれている場合，それらは一つの文書として扱われる．．
+            複数文の解析結果が含まれている場合，一つの文書として扱われる．．
         """
         document = cls()
         sentences = []
@@ -268,6 +271,7 @@ class Document(Unit):
 
             from rhoknp import Document
 
+            # KNP の解析結果
             knp_text = \"\"\"# S-ID: 1
             * 1D <BGH:天気/てんき><文頭><ガ><助詞><体言><係:ガ格><区切:0-0><格要素><連用要素><正規化代表表記:天気/てんき><主辞代表表記:天気/てんき>
             + 1D <BGH:天気/てんき><文頭><ガ><助詞><体言><係:ガ格><区切:0-0><格要素><連用要素><名詞項候補><先行詞候補><正規化代表表記:天気/てんき><主辞代表表記:天気/てんき><解析格:ガ>
@@ -297,12 +301,12 @@ class Document(Unit):
             会った あった 会う 動詞 2 * 0 子音動詞ワ行 12 タ形 10 "代表表記:会う/あう 反義:動詞:分かれる/わかれる;動詞:別れる/わかれる" <代表表記:会う/あう><反義:動詞:分かれる/わかれる;動詞:別れる/わかれる><正規化代表表記:会う/あう><かな漢字><活用語><表現文末><自立><内容語><タグ単位始><文節始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
             。 。 。 特殊 1 句点 1 * 0 * 0 NIL <英記号><記号><文末><付属>
             EOS
-            \"\"\"  # KNP による解析結果．
+            \"\"\"
             doc = Document.from_knp(knp_text)
             print(len(doc.sentences))  # -> 2
 
         .. note::
-            複数文の解析結果が含まれている場合，それらは一つの文書として扱われる．
+            複数文の解析結果が含まれている場合，一つの文書として扱われる．
         """
         document = cls()
         sentences = []
@@ -318,17 +322,9 @@ class Document(Unit):
         return document
 
     def to_jumanpp(self) -> str:
-        """Juman++ フォーマットの文字列に変換．
-
-        Returns:
-            Juman++ フォーマットの文字列．
-        """
+        """Juman++ フォーマットの文字列に変換．"""
         return "".join(sentence.to_jumanpp() for sentence in self.sentences)
 
     def to_knp(self) -> str:
-        """KNP フォーマットの文字列に変換．
-
-        Returns:
-            KNP フォーマットの文字列．
-        """
+        """KNP フォーマットの文字列に変換．"""
         return "".join(sentence.to_knp() for sentence in self.sentences)
