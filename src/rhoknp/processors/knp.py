@@ -24,7 +24,7 @@ class KNP(Processor):
 
     def apply_to_document(self, document: Union[Document, str]) -> Document:
         if isinstance(document, str):
-            document = Document.from_string(document)
+            document = Document(document)
 
         if document.need_senter:
             logger.debug("document needs to be split into sentences")
@@ -53,7 +53,7 @@ class KNP(Processor):
 
     def apply_to_sentence(self, sentence: Union[Sentence, str]) -> Sentence:
         if isinstance(sentence, str):
-            sentence = Sentence.from_string(sentence)
+            sentence = Sentence(sentence)
 
         if sentence.need_jumanpp:
             logger.debug("sentence needs to be processed by Juman++")

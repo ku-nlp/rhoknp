@@ -32,7 +32,7 @@ class Jumanpp(Processor):
 
     def apply_to_document(self, document: Union[Document, str]) -> Document:
         if isinstance(document, str):
-            document = Document.from_string(document)
+            document = Document(document)
 
         if document.need_senter:
             logger.debug("document needs to be split into sentences")
@@ -52,7 +52,7 @@ class Jumanpp(Processor):
 
     def apply_to_sentence(self, sentence: Union[Sentence, str]) -> Sentence:
         if isinstance(sentence, str):
-            sentence = Sentence.from_string(sentence)
+            sentence = Sentence(sentence)
 
         with Popen(self.run_command, stdout=PIPE, stdin=PIPE, encoding="utf-8") as p:
             jumanpp_text, _ = p.communicate(input=sentence.text)

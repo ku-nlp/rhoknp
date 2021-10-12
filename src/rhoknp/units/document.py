@@ -162,7 +162,7 @@ class Document(Unit):
         """
         document = cls()
         if isinstance(sentence, str):
-            sentence = Sentence.from_string(sentence)
+            sentence = Sentence(sentence)
         document.sentences = [sentence]
         return document
 
@@ -204,7 +204,7 @@ class Document(Unit):
                 sentence_lines.append(sentence)
                 if sentence.startswith("# "):
                     continue
-                sentence = Sentence.from_string("\n".join(sentence_lines))
+                sentence = Sentence("\n".join(sentence_lines))
                 sentence_lines = []
             sentences_.append(sentence)
         document.sentences = sentences_

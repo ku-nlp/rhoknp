@@ -18,13 +18,13 @@ class RegexSenter(Processor):
 
     def apply_to_document(self, document: Union[Document, str]) -> Document:
         if isinstance(document, str):
-            document = Document.from_string(document)
+            document = Document(document)
         sentence_texts = self._split_document(document.text)
         return Document.from_sentences(sentence_texts)
 
     def apply_to_sentence(self, sentence: Union[Sentence, str]) -> Sentence:
         if isinstance(sentence, str):
-            sentence = Sentence.from_string(sentence)
+            sentence = Sentence(sentence)
         return sentence
 
     def _split_document(self, text: str) -> list[str]:
