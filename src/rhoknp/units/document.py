@@ -27,7 +27,7 @@ class Document(Unit):
     count = 0
 
     def __init__(self, text: Optional[str] = None):
-        """Documentクラスのインスタンスを初期化．
+        """文書クラスのインスタンスを初期化．
 
         Args:
             text: 文書の文字列．
@@ -47,12 +47,12 @@ class Document(Unit):
 
     @property
     def parent_unit(self) -> None:
-        """上位の言語単位．Document は最上位の言語単位なので常に None．"""
+        """上位の言語単位．文書は最上位の言語単位なので常に None．"""
         return None
 
     @property
     def child_units(self) -> Optional[list[Sentence]]:
-        """下位の言語単位のリスト．解析結果にアクセスできないなら None．"""
+        """下位の言語単位（文）のリスト．解析結果にアクセスできないなら None．"""
         return self._sentences
 
     @property
@@ -130,13 +130,13 @@ class Document(Unit):
     @property
     def need_knp(self) -> bool:
         """KNP による構文解析がまだなら True．"""
-        if self.need_jumanpp:
+        if self.need_senter:
             return True
         return any(sentence.need_knp for sentence in self.sentences)
 
     @classmethod
     def from_string(cls, text: str) -> "Document":
-        """文書クラスのインスタンスを文字列から初期化．
+        """文書クラスのインスタンスを文書の文字列から初期化．
 
         Args:
             text: 文書の文字列．
@@ -165,7 +165,6 @@ class Document(Unit):
             # 文の文字列
             sent_text = "天気が良かったので散歩した。"
             doc = Document.from_sentence(sent_text)
-            print(len(doc.sentences))  # -> 1
         """
         document = cls()
         if isinstance(sentence, str):
@@ -189,7 +188,6 @@ class Document(Unit):
             # 文（の文字列）のリスト
             sent_texts = ["天気が良かったので散歩した。", "途中で先生に会った。"]
             doc = Document.from_sentences(sent_texts)
-            print(len(doc.sentences))  # -> 2
 
             # 一行一文形式の文字列
             sent_texts = \"\"\"# S-ID: 1
@@ -198,7 +196,6 @@ class Document(Unit):
             途中で先生に会った。
             \"\"\"
             doc = Document.from_sentences(sent_texts)
-            print(len(doc.sentences))  # -> 2
 
         .. note::
             一行一文形式の文字列を入力とするとき，# から始まる行はコメントとして認識される．
@@ -247,7 +244,6 @@ class Document(Unit):
             EOS
             \"\"\"
             doc = Document.from_jumanpp(jumanpp_text)
-            print(len(doc.sentences))  # -> 2
 
         .. note::
             複数文の解析結果が含まれている場合，一つの文書として扱われる．．
@@ -310,7 +306,6 @@ class Document(Unit):
             EOS
             \"\"\"
             doc = Document.from_knp(knp_text)
-            print(len(doc.sentences))  # -> 2
 
         .. note::
             複数文の解析結果が含まれている場合，一つの文書として扱われる．
