@@ -323,10 +323,20 @@ class Document(Unit):
         document.sentences = sentences
         return document
 
+    def to_plain(self) -> str:
+        """プレーンテキストフォーマットに変換．
+
+        .. note::
+            文分割済みの場合は一行一文の形式で出力．
+        """
+        if self.need_senter:
+            return self.text.rstrip() + "\n"
+        return "".join(sentence.to_plain() for sentence in self.sentences)
+
     def to_jumanpp(self) -> str:
-        """Juman++ フォーマットの文字列に変換．"""
+        """Juman++ フォーマットに変換．"""
         return "".join(sentence.to_jumanpp() for sentence in self.sentences)
 
     def to_knp(self) -> str:
-        """KNP フォーマットの文字列に変換．"""
+        """KNP フォーマットに変換．"""
         return "".join(sentence.to_knp() for sentence in self.sentences)

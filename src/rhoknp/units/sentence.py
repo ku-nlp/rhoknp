@@ -307,8 +307,16 @@ class Sentence(Unit):
         sentence.clauses = clauses
         return sentence
 
+    def to_plain(self) -> str:
+        """プレーンテキストフォーマットに変換．"""
+        ret = ""
+        if self.comment is not None:
+            ret += self.comment + "\n"
+        ret += self.text.rstrip("\n") + "\n"
+        return ret
+
     def to_jumanpp(self) -> str:
-        """Juman++ フォーマットの文字列に変換．"""
+        """Juman++ フォーマットに変換．"""
         ret = ""
         if self.comment is not None:
             ret += self.comment + "\n"
@@ -320,7 +328,7 @@ class Sentence(Unit):
         return ret
 
     def to_knp(self) -> str:
-        """KNP フォーマットの文字列に変換．"""
+        """KNP フォーマットに変換．"""
         ret = ""
         if self.comment is not None:
             ret += self.comment + "\n"
