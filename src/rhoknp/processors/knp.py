@@ -24,9 +24,9 @@ class KNP(Processor):
         Args:
             executable: KNP のパス．
             options: KNP のオプション．
-            senter:　文分割器のインスタンス．文分割がまだなら，先にこのインスタンスを用いて文分割を行う．
+            senter: 文分割器のインスタンス．文分割がまだなら，先にこのインスタンスを用いて文分割を行う．
                 未設定の場合， RegexSenter が適用される．
-            jumanpp:　Jumanpp のインスタンス．形態素解析がまだなら，先にこのインスタンスを用いて形態素解析を行う．
+            jumanpp: Jumanpp のインスタンス．形態素解析がまだなら，先にこのインスタンスを用いて形態素解析を行う．
                 未設定の場合， Jumanpp （オプションなし）が適用される．
         """
         self.executable = executable
