@@ -41,7 +41,7 @@ autodoc_default_options = {
     "show-inheritance": True,
     "undoc-members": True,
     "exclude-members": "__weakref__",
-    "member-order": "groupwise",
+    "member-order": "bysource",
 }
 autodoc_typehints = "both"
 
