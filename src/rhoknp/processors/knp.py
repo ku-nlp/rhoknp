@@ -1,6 +1,6 @@
 from logging import getLogger
-from subprocess import PIPE, Popen
-from typing import Optional, Sequence, Union
+from subprocess import PIPE, Popen, run
+from typing import Optional, Union
 
 from rhoknp.units import Document, Sentence
 
@@ -14,11 +14,23 @@ logger = getLogger(__file__)
 class KNP(Processor):
     def __init__(
         self,
-        executor: Union[str, Sequence[str]] = ["knp", "-tab"],
+        executable: str = "knp",
+        options: Optional[list[str]] = None,
         senter: Optional[Processor] = None,
         jumanpp: Optional[Processor] = None,
     ):
-        self.executor = executor
+        """KNPクラスのインスタンスを初期化．
+
+        Args:
+            executable: KNP のパス．
+            options: KNP のオプション．
+            senter:　文分割器のインスタンス．文分割がまだなら，先にこのインスタンスを用いて文分割を行う．
+                未設定の場合， RegexSenter が適用される．
+            jumanpp:　Jumanpp のインスタンス．形態素解析がまだなら，先にこのインスタンスを用いて形態素解析を行う．
+                未設定の場合， Jumanpp （オプションなし）が適用される．
+        """
+        self.executable = executable
+        self.options = options
         self.senter = senter
         self.jumanpp = jumanpp
 
@@ -45,7 +57,7 @@ class KNP(Processor):
             document = self.jumanpp.apply_to_document(document)
 
         knp_text = ""
-        with Popen(self.executor, stdout=PIPE, stdin=PIPE, encoding="utf-8") as p:
+        with Popen(self.run_command, stdout=PIPE, stdin=PIPE, encoding="utf-8") as p:
             for sentence in document.sentences:
                 out, _ = p.communicate(input=sentence.to_jumanpp())
                 knp_text += out
@@ -64,6 +76,28 @@ class KNP(Processor):
                 self.jumanpp = Jumanpp()
             sentence = self.jumanpp.apply_to_sentence(sentence)
 
-        with Popen(self.executor, stdout=PIPE, stdin=PIPE, encoding="utf-8") as p:
+        with Popen(self.run_command, stdout=PIPE, stdin=PIPE, encoding="utf-8") as p:
             knp_text, _ = p.communicate(input=sentence.to_jumanpp())
         return Sentence.from_knp(knp_text)
+
+    def is_available(self):
+        try:
+            p = run(self.version_command, stdout=PIPE, stdin=PIPE, encoding="utf-8")
+            logger.info(p.stdout.strip())
+            return True
+        except Exception as e:
+            logger.warning(e)
+            return False
+
+    @property
+    def run_command(self) -> list[str]:
+        command = [self.executable]
+        if self.options:
+            command += self.options
+        else:
+            command += ["-tab"]
+        return command
+
+    @property
+    def version_command(self) -> list[str]:
+        return [self.executable, "-v"]

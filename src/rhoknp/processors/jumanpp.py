@@ -17,13 +17,13 @@ class Jumanpp(Processor):
         options: Optional[list[str]] = None,
         senter: Optional[Processor] = None,
     ):
-        """Jumanpp のインスタンスを作成する．
+        """Jumanppクラスのインスタンスを初期化．
 
         Args:
-            executable: Jumanpp のパス．
-            options: Jumanpp のオプション．
-            senter:　文分割器のインスタンス．入力テキストが文単位になっていなければ，先にこのインスタンスを用いて文分割を行う．
-                入力テキストが文単位になっておらずかつこれが未設定の場合， RefexSenter で文分割が行われる．
+            executable: Juman++ のパス．
+            options: Juman++ のオプション．
+            senter:　文分割器のインスタンス．文分割がまだなら，先にこのインスタンスを用いて文分割を行う．
+                未設定の場合， RegexSenter が適用される．
         """
         self.executable = executable
         self.options = options
