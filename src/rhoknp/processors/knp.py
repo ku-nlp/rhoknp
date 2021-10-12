@@ -56,11 +56,8 @@ class KNP(Processor):
                 self.jumanpp = Jumanpp()
             document = self.jumanpp.apply_to_document(document)
 
-        knp_text = ""
         with Popen(self.run_command, stdout=PIPE, stdin=PIPE, encoding="utf-8") as p:
-            for sentence in document.sentences:
-                out, _ = p.communicate(input=sentence.to_jumanpp())
-                knp_text += out
+            knp_text, _ = p.communicate(input=document.to_jumanpp())
         return Document.from_knp(knp_text)
 
     def apply_to_sentence(self, sentence: Union[Sentence, str]) -> Sentence:
