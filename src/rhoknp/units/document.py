@@ -10,7 +10,19 @@ from .unit import Unit
 
 
 class Document(Unit):
-    """文書クラス．"""
+    """文書クラス．
+
+    Args:
+        text: 文書の文字列．
+
+    Example::
+
+        from rhoknp import Document
+
+        # 文書の文字列
+        doc_text = "天気が良かったので散歩した。途中で先生に会った。"
+        doc = Document(doc_text)
+    """
 
     count = 0
 
@@ -19,13 +31,6 @@ class Document(Unit):
 
         Args:
             text: 文書の文字列．
-
-        Example::
-
-            from rhoknp import Document
-
-            doc_text = "天気が良かったので散歩した。途中で先生に会った。"  # 文書の文字列
-            doc = Document(doc_text)
         """
         super().__init__()
 
@@ -112,19 +117,19 @@ class Document(Unit):
 
     @property
     def need_senter(self) -> bool:
-        """文分割がまだなら True，済んでいるなら False．"""
+        """文分割がまだなら True．"""
         return self._sentences is None
 
     @property
     def need_jumanpp(self) -> bool:
-        """Juman++ による形態素解析がまだなら True，済んでいるなら False．"""
+        """Juman++ による形態素解析がまだなら True．"""
         if self.need_senter:
             return True
         return any(sentence.need_jumanpp for sentence in self.sentences)
 
     @property
     def need_knp(self) -> bool:
-        """KNP による構文解析がまだなら True，済んでいるなら False．"""
+        """KNP による構文解析がまだなら True．"""
         if self.need_jumanpp:
             return True
         return any(sentence.need_knp for sentence in self.sentences)
@@ -140,7 +145,8 @@ class Document(Unit):
 
             from rhoknp import Document
 
-            doc_text = "天気が良かったので散歩した。途中で先生に会った。"  # 文書の文字列
+            # 文書の文字列
+            doc_text = "天気が良かったので散歩した。途中で先生に会った。"
             doc = Document.from_string(doc_text)
         """
         return cls(text)
@@ -156,7 +162,8 @@ class Document(Unit):
 
             from rhoknp import Document
 
-            sent_text = "天気が良かったので散歩した。"  # 文の文字列
+            # 文の文字列
+            sent_text = "天気が良かったので散歩した。"
             doc = Document.from_sentence(sent_text)
             print(len(doc.sentences))  # -> 1
         """
