@@ -17,7 +17,7 @@ class Clause(Unit):
 
     count = 0
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
 
         # parent unit
@@ -80,7 +80,7 @@ class Clause(Unit):
         return self._chunks
 
     @chunks.setter
-    def chunks(self, chunks: list[Chunk]):
+    def chunks(self, chunks: list[Chunk]) -> None:
         """文節のリスト．
 
         Args:

@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from multiprocessing import Pool
 from typing import Union
 
-from rhoknp.units.document import Document, Sentence
+from rhoknp.units import Document, Sentence
 
 
 class Processor(ABC):

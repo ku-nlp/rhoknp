@@ -94,9 +94,11 @@ class Pas:
     def from_phrase(cls, phrase: Phrase) -> "Pas":
         if "述語項構造" in phrase.features:
             pas_string = phrase.features["述語項構造"]
+            assert isinstance(pas_string, str)
             return cls.from_pas_string(phrase, pas_string, format_=CaseInfoFormat.PAS)
         elif "格解析結果" in phrase.features:
             pas_string = phrase.features["格解析結果"]
+            assert isinstance(pas_string, str)
             return cls.from_pas_string(phrase, pas_string, format_=CaseInfoFormat.CASE)
         else:
             return cls(Predicate(phrase))
@@ -130,7 +132,9 @@ class Pas:
         predicate: Predicate, arg_phrase: Phrase, case: str
     ) -> ArgumentType:
         if arg_phrase in predicate.phrase.children:
-            dep_case = arg_phrase.features.get("係", "").rstrip("格")
+            dep_case = arg_phrase.features.get("係", "")
+            assert isinstance(dep_case, str)
+            dep_case = dep_case.rstrip("格")
             if (
                 (case == dep_case)
                 or (case == "判ガ" and dep_case == "ガ")

@@ -77,7 +77,7 @@ class KNP(Processor):
             knp_text, _ = p.communicate(input=sentence.to_jumanpp())
         return Sentence.from_knp(knp_text)
 
-    def is_available(self):
+    def is_available(self) -> bool:
         try:
             p = run(self.version_command, stdout=PIPE, stdin=PIPE, encoding="utf-8")
             logger.info(p.stdout.strip())

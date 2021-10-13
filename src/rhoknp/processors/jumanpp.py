@@ -55,7 +55,7 @@ class Jumanpp(Processor):
             jumanpp_text, _ = p.communicate(input=sentence.to_plain())
         return Sentence.from_jumanpp(jumanpp_text)
 
-    def is_available(self):
+    def is_available(self) -> bool:
         try:
             p = run(self.version_command, stdout=PIPE, stdin=PIPE, encoding="utf-8")
             logger.info(p.stdout.strip())

@@ -363,7 +363,7 @@ class Sentence(Unit):
         ret += self.EOS + "\n"
         return ret
 
-    def draw_phrase_tree(self, show_pos: bool = True):
+    def draw_phrase_tree(self, show_pos: bool = True) -> None:
         """構文木を表示．
 
         Args:

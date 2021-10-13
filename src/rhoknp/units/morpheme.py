@@ -1,7 +1,7 @@
 import re
 from dataclasses import astuple, dataclass, fields
 from functools import cached_property
-from typing import TYPE_CHECKING, ClassVar, List, Optional, Union
+from typing import TYPE_CHECKING, List, Optional, Union
 
 from .unit import Unit
 from .utils import Features, Semantics
@@ -32,7 +32,7 @@ class MorphemeAttributes:
         conjform_id: 活用形ID．
     """
 
-    JUMANPP_PATTERN: ClassVar[re.Pattern] = re.compile(
+    JUMANPP_PATTERN = re.compile(
         r"(?P<attrs>([^ ]+ [^ ]+ [^ ]+ \w+ \d+ \D+ \d+ \D+ \d+ \D+ \d+))"
     )
 
@@ -76,7 +76,7 @@ class Morpheme(Unit):
         homograph: 同形かどうかを表すフラグ．
     """
 
-    JUMANPP_PATTERN: re.Pattern = re.compile(
+    JUMANPP_PATTERN = re.compile(
         (
             rf"^({MorphemeAttributes.JUMANPP_PATTERN.pattern})"
             + rf"(\s{Semantics.PATTERN.pattern})?"
@@ -215,7 +215,9 @@ class Morpheme(Unit):
     @property
     def canon(self) -> Optional[str]:
         """代表表記．"""
-        return self.semantics.get("代表表記", None)
+        canon = self.semantics.get("代表表記", None)
+        assert canon is None or isinstance(canon, str)
+        return canon
 
     @property
     def pos(self) -> str:
