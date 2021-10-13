@@ -1,6 +1,6 @@
 import pytest
 
-from rhoknp import Jumanpp
+from rhoknp import Jumanpp, RegexSenter
 
 
 @pytest.mark.parametrize(
@@ -109,3 +109,11 @@ def test_jumanpp_is_available():
 
     jumanpp = Jumanpp("jumanp")
     assert jumanpp.is_available() is False
+
+
+def test_jumanpp_repr():
+    jumanpp = Jumanpp(options=["--juman"], senter=RegexSenter())
+    assert (
+        repr(jumanpp)
+        == "Jumanpp(executable='jumanpp', options=['--juman'], senter=RegexSenter())"
+    )

@@ -98,3 +98,13 @@ class KNP(Processor):
     @property
     def version_command(self) -> list[str]:
         return [self.executable, "-v"]
+
+    def __repr__(self) -> str:
+        arg_string = f"executable={repr(self.executable)}"
+        if self.options is not None:
+            arg_string += f", options={repr(self.options)}"
+        if self.senter is not None:
+            arg_string += f", senter={repr(self.senter)}"
+        if self.jumanpp is not None:
+            arg_string += f", jumanpp={repr(self.jumanpp)}"
+        return f"{self.__class__.__name__}({arg_string})"

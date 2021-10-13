@@ -84,3 +84,8 @@ def test_apply_to_sentence():
     text = "天気がいいので散歩した。"
     sent = senter.apply_to_sentence(text)
     assert sent.text == text
+
+
+def test_repr():
+    senter = RegexSenter()
+    assert repr(senter) == "RegexSenter()"

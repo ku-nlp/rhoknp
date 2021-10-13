@@ -1,6 +1,6 @@
 import pytest
 
-from rhoknp import KNP
+from rhoknp import KNP, Jumanpp, RegexSenter
 
 
 @pytest.mark.parametrize(
@@ -93,3 +93,11 @@ def test_knp_is_available():
 
     knp = KNP("knpp")
     assert knp.is_available() is False
+
+
+def test_knp_repr():
+    jumanpp = KNP(options=["--tab"], senter=RegexSenter(), jumanpp=Jumanpp())
+    assert (
+        repr(jumanpp)
+        == "KNP(executable='knp', options=['--tab'], senter=RegexSenter(), jumanpp=Jumanpp(executable='jumanpp'))"
+    )

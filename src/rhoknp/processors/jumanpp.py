@@ -22,7 +22,7 @@ class Jumanpp(Processor):
         Args:
             executable: Juman++ のパス．
             options: Juman++ のオプション．
-            senter:　文分割器のインスタンス．文分割がまだなら，先にこのインスタンスを用いて文分割を行う．
+            senter: 文分割器のインスタンス．文分割がまだなら，先にこのインスタンスを用いて文分割を行う．
                 未設定の場合， RegexSenter が適用される．
         """
         self.executable = executable
@@ -74,3 +74,11 @@ class Jumanpp(Processor):
     @property
     def version_command(self) -> list[str]:
         return [self.executable, "-v"]
+
+    def __repr__(self) -> str:
+        arg_string = f"executable={repr(self.executable)}"
+        if self.options is not None:
+            arg_string += f", options={repr(self.options)}"
+        if self.senter is not None:
+            arg_string += f", senter={repr(self.senter)}"
+        return f"{self.__class__.__name__}({arg_string})"

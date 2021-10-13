@@ -104,3 +104,6 @@ class RegexSenter(Processor):
             for sentence_candidate in sentence_candidates
             if sentence_candidate.strip()
         ]
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}()"
