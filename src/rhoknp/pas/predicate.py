@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
@@ -7,10 +5,10 @@ if TYPE_CHECKING:
 
 
 class Predicate:
-    def __init__(self, unit: Phrase, cfid: Optional[str] = None):
-        self.unit: Phrase = unit
+    def __init__(self, unit: "Phrase", cfid: Optional[str] = None):
+        self.unit: "Phrase" = unit
         self.cfid = cfid
 
     @property
-    def phrase(self) -> Phrase:
+    def phrase(self) -> "Phrase":
         return self.unit

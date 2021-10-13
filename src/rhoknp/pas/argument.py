@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from abc import ABC, abstractmethod
 from enum import Enum
 from typing import TYPE_CHECKING, Any
@@ -60,19 +58,19 @@ class Argument(BaseArgument):
         return self.phrase
 
     @property
-    def document(self) -> Document:
+    def document(self) -> "Document":
         return self.phrase.document
 
     @property
-    def sentence(self) -> Sentence:
+    def sentence(self) -> "Sentence":
         return self.phrase.sentence
 
     @property
-    def clause(self) -> Clause:
+    def clause(self) -> "Clause":
         return self.phrase.clause
 
     @property
-    def chunk(self) -> Chunk:
+    def chunk(self) -> "Chunk":
         return self.phrase.chunk
 
     def __repr__(self) -> str:
