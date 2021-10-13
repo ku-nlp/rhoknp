@@ -21,11 +21,6 @@ class Chunk(Unit):
         parent_index: 係り先の文節の文内におけるインデックス．
         dep_type: 係り受けの種類．
         features: 素性．
-
-    Attributes:
-        parent_index (int): 係り先の文節の文内におけるインデックス．
-        dep_type (:class:`DepType`): 係り受けの種類．
-        features (:class:`Features`): 素性．
     """
 
     KNP_PATTERN: re.Pattern = re.compile(
@@ -42,9 +37,9 @@ class Chunk(Unit):
         # child units
         self._phrases: Optional[list[Phrase]] = None
 
-        self.parent_index: int = parent_index
-        self.dep_type: DepType = dep_type
-        self.features: Features = features
+        self.parent_index: int = parent_index  #: 係り先の文節の文内におけるインデックス．
+        self.dep_type: DepType = dep_type  #: 係り受けの種類．
+        self.features: Features = features  #: 素性．
 
         self.index = self.count
         Chunk.count += 1

@@ -22,12 +22,6 @@ class Phrase(Unit):
         dep_type: 係り受けの種類．
         features: 素性．
         rels: 基本句間関係．
-
-    Attributes:
-        parent_index (int): 係り先の基本句の文内におけるインデックス．
-        dep_type (:class:`DepType`): 係り受けの種類．
-        features (:class:`Features`): 素性．
-        rels (:class:`Rels`): 基本句間関係．
     """
 
     KNP_PATTERN: re.Pattern = re.compile(
@@ -46,10 +40,10 @@ class Phrase(Unit):
         # child units
         self._morphemes: Optional[list[Morpheme]] = None
 
-        self.parent_index: int = parent_index
-        self.dep_type: DepType = dep_type
-        self.features: Features = features
-        self.rels: Rels = rels
+        self.parent_index: int = parent_index  #: 係り先の基本句の文内におけるインデックス．
+        self.dep_type: DepType = dep_type  #: 係り受けの種類．
+        self.features: Features = features  #: 素性．
+        self.rels: Rels = rels  #: 基本句間関係．
 
         self.index = self.count
         Phrase.count += 1
