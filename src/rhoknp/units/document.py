@@ -1,6 +1,10 @@
 import weakref
 from typing import Optional, Sequence, Union
 
+from rhoknp.pas.pas import Pas
+from rhoknp.pas.predicate import Predicate
+from rhoknp.utils.constants import ALL_CASES
+
 from .chunk import Chunk
 from .clause import Clause
 from .morpheme import Morpheme
@@ -44,6 +48,10 @@ class Document(Unit):
 
         self.index = self.count
         Document.count += 1
+
+        self._pass: dict[int, Pas] = {}
+        if self.need_knp is False:
+            self._parse_rel()
 
     @property
     def parent_unit(self) -> None:
@@ -133,6 +141,9 @@ class Document(Unit):
         if self.need_senter:
             return True
         return any(sentence.need_knp for sentence in self.sentences)
+
+    def pas_list(self) -> list[Pas]:
+        return list(self._pass.values())
 
     @classmethod
     def from_string(cls, text: str) -> "Document":
@@ -340,3 +351,25 @@ class Document(Unit):
     def to_knp(self) -> str:
         """KNP フォーマットに変換．"""
         return "".join(sentence.to_knp() for sentence in self.sentences)
+
+    def _parse_rel(self) -> None:
+        for phrase in self.phrases:
+            assert phrase.index is not None
+            pas = Pas(Predicate(phrase))
+            for rel in phrase.rels:
+                if rel.type not in ALL_CASES:
+                    continue
+                if rel.sid is not None:
+                    sentence = next(
+                        sent
+                        for sent in phrase.document.sentences
+                        if sent.sid == rel.sid
+                    )
+                    arg_phrase = sentence.phrases[rel.phrase_index]
+                    assert rel.target in arg_phrase.text
+                    pas.add_argument(rel.type, arg_phrase, mode=rel.mode)
+                else:
+                    pas.add_special_argument(
+                        rel.type, rel.target, phrase.index, mode=rel.mode
+                    )  # TODO: fix eid
+            self._pass[phrase.index] = pas

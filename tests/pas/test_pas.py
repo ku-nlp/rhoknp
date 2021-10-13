@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from rhoknp.pas import Argument, ArgumentType, Pas, SpecialArgument
 from rhoknp.units import Document
 
@@ -172,3 +174,10 @@ EOS
     pas = Pas.from_phrase(predicate_phrase)
     assert pas.predicate.cfid == "束の間/つかのま:判0"
     assert len(pas.arguments) == 0
+
+
+def test_pas_rel():
+    doc_id = "w201106-0000060050"
+    knp = Path(f"tests/data/{doc_id}.knp").read_text()
+    doc = Document.from_knp(knp)
+    assert len(doc.pas_list()) == 0  # FIXME

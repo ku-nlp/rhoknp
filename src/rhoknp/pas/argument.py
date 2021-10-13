@@ -1,8 +1,16 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from rhoknp.units import Chunk, Clause, Document, Phrase, Sentence
+from rhoknp.units.phrase import Phrase
+
+if TYPE_CHECKING:
+    from rhoknp.units.chunk import Chunk
+    from rhoknp.units.clause import Clause
+    from rhoknp.units.document import Document
+    from rhoknp.units.sentence import Sentence
 
 
 class ArgumentType(Enum):
