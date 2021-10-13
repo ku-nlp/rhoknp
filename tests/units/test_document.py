@@ -87,17 +87,25 @@ def test_document_from_sentences_1(sentence_strings: list[str]):
 
 
 @pytest.mark.parametrize(
-    "sentence_strings",
+    "text, sentence_strings",
     [
-        """天気がいいので散歩した。
+        (
+            "天気がいいので散歩した。途中で先生に会った。",
+            """# S-ID: 1
+天気がいいので散歩した。
+# S-ID: 2
 途中で先生に会った。
 """,
-        """。""",
+        ),
+        (
+            "。",
+            """。""",
+        ),
     ],
 )
-def test_document_from_sentences_2(sentence_strings: str):
+def test_document_from_sentences_2(text: str, sentence_strings: str):
     doc_from_strings = Document.from_sentences(sentence_strings)
-    assert doc_from_strings.text == "".join(sentence_strings.split("\n"))
+    assert doc_from_strings.text == text
 
 
 @pytest.mark.parametrize(
@@ -272,6 +280,12 @@ def test_document_to_knp_kwdlc():
     knp = Path(f"tests/data/{doc_id}.knp").read_text()
     doc = Document.from_knp(knp)
     assert doc.to_knp() == knp
+
+
+def test_document_sentences_error():
+    doc = Document("天気が良かったので散歩した。")
+    with pytest.raises(AttributeError):
+        _ = doc.sentences
 
 
 @pytest.mark.parametrize(

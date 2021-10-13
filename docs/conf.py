@@ -31,13 +31,13 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.viewcode",
     "sphinx.ext.napoleon",
+    "sphinx_copybutton",
     "sphinx-prompt",
 ]
 
 # sphinx.ext.autodoc
 autodoc_default_options = {
     "members": True,
-    "special-members": "__init__",
     "show-inheritance": True,
     "undoc-members": True,
     "exclude-members": "__weakref__",

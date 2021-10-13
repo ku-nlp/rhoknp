@@ -31,11 +31,6 @@ class Document(Unit):
     count = 0
 
     def __init__(self, text: Optional[str] = None):
-        """文書クラスのインスタンスを初期化．
-
-        Args:
-            text: 文書の文字列．
-        """
         super().__init__()
 
         Sentence.count = 0
@@ -221,7 +216,7 @@ class Document(Unit):
                 sentence_lines.append(sentence)
                 if sentence.startswith("# "):
                     continue
-                sentence = Sentence("\n".join(sentence_lines))
+                sentence = Sentence.from_string("\n".join(sentence_lines))
                 sentence_lines = []
             sentences_.append(sentence)
         document.sentences = sentences_
