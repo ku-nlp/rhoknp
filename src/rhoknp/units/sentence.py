@@ -175,7 +175,7 @@ class Sentence(Unit):
             morphemes: 形態素のリスト．
         """
         for morpheme in morphemes:
-            morpheme.sentence = self
+            morpheme.sentence = weakref.proxy(self)
         self._morphemes = morphemes
 
     @property
