@@ -33,11 +33,6 @@ class Sentence(Unit):
     count = 0
 
     def __init__(self, text: Optional[str] = None):
-        """文クラスのインスタンスを初期化．
-
-        Args:
-            text: 文の文字列．
-        """
         super().__init__()
         if text is not None:
             self.text = text

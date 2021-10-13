@@ -37,7 +37,6 @@ extensions = [
 # sphinx.ext.autodoc
 autodoc_default_options = {
     "members": True,
-    "special-members": "__init__",
     "show-inheritance": True,
     "undoc-members": True,
     "exclude-members": "__weakref__",
