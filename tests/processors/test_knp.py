@@ -15,7 +15,7 @@ from rhoknp import KNP, Jumanpp, RegexSenter
         # "これは\rどう",  # carriage return  # TODO
     ],
 )
-def test_knp_apply(text: str):
+def test_knp_apply(text: str) -> None:
     knp = KNP()
     sent = knp.apply(text)
     assert sent.text == text.replace(" ", "　").replace('"', "”")
@@ -33,13 +33,13 @@ def test_knp_apply(text: str):
         # "これは\rどう",  # carriage return  # TODO
     ],
 )
-def test_knp_apply_to_document(text: str):
+def test_knp_apply_to_document(text: str) -> None:
     knp = KNP()
     doc = knp.apply_to_document(text)
     assert doc.text == text.replace(" ", "　").replace('"', "”")
 
 
-def test_knp_batch_apply():
+def test_knp_batch_apply() -> None:
     texts = [
         "外国人参政権",
         "望遠鏡で泳いでいる少女を見た。",
@@ -63,7 +63,7 @@ def test_knp_batch_apply():
     ]
 
 
-def test_knp_batch_apply_to_documents():
+def test_knp_batch_apply_to_documents() -> None:
     texts = [
         "外国人参政権",
         "望遠鏡で泳いでいる少女を見た。",
@@ -87,7 +87,7 @@ def test_knp_batch_apply_to_documents():
     ]
 
 
-def test_knp_is_available():
+def test_knp_is_available() -> None:
     knp = KNP()
     assert knp.is_available() is True
 
@@ -95,7 +95,7 @@ def test_knp_is_available():
     assert knp.is_available() is False
 
 
-def test_knp_repr():
+def test_knp_repr() -> None:
     jumanpp = KNP(options=["--tab"], senter=RegexSenter(), jumanpp=Jumanpp())
     assert (
         repr(jumanpp)

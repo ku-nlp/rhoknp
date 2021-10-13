@@ -15,7 +15,7 @@ from rhoknp import Jumanpp, RegexSenter
         # "これは\rどう",  # carriage return  # TODO
     ],
 )
-def test_jumanpp_apply(text: str):
+def test_jumanpp_apply(text: str) -> None:
     jumanpp = Jumanpp()
     sent = jumanpp.apply(text)
     assert sent.text == text.replace(" ", "　").replace('"', "”")
@@ -33,13 +33,13 @@ def test_jumanpp_apply(text: str):
         # "これは\rどう",  # carriage return  # TODO
     ],
 )
-def test_jumanpp_apply_to_document(text: str):
+def test_jumanpp_apply_to_document(text: str) -> None:
     jumanpp = Jumanpp()
     doc = jumanpp.apply_to_document(text)
     assert doc.text == text.replace(" ", "　").replace('"', "”")
 
 
-def test_jumanpp_batch_apply():
+def test_jumanpp_batch_apply() -> None:
     texts = [
         "外国人参政権",
         "望遠鏡で泳いでいる少女を見た。",
@@ -57,7 +57,7 @@ def test_jumanpp_batch_apply():
     assert [sent.text for sent in sents] == texts
 
 
-def test_jumanpp_batch_apply_to_documents():
+def test_jumanpp_batch_apply_to_documents() -> None:
     texts = [
         "外国人参政権",
         "望遠鏡で泳いでいる少女を見た。",
@@ -75,7 +75,7 @@ def test_jumanpp_batch_apply_to_documents():
     assert [doc.text for doc in docs] == texts
 
 
-def test_jumanpp_normal():
+def test_jumanpp_normal() -> None:
     jumanpp = Jumanpp()
     text = "この文を解析してください。"
     sent = jumanpp.apply(text)
@@ -83,7 +83,7 @@ def test_jumanpp_normal():
     assert "".join(m.text for m in sent.morphemes) == text
 
 
-def test_jumanpp_nominalization():
+def test_jumanpp_nominalization() -> None:
     jumanpp = Jumanpp()
     text = "音の響きを感じる。"
     sent = jumanpp.apply(text)
@@ -93,7 +93,7 @@ def test_jumanpp_nominalization():
     assert sent.morphemes[2].pos == "名詞"
 
 
-def test_jumanpp_whitespace():
+def test_jumanpp_whitespace() -> None:
     jumanpp = Jumanpp()
     text = "半角 スペース"
     sent = jumanpp.apply(text)
@@ -103,7 +103,7 @@ def test_jumanpp_whitespace():
     assert sent.morphemes[1].subpos == "空白"
 
 
-def test_jumanpp_is_available():
+def test_jumanpp_is_available() -> None:
     jumanpp = Jumanpp()
     assert jumanpp.is_available() is True
 
@@ -111,7 +111,7 @@ def test_jumanpp_is_available():
     assert jumanpp.is_available() is False
 
 
-def test_jumanpp_repr():
+def test_jumanpp_repr() -> None:
     jumanpp = Jumanpp(options=["--juman"], senter=RegexSenter())
     assert (
         repr(jumanpp)

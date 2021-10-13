@@ -25,7 +25,7 @@ EOS
 sentence = Sentence.from_knp(knp)
 
 
-def test_draw_chunk_tree():
+def test_draw_chunk_tree() -> None:
     out = """
 望遠n鏡nでp┐　　
  泳いでvいるs┐　
@@ -35,7 +35,7 @@ def test_draw_chunk_tree():
     assert sprint_tree(sentence.chunks, show_pos=True) == out.lstrip("\n")
 
 
-def test_draw_phrase_tree():
+def test_draw_phrase_tree() -> None:
     out = """
    望遠n┐　　　
     鏡nでp┐　　

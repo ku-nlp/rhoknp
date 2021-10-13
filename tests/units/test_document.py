@@ -55,31 +55,31 @@ EOS
         ),
     ],
 )
-def test_document_from_knp(text: str, knp: str):
+def test_document_from_knp(text: str, knp: str) -> None:
     doc = Document.from_knp(knp)
     assert str(doc) == text
 
 
 @pytest.mark.parametrize("sentence_string", ["天気がいいので散歩した。", "。"])
-def test_document_from_string(sentence_string: str):
+def test_document_from_string(sentence_string: str) -> None:
     doc_from_string = Document.from_string(sentence_string)
     assert doc_from_string.text == sentence_string
 
 
 @pytest.mark.parametrize("sentence_string", ["天気がいいので散歩した。", "。"])
-def test_document_from_sentence(sentence_string: str):
+def test_document_from_sentence(sentence_string: str) -> None:
     doc_from_sentence = Document.from_sentence(Sentence.from_string(sentence_string))
     assert doc_from_sentence.text == sentence_string
 
 
 @pytest.mark.parametrize("sentence_strings", [["天気がいいので散歩した。", "途中で先生に会った。"], ["。"]])
-def test_document_from_sentences_0(sentence_strings: list[str]):
+def test_document_from_sentences_0(sentence_strings: list[str]) -> None:
     doc_from_strings = Document.from_sentences(sentence_strings)
     assert doc_from_strings.text == "".join(sentence_strings)
 
 
 @pytest.mark.parametrize("sentence_strings", [["天気がいいので散歩した。", "途中で先生に会った。"], ["。"]])
-def test_document_from_sentences_1(sentence_strings: list[str]):
+def test_document_from_sentences_1(sentence_strings: list[str]) -> None:
     doc_from_sentences = Document.from_sentences(
         [Sentence.from_string(sentence_string) for sentence_string in sentence_strings]
     )
@@ -103,7 +103,7 @@ def test_document_from_sentences_1(sentence_strings: list[str]):
         ),
     ],
 )
-def test_document_from_sentences_2(text: str, sentence_strings: str):
+def test_document_from_sentences_2(text: str, sentence_strings: str) -> None:
     doc_from_strings = Document.from_sentences(sentence_strings)
     assert doc_from_strings.text == text
 
@@ -118,7 +118,7 @@ def test_document_from_sentences_2(text: str, sentence_strings: str):
 """,
     ],
 )
-def test_document_to_plain_1(text: str):
+def test_document_to_plain_1(text: str) -> None:
     doc_from_strings = Document.from_string(text)
     assert doc_from_strings.to_plain() == text
 
@@ -139,7 +139,7 @@ def test_document_to_plain_1(text: str):
         ),
     ],
 )
-def test_document_to_plain_2(text: str, sentence_strings: list[str]):
+def test_document_to_plain_2(text: str, sentence_strings: list[str]) -> None:
     doc_from_strings = Document.from_sentences(sentence_strings)
     assert doc_from_strings.to_plain() == text
 
@@ -200,7 +200,7 @@ EOS
         ),
     ],
 )
-def test_document_to_plain_3(text: str, knp: str):
+def test_document_to_plain_3(text: str, knp: str) -> None:
     doc = Document.from_knp(knp)
     assert doc.to_plain() == text
 
@@ -230,7 +230,7 @@ EOS
 """,
     ],
 )
-def test_document_to_jumanpp(jumanpp: str):
+def test_document_to_jumanpp(jumanpp: str) -> None:
     doc = Document.from_jumanpp(jumanpp)
     assert doc.to_jumanpp() == jumanpp
 
@@ -270,19 +270,19 @@ EOS
 """,
     ],
 )
-def test_document_to_knp(knp: str):
+def test_document_to_knp(knp: str) -> None:
     doc = Document.from_knp(knp)
     assert doc.to_knp() == knp
 
 
-def test_document_to_knp_kwdlc():
+def test_document_to_knp_kwdlc() -> None:
     doc_id = "w201106-0000060050"
     knp = Path(f"tests/data/{doc_id}.knp").read_text()
     doc = Document.from_knp(knp)
     assert doc.to_knp() == knp
 
 
-def test_document_sentences_error():
+def test_document_sentences_error() -> None:
     doc = Document("天気が良かったので散歩した。")
     with pytest.raises(AttributeError):
         _ = doc.sentences
@@ -323,7 +323,7 @@ EOS
 """,
     ],
 )
-def test_document_reference(knp: str):
+def test_document_reference(knp: str) -> None:
     document = Document.from_knp(knp)
     for sentence in document.sentences:
         assert sentence.document == document

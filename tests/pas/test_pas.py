@@ -4,7 +4,7 @@ from rhoknp.pas import Argument, ArgumentType, Pas, SpecialArgument
 from rhoknp.units import Document
 
 
-def test_pas_case_analysis():
+def test_pas_case_analysis() -> None:
     #  echo '彼はご飯を食べ大学へ行った。' | jumanpp | knp -tab
     knp_text = """# S-ID:1 KNP:5.0-825c01b7 DATE:2021/10/03 SCORE:-25.47925
 * 4D <SM-主体><SM-人><BGH:彼/かれ><文頭><ハ><助詞><体言><一文字漢字><係:未格><提題><区切:3-5><主題表現><格要素><連用要素><正規化代表表記:彼/かれ><主辞代表表記:彼/かれ>
@@ -57,7 +57,7 @@ EOS
     assert argument.document == argument_phrase.document
 
 
-def test_pas_pas():
+def test_pas_pas() -> None:
     #  echo '彼はご飯を食べ大学へ行った。' | jumanpp | knp -tab -anaphora
     knp_text = """# S-ID:1 KNP:5.0-825c01b7 DATE:2021/10/03 SCORE:-25.47925
 * 4D <SM-主体><SM-人><BGH:彼/かれ><文頭><ハ><助詞><体言><一文字漢字><係:未格><提題><区切:3-5><主題表現><格要素><連用要素><正規化代表表記:彼/かれ><主辞代表表記:彼/かれ>
@@ -107,7 +107,7 @@ EOS
 
 
 # echo 'こんにちは:' | jumanpp | knp -tab
-def test_pas_pas2():
+def test_pas_pas2() -> None:
     knp_text = """# S-ID:1 KNP:5.0-825c01b7 DATE:2021/10/04 SCORE:-41.95960
 * 1D <BGH:こんにちは/こんにちは><文頭><感動詞><修飾><係:連用><区切:0-4><連用要素><連用節><正規化代表表記:こんにちは/こんにちは><主辞代表表記:こんにちは/こんにちは>
 + 1D <BGH:こんにちは/こんにちは><文頭><感動詞><修飾><係:連用><区切:0-4><連用要素><連用節><正規化代表表記:こんにちは/こんにちは><主辞代表表記:こんにちは/こんにちは>
@@ -124,7 +124,7 @@ EOS
     assert pas.predicate.cfid == ":/::判0"
 
 
-def test_pas_case_analysis2():
+def test_pas_case_analysis2() -> None:
     knp_text = """# S-ID:1 KNP:5.0-825c01b7 DATE:2021/10/04 SCORE:-38.18429
 * 1D <BGH:表示/ひょうじ+する/する><文頭><サ変><サ変動詞><連体修飾><用言:動><係:連格><レベル:B><区切:0-5><ID:（動詞連体）><連体節><動態述語><正規化代表表記:表示/ひょうじ><主辞代表表記:表示/ひょうじ>
 + 1D <BGH:表示/ひょうじ+する/する><文頭><サ変動詞><連体修飾><用言:動><係:連格><レベル:B><区切:0-5><ID:（動詞連体）><連体節><動態述語><サ変><正規化代表表記:表示/ひょうじ><主辞代表表記:表示/ひょうじ><用言代表表記:表示/ひょうじ><時制:非過去><格関係1:ガ:;><格解析結果:表示/ひょうじ:動1:ガ/N/;/1/0/1;ヲ/U/-/-/-/-;ニ/U/-/-/-/-;デ/U/-/-/-/-><標準用言代表表記:表示/ひょうじ>
@@ -153,7 +153,7 @@ EOS
     assert argument.document == argument_phrase.document
 
 
-def test_pas_case_analysis3():
+def test_pas_case_analysis3() -> None:
     knp_text = """# S-ID:1 KNP:5.0-825c01b7 DATE:2021/10/04 SCORE:-8.40889
 * 1D <BGH:束の間/つかのま><文頭><時間><ガ><助詞><体言><判定詞><用言:判><係:連用><レベル:C><並キ:述:&ST:3.5&&&レベル:B><区切:3-5><ID:〜が><提題受:30><連用要素><連用節><状態述語><敬語:丁寧表現><正規化代表表記:束の間/つかのま><主辞代表表記:束の間/つかのま><並列類似度:1.258>
 + 1D <BGH:束の間/つかのま><文頭><時間><ガ><助詞><体言><判定詞><用言:判><係:連用><レベル:C><並キ:述:&ST:3.5&&&レベル:B><区切:3-5><ID:〜が><提題受:30><連用要素><連用節><状態述語><敬語:丁寧表現><節-機能-逆接:〜が><判定詞句><名詞項候補><先行詞候補><正規化代表表記:束の間/つかのま><主辞代表表記:束の間/つかのま><用言代表表記:束の間/つかのま><CF_NOT_FOUND><節-区切><節-主辞><時制:非過去><格解析結果:束の間/つかのま:判0><標準用言代表表記:束の間/つかのま>
@@ -176,7 +176,7 @@ EOS
     assert len(pas.arguments) == 0
 
 
-def test_pas_rel():
+def test_pas_rel() -> None:
     doc_id = "w201106-0000060050"
     knp = Path(f"tests/data/{doc_id}.knp").read_text()
     doc = Document.from_knp(knp)
