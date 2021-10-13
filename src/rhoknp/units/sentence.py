@@ -47,6 +47,7 @@ class Sentence(Unit):
 
         # child units
         self._clauses: Optional[list[Clause]] = None
+        self._chunks: Optional[list[Chunk]] = None
         self._morphemes: Optional[list[Morpheme]] = None
 
         self.sid: Optional[str] = None
@@ -61,14 +62,17 @@ class Sentence(Unit):
         return self._document
 
     @property
-    def child_units(self) -> Optional[Union[list[Clause], list[Morpheme]]]:
+    def child_units(self) -> Optional[Union[list[Clause], list[Chunk], list[Morpheme]]]:
         """下位の言語単位（節もしくは形態素）のリスト．解析結果にアクセスできないなら None．
 
         .. note::
             KNP によって解析済みなら節， Jumanpp によって解析済みなら形態素のリストを返却．
+            KNP による素性が付与されていない場合は節境界が判断できないため文節を返却．
         """
         if self._clauses is not None:
             return self._clauses
+        elif self._chunks is not None:
+            return self._chunks
         elif self._morphemes is not None:
             return self._morphemes
         return None
@@ -122,7 +126,22 @@ class Sentence(Unit):
         Raises:
             AttributeError: 解析結果にアクセスできない場合．
         """
-        return [chunk for clause in self.clauses for chunk in clause.chunks]
+        if self._chunks is not None:
+            return self._chunks
+        elif self._clauses is not None:
+            return [chunk for clause in self.clauses for chunk in clause.chunks]
+        raise AttributeError("not available before applying KNP")
+
+    @chunks.setter
+    def chunks(self, chunks: list[Chunk]) -> None:
+        """文節のリスト．
+
+        Args:
+            chunks: 文節のリスト．
+        """
+        for chunk in chunks:
+            chunk.sentence = weakref.proxy(self)
+        self._chunks = chunks
 
     @property
     def phrases(self) -> list[Phrase]:
@@ -277,11 +296,15 @@ class Sentence(Unit):
             \"\"\"
             sent = Sentence.from_knp(knp_text)
         """
+        lines = knp_text.split("\n")
         sentence = cls()
+        has_clause_boundary = any(
+            "節-区切" in line for line in lines if line.startswith("+")
+        )
         clauses: list[Clause] = []
         clause_lines: list[str] = []
         is_clause_end = False
-        for line in knp_text.split("\n"):
+        for line in lines:
             if not line.strip():
                 continue
             if line.startswith("#"):
@@ -304,7 +327,11 @@ class Sentence(Unit):
                 clause_lines = []
                 is_clause_end = False
             clause_lines.append(line)
-        sentence.clauses = clauses
+        if has_clause_boundary is True:
+            sentence.clauses = clauses
+        else:
+            assert len(clauses) == 1
+            sentence.chunks = clauses[0].chunks
         return sentence
 
     def to_plain(self) -> str:
@@ -332,7 +359,7 @@ class Sentence(Unit):
         ret = ""
         if self.comment is not None:
             ret += self.comment + "\n"
-        ret += "".join(clause.to_knp() for clause in self.clauses)
+        ret += "".join(child.to_knp() for child in self._clauses or self.chunks)
         ret += self.EOS + "\n"
         return ret
 

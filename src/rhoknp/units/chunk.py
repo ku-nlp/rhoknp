@@ -1,7 +1,7 @@
 import re
 import weakref
 from functools import cached_property
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, Union
 
 from .morpheme import Morpheme
 from .phrase import Phrase
@@ -33,6 +33,7 @@ class Chunk(Unit):
 
         # parent unit
         self._clause: Optional["Clause"] = None
+        self._sentence: Optional["Sentence"] = None
 
         # child units
         self._phrases: Optional[list[Phrase]] = None
@@ -45,9 +46,13 @@ class Chunk(Unit):
         Chunk.count += 1
 
     @property
-    def parent_unit(self) -> Optional["Clause"]:
-        """上位の言語単位（節）．未登録なら None．"""
-        return self._clause
+    def parent_unit(self) -> Optional[Union["Clause", "Sentence"]]:
+        """上位の言語単位（節もしくは文）．未登録なら None．"""
+        if self._clause is not None:
+            return self._clause
+        if self._sentence is not None:
+            return self._sentence
+        return None
 
     @property
     def child_units(self) -> Optional[list[Phrase]]:
@@ -71,6 +76,15 @@ class Chunk(Unit):
             AttributeError: 解析結果にアクセスできない場合．
         """
         return self.clause.sentence
+
+    @sentence.setter
+    def sentence(self, sentence: "Sentence") -> None:
+        """文．
+
+        Args:
+            sentence: 文．
+        """
+        self._sentence = sentence
 
     @property
     def clause(self) -> "Clause":
