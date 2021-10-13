@@ -186,7 +186,18 @@ class Sentence(Unit):
             sent_text = "天気が良かったので散歩した。"
             sent = Sentence(sent_text)
         """
-        return cls(text)
+        sentence = cls()
+        text_lines = []
+        for line in text.split("\n"):
+            if line.startswith("#"):
+                sentence.comment = line
+                match = re.match(r"# S-ID: ?(\S*)( .+)?$", line)
+                if match:
+                    sentence.sid = match.group(1)
+            else:
+                text_lines.append(line)
+        sentence.text = "\n".join(text_lines)
+        return sentence
 
     @classmethod
     def from_jumanpp(cls, jumanpp_text: str) -> "Sentence":
@@ -218,11 +229,8 @@ class Sentence(Unit):
             if not line.strip():
                 continue
             if line.startswith("#"):
-                if sentence.comment:
-                    sentence.comment += "\n" + line
-                else:
-                    sentence.comment = line
-                match = re.match(r"# S-ID: ?(\S*)( .+)?$", sentence.comment)
+                sentence.comment = line
+                match = re.match(r"# S-ID: ?(\S*)( .+)?$", line)
                 if match:
                     sentence.sid = match.group(1)
                 continue
@@ -277,11 +285,8 @@ class Sentence(Unit):
             if not line.strip():
                 continue
             if line.startswith("#"):
-                if sentence.comment:
-                    sentence.comment += "\n" + line
-                else:
-                    sentence.comment = line
-                match = re.match(r"# S-ID: ?(\S*)( .+)?$", sentence.comment)
+                sentence.comment = line
+                match = re.match(r"# S-ID: ?(\S*)( .+)?$", line)
                 if match:
                     sentence.sid = match.group(1)
                 continue
