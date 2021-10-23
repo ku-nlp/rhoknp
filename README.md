@@ -17,34 +17,22 @@ pip install rhoknp
 ```
 -->
 
-## Typical usage
+## Parse a sentence/document
 
 ```python
-from rhoknp import KNP, Sentence
+from rhoknp import KNP, Sentence, Document
 
-# create a KNP instance
+# Create a KNP instance
 knp = KNP()
-# create a raw sentence
-sentence = Sentence("電気抵抗率は、どんな材料が電気を通しにくいかを比較するために、用いられる物性値である。")
-# parse the sentence using KNP
-parsed_sentence = knp.apply(sentence)
-# print the syntactic tree
-parsed_sentence.draw_phrase_tree()
+# Parse the sentence using KNP
+sentence: Sentence = knp.apply("電気抵抗率は、電気の通しにくさを表す物性値である。")
 
-"""
- 電気n┐
-   抵抗n┐
- 率sはp、*────────┐
-     どんなd┐　　　　　　│
-      材料nがp─┐　　　　│
-        電気nをp┤　　　　│
-通しvにくいsかpをp┐　　　│
-          比較nするv┐　　│
-           ためnにp、*┐　│
-            用いvられるs─┤
-                     物性n┤
-               値nであるc。*
-"""
+# Parse a document
+document: Document = knp.apply_to_document("電気抵抗率は、電気の通しにくさを表す物性値である。単に、抵抗率とも呼ばれる。")
+
+# Show parents of each phrase
+for phrase in sentence.phrases:
+    print(f"{phrase.text} -> {phrase.parent.text}")
 ```
 
 ## Differences from [pyknp](https://github.com/ku-nlp/pyknp/tree/master/pyknp)
