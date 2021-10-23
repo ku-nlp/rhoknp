@@ -3,7 +3,7 @@ from typing import Any, Optional, Sequence
 
 
 class Unit(ABC):
-    def __init__(self):
+    def __init__(self) -> None:
         self.index: Optional[int] = None
 
         self._text: Optional[str] = None

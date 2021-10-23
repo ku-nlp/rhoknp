@@ -11,7 +11,7 @@ from rhoknp import Document, Sentence
         "。",
     ],
 )
-def test_sentence_from_string(text: str):
+def test_sentence_from_string(text: str) -> None:
     sentence = Sentence.from_string(text)
     assert sentence.text == text
 
@@ -71,12 +71,12 @@ EOS
         ),
     ],
 )
-def test_sentence_from_jumanpp(jumanpp: str, text: str):
+def test_sentence_from_jumanpp(jumanpp: str, text: str) -> None:
     sentence = Sentence.from_jumanpp(jumanpp)
     assert str(sentence) == text
 
 
-def test_sentence_clauses():
+def test_sentence_clauses() -> None:
     knp = """# S-ID:1 KNP:5.0-2ad4f6df DATE:2021/08/05 SCORE:-10.73865
 * 1D <BGH:天気/てんき><文頭><ガ><助詞><体言><係:ガ格><区切:0-0><格要素><連用要素><正規化代表表記:天気/てんき><主辞代表表記:天気/てんき>
 + 1D <BGH:天気/てんき><文頭><ガ><助詞><体言><係:ガ格><区切:0-0><格要素><連用要素><名詞項候補><先行詞候補><正規化代表表記:天気/てんき><主辞代表表記:天気/てんき><解析格:ガ>
@@ -97,13 +97,13 @@ EOS
     assert len(sent.clauses) == 2
 
 
-def test_sentence_clauses_error():
+def test_sentence_clauses_error() -> None:
     doc = Document.from_sentence("天気がいいので散歩した。")
     with pytest.raises(AttributeError):
         _ = doc.clauses
 
 
-def test_sentence_chunks():
+def test_sentence_chunks() -> None:
     knp = """# S-ID:1 KNP:5.0-2ad4f6df DATE:2021/08/05 SCORE:-10.73865
 * 1D <BGH:天気/てんき><文頭><ガ><助詞><体言><係:ガ格><区切:0-0><格要素><連用要素><正規化代表表記:天気/てんき><主辞代表表記:天気/てんき>
 + 1D <BGH:天気/てんき><文頭><ガ><助詞><体言><係:ガ格><区切:0-0><格要素><連用要素><名詞項候補><先行詞候補><正規化代表表記:天気/てんき><主辞代表表記:天気/てんき><解析格:ガ>
@@ -124,13 +124,13 @@ EOS
     assert len(sent.chunks) == 3
 
 
-def test_sentence_chunks_error():
+def test_sentence_chunks_error() -> None:
     sent = Sentence.from_string("天気がいいので散歩した。")
     with pytest.raises(AttributeError):
         _ = sent.chunks
 
 
-def test_sentence_phrases():
+def test_sentence_phrases() -> None:
     knp = """# S-ID:1 KNP:5.0-2ad4f6df DATE:2021/08/05 SCORE:-10.73865
 * 1D <BGH:天気/てんき><文頭><ガ><助詞><体言><係:ガ格><区切:0-0><格要素><連用要素><正規化代表表記:天気/てんき><主辞代表表記:天気/てんき>
 + 1D <BGH:天気/てんき><文頭><ガ><助詞><体言><係:ガ格><区切:0-0><格要素><連用要素><名詞項候補><先行詞候補><正規化代表表記:天気/てんき><主辞代表表記:天気/てんき><解析格:ガ>
@@ -151,13 +151,13 @@ EOS
     assert len(sent.phrases) == 3
 
 
-def test_sentence_phrases_error():
+def test_sentence_phrases_error() -> None:
     sent = Sentence.from_string("天気がいいので散歩した。")
     with pytest.raises(AttributeError):
         _ = sent.phrases
 
 
-def test_sentence_morphemes():
+def test_sentence_morphemes() -> None:
     knp = """# S-ID:1 KNP:5.0-2ad4f6df DATE:2021/08/05 SCORE:-10.73865
 * 1D <BGH:天気/てんき><文頭><ガ><助詞><体言><係:ガ格><区切:0-0><格要素><連用要素><正規化代表表記:天気/てんき><主辞代表表記:天気/てんき>
 + 1D <BGH:天気/てんき><文頭><ガ><助詞><体言><係:ガ格><区切:0-0><格要素><連用要素><名詞項候補><先行詞候補><正規化代表表記:天気/てんき><主辞代表表記:天気/てんき><解析格:ガ>
@@ -178,7 +178,7 @@ EOS
     assert len(sent.morphemes) == 7
 
 
-def test_sentence_morphemes_error():
+def test_sentence_morphemes_error() -> None:
     sent = Sentence.from_string("天気がいいので散歩した。")
     with pytest.raises(AttributeError):
         _ = sent.morphemes
@@ -227,7 +227,7 @@ EOS
 """,
     ],
 )
-def test_sentence_to_jumanpp(jumanpp: str):
+def test_sentence_to_jumanpp(jumanpp: str) -> None:
     sentence = Sentence.from_jumanpp(jumanpp)
     assert sentence.to_jumanpp() == jumanpp
 
@@ -282,7 +282,7 @@ EOS
         ),
     ],
 )
-def test_sentence_from_knp(knp: str, text: str):
+def test_sentence_from_knp(knp: str, text: str) -> None:
     sentence = Sentence.from_knp(knp)
     assert str(sentence) == text
 
@@ -328,6 +328,6 @@ EOS
 """,
     ],
 )
-def test_sentence_to_knp(knp: str):
+def test_sentence_to_knp(knp: str) -> None:
     sentence = Sentence.from_knp(knp)
     assert sentence.to_knp() == knp

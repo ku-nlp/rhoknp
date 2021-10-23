@@ -72,20 +72,20 @@ from rhoknp import RegexSenter
         ),
     ],
 )
-def test_apply_to_document(document: str, sentence_strings: list[str]):
+def test_apply_to_document(document: str, sentence_strings: list[str]) -> None:
     senter = RegexSenter()
     doc = senter.apply_to_document(document)
     for i, sentence in enumerate(doc.sentences):
         assert sentence.text == sentence_strings[i]
 
 
-def test_apply_to_sentence():
+def test_apply_to_sentence() -> None:
     senter = RegexSenter()
     text = "天気がいいので散歩した。"
     sent = senter.apply_to_sentence(text)
     assert sent.text == text
 
 
-def test_repr():
+def test_repr() -> None:
     senter = RegexSenter()
     assert repr(senter) == "RegexSenter()"

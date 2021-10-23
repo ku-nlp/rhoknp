@@ -1,7 +1,7 @@
 import re
 from dataclasses import dataclass
 from enum import Enum
-from typing import ClassVar, Optional, Union
+from typing import Optional, Union
 
 
 class DepType(Enum):
@@ -11,10 +11,10 @@ class DepType(Enum):
     IMPERFECT_PARALLEL = "I"
 
 
-class Semantics(dict):
+class Semantics(dict[str, Union[str, bool]]):
     NIL = "NIL"
-    PATTERN: re.Pattern = re.compile(r'(?P<sems>("([^"]|\\")+?")|NIL)')
-    SEM_PATTERN: re.Pattern = re.compile(r"(?P<key>[^:]+)(:(?P<value>\S+))?\s?")
+    PATTERN = re.compile(r'(?P<sems>("([^"]|\\")+?")|NIL)')
+    SEM_PATTERN = re.compile(r"(?P<key>[^:]+)(:(?P<value>\S+))?\s?")
 
     def __init__(self, sstring: str):
         super().__init__()
@@ -24,7 +24,7 @@ class Semantics(dict):
                 self[match.group("key")] = match.group("value") or True
 
     @classmethod
-    def from_sstring(cls, sstring) -> "Semantics":
+    def from_sstring(cls, sstring: str) -> "Semantics":
         return cls(sstring)
 
     def to_sstring(self) -> str:
@@ -49,15 +49,15 @@ class Semantics(dict):
         return bool(dict(self)) or self.is_nil
 
 
-class Features(dict):
+class Features(dict[str, Union[str, bool]]):
     """A class to represent a feature information for a chunk or a phrase
 
     This class parses tags in features string and converts to a dictionary.
     ex. "<正規化代表表記:遅れる/おくれる>" --> {"正規化代表表記": "遅れる/おくれる"}
     """
 
-    PATTERN: re.Pattern = re.compile(r"(?P<feats>(<[^>]+>)*)")
-    TAG_PATTERN: re.Pattern = re.compile(r"<(?P<key>[^:]+?)(:(?P<value>.+?))?>")
+    PATTERN = re.compile(r"(?P<feats>(<[^>]+>)*)")
+    TAG_PATTERN = re.compile(r"<(?P<key>[^:]+?)(:(?P<value>.+?))?>")
 
     def __init__(self, fstring: str):
         super().__init__()
@@ -65,7 +65,7 @@ class Features(dict):
             self[match.group("key")] = match.group("value") or True
 
     @classmethod
-    def from_fstring(cls, fstring) -> "Features":
+    def from_fstring(cls, fstring: str) -> "Features":
         return cls(fstring)
 
     def to_fstring(self) -> str:
@@ -105,7 +105,7 @@ class RelMode(Enum):
 
 @dataclass
 class Rel:
-    PATTERN: ClassVar[re.Pattern] = re.compile(
+    PATTERN = re.compile(
         r'<rel type="(?P<type>\S+?)"( mode="(?P<mode>[^>]+?)")? target="(?P<target>.+?)"( sid="(?P<sid>.+?)" '
         r'id="(?P<id>\d+?)")?/>'
     )
@@ -127,7 +127,7 @@ class Rel:
         return ret
 
 
-class Rels(list):
+class Rels(list[Rel]):
     def __init__(self, fstring: str):
         super().__init__()
         for match in Rel.PATTERN.finditer(fstring):
@@ -136,8 +136,8 @@ class Rels(list):
                     type=match["type"],
                     target=match["target"],
                     sid=match["sid"],
-                    phrase_index=match["id"] and int(match["id"]),
-                    mode=match["mode"] and RelMode(match["mode"]),
+                    phrase_index=int(match["id"]) if match["id"] else None,
+                    mode=RelMode(match["mode"]) if match["mode"] else None,
                 )
             )
 

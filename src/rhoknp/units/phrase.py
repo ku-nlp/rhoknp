@@ -24,7 +24,7 @@ class Phrase(Unit):
         rels: 基本句間関係．
     """
 
-    KNP_PATTERN: re.Pattern = re.compile(
+    KNP_PATTERN = re.compile(
         fr"^\+ (?P<pid>-1|\d+)(?P<dtype>[{''.join(e.value for e in DepType)}])( (?P<tags>(<[^>]+>)*))?$"
     )
     count = 0
@@ -117,7 +117,7 @@ class Phrase(Unit):
         return self._morphemes
 
     @morphemes.setter
-    def morphemes(self, morphemes: list[Morpheme]):
+    def morphemes(self, morphemes: list[Morpheme]) -> None:
         """形態素．
 
         Args:

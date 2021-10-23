@@ -40,7 +40,7 @@ autodoc_default_options = {
     "members": True,
     "show-inheritance": True,
     "undoc-members": True,
-    "exclude-members": "__weakref__",
+    "exclude-members": ",".join(["__weakref__", "count", "parent_unit", "child_units"]),
     "member-order": "bysource",
 }
 autodoc_typehints = "both"

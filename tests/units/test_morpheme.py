@@ -52,7 +52,7 @@ EOS
         ),
     ],
 )
-def test_document_from_knp(knp: str, morpheme_texts: list[str]):
+def test_document_from_knp(knp: str, morpheme_texts: list[str]) -> None:
     doc = Document.from_knp(knp)
     assert [str(morpheme) for morpheme in doc.morphemes] == morpheme_texts
 
@@ -86,7 +86,7 @@ def test_document_from_knp(knp: str, morpheme_texts: list[str]):
         ),
     ],
 )
-def test_morpheme_from_jumanpp(jumanpp: str, text: str):
+def test_morpheme_from_jumanpp(jumanpp: str, text: str) -> None:
     morpheme = Morpheme.from_jumanpp(jumanpp)
     assert morpheme.text == text
 
@@ -140,7 +140,7 @@ EOS
         ),
     ],
 )
-def test_parent(knp: str, parent_indexes: list[int]):
+def test_parent(knp: str, parent_indexes: list[int]) -> None:
     sent = Sentence.from_knp(knp)
     for i, parent_index in enumerate(parent_indexes):
         if parent_index >= 0:
@@ -198,7 +198,7 @@ EOS
         ),
     ],
 )
-def test_children(knp: str, child_indexes: list[list[int]]):
+def test_children(knp: str, child_indexes: list[list[int]]) -> None:
     sent = Sentence.from_knp(knp)
     for i, child_index in enumerate(child_indexes):
         assert sent.morphemes[i].children == [sent.morphemes[j] for j in child_index]
@@ -215,7 +215,7 @@ def test_children(knp: str, child_indexes: list[list[int]]):
         "@ @ @ 未定義語 15 その他 1 * 0 * 0\n",
     ],
 )
-def test_morpheme_to_jumanpp(jumanpp: str):
+def test_morpheme_to_jumanpp(jumanpp: str) -> None:
     morpheme = Morpheme.from_jumanpp(jumanpp)
     assert morpheme.to_jumanpp() == jumanpp
 
@@ -223,19 +223,22 @@ def test_morpheme_to_jumanpp(jumanpp: str):
 @pytest.mark.parametrize(
     "jumanpp, canon",
     [
-        ('外国 がいこく 外国 名詞 6 普通名詞 1 * 0 * 0 "代表表記:外国/がいこく ドメイン:政治 カテゴリ:場所-その他"\n', "外国/がいこく"),
+        (
+            '外国 がいこく 外国 名詞 6 普通名詞 1 * 0 * 0 "代表表記:外国/がいこく ドメイン:政治 カテゴリ:場所-その他"\n',
+            "外国/がいこく",
+        ),
         ('人 じん 人 名詞 6 普通名詞 1 * 0 * 0 "代表表記:人/じん カテゴリ:人 漢字読み:音"\n', "人/じん"),
         ('参政 さんせい 参政 名詞 6 サ変名詞 2 * 0 * 0 "代表表記:参政/さんせい ドメイン:政治 カテゴリ:抽象物"\n', "参政/さんせい"),
         ('権 けん 権 名詞 6 普通名詞 1 * 0 * 0 "代表表記:権/けん カテゴリ:抽象物 漢字読み:音"\n', "権/けん"),
         ("。 。 。 特殊 1 句点 1 * 0 * 0 NIL", None),
     ],
 )
-def test_morpheme_canon(jumanpp: str, canon: str):
+def test_morpheme_canon(jumanpp: str, canon: str) -> None:
     morpheme = Morpheme.from_jumanpp(jumanpp)
     assert morpheme.canon == canon
 
 
-def test_morpheme_attributes():
+def test_morpheme_attributes() -> None:
     jumanpp_text = "であり であり だ 判定詞 4 * 0 判定詞 25 デアル列基本連用形 18\n"
     morpheme = Morpheme.from_jumanpp(jumanpp_text)
     assert morpheme.surf == "であり"
@@ -249,25 +252,27 @@ def test_morpheme_attributes():
     assert morpheme.fstring == ""
 
 
-def test_morpheme_semantics():
-    jumanpp = '解析 かいせき 解析 名詞 6 サ変名詞 2 * 0 * 0 "代表表記:解析/かいせき カテゴリ:抽象物 ドメイン:教育・学習;科学・技術"\n'
+def test_morpheme_semantics() -> None:
+    jumanpp = (
+        '解析 かいせき 解析 名詞 6 サ変名詞 2 * 0 * 0 "代表表記:解析/かいせき カテゴリ:抽象物 ドメイン:教育・学習;科学・技術"\n'
+    )
     morpheme = Morpheme.from_jumanpp(jumanpp)
     assert str(morpheme.semantics) == '"代表表記:解析/かいせき カテゴリ:抽象物 ドメイン:教育・学習;科学・技術"'
 
 
-def test_morpheme_semantics_nil():
+def test_morpheme_semantics_nil() -> None:
     jumanpp = "であり であり だ 判定詞 4 * 0 判定詞 25 デアル列基本連用形 18 NIL\n"
     morpheme = Morpheme.from_jumanpp(jumanpp)
     assert str(morpheme.semantics) == "NIL"
 
 
-def test_morpheme_error():
+def test_morpheme_error() -> None:
     jumanpp = "であり であり だ 判定詞 4 * 0 判定詞 25 デアル列基本連用形 18 MALFORMED_STRING\n"
     with pytest.raises(ValueError):
         _ = Morpheme.from_jumanpp(jumanpp)
 
 
-def test_morpheme_homograph():
+def test_morpheme_homograph() -> None:
     jumanpp = """母 はは 母 名詞 6 普通名詞 1 * 0 * 0 "代表表記:母/はは 漢字読み:訓 カテゴリ:人 ドメイン:家庭・暮らし"
 @ 母 ぼ 母 名詞 6 普通名詞 1 * 0 * 0 "代表表記:母/ぼ 漢字読み:音 カテゴリ:人"
 """

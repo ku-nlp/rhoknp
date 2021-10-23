@@ -52,7 +52,7 @@ EOS
         ),
     ],
 )
-def test_document_from_knp(knp: str, chunk_texts: list[str]):
+def test_document_from_knp(knp: str, chunk_texts: list[str]) -> None:
     doc = Document.from_knp(knp)
     assert [str(chunk) for chunk in doc.chunks] == chunk_texts
 
@@ -106,7 +106,7 @@ EOS
         ),
     ],
 )
-def test_parent(knp: str, parent_indexes: list[int]):
+def test_parent(knp: str, parent_indexes: list[int]) -> None:
     sent = Sentence.from_knp(knp)
     for i, parent_index in enumerate(parent_indexes):
         if parent_index >= 0:
@@ -164,7 +164,7 @@ EOS
         ),
     ],
 )
-def test_children(knp: str, child_indexes: list[list[int]]):
+def test_children(knp: str, child_indexes: list[list[int]]) -> None:
     sent = Sentence.from_knp(knp)
     for i, child_index in enumerate(child_indexes):
         assert sent.chunks[i].children == [sent.chunks[j] for j in child_index]
@@ -208,6 +208,6 @@ EOS EOS EOS 名詞 6 組織名 6 * 0 * 0 "未知語:ローマ字 品詞推定:�
 """,
     ],
 )
-def test_chunk_to_knp(knp: str):
+def test_chunk_to_knp(knp: str) -> None:
     chunk = Chunk.from_knp(knp)
     assert chunk.to_knp() == knp

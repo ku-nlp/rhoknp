@@ -360,6 +360,7 @@ class Document(Unit):
                         for sent in phrase.document.sentences
                         if sent.sid == rel.sid
                     )
+                    assert rel.phrase_index is not None
                     arg_phrase = sentence.phrases[rel.phrase_index]
                     assert rel.target in arg_phrase.text
                     pas.add_argument(rel.type, arg_phrase, mode=rel.mode)

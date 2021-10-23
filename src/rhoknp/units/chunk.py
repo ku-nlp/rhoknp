@@ -23,7 +23,7 @@ class Chunk(Unit):
         features: 素性．
     """
 
-    KNP_PATTERN: re.Pattern = re.compile(
+    KNP_PATTERN = re.compile(
         fr"^\* (?P<pid>-1|\d+)(?P<dtype>[DPAI])( {Features.PATTERN.pattern})?$"
     )
     count = 0

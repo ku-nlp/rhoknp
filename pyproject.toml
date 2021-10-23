@@ -30,5 +30,5 @@ target-version = ["py39"]  # "py310" is not supported yet
 [tool.isort]
 line_length = 88
 
-[mypy]
+[tool.mypy]
 python_version = 3.9

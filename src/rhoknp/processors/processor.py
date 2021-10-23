@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 from multiprocessing import Pool
-from typing import Union
+from typing import Sequence, Union
 
-from rhoknp.units.document import Document, Sentence
+from rhoknp.units import Document, Sentence
 
 
 class Processor(ABC):
@@ -11,7 +11,7 @@ class Processor(ABC):
         raise NotImplementedError
 
     def batch_apply_to_documents(
-        self, documents: list[Union[Document, str]], processes: int = 0
+        self, documents: Sequence[Union[Document, str]], processes: int = 0
     ) -> list[Document]:
         if processes < 1:
             return list(map(self.apply_to_document, documents))
@@ -23,7 +23,7 @@ class Processor(ABC):
         raise NotImplementedError
 
     def batch_apply_to_sentences(
-        self, sentences: list[Union[Sentence, str]], processes: int = 0
+        self, sentences: Sequence[Union[Sentence, str]], processes: int = 0
     ) -> list[Sentence]:
         if processes < 1:
             return list(map(self.apply, sentences))
@@ -34,6 +34,6 @@ class Processor(ABC):
         return self.apply_to_sentence(sentence)
 
     def batch_apply(
-        self, sentences: list[Union[Sentence, str]], processes: int = 0
+        self, sentences: Sequence[Union[Sentence, str]], processes: int = 0
     ) -> list[Sentence]:
         return self.batch_apply_to_sentences(sentences)
