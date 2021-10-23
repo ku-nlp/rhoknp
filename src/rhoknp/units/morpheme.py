@@ -1,7 +1,7 @@
 import re
 from dataclasses import astuple, dataclass, fields
 from functools import cached_property
-from typing import TYPE_CHECKING, List, Optional, Union
+from typing import TYPE_CHECKING, ClassVar, List, Optional, Union
 
 from .unit import Unit
 from .utils import Features, Semantics
@@ -76,7 +76,7 @@ class Morpheme(Unit):
         homograph: 同形かどうかを表すフラグ．
     """
 
-    JUMANPP_PATTERN = re.compile(
+    JUMANPP_PATTERN: ClassVar[re.Pattern[str]] = re.compile(
         (
             rf"^({MorphemeAttributes.JUMANPP_PATTERN.pattern})"
             + rf"(\s{Semantics.PATTERN.pattern})?"

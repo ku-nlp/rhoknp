@@ -1,7 +1,7 @@
 import re
 from dataclasses import dataclass
 from enum import Enum
-from typing import Optional, Union
+from typing import ClassVar, Optional, Union
 
 
 class DepType(Enum):
@@ -105,7 +105,7 @@ class RelMode(Enum):
 
 @dataclass
 class Rel:
-    PATTERN = re.compile(
+    PATTERN: ClassVar[re.Pattern[str]] = re.compile(
         r'<rel type="(?P<type>\S+?)"( mode="(?P<mode>[^>]+?)")? target="(?P<target>.+?)"( sid="(?P<sid>.+?)" '
         r'id="(?P<id>\d+?)")?/>'
     )
