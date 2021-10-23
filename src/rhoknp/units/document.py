@@ -45,6 +45,9 @@ class Document(Unit):
         Document.count += 1
 
         self._pass: dict[int, Pas] = {}
+
+    def _post_init(self) -> None:
+        """インスタンス作成後の追加処理を行う．"""
         if self.need_knp is False:
             self._parse_rel()
 
@@ -155,7 +158,9 @@ class Document(Unit):
             doc_text = "天気が良かったので散歩した。途中で先生に会った。"
             doc = Document.from_string(doc_text)
         """
-        return cls(text)
+        document = cls(text)
+        document._post_init()
+        return document
 
     @classmethod
     def from_sentence(cls, sentence: Union[Sentence, str]) -> "Document":
@@ -176,6 +181,7 @@ class Document(Unit):
         if isinstance(sentence, str):
             sentence = Sentence(sentence)
         document.sentences = [sentence]
+        document._post_init()
         return document
 
     @classmethod
@@ -220,6 +226,7 @@ class Document(Unit):
                 sentence_lines = []
             sentences_.append(sentence)
         document.sentences = sentences_
+        document._post_init()
         return document
 
     @classmethod
@@ -267,6 +274,7 @@ class Document(Unit):
                 )
                 sentence_lines = []
         document.sentences = sentences
+        document._post_init()
         return document
 
     @classmethod
@@ -327,6 +335,7 @@ class Document(Unit):
                 sentences.append(Sentence.from_knp("\n".join(sentence_lines) + "\n"))
                 sentence_lines = []
         document.sentences = sentences
+        document._post_init()
         return document
 
     def to_plain(self) -> str:
@@ -348,6 +357,7 @@ class Document(Unit):
         return "".join(sentence.to_knp() for sentence in self.sentences)
 
     def _parse_rel(self) -> None:
+        """関係タグ付きコーパスにおける <rel> タグをパース．"""
         for phrase in self.phrases:
             assert phrase.index is not None
             pas = Pas(Predicate(phrase))
