@@ -217,3 +217,21 @@ def test_sentence_from_knp(knp: str, text: str) -> None:
 def test_sentence_to_knp(knp: str) -> None:
     sentence = Sentence.from_knp(knp)
     assert sentence.to_knp() == knp
+
+
+def test_sentence_need_jumanpp() -> None:
+    text = cases[0]["text"]
+    sent = Sentence.from_string(text)
+    assert sent.need_jumanpp is True
+    jumanpp = cases[0]["jumanpp"]
+    sent = Sentence.from_jumanpp(jumanpp)
+    assert sent.need_jumanpp is False
+
+
+def test_sentence_need_knp() -> None:
+    jumanpp = cases[0]["jumanpp"]
+    sent = Sentence.from_jumanpp(jumanpp)
+    assert sent.need_knp is True
+    knp = cases[0]["knp"]
+    sent = Sentence.from_knp(knp)
+    assert sent.need_knp is False

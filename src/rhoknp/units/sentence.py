@@ -181,14 +181,16 @@ class Sentence(Unit):
     @property
     def need_jumanpp(self) -> bool:
         """Juman++ による形態素解析がまだなら True．"""
-        return self._morphemes is None
+        return (
+            self._morphemes is None and self._chunks is None and self._clauses is None
+        )
 
     @property
     def need_knp(self) -> bool:
         """KNP による構文解析がまだなら True．"""
         if self.need_jumanpp:
             return True
-        return self._clauses is None
+        return self._chunks is None and self._clauses is None
 
     @classmethod
     def from_string(cls, text: str) -> "Sentence":
