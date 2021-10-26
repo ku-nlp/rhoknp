@@ -180,4 +180,4 @@ def test_pas_rel() -> None:
     doc_id = "w201106-0000060050"
     knp = Path(f"tests/data/{doc_id}.knp").read_text()
     doc = Document.from_knp(knp)
-    assert len(doc.pas_list()) == 9
+    assert len(doc.pas_list()) == 19

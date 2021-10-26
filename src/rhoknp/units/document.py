@@ -44,7 +44,7 @@ class Document(Unit):
         self.index = self.count
         Document.count += 1
 
-        self._pass: dict[int, Pas] = {}
+        self._pass: list[Pas] = []
 
     def _post_init(self) -> None:
         """インスタンス作成後の追加処理を行う．"""
@@ -141,7 +141,8 @@ class Document(Unit):
         return any(sentence.need_knp for sentence in self.sentences)
 
     def pas_list(self) -> list[Pas]:
-        return list(self._pass.values())
+        """述語項構造のリストを返却．"""
+        return self._pass
 
     @classmethod
     def from_string(cls, text: str) -> "Document":
@@ -378,4 +379,4 @@ class Document(Unit):
                     pas.add_special_argument(
                         rel.type, rel.target, phrase.index, mode=rel.mode
                     )  # TODO: fix eid
-            self._pass[phrase.index] = pas
+            self._pass.append(pas)
