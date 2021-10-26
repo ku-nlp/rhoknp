@@ -65,7 +65,7 @@ class Phrase(Unit):
         Raises:
             AttributeError: 解析結果にアクセスできない場合．
         """
-        return self.sentence.document
+        return self.chunk.document
 
     @property
     def sentence(self) -> "Sentence":
@@ -74,7 +74,7 @@ class Phrase(Unit):
         Raises:
             AttributeError: 解析結果にアクセスできない場合．
         """
-        return self.clause.sentence
+        return self.chunk.sentence
 
     @property
     def clause(self) -> "Clause":

@@ -304,7 +304,8 @@ class Sentence(Unit):
             "節-区切" in line for line in lines if line.startswith("+")
         )
         clauses: list[Clause] = []
-        clause_lines: list[str] = []
+        chunks: list[Chunk] = []
+        child_lines: list[str] = []
         is_clause_end = False
         for line in lines:
             if not line.strip():
@@ -320,20 +321,26 @@ class Sentence(Unit):
             if line.startswith("+") and "節-区切" in line:
                 is_clause_end = True
             if line.strip() == cls.EOS:
-                clause = Clause.from_knp("\n".join(clause_lines))
-                clauses.append(clause)
+                if has_clause_boundary is True:
+                    clauses.append(Clause.from_knp("\n".join(child_lines)))
+                else:
+                    chunks.append(Chunk.from_knp("\n".join(child_lines)))
                 break
-            if line.startswith("*") and is_clause_end is True:
-                clause = Clause.from_knp("\n".join(clause_lines))
-                clauses.append(clause)
-                clause_lines = []
-                is_clause_end = False
-            clause_lines.append(line)
+            if line.startswith("*"):
+                if is_clause_end is True:
+                    clause = Clause.from_knp("\n".join(child_lines))
+                    clauses.append(clause)
+                    child_lines = []
+                    is_clause_end = False
+                elif has_clause_boundary is False and child_lines:
+                    chunk = Chunk.from_knp("\n".join(child_lines))
+                    chunks.append(chunk)
+                    child_lines = []
+            child_lines.append(line)
         if has_clause_boundary is True:
             sentence.clauses = clauses
         else:
-            assert len(clauses) == 1
-            sentence.chunks = clauses[0].chunks
+            sentence.chunks = chunks
         return sentence
 
     def to_plain(self) -> str:

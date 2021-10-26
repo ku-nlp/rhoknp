@@ -99,7 +99,7 @@ class Document(Unit):
         Raises:
             AttributeError: 解析結果にアクセスできない場合．
         """
-        return [chunk for clause in self.clauses for chunk in clause.chunks]
+        return [chunk for sentence in self.sentences for chunk in sentence.chunks]
 
     @property
     def phrases(self) -> list[Phrase]:
@@ -108,7 +108,7 @@ class Document(Unit):
         Raises:
             AttributeError: 解析結果にアクセスできない場合．
         """
-        return [phrase for chunk in self.chunks for phrase in chunk.phrases]
+        return [phrases for sentence in self.sentences for phrases in sentence.phrases]
 
     @property
     def morphemes(self) -> list[Morpheme]:

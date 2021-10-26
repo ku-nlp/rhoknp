@@ -75,7 +75,7 @@ class Chunk(Unit):
         Raises:
             AttributeError: 解析結果にアクセスできない場合．
         """
-        return self.clause.sentence
+        return self._sentence or self.clause.sentence
 
     @sentence.setter
     def sentence(self, sentence: "Sentence") -> None:
