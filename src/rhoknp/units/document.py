@@ -164,28 +164,6 @@ class Document(Unit):
         return document
 
     @classmethod
-    def from_sentence(cls, sentence: Union[Sentence, str]) -> "Document":
-        """文書クラスのインスタンスを文から初期化．
-
-        Args:
-            sentence: 文もしくは文の文字列．
-
-        Example::
-
-            from rhoknp import Document
-
-            # 文の文字列
-            sent_text = "天気が良かったので散歩した。"
-            doc = Document.from_sentence(sent_text)
-        """
-        document = cls()
-        if isinstance(sentence, str):
-            sentence = Sentence(sentence)
-        document.sentences = [sentence]
-        document._post_init()
-        return document
-
-    @classmethod
     def from_sentences(
         cls, sentences: Union[Sequence[Union[Sentence, str]], str]
     ) -> "Document":

@@ -66,12 +66,6 @@ def test_document_from_string(sentence_string: str) -> None:
     assert doc_from_string.text == sentence_string
 
 
-@pytest.mark.parametrize("sentence_string", ["天気がいいので散歩した。", "。"])
-def test_document_from_sentence(sentence_string: str) -> None:
-    doc_from_sentence = Document.from_sentence(Sentence.from_string(sentence_string))
-    assert doc_from_sentence.text == sentence_string
-
-
 @pytest.mark.parametrize("sentence_strings", [["天気がいいので散歩した。", "途中で先生に会った。"], ["。"]])
 def test_document_from_sentences_0(sentence_strings: list[str]) -> None:
     doc_from_strings = Document.from_sentences(sentence_strings)

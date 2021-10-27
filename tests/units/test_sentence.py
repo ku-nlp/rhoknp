@@ -2,7 +2,7 @@ import textwrap
 
 import pytest
 
-from rhoknp import Document, Sentence
+from rhoknp import Sentence
 
 cases = [
     {
@@ -156,7 +156,7 @@ def test_sentence_clauses() -> None:
 
 def test_sentence_clauses_error() -> None:
     text = cases[0]["text"]
-    doc = Document.from_sentence(text)
+    doc = Sentence.from_string(text)
     with pytest.raises(AttributeError):
         _ = doc.clauses
 
