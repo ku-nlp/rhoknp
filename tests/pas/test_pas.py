@@ -180,4 +180,13 @@ def test_pas_rel() -> None:
     doc_id = "w201106-0000060050"
     knp = Path(f"tests/data/{doc_id}.knp").read_text()
     doc = Document.from_knp(knp)
-    assert len(doc.pas_list()) == 19
+    pas_list = doc.pas_list()
+    assert len(pas_list) == 19
+
+    pas = pas_list[1]
+    assert (
+        repr(pas) == "Pas(predicate=Predicate(text='トスを'), "
+        "arguments={'ガ': [SpecialArgument(exophor='不特定:人', eid=1)], "
+        "'ヲ': [Argument(phrase=Phrase(index=0, text='コイン'), "
+        "arg_type=<ArgumentType.CASE_HIDDEN: 'N'>)]})"
+    )

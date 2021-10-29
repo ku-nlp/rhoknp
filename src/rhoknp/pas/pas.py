@@ -152,4 +152,4 @@ class Pas:
             return ArgumentType.OMISSION
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(predicate={repr(self.predicate)}, arguments={repr(self.arguments)})"
+        return f"{self.__class__.__name__}(predicate={repr(self.predicate)}, arguments={repr(dict(self.arguments))})"
