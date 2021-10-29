@@ -12,7 +12,7 @@ class Unit(ABC):
         return self.text
 
     def __repr__(self) -> str:
-        return f'{self.__class__.__name__}(index={self.index}, text="{self.text}")'
+        return f"{self.__class__.__name__}(index={repr(self.index)}, text={repr(self.text)})"
 
     def __eq__(self, other: Any) -> bool:
         if isinstance(other, type(self)):
