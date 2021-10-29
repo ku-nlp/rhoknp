@@ -1,3 +1,5 @@
+import pytest
+
 from rhoknp.pas import Predicate
 from rhoknp.units import Phrase
 
@@ -11,3 +13,5 @@ def test_predicate() -> None:
     predicate = Predicate(phrase, cfid="行く/いく:動12")
     assert predicate.unit == phrase
     assert predicate.cfid == "行く/いく:動12"
+    with pytest.raises(AttributeError):
+        _ = predicate.pas
