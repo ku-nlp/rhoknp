@@ -1,3 +1,5 @@
+import pytest
+
 from rhoknp.pas import Argument, ArgumentType, SpecialArgument
 from rhoknp.units import Phrase
 
@@ -23,6 +25,8 @@ def test_argument() -> None:
     assert argument == Argument(
         phrase, arg_type=ArgumentType.EXOPHOR
     )  # TODO: consider whether this is expected
+    with pytest.raises(AttributeError):
+        _ = argument.pas
 
 
 def test_special_argument() -> None:
@@ -35,3 +39,5 @@ def test_special_argument() -> None:
     assert argument == SpecialArgument(
         "不特定:人", eid=1
     )  # TODO: consider whether this is expected
+    with pytest.raises(AttributeError):
+        _ = argument.pas

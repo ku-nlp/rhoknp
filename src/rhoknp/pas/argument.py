@@ -1,10 +1,12 @@
+import weakref
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Optional
 
 from rhoknp.units.phrase import Phrase
 
 if TYPE_CHECKING:
+    from rhoknp.pas.pas import Pas
     from rhoknp.units.chunk import Chunk
     from rhoknp.units.clause import Clause
     from rhoknp.units.document import Document
@@ -30,10 +32,21 @@ class BaseArgument(ABC):
     def __init__(self, arg_type: ArgumentType):
         self.type: ArgumentType = arg_type
         self.optional = False
+        self._pas: Optional["Pas"] = None
 
     @property
     def is_special(self) -> bool:
         return self.type == ArgumentType.EXOPHOR
+
+    @property
+    def pas(self) -> "Pas":
+        if self._pas is None:
+            raise AttributeError("pas has not been set")
+        return self._pas
+
+    @pas.setter
+    def pas(self, pas: "Pas") -> None:
+        self._pas = weakref.proxy(pas)
 
     @abstractmethod
     def __str__(self) -> str:

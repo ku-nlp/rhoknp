@@ -1,3 +1,4 @@
+import weakref
 from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
@@ -23,4 +24,4 @@ class Predicate:
 
     @pas.setter
     def pas(self, pas: "Pas") -> None:
-        self._pas = pas
+        self._pas = weakref.proxy(pas)

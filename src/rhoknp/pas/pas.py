@@ -1,6 +1,5 @@
 import re
 import sys
-import weakref
 from collections import defaultdict
 from enum import Enum, auto
 from typing import Optional
@@ -24,7 +23,7 @@ class Pas:
 
     def __init__(self, predicate: Predicate):
         self._predicate = predicate
-        predicate.pas = weakref.proxy(self)
+        predicate.pas = self
         self._arguments: dict[str, list[BaseArgument]] = defaultdict(list)
         self.modes: dict[str, RelMode] = {}
 
@@ -115,6 +114,7 @@ class Pas:
         argument = Argument(
             phrase, arg_type or self._get_arg_type(self.predicate, phrase, case)
         )
+        argument.pas = self
         if mode is not None:
             self.modes[case] = mode
         if argument not in self.arguments[case]:
@@ -124,6 +124,7 @@ class Pas:
         self, case: str, exophor: str, eid: int, mode: Optional[RelMode] = None
     ) -> None:
         special_argument = SpecialArgument(exophor, eid)
+        special_argument.pas = self
         if mode is not None:
             self.modes[case] = mode
         if special_argument not in self.arguments[case]:
