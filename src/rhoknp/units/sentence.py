@@ -30,6 +30,8 @@ class Sentence(Unit):
     """
 
     EOS = "EOS"
+    SID_PTN = re.compile(r"^(?P<sid>(?P<did>[a-zA-Z0-9-_]+?)(-(\d+))?)$")
+    SID_PTN_KWDLC = re.compile(r"^(?P<sid>(?P<did>w\d{6}-\d{10})(-\d+){1,2})$")
     count = 0
 
     def __init__(self, text: Optional[str] = None):
@@ -212,9 +214,9 @@ class Sentence(Unit):
         for line in text.split("\n"):
             if line.startswith("#"):
                 sentence.comment = line
-                match = re.match(r"# S-ID: ?(\S*)( .+)?$", line)
-                if match:
-                    sentence.sid = match.group(1)
+                doc_id, sid = cls._extract_sid(line)
+                if sid is not None:
+                    sentence.sid = sid
             else:
                 text_lines.append(line)
         sentence.text = "\n".join(text_lines)
@@ -251,9 +253,9 @@ class Sentence(Unit):
                 continue
             if line.startswith("#"):
                 sentence.comment = line
-                match = re.match(r"# S-ID: ?(\S*)( .+)?$", line)
-                if match:
-                    sentence.sid = match.group(1)
+                doc_id, sid = cls._extract_sid(line)
+                if sid is not None:
+                    sentence.sid = sid
                 continue
             if line.startswith("@") and not line.startswith("@ @"):
                 # homograph
@@ -312,9 +314,9 @@ class Sentence(Unit):
                 continue
             if line.startswith("#"):
                 sentence.comment = line
-                match = re.match(r"# S-ID: ?(\S*)( .+)?$", line)
-                if match:
-                    sentence.sid = match.group(1)
+                doc_id, sid = cls._extract_sid(line)
+                if sid is not None:
+                    sentence.sid = sid
                 continue
             if line.startswith(";;"):
                 raise Exception(f"Error: {line}")
@@ -342,6 +344,18 @@ class Sentence(Unit):
         else:
             sentence.chunks = chunks
         return sentence
+
+    @staticmethod
+    def _extract_sid(comment: str) -> tuple[Optional[str], Optional[str]]:
+        if match_sid := re.match(r"# S-ID: ?(\S*)( .+)?$", comment):
+            sid_string = match_sid.group(1)
+            match = Sentence.SID_PTN_KWDLC.match(sid_string) or Sentence.SID_PTN.match(
+                sid_string
+            )
+            if match is None:
+                raise ValueError(f"unsupported S-ID format: {sid_string}")
+            return match.group("did"), match.group("sid")
+        return None, None
 
     def to_plain(self) -> str:
         """プレーンテキストフォーマットに変換．"""

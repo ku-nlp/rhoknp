@@ -235,3 +235,9 @@ def test_sentence_need_knp() -> None:
     knp = cases[0]["knp"]
     sent = Sentence.from_knp(knp)
     assert sent.need_knp is False
+
+
+@pytest.mark.parametrize("knp", [case["knp"] for case in cases])
+def test_sentence_sid(knp: str) -> None:
+    sentence = Sentence.from_knp(knp)
+    assert sentence.sid == "1"
