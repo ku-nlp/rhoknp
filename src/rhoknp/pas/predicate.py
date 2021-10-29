@@ -17,6 +17,10 @@ class Predicate:
         return self.unit
 
     @property
+    def text(self) -> str:
+        return self.unit.text
+
+    @property
     def pas(self) -> "Pas":
         if self._pas is None:
             raise AttributeError("pas has not been set")
@@ -25,3 +29,9 @@ class Predicate:
     @pas.setter
     def pas(self, pas: "Pas") -> None:
         self._pas = weakref.proxy(pas)
+
+    def __str__(self) -> str:
+        return self.text
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(text={repr(self.text)})"

@@ -15,3 +15,5 @@ def test_predicate() -> None:
     assert predicate.cfid == "行く/いく:動12"
     with pytest.raises(AttributeError):
         _ = predicate.pas
+    assert str(predicate) == "行った。"
+    assert repr(predicate) == "Predicate(text='行った。')"
