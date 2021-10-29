@@ -1,7 +1,7 @@
 import re
 from dataclasses import astuple, dataclass, fields
 from functools import cached_property
-from typing import TYPE_CHECKING, ClassVar, List, Optional, Union
+from typing import TYPE_CHECKING, ClassVar, Optional, Union
 
 from .unit import Unit
 from .utils import Features, Semantics
@@ -102,7 +102,7 @@ class Morpheme(Unit):
         self._attributes = attributes
         self.semantics = semantics  #: 辞書 (JumanDic) に記載の意味情報．
         self.features = features  #: 素性．
-        self.homographs: List["Morpheme"] = []  #: 同形の形態素のリスト．
+        self.homographs: list["Morpheme"] = []  #: 同形の形態素のリスト．
 
         self.text = attributes.surf
 

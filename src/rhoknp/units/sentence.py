@@ -1,6 +1,6 @@
 import re
 import weakref
-from typing import TYPE_CHECKING, List, Optional, Union
+from typing import TYPE_CHECKING, Optional, Union
 
 from rhoknp.utils.draw_tree import draw_tree
 
@@ -246,8 +246,8 @@ class Sentence(Unit):
             sent = Sentence.from_jumanpp(jumanpp_text)
         """
         sentence = cls()
-        morphemes: List[Morpheme] = []
-        jumanpp_lines: List[str] = []
+        morphemes: list[Morpheme] = []
+        jumanpp_lines: list[str] = []
         for line in jumanpp_text.split("\n"):
             if not line.strip():
                 continue
