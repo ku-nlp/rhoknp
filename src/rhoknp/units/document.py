@@ -23,7 +23,6 @@ class Document(Unit):
 
         from rhoknp import Document
 
-        # 文書の文字列
         doc_text = "天気が良かったので散歩した。途中で先生に会った。"
         doc = Document(doc_text)
     """
@@ -155,7 +154,6 @@ class Document(Unit):
 
             from rhoknp import Document
 
-            # 文書の文字列
             doc_text = "天気が良かったので散歩した。途中で先生に会った。"
             doc = Document.from_string(doc_text)
         """
@@ -176,11 +174,10 @@ class Document(Unit):
 
             from rhoknp import Document
 
-            # 文（の文字列）のリスト
             sent_texts = ["天気が良かったので散歩した。", "途中で先生に会った。"]
             doc = Document.from_sentences(sent_texts)
 
-            # 一行一文形式の文字列
+            # Or:
             sent_texts = \"\"\"# S-ID: 1
             天気が良かったので散歩した。
             # S-ID: 2
@@ -219,7 +216,6 @@ class Document(Unit):
 
             from rhoknp import Document
 
-            # Juman++ の解析結果
             jumanpp_text = \"\"\"天気 てんき 天気 名詞 6 普通名詞 1 * 0 * 0 "代表表記:天気/てんき カテゴリ:抽象物" <代表表記:天気/てんき><カテゴリ:抽象物><正規化代表表記:天気/てんき><漢字><かな漢字><名詞相当語><文頭><自立><内容語><タグ単位始><文節始><文節主辞>
             が が が 助詞 9 格助詞 1 * 0 * 0 NIL <かな漢字><ひらがな><付属>
             良かった よかった 良い 形容詞 3 * 0 イ形容詞アウオ段 18 タ形 8 "代表表記:良い/よい 反義:形容詞:悪い/わるい"
@@ -267,7 +263,6 @@ class Document(Unit):
 
             from rhoknp import Document
 
-            # KNP の解析結果
             knp_text = \"\"\"# S-ID: 1
             * 1D <BGH:天気/てんき><文頭><ガ><助詞><体言><係:ガ格><区切:0-0><格要素><連用要素><正規化代表表記:天気/てんき><主辞代表表記:天気/てんき>
             + 1D <BGH:天気/てんき><文頭><ガ><助詞><体言><係:ガ格><区切:0-0><格要素><連用要素><名詞項候補><先行詞候補><正規化代表表記:天気/てんき><主辞代表表記:天気/てんき>

@@ -24,7 +24,6 @@ class Sentence(Unit):
 
         from rhoknp import Sentence
 
-        # 文の文字列
         sent_text = "天気が良かったので散歩した。"
         sent = Sentence(sent_text)
     """
@@ -205,7 +204,6 @@ class Sentence(Unit):
 
             from rhoknp import Sentence
 
-            # 文の文字列
             sent_text = "天気が良かったので散歩した。"
             sent = Sentence(sent_text)
         """
@@ -233,7 +231,6 @@ class Sentence(Unit):
 
             from rhoknp import Sentence
 
-            # 文の文字列
             jumanpp_text = \"\"\"天気 てんき 天気 名詞 6 普通名詞 1 * 0 * 0 "代表表記:天気/てんき カテゴリ:抽象物" <代表表記:天気/てんき><カテゴリ:抽象物><正規化代表表記:天気/てんき><漢字><かな漢字><名詞相当語><文頭><自立><内容語><タグ単位始><文節始><文節主辞>
             が が が 助詞 9 格助詞 1 * 0 * 0 NIL <かな漢字><ひらがな><付属>
             良かった よかった 良い 形容詞 3 * 0 イ形容詞アウオ段 18 タ形 8 "代表表記:良い/よい 反義:形容詞:悪い/わるい"
@@ -281,7 +278,6 @@ class Sentence(Unit):
 
             from rhoknp import Sentence
 
-            # 文の文字列
             knp_text = \"\"\"# S-ID: 1
             * 1D <BGH:天気/てんき><文頭><ガ><助詞><体言><係:ガ格><区切:0-0><格要素><連用要素><正規化代表表記:天気/てんき><主辞代表表記:天気/てんき>
             + 1D <BGH:天気/てんき><文頭><ガ><助詞><体言><係:ガ格><区切:0-0><格要素><連用要素><名詞項候補><先行詞候補><正規化代表表記:天気/てんき><主辞代表表記:天気/てんき>
