@@ -150,3 +150,6 @@ class Pas:
             return ArgumentType.CASE_HIDDEN
         else:
             return ArgumentType.OMISSION
+
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(predicate={repr(self.predicate)}, arguments={repr(self.arguments)})"
