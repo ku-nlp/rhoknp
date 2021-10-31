@@ -332,7 +332,6 @@ class Document(Unit):
     def _parse_rel(self) -> None:
         """関係タグ付きコーパスにおける <rel> タグをパース．"""
         for phrase in self.phrases:
-            assert phrase.index is not None
             pas = Pas(Predicate(phrase))
             for rel in phrase.rels:
                 if rel.type not in ALL_CASES:
