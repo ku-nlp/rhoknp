@@ -1,7 +1,7 @@
 from importlib.metadata import version
 
-from .processors import KNP, Jumanpp, RegexSenter
-from .units import Chunk, Clause, Document, Morpheme, Phrase, Sentence
+from rhoknp.processors import KNP, Jumanpp, RegexSenter
+from rhoknp.units import Chunk, Clause, Document, Morpheme, Phrase, Sentence
 
 __version__ = version("rhoknp")
 

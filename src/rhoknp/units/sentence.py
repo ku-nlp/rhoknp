@@ -2,16 +2,15 @@ import re
 import weakref
 from typing import TYPE_CHECKING, Optional, Union
 
+from rhoknp.units.chunk import Chunk
+from rhoknp.units.clause import Clause
+from rhoknp.units.morpheme import Morpheme
+from rhoknp.units.phrase import Phrase
+from rhoknp.units.unit import Unit
 from rhoknp.utils.draw_tree import draw_tree
 
-from .chunk import Chunk
-from .clause import Clause
-from .morpheme import Morpheme
-from .phrase import Phrase
-from .unit import Unit
-
 if TYPE_CHECKING:
-    from .document import Document
+    from rhoknp.units.document import Document
 
 
 class Sentence(Unit):

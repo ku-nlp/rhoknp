@@ -2,14 +2,14 @@ import weakref
 from functools import cached_property
 from typing import TYPE_CHECKING, Optional
 
-from .chunk import Chunk
-from .morpheme import Morpheme
-from .phrase import Phrase
-from .unit import Unit
+from rhoknp.units.chunk import Chunk
+from rhoknp.units.morpheme import Morpheme
+from rhoknp.units.phrase import Phrase
+from rhoknp.units.unit import Unit
 
 if TYPE_CHECKING:
-    from .document import Document
-    from .sentence import Sentence
+    from rhoknp.units.document import Document
+    from rhoknp.units.sentence import Sentence
 
 
 class Clause(Unit):

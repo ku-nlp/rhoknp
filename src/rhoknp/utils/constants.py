@@ -57,9 +57,5 @@ ALL_CASES = [
 ]
 ALL_CASES += [case + "≒" for case in ALL_CASES]
 
-ALL_COREFS = [
-    "=",
-    "=構",
-    "=役",
-]
+ALL_COREFS = ["=", "=構", "=役"]
 ALL_COREFS += [case + "≒" for case in ALL_COREFS]

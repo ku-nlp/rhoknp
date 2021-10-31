@@ -3,15 +3,15 @@ from dataclasses import astuple, dataclass, fields
 from functools import cached_property
 from typing import TYPE_CHECKING, ClassVar, Optional, Union
 
-from .unit import Unit
-from .utils import Features, Semantics
+from rhoknp.units.unit import Unit
+from rhoknp.units.utils import Features, Semantics
 
 if TYPE_CHECKING:
-    from .chunk import Chunk
-    from .clause import Clause
-    from .document import Document
-    from .phrase import Phrase
-    from .sentence import Sentence
+    from rhoknp.units.chunk import Chunk
+    from rhoknp.units.clause import Clause
+    from rhoknp.units.document import Document
+    from rhoknp.units.phrase import Phrase
+    from rhoknp.units.sentence import Sentence
 
 
 @dataclass(frozen=True)

@@ -3,15 +3,15 @@ import weakref
 from functools import cached_property
 from typing import TYPE_CHECKING, Optional
 
-from .morpheme import Morpheme
-from .unit import Unit
-from .utils import DepType, Features, Rels
+from rhoknp.units.morpheme import Morpheme
+from rhoknp.units.unit import Unit
+from rhoknp.units.utils import DepType, Features, Rels
 
 if TYPE_CHECKING:
-    from .chunk import Chunk
-    from .clause import Clause
-    from .document import Document
-    from .sentence import Sentence
+    from rhoknp.units.chunk import Chunk
+    from rhoknp.units.clause import Clause
+    from rhoknp.units.document import Document
+    from rhoknp.units.sentence import Sentence
 
 
 class Phrase(Unit):

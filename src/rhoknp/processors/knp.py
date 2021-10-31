@@ -2,11 +2,10 @@ from logging import getLogger
 from subprocess import PIPE, Popen, run
 from typing import Optional, Union
 
+from rhoknp.processors.jumanpp import Jumanpp
+from rhoknp.processors.processor import Processor
+from rhoknp.processors.senter import RegexSenter
 from rhoknp.units import Document, Sentence
-
-from .jumanpp import Jumanpp
-from .processor import Processor
-from .senter import RegexSenter
 
 logger = getLogger(__file__)
 

@@ -2,9 +2,8 @@ import re
 from logging import getLogger
 from typing import Union
 
+from rhoknp.processors.processor import Processor
 from rhoknp.units import Document, Sentence
-
-from .processor import Processor
 
 logger = getLogger(__file__)
 

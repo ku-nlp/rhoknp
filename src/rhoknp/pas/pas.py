@@ -4,11 +4,10 @@ from collections import defaultdict
 from enum import Enum, auto
 from typing import Optional
 
+from rhoknp.pas.argument import Argument, ArgumentType, BaseArgument, SpecialArgument
+from rhoknp.pas.predicate import Predicate
 from rhoknp.units.phrase import Phrase
 from rhoknp.units.utils import RelMode
-
-from .argument import Argument, ArgumentType, BaseArgument, SpecialArgument
-from .predicate import Predicate
 
 
 class CaseInfoFormat(Enum):

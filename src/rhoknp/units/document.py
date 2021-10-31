@@ -3,14 +3,13 @@ from typing import Optional, Sequence, Union
 
 from rhoknp.pas.pas import Pas
 from rhoknp.pas.predicate import Predicate
+from rhoknp.units.chunk import Chunk
+from rhoknp.units.clause import Clause
+from rhoknp.units.morpheme import Morpheme
+from rhoknp.units.phrase import Phrase
+from rhoknp.units.sentence import Sentence
+from rhoknp.units.unit import Unit
 from rhoknp.utils.constants import ALL_CASES
-
-from .chunk import Chunk
-from .clause import Clause
-from .morpheme import Morpheme
-from .phrase import Phrase
-from .sentence import Sentence
-from .unit import Unit
 
 
 class Document(Unit):
