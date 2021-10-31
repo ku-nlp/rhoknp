@@ -4,7 +4,7 @@ from typing import Any, Optional, Sequence
 
 class Unit(ABC):
     def __init__(self) -> None:
-        self.index: Optional[int] = None
+        self.index: int = -1
 
         self._text: Optional[str] = None
 

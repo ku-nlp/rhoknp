@@ -259,6 +259,17 @@ class Morpheme(Unit):
         return self.phrase.head
 
     @cached_property
+    def span(self) -> tuple[int, int]:
+        """文中での文字レベルのスパン．"""
+        if self._sentence is None or self.index == 0:
+            start = 0
+        else:
+            _, prev_end = self.sentence.morphemes[self.index - 1].span
+            start = prev_end + 1
+        end = start + len(self.text) - 1  # TODO: correctly handle multibyte characters
+        return start, end
+
+    @cached_property
     def children(self) -> list["Morpheme"]:
         """この形態素に係っている形態素のリスト．"""
         return [

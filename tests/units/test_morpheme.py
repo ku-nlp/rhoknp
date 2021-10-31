@@ -1,3 +1,5 @@
+import textwrap
+
 import pytest
 
 from rhoknp import Document, Morpheme, Sentence
@@ -236,6 +238,35 @@ def test_morpheme_to_jumanpp(jumanpp: str) -> None:
 def test_morpheme_canon(jumanpp: str, canon: str) -> None:
     morpheme = Morpheme.from_jumanpp(jumanpp)
     assert morpheme.canon == canon
+
+
+def test_morpheme_char_span() -> None:
+    jumanpp = textwrap.dedent(
+        """\
+        天気 てんき 天気 名詞 6 普通名詞 1 * 0 * 0 "代表表記:天気/てんき カテゴリ:抽象物"
+        が が が 助詞 9 格助詞 1 * 0 * 0 NIL
+        いい いい いい 形容詞 3 * 0 イ形容詞イ段 19 基本形 2 "代表表記:良い/よい 反義:形容詞:悪い/わるい"
+        ので ので のだ 助動詞 5 * 0 ナ形容詞 21 ダ列タ系連用テ形 12 NIL
+        散歩 さんぽ 散歩 名詞 6 サ変名詞 2 * 0 * 0 "代表表記:散歩/さんぽ ドメイン:レクリエーション カテゴリ:抽象物"
+        した した する 動詞 2 * 0 サ変動詞 16 タ形 10 "代表表記:する/する 自他動詞:自:成る/なる 付属動詞候補（基本）"
+        。 。 。 特殊 1 句点 1 * 0 * 0 NIL
+        EOS
+        """
+    )
+    sentence = Sentence.from_jumanpp(jumanpp)
+    assert sentence.morphemes[0].span == (0, 1)
+    assert sentence.morphemes[1].span == (2, 2)
+    assert sentence.morphemes[2].span == (3, 4)
+    assert sentence.morphemes[3].span == (5, 6)
+    assert sentence.morphemes[4].span == (7, 8)
+    assert sentence.morphemes[5].span == (9, 10)
+    assert sentence.morphemes[6].span == (11, 11)
+
+
+def test_morpheme_char_span_none() -> None:
+    jumanpp = '外国 がいこく 外国 名詞 6 普通名詞 1 * 0 * 0 "代表表記:外国/がいこく ドメイン:政治 カテゴリ:場所-その他"\n'
+    morpheme = Morpheme.from_jumanpp(jumanpp)
+    assert morpheme.span == (0, 1)
 
 
 def test_morpheme_attributes() -> None:
