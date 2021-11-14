@@ -35,7 +35,7 @@ class Pas:
         return self._arguments
 
     @classmethod
-    def from_pas_string(
+    def _from_pas_string(
         cls, phrase: Phrase, fstring: str, format_: CaseInfoFormat
     ) -> "Pas":
         # language=RegExp
@@ -93,13 +93,15 @@ class Pas:
         if "述語項構造" in phrase.features:
             pas_string = phrase.features["述語項構造"]
             assert isinstance(pas_string, str)
-            return cls.from_pas_string(phrase, pas_string, format_=CaseInfoFormat.PAS)
+            pas = cls._from_pas_string(phrase, pas_string, format_=CaseInfoFormat.PAS)
         elif "格解析結果" in phrase.features:
             pas_string = phrase.features["格解析結果"]
             assert isinstance(pas_string, str)
-            return cls.from_pas_string(phrase, pas_string, format_=CaseInfoFormat.CASE)
+            pas = cls._from_pas_string(phrase, pas_string, format_=CaseInfoFormat.CASE)
         else:
-            return cls(Predicate(phrase))
+            pas = cls(Predicate(phrase))
+        phrase.pas = pas
+        return pas
 
     def add_argument(
         self,

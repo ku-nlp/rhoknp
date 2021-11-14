@@ -32,6 +32,7 @@ EOS
     # <格解析結果:行く/いく:動12:ガ/N/彼/0/0/1;ニ/U/-/-/-/-;デ/U/-/-/-/-;ヘ/C/大学/3/0/1;時間/U/-/-/-/->
     predicate_phrase = doc.phrases[4]
     pas = Pas.from_phrase(predicate_phrase)
+    assert predicate_phrase.pas == pas
     assert pas.predicate.cfid == "行く/いく:動12"
 
     # 彼 ガ 行った

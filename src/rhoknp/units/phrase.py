@@ -8,6 +8,7 @@ from rhoknp.units.unit import Unit
 from rhoknp.units.utils import DepType, Features, Rels
 
 if TYPE_CHECKING:
+    from rhoknp.pas.pas import Pas
     from rhoknp.units.chunk import Chunk
     from rhoknp.units.clause import Clause
     from rhoknp.units.document import Document
@@ -47,6 +48,9 @@ class Phrase(Unit):
 
         self.index = self.count
         Phrase.count += 1
+
+        # Predicate-argument structure
+        self._pas: Optional["Pas"] = None
 
     @property
     def parent_unit(self) -> Optional["Chunk"]:
@@ -155,6 +159,22 @@ class Phrase(Unit):
     def children(self) -> list["Phrase"]:
         """この基本句に係っている基本句のリスト．"""
         return [phrase for phrase in self.sentence.phrases if phrase.parent == self]
+
+    @property
+    def pas(self) -> "Pas":
+        """述語項構造．"""
+        if self._pas is None:
+            raise AttributeError("pas has not been set")
+        return self._pas
+
+    @pas.setter
+    def pas(self, pas: "Pas") -> None:
+        """述語項構造．
+
+        Args:
+            pas: 述語項構造．
+        """
+        self._pas = weakref.proxy(pas)
 
     @classmethod
     def from_knp(cls, knp_text: str) -> "Phrase":
