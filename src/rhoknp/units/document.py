@@ -127,16 +127,14 @@ class Document(Unit):
     @property
     def need_jumanpp(self) -> bool:
         """Juman++ による形態素解析がまだなら True．"""
-        if self.need_senter:
-            return True
-        return any(sentence.need_jumanpp for sentence in self.sentences)
+        return self.need_senter or any(
+            sentence.need_jumanpp for sentence in self.sentences
+        )
 
     @property
     def need_knp(self) -> bool:
         """KNP による構文解析がまだなら True．"""
-        if self.need_senter:
-            return True
-        return any(sentence.need_knp for sentence in self.sentences)
+        return self.need_senter or any(sentence.need_knp for sentence in self.sentences)
 
     def pas_list(self) -> list[Pas]:
         """述語項構造のリストを返却．"""
@@ -199,9 +197,9 @@ class Document(Unit):
                 sentence_lines = []
         else:
             for sentence in sentences:
-                if isinstance(sentence, str):
-                    sentence = Sentence.from_string(sentence)
-                sentences_.append(sentence)
+                if isinstance(sentence, Sentence):
+                    sentence = sentence.text
+                sentences_.append(Sentence.from_string(sentence))
         document.sentences = sentences_
         document._post_init()
         return document

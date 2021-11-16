@@ -190,8 +190,7 @@ class Phrase(Unit):
         for line in lines:
             if not line.strip():
                 continue
-            morpheme = Morpheme.from_jumanpp(line)
-            morphemes.append(morpheme)
+            morphemes.append(Morpheme.from_jumanpp(line))
         phrase.morphemes = morphemes
         return phrase
 

@@ -7,6 +7,7 @@ from rhoknp.units.clause import Clause
 from rhoknp.units.morpheme import Morpheme
 from rhoknp.units.phrase import Phrase
 from rhoknp.units.unit import Unit
+from rhoknp.units.utils import is_comment_line
 from rhoknp.utils.draw_tree import draw_tree
 
 if TYPE_CHECKING:
@@ -187,9 +188,7 @@ class Sentence(Unit):
     @property
     def need_knp(self) -> bool:
         """KNP による構文解析がまだなら True．"""
-        if self.need_jumanpp:
-            return True
-        return self._chunks is None and self._clauses is None
+        return self.need_jumanpp or self._chunks is None and self._clauses is None
 
     @classmethod
     def from_string(cls, text: str) -> "Sentence":
@@ -208,7 +207,7 @@ class Sentence(Unit):
         sentence = cls()
         text_lines = []
         for line in text.split("\n"):
-            if line.startswith("#"):
+            if is_comment_line(line):
                 sentence.comment = line
                 doc_id, sid = cls._extract_sid(line)
                 if sid is not None:
@@ -246,18 +245,16 @@ class Sentence(Unit):
         for line in jumanpp_text.split("\n"):
             if not line.strip():
                 continue
-            if line.startswith("#"):
+            if is_comment_line("#"):
                 sentence.comment = line
                 doc_id, sid = cls._extract_sid(line)
                 if sid is not None:
                     sentence.sid = sid
-                continue
-            if line.startswith("@") and not line.startswith("@ @"):
+            elif line.startswith("@") and not line.startswith("@ @"):
                 # homograph
                 pass
             elif jumanpp_lines:
-                morpheme = Morpheme.from_jumanpp("\n".join(jumanpp_lines))
-                morphemes.append(morpheme)
+                morphemes.append(Morpheme.from_jumanpp("\n".join(jumanpp_lines)))
                 jumanpp_lines = []
             jumanpp_lines.append(line)
             if line.strip() == cls.EOS:
@@ -324,13 +321,11 @@ class Sentence(Unit):
                 break
             if line.startswith("*"):
                 if is_clause_end is True:
-                    clause = Clause.from_knp("\n".join(child_lines))
-                    clauses.append(clause)
+                    clauses.append(Clause.from_knp("\n".join(child_lines)))
                     child_lines = []
                     is_clause_end = False
                 elif has_clause_boundary is False and child_lines:
-                    chunk = Chunk.from_knp("\n".join(child_lines))
-                    chunks.append(chunk)
+                    chunks.append(Chunk.from_knp("\n".join(child_lines)))
                     child_lines = []
             child_lines.append(line)
         if has_clause_boundary is True:

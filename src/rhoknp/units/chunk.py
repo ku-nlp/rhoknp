@@ -165,13 +165,11 @@ class Chunk(Unit):
             if not line.strip():
                 continue
             if line.startswith("+") and phrase_lines:
-                phrase = Phrase.from_knp("\n".join(phrase_lines))
-                phrases.append(phrase)
+                phrases.append(Phrase.from_knp("\n".join(phrase_lines)))
                 phrase_lines = []
             phrase_lines.append(line)
         else:
-            phrase = Phrase.from_knp("\n".join(phrase_lines))
-            phrases.append(phrase)
+            phrases.append(Phrase.from_knp("\n".join(phrase_lines)))
         chunk.phrases = phrases
         return chunk
 

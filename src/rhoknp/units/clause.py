@@ -146,8 +146,7 @@ class Clause(Unit):
             if not line.strip():
                 continue
             if line.startswith("*") and chunk_lines:
-                chunk = Chunk.from_knp("\n".join(chunk_lines))
-                chunks.append(chunk)
+                chunks.append(Chunk.from_knp("\n".join(chunk_lines)))
                 chunk_lines = []
             chunk_lines.append(line)
         else:
