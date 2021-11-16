@@ -8,7 +8,6 @@ from rhoknp.units.morpheme import Morpheme
 from rhoknp.units.phrase import Phrase
 from rhoknp.units.unit import Unit
 from rhoknp.units.utils import is_comment_line
-from rhoknp.utils.draw_tree import draw_tree
 
 if TYPE_CHECKING:
     from rhoknp.units.document import Document
@@ -374,11 +373,3 @@ class Sentence(Unit):
         ret += "".join(child.to_knp() for child in self._clauses or self.chunks)
         ret += self.EOS + "\n"
         return ret
-
-    def draw_phrase_tree(self, show_pos: bool = True) -> None:
-        """構文木を表示．
-
-        Args:
-            show_pos: True なら品詞情報を含めて表示．
-        """
-        draw_tree(self.phrases, show_pos=show_pos)
