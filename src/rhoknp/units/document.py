@@ -9,6 +9,7 @@ from rhoknp.units.morpheme import Morpheme
 from rhoknp.units.phrase import Phrase
 from rhoknp.units.sentence import Sentence
 from rhoknp.units.unit import Unit
+from rhoknp.units.utils import is_comment_line
 from rhoknp.utils.constants import ALL_CASES
 
 
@@ -188,17 +189,19 @@ class Document(Unit):
         """
         document = cls()
         sentences_ = []
-        sentence_lines: list[str] = []
         if isinstance(sentences, str):
-            sentences = sentences.split("\n")
-        for sentence in sentences:
-            if isinstance(sentence, str):
-                sentence_lines.append(sentence)
-                if sentence.startswith("# "):
+            sentence_lines: list[str] = []
+            for line in sentences.split("\n"):
+                sentence_lines.append(line)
+                if is_comment_line(line):
                     continue
-                sentence = Sentence.from_string("\n".join(sentence_lines))
+                sentences_.append(Sentence.from_string("\n".join(sentence_lines)))
                 sentence_lines = []
-            sentences_.append(sentence)
+        else:
+            for sentence in sentences:
+                if isinstance(sentence, str):
+                    sentence = Sentence.from_string(sentence)
+                sentences_.append(sentence)
         document.sentences = sentences_
         document._post_init()
         return document
