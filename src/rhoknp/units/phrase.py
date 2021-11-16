@@ -16,14 +16,7 @@ if TYPE_CHECKING:
 
 
 class Phrase(Unit):
-    """基本句クラス．
-
-    Args:
-        parent_index: 係り先の基本句の文内におけるインデックス．
-        dep_type: 係り受けの種類．
-        features: 素性．
-        rels: 基本句間関係．
-    """
+    """基本句クラス．"""
 
     KNP_PAT = re.compile(
         fr"^\+ (?P<pid>-1|\d+)(?P<dtype>[{''.join(e.value for e in DepType)}])( (?P<tags>(<[^>]+>)*))?$"

@@ -15,13 +15,7 @@ if TYPE_CHECKING:
 
 
 class Chunk(Unit):
-    """文節クラス．
-
-    Args:
-        parent_index: 係り先の文節の文内におけるインデックス．
-        dep_type: 係り受けの種類．
-        features: 素性．
-    """
+    """文節クラス．"""
 
     KNP_PAT = re.compile(
         fr"^\* (?P<pid>-1|\d+)(?P<dtype>[DPAI])( {Features.PAT.pattern})?$"

@@ -23,8 +23,7 @@ class Sentence(Unit):
 
         from rhoknp import Sentence
 
-        sent_text = "天気が良かったので散歩した。"
-        sent = Sentence(sent_text)
+        sent = Sentence("天気が良かったので散歩した。")
     """
 
     EOS = "EOS"

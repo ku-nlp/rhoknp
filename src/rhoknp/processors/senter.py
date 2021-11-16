@@ -9,8 +9,13 @@ logger = getLogger(__file__)
 
 
 class RegexSenter(Processor):
-    """A sentence splitter. The code is mainly derived from python-textformatting:
-    https://github.com/ku-nlp/python-textformatting
+    """正規表現にもとづく文分割クラス．
+
+    Example::
+        from rhoknp import RegexSenter
+
+        senter = RegexSenter()
+        document = senter.apply_to_document("天気が良かったので散歩した。途中で先生に会った。")
     """
 
     PERIODS = "。．？！♪☆★…?!"

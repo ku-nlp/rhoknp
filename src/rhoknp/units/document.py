@@ -22,8 +22,7 @@ class Document(Unit):
 
         from rhoknp import Document
 
-        doc_text = "天気が良かったので散歩した。途中で先生に会った。"
-        doc = Document(doc_text)
+        doc = Document("天気が良かったので散歩した。途中で先生に会った。")
     """
 
     count = 0

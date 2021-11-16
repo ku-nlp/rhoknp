@@ -43,7 +43,6 @@ autodoc_default_options = {
     "exclude-members": ",".join(["__weakref__", "count", "parent_unit", "child_units"]),
     "member-order": "bysource",
 }
-autodoc_typehints = "both"
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]

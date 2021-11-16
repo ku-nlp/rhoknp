@@ -16,21 +16,7 @@ if TYPE_CHECKING:
 
 @dataclass(frozen=True)
 class MorphemeAttributes:
-    """形態素の属性クラス．
-
-    Args:
-        surf: 表層表現．
-        reading: 読み．
-        lemma: 原形．
-        pos: 品詞．
-        pos_id: 品詞ID．
-        subpos: 品詞細分類．
-        subpos_id: 品詞細分類ID．
-        conjtype: 活用型．
-        conjtype_id: 用型ID．
-        conjform: 活用形ID．
-        conjform_id: 活用形ID．
-    """
+    """形態素の属性クラス．"""
 
     JUMANPP_PAT = re.compile(
         r"(?P<attrs>([^ ]+ [^ ]+ [^ ]+ \w+ \d+ \D+ \d+ \D+ \d+ \D+ \d+))"
@@ -67,14 +53,7 @@ class MorphemeAttributes:
 
 
 class Morpheme(Unit):
-    """形態素クラス．
-
-    Args:
-        attributes: 属性．
-        semantics: 辞書 (JumanDic) に記載の意味情報．
-        features: 素性．
-        homograph: 同形かどうかを表すフラグ．
-    """
+    """形態素クラス．"""
 
     JUMANPP_PAT: ClassVar[re.Pattern[str]] = re.compile(
         (
