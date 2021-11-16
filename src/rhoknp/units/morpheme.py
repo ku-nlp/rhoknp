@@ -32,7 +32,7 @@ class MorphemeAttributes:
         conjform_id: 活用形ID．
     """
 
-    JUMANPP_PATTERN = re.compile(
+    JUMANPP_PAT = re.compile(
         r"(?P<attrs>([^ ]+ [^ ]+ [^ ]+ \w+ \d+ \D+ \d+ \D+ \d+ \D+ \d+))"
     )
 
@@ -76,11 +76,11 @@ class Morpheme(Unit):
         homograph: 同形かどうかを表すフラグ．
     """
 
-    JUMANPP_PATTERN: ClassVar[re.Pattern[str]] = re.compile(
+    JUMANPP_PAT: ClassVar[re.Pattern[str]] = re.compile(
         (
-            rf"^({MorphemeAttributes.JUMANPP_PATTERN.pattern})"
-            + rf"(\s{Semantics.PATTERN.pattern})?"
-            + rf"(\s{Features.PATTERN.pattern})?$"
+            rf"^({MorphemeAttributes.JUMANPP_PAT.pattern})"
+            + rf"(\s{Semantics.PAT.pattern})?"
+            + rf"(\s{Features.PAT.pattern})?$"
         )
     )
 
@@ -302,7 +302,7 @@ class Morpheme(Unit):
             homograph: 同形かどうかを表すフラグ．
         """
         assert "\n" not in jumanpp_line.strip()
-        match = cls.JUMANPP_PATTERN.match(jumanpp_line)
+        match = cls.JUMANPP_PAT.match(jumanpp_line)
         if match is None:
             raise ValueError(f"malformed line: {jumanpp_line}")
         attributes = MorphemeAttributes.from_jumanpp(match.group("attrs"))

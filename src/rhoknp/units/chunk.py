@@ -23,8 +23,8 @@ class Chunk(Unit):
         features: 素性．
     """
 
-    KNP_PATTERN = re.compile(
-        fr"^\* (?P<pid>-1|\d+)(?P<dtype>[DPAI])( {Features.PATTERN.pattern})?$"
+    KNP_PAT = re.compile(
+        fr"^\* (?P<pid>-1|\d+)(?P<dtype>[DPAI])( {Features.PAT.pattern})?$"
     )
     count = 0
 
@@ -157,7 +157,7 @@ class Chunk(Unit):
             knp_text: KNP の解析結果．
         """
         first_line, *lines = knp_text.split("\n")
-        match = cls.KNP_PATTERN.match(first_line)
+        match = cls.KNP_PAT.match(first_line)
         if match is None:
             raise ValueError(f"malformed line: {first_line}")
         parent_index = int(match.group("pid"))

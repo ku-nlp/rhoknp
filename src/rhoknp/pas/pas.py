@@ -16,7 +16,7 @@ class CaseInfoFormat(Enum):
 
 
 class Pas:
-    ARGUMENT_PATTERN = re.compile(
+    ARGUMENT_PAT = re.compile(
         r"([^/;]+/[CNODEU-]/[^/]+/(-?\d*)/(-?\d*)/[^/;]+)"
     )  # ガ/N/彼/0/0/5
 
@@ -42,7 +42,7 @@ class Pas:
         cfid_pat = r"(.*?):([^:/]+?)"  # 食べる/たべる:動1
         match = re.match(
             r"{cfid}(:(?P<args>{args}(;{args})*))?$".format(
-                cfid=cfid_pat, args=cls.ARGUMENT_PATTERN.pattern
+                cfid=cfid_pat, args=cls.ARGUMENT_PAT.pattern
             ),
             fstring,
         )
@@ -58,7 +58,7 @@ class Pas:
             return cls(predicate)
 
         pas = cls(predicate)
-        for match_arg in cls.ARGUMENT_PATTERN.finditer(match.group("args")):
+        for match_arg in cls.ARGUMENT_PAT.finditer(match.group("args")):
             case, case_flag, surf, *fields = match_arg.group(0).split("/")
             if case_flag in ("U", "-"):
                 continue

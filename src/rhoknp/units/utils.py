@@ -13,14 +13,14 @@ class DepType(Enum):
 
 class Semantics(dict[str, Union[str, bool]]):
     NIL = "NIL"
-    PATTERN = re.compile(r'(?P<sems>("([^"]|\\")+?")|NIL)')
-    SEM_PATTERN = re.compile(r"(?P<key>[^:]+)(:(?P<value>\S+))?\s?")
+    PAT = re.compile(r'(?P<sems>("([^"]|\\")+?")|NIL)')
+    SEM_PAT = re.compile(r"(?P<key>[^:]+)(:(?P<value>\S+))?\s?")
 
     def __init__(self, sstring: str):
         super().__init__()
         self.is_nil = sstring == self.NIL
         if not self.is_nil:
-            for match in self.SEM_PATTERN.finditer(sstring.strip('"')):
+            for match in self.SEM_PAT.finditer(sstring.strip('"')):
                 self[match.group("key")] = match.group("value") or True
 
     @classmethod
@@ -56,12 +56,12 @@ class Features(dict[str, Union[str, bool]]):
     ex. "<正規化代表表記:遅れる/おくれる>" --> {"正規化代表表記": "遅れる/おくれる"}
     """
 
-    PATTERN = re.compile(r"(?P<feats>(<[^>]+>)*)")
-    TAG_PATTERN = re.compile(r"<(?P<key>[^:]+?)(:(?P<value>.+?))?>")
+    PAT = re.compile(r"(?P<feats>(<[^>]+>)*)")
+    TAG_PAT = re.compile(r"<(?P<key>[^:]+?)(:(?P<value>.+?))?>")
 
     def __init__(self, fstring: str):
         super().__init__()
-        for match in self.TAG_PATTERN.finditer(fstring):
+        for match in self.TAG_PAT.finditer(fstring):
             self[match.group("key")] = match.group("value") or True
 
     @classmethod
@@ -105,7 +105,7 @@ class RelMode(Enum):
 
 @dataclass
 class Rel:
-    PATTERN: ClassVar[re.Pattern[str]] = re.compile(
+    PAT: ClassVar[re.Pattern[str]] = re.compile(
         r'<rel type="(?P<type>\S+?)"( mode="(?P<mode>[^>]+?)")? target="(?P<target>.+?)"( sid="(?P<sid>.+?)" '
         r'id="(?P<id>\d+?)")?/>'
     )
@@ -130,7 +130,7 @@ class Rel:
 class Rels(list[Rel]):
     def __init__(self, fstring: str):
         super().__init__()
-        for match in Rel.PATTERN.finditer(fstring):
+        for match in Rel.PAT.finditer(fstring):
             self.append(
                 Rel(
                     type=match["type"],

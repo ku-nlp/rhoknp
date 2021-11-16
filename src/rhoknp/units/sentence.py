@@ -28,8 +28,8 @@ class Sentence(Unit):
     """
 
     EOS = "EOS"
-    SID_PTN = re.compile(r"^(?P<sid>(?P<did>[a-zA-Z0-9-_]+?)(-(\d+))?)$")
-    SID_PTN_KWDLC = re.compile(r"^(?P<sid>(?P<did>w\d{6}-\d{10})(-\d+){1,2})$")
+    SID_PAT = re.compile(r"^(?P<sid>(?P<did>[a-zA-Z0-9-_]+?)(-(\d+))?)$")
+    SID_PAT_KWDLC = re.compile(r"^(?P<sid>(?P<did>w\d{6}-\d{10})(-\d+){1,2})$")
     count = 0
 
     def __init__(self, text: Optional[str] = None):
@@ -344,7 +344,7 @@ class Sentence(Unit):
     def _extract_sid(comment: str) -> tuple[Optional[str], Optional[str]]:
         if match_sid := re.match(r"# S-ID: ?(\S*)( .+)?$", comment):
             sid_string = match_sid.group(1)
-            match = Sentence.SID_PTN_KWDLC.match(sid_string) or Sentence.SID_PTN.match(
+            match = Sentence.SID_PAT_KWDLC.match(sid_string) or Sentence.SID_PAT.match(
                 sid_string
             )
             if match is None:
