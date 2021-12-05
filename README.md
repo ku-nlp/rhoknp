@@ -35,6 +35,8 @@ for phrase in sentence.phrases:
     print(f"{phrase} -> {phrase.parent}")
 ```
 
+For more examples, explore the [examples](./examples) directory.
+
 ## Differences from [pyknp](https://github.com/ku-nlp/pyknp/tree/master/pyknp)
 
 - *rhoknp* provides APIs for document-level text analysis
