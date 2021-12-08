@@ -30,7 +30,7 @@ jobs:
         architecture: x64
     - name: Run Python
       run: |
-        python3 -V
+        python -V
 #    - name: Install Poetry
 #      run: |
 #        python3 -m pip install --user pipx
