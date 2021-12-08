@@ -10,8 +10,7 @@ jobs:
   test:
     name: Run tests with pytest
     runs-on: ubuntu-latest
-#    container: kunlp/jumanpp-knp:ubuntu
-    container: ubuntu:latest
+    container: kunlp/jumanpp-knp:ubuntu
     strategy:
       max-parallel: 2
       fail-fast: false
@@ -28,6 +27,7 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
+        architecture: x64
     - name: Run Python
       run: |
         python3 -V
