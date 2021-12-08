@@ -18,9 +18,9 @@ jobs:
         python-version: ["3.9", "3.10"]
     steps:
       - name: Run Jumanpp
-        run: jumanpp -v
+        run: echo 'テスト' | jumanpp
       - name: Run KNP
-        run: knp -v
+        run: echo 'テスト' | jumanpp | knp -v
 
 #    steps:
 #    - name: Checkout repository
