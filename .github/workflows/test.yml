@@ -10,13 +10,13 @@ jobs:
   test:
     name: Run tests with pytest
     runs-on: ubuntu-latest
-    container: kunlp/jumanpp-knp:ubuntu
+    container:
+      image: kunlp/jumanpp-knp:ubuntu
     strategy:
       max-parallel: 2
       fail-fast: false
       matrix:
         python-version: ["3.9", "3.10"]
-
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
