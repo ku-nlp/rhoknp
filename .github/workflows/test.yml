@@ -17,22 +17,19 @@ jobs:
       matrix:
         python-version: ["3.9", "3.10"]
     steps:
-      - name: Run Jumanpp
-        run: echo 'テスト' | jumanpp
-      - name: Run KNP
-        run: echo 'テスト' | jumanpp | knp -v
-
-#    steps:
-#    - name: Checkout repository
-#      uses: actions/checkout@v2
+    - name: Checkout repository
+      uses: actions/checkout@v2
 #    - name: Install required apt packages
 #      run: |
 #        apt update -y
 #        apt install -y curl libsqlite3-dev gcc libffi-dev
-#    - name: Set up Python ${{ matrix.python-version }}
-#      uses: actions/setup-python@v2.1.4
-#      with:
-#        python-version: ${{ matrix.python-version }}
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Run Python
+      run: |
+        python3 -V
 #    - name: Install Poetry
 #      run: |
 #        python3 -m pip install --user pipx
