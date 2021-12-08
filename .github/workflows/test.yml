@@ -11,7 +11,7 @@ jobs:
     name: Run tests with pytest
     runs-on: ubuntu-latest
 #    container: kunlp/jumanpp-knp:ubuntu
-    container: node:14.16
+    container: ubuntu:latest
     strategy:
       max-parallel: 2
       fail-fast: false
