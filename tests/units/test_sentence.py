@@ -274,3 +274,13 @@ def test_child_units_kwdlc():
     )
     for child_unit in sent.child_units:
         assert isinstance(child_unit, Phrase)
+
+
+def test_document():
+    sent = Sentence("コイントスを３回行う。")
+    try:
+        _ = sent.document
+    except AttributeError:
+        pass
+    except Exception as e:
+        raise e
