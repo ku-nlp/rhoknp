@@ -19,7 +19,7 @@ class MorphemeAttributes:
     """形態素の属性クラス．"""
 
     JUMANPP_PAT = re.compile(
-        r"(?P<attrs>([^ ]+ [^ ]+ [^ ]+ \w+ \d+ \D+ \d+ \D+ \d+ \D+ \d+))"
+        r"(?P<attrs>([^ ]+ [^ ]+ [^ ]+ [^ ]+ \d+ [^ ]+ \d+ [^ ]+ \d+ [^ ]+ \d+))"
     )
 
     surf: str  #: 表層表現．
