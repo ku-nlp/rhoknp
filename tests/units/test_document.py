@@ -61,7 +61,7 @@ def test_document_from_knp(text: str, knp: str) -> None:
 
 
 @pytest.mark.parametrize("sentence_string", ["天気がいいので散歩した。", "。"])
-def test_document_from_string(sentence_string: str) -> None:
+def test_document_from_raw_text(sentence_string: str) -> None:
     doc_from_string = Document.from_raw_text(sentence_string)
     assert doc_from_string.text == sentence_string
 
@@ -100,8 +100,8 @@ def test_document_from_sentences_1(sentence_strings: list[str]) -> None:
         ),
     ],
 )
-def test_document_from_sentences_2(text: str, sentence_strings: str) -> None:
-    doc_from_strings = Document.from_sentences(sentence_strings)
+def test_document_from_line_by_line_text(text: str, sentence_strings: str) -> None:
+    doc_from_strings = Document.from_line_by_line_text(sentence_strings)
     assert doc_from_strings.text == text
 
 

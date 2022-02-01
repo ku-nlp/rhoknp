@@ -154,16 +154,50 @@ class Document(Unit):
         """文書クラスのインスタンスを文書の生テキストから初期化．
 
         Args:
-            text: 文書の文字列．
+            text: 文書の生テキスト．
 
         Example::
 
             from rhoknp import Document
 
             doc_text = "天気が良かったので散歩した。途中で先生に会った。"
-            doc = Document.from_string(doc_text)
+            doc = Document.from_raw_text(doc_text)
         """
         document = cls(text)
+        document._post_init()
+        return document
+
+    @classmethod
+    def from_line_by_line_text(cls, text: str) -> "Document":
+        """文書クラスのインスタンスを一行一文形式のテキストから初期化．
+
+        Args:
+            text: 一行一文形式に整形された文書のテキスト．
+
+        Example::
+
+            from rhoknp import Document
+
+            sent_texts = \"\"\"# S-ID: 1
+            天気が良かったので散歩した。
+            # S-ID: 2
+            途中で先生に会った。
+            \"\"\"
+            doc = Document.from_line_by_line_text(sent_texts)
+
+        .. note::
+            # から始まる行はコメントとして認識される．
+        """
+        document = cls()
+        sentences = []
+        sentence_lines: list[str] = []
+        for line in text.split("\n"):
+            sentence_lines.append(line)
+            if is_comment_line(line):
+                continue
+            sentences.append(Sentence.from_raw_text("\n".join(sentence_lines)))
+            sentence_lines = []
+        document.sentences = sentences
         document._post_init()
         return document
 
@@ -174,7 +208,7 @@ class Document(Unit):
         """文書クラスのインスタンスを文のリストから初期化．
 
         Args:
-            sentences: 文（文の文字列）のリストもしくは一行一文形式の文字列．
+            sentences: 文（文の文字列）のリスト．
 
         Example::
 
@@ -182,33 +216,13 @@ class Document(Unit):
 
             sent_texts = ["天気が良かったので散歩した。", "途中で先生に会った。"]
             doc = Document.from_sentences(sent_texts)
-
-            # Or:
-            sent_texts = \"\"\"# S-ID: 1
-            天気が良かったので散歩した。
-            # S-ID: 2
-            途中で先生に会った。
-            \"\"\"
-            doc = Document.from_sentences(sent_texts)
-
-        .. note::
-            一行一文形式の文字列を入力とするとき，# から始まる行はコメントとして認識される．
         """
         document = cls()
         sentences_ = []
-        if isinstance(sentences, str):
-            sentence_lines: list[str] = []
-            for line in sentences.split("\n"):
-                sentence_lines.append(line)
-                if is_comment_line(line):
-                    continue
-                sentences_.append(Sentence.from_raw_text("\n".join(sentence_lines)))
-                sentence_lines = []
-        else:
-            for sentence in sentences:
-                if isinstance(sentence, Sentence):
-                    sentence = sentence.text
-                sentences_.append(Sentence.from_raw_text(sentence))
+        for sentence in sentences:
+            if isinstance(sentence, Sentence):
+                sentence = sentence.text
+            sentences_.append(Sentence.from_raw_text(sentence))
         document.sentences = sentences_
         document._post_init()
         return document
