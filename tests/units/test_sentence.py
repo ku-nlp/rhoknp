@@ -135,8 +135,14 @@ cases = [
 
 
 @pytest.mark.parametrize("text", [case["text"] for case in cases])
-def test_sentence_from_string(text: str) -> None:
+def test_sentence_from_raw_text_0(text: str) -> None:
     sentence = Sentence.from_raw_text(text)
+    assert sentence.text == text
+
+
+@pytest.mark.parametrize("text", [case["text"] for case in cases])
+def test_sentence_from_raw_text(text: str) -> None:
+    sentence = Sentence(text)
     assert sentence.text == text
 
 
