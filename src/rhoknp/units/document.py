@@ -1,4 +1,5 @@
 import weakref
+from logging import getLogger
 from typing import Optional, Sequence, Union
 
 from rhoknp.pas.pas import Pas
@@ -11,6 +12,8 @@ from rhoknp.units.sentence import Sentence
 from rhoknp.units.unit import Unit
 from rhoknp.units.utils import is_comment_line
 from rhoknp.utils.constants import ALL_CASES
+
+logger = getLogger(__file__)
 
 
 class Document(Unit):
@@ -41,6 +44,8 @@ class Document(Unit):
 
         self.index = self.count
         Document.count += 1
+
+        self.has_error = False
 
         self._pass: list[Pas] = []
 
@@ -209,11 +214,12 @@ class Document(Unit):
         return document
 
     @classmethod
-    def from_jumanpp(cls, jumanpp_text: str) -> "Document":
+    def from_jumanpp(cls, jumanpp_text: str, ignore_errors: bool = False) -> "Document":
         """文書クラスのインスタンスを Juman++ の解析結果から初期化．
 
         Args:
             jumanpp_text: Juman++ の解析結果．
+            ignore_errors: 解析結果中にエラーが発生してもその文を捨てて処理を続行する．
 
         Example::
 
@@ -247,20 +253,26 @@ class Document(Unit):
                 continue
             sentence_lines.append(line)
             if line.strip() == Sentence.EOS:
-                sentences.append(
-                    Sentence.from_jumanpp("\n".join(sentence_lines) + "\n")
-                )
+                try:
+                    sentences.append(
+                        Sentence.from_jumanpp("\n".join(sentence_lines) + "\n")
+                    )
+                except Exception as e:
+                    document.has_error = True
+                    if not ignore_errors:
+                        raise e
                 sentence_lines = []
         document.sentences = sentences
         document._post_init()
         return document
 
     @classmethod
-    def from_knp(cls, knp_text: str) -> "Document":
+    def from_knp(cls, knp_text: str, ignore_errors: bool = False) -> "Document":
         """文書クラスのインスタンスを KNP の解析結果から初期化．
 
         Args:
             knp_text: KNP の解析結果．
+            ignore_errors: 解析結果中にエラーが発生してもその文を捨てて処理を続行する．
 
         Example::
 
@@ -309,7 +321,14 @@ class Document(Unit):
                 continue
             sentence_lines.append(line)
             if line.strip() == Sentence.EOS:
-                sentences.append(Sentence.from_knp("\n".join(sentence_lines) + "\n"))
+                try:
+                    sentences.append(
+                        Sentence.from_knp("\n".join(sentence_lines) + "\n")
+                    )
+                except Exception as e:
+                    document.has_error = True
+                    if not ignore_errors:
+                        raise e
                 sentence_lines = []
         document.sentences = sentences
         document._post_init()
