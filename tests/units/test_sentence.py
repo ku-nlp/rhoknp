@@ -278,12 +278,8 @@ def test_child_units_kwdlc():
 
 def test_document():
     sent = Sentence("コイントスを３回行う。")
-    try:
+    with pytest.raises(AttributeError):
         _ = sent.document
-    except AttributeError:
-        pass
-    except Exception as e:
-        raise e
 
 
 def test_from_jumanpp_empty_line():

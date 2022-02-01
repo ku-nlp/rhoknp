@@ -86,7 +86,7 @@ def test_from_jumanpp_ignore_error_0():
 
 
 def test_from_jumanpp_ignore_error_1():
-    try:
+    with pytest.raises(ValueError):
         _ = Document.from_jumanpp(
             textwrap.dedent(
                 """\
@@ -101,10 +101,6 @@ def test_from_jumanpp_ignore_error_1():
             """
             )
         )
-    except ValueError:
-        pass
-    except Exception as e:
-        raise e
 
 
 def test_from_knp_ignore_error():
@@ -133,7 +129,7 @@ def test_from_knp_ignore_error():
 
 
 def test_from_knp_ignore_error_1():
-    try:
+    with pytest.raises(ValueError):
         _ = Document.from_knp(
             textwrap.dedent(
                 """\
@@ -153,13 +149,8 @@ def test_from_knp_ignore_error_1():
             。 。 。 特殊 1 句点 1 * 0 * 0 NIL <英記号><記号><文末><付属>
             EOS
             """
-            ),
-            ignore_errors=True,
+            )
         )
-    except ValueError:
-        pass
-    except Exception as e:
-        raise e
 
 
 @pytest.mark.parametrize(
