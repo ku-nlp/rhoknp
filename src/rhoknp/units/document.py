@@ -145,8 +145,8 @@ class Document(Unit):
         return self._pass
 
     @classmethod
-    def from_string(cls, text: str) -> "Document":
-        """文書クラスのインスタンスを文書の文字列から初期化．
+    def from_raw_text(cls, text: str) -> "Document":
+        """文書クラスのインスタンスを文書の生テキストから初期化．
 
         Args:
             text: 文書の文字列．
@@ -197,13 +197,13 @@ class Document(Unit):
                 sentence_lines.append(line)
                 if is_comment_line(line):
                     continue
-                sentences_.append(Sentence.from_string("\n".join(sentence_lines)))
+                sentences_.append(Sentence.from_raw_text("\n".join(sentence_lines)))
                 sentence_lines = []
         else:
             for sentence in sentences:
                 if isinstance(sentence, Sentence):
                     sentence = sentence.text
-                sentences_.append(Sentence.from_string(sentence))
+                sentences_.append(Sentence.from_raw_text(sentence))
         document.sentences = sentences_
         document._post_init()
         return document

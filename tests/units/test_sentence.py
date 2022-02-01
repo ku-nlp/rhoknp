@@ -136,7 +136,7 @@ cases = [
 
 @pytest.mark.parametrize("text", [case["text"] for case in cases])
 def test_sentence_from_string(text: str) -> None:
-    sentence = Sentence.from_string(text)
+    sentence = Sentence.from_raw_text(text)
     assert sentence.text == text
 
 
@@ -156,7 +156,7 @@ def test_sentence_clauses() -> None:
 
 def test_sentence_clauses_error() -> None:
     text = cases[0]["text"]
-    doc = Sentence.from_string(text)
+    doc = Sentence.from_raw_text(text)
     with pytest.raises(AttributeError):
         _ = doc.clauses
 
@@ -169,7 +169,7 @@ def test_sentence_chunks() -> None:
 
 def test_sentence_chunks_error() -> None:
     text = cases[0]["text"]
-    sent = Sentence.from_string(text)
+    sent = Sentence.from_raw_text(text)
     with pytest.raises(AttributeError):
         _ = sent.phrases
 
@@ -182,7 +182,7 @@ def test_sentence_phrases() -> None:
 
 def test_sentence_phrases_error() -> None:
     text = cases[0]["text"]
-    sent = Sentence.from_string(text)
+    sent = Sentence.from_raw_text(text)
     with pytest.raises(AttributeError):
         _ = sent.base_phrases
 
@@ -195,7 +195,7 @@ def test_sentence_morphemes() -> None:
 
 def test_sentence_morphemes_error() -> None:
     text = cases[0]["text"]
-    sent = Sentence.from_string(text)
+    sent = Sentence.from_raw_text(text)
     with pytest.raises(AttributeError):
         _ = sent.morphemes
 
@@ -221,7 +221,7 @@ def test_sentence_to_knp(knp: str) -> None:
 
 def test_sentence_need_jumanpp() -> None:
     text = cases[0]["text"]
-    sent = Sentence.from_string(text)
+    sent = Sentence.from_raw_text(text)
     assert sent.need_jumanpp is True
     jumanpp = cases[0]["jumanpp"]
     sent = Sentence.from_jumanpp(jumanpp)

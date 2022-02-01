@@ -62,7 +62,7 @@ def test_document_from_knp(text: str, knp: str) -> None:
 
 @pytest.mark.parametrize("sentence_string", ["天気がいいので散歩した。", "。"])
 def test_document_from_string(sentence_string: str) -> None:
-    doc_from_string = Document.from_string(sentence_string)
+    doc_from_string = Document.from_raw_text(sentence_string)
     assert doc_from_string.text == sentence_string
 
 
@@ -75,7 +75,10 @@ def test_document_from_sentences_0(sentence_strings: list[str]) -> None:
 @pytest.mark.parametrize("sentence_strings", [["天気がいいので散歩した。", "途中で先生に会った。"], ["。"]])
 def test_document_from_sentences_1(sentence_strings: list[str]) -> None:
     doc_from_sentences = Document.from_sentences(
-        [Sentence.from_string(sentence_string) for sentence_string in sentence_strings]
+        [
+            Sentence.from_raw_text(sentence_string)
+            for sentence_string in sentence_strings
+        ]
     )
     assert doc_from_sentences.text == "".join(sentence_strings)
 
@@ -113,7 +116,7 @@ def test_document_from_sentences_2(text: str, sentence_strings: str) -> None:
     ],
 )
 def test_document_to_plain_1(text: str) -> None:
-    doc_from_strings = Document.from_string(text)
+    doc_from_strings = Document.from_raw_text(text)
     assert doc_from_strings.to_plain() == text
 
 

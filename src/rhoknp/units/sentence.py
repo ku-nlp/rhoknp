@@ -198,7 +198,7 @@ class Sentence(Unit):
         return self.need_jumanpp or self._phrases is None and self._clauses is None
 
     @classmethod
-    def from_string(cls, text: str) -> "Sentence":
+    def from_raw_text(cls, text: str) -> "Sentence":
         """文クラスのインスタンスを文の文字列から初期化．
 
         Args:
