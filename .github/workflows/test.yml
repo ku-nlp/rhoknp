@@ -10,7 +10,6 @@ jobs:
   test:
     name: Run tests with pytest
     runs-on: ubuntu-latest
-    container: kunlp/jumanpp-knp:ubuntu
     strategy:
       max-parallel: 2
       fail-fast: false
@@ -20,10 +19,6 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
-    - name: Install required apt packages
-      run: |
-        apt update -y
-        apt install -y curl libsqlite3-dev gcc libffi-dev
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2.1.4
       with:
@@ -47,7 +42,7 @@ jobs:
         poetry run flake8 . --count --exit-zero --max-complexity=10 --max-line-length=120 --statistics
     - name: Run tests
       run: |
-        poetry run pytest --mypy --cov-config=./.coveragerc --cov=rhoknp --cov-branch --cov-report=xml -v ./tests
+        poetry run pytest --mypy --cov-config=./.coveragerc --cov=rhoknp --cov-branch --cov-report=xml -v ./tests/pas ./tests/units ./tests/utils
     - name: Upload coverage to Codecov
       if: ${{ matrix.python-version==3.9 }}
       uses: codecov/codecov-action@v2
