@@ -331,3 +331,15 @@ def test_from_knp_empty_line():
         """
         )
     )
+
+
+def test_from_knp_invalid_input():
+    with pytest.raises(Exception):
+        _ = Sentence.from_knp(
+            textwrap.dedent(
+                """\
+                ;; Invalid input
+                EOS
+                """
+            )
+        )
