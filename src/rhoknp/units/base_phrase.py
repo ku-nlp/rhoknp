@@ -104,13 +104,9 @@ class BasePhrase(Unit):
 
     @property
     def morphemes(self) -> list[Morpheme]:
-        """形態素．
-
-        Raises:
-            AttributeError: 解析結果にアクセスできない場合．
-        """
+        """形態素．"""
         if self._morphemes is None:
-            raise AttributeError("morphemes have not been set")
+            raise AssertionError
         return self._morphemes
 
     @morphemes.setter

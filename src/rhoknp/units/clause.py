@@ -70,13 +70,9 @@ class Clause(Unit):
 
     @property
     def phrases(self) -> list[Phrase]:
-        """文節のリスト．
-
-        Raises:
-            AttributeError: 解析結果にアクセスできない場合．
-        """
+        """文節のリスト．"""
         if self._phrases is None:
-            raise AttributeError("phrases have not been set")
+            raise AssertionError
         return self._phrases
 
     @phrases.setter

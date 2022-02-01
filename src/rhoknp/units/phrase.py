@@ -102,13 +102,9 @@ class Phrase(Unit):
 
     @property
     def base_phrases(self) -> list[BasePhrase]:
-        """基本句のリスト．
-
-        Raises:
-            AttributeError: 解析結果にアクセスできない場合．
-        """
+        """基本句のリスト．"""
         if self._base_phrases is None:
-            raise AttributeError("phrases have not been set")
+            raise AssertionError
         return self._base_phrases
 
     @base_phrases.setter
