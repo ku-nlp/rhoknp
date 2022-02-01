@@ -7,9 +7,9 @@ from rhoknp.units.base_phrase import BasePhrase
 
 if TYPE_CHECKING:
     from rhoknp.pas.pas import Pas
-    from rhoknp.units.chunk import Chunk
     from rhoknp.units.clause import Clause
     from rhoknp.units.document import Document
+    from rhoknp.units.phrase import Phrase
     from rhoknp.units.sentence import Sentence
 
 
@@ -83,8 +83,8 @@ class Argument(BaseArgument):
         return self.base_phrase.clause
 
     @property
-    def chunk(self) -> "Chunk":
-        return self.base_phrase.chunk
+    def phrase(self) -> "Phrase":
+        return self.base_phrase.phrase
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(base_phrase={repr(self.base_phrase)}, arg_type={repr(self.type)})"

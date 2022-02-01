@@ -32,7 +32,7 @@ def test_draw_chunk_tree() -> None:
        少女nをp┐
          見たv。*
 """
-    assert sprint_tree(sentence.chunks, show_pos=True) == out.lstrip("\n")
+    assert sprint_tree(sentence.phrases, show_pos=True) == out.lstrip("\n")
 
 
 def test_draw_phrase_tree() -> None:

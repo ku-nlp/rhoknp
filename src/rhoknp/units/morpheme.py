@@ -8,9 +8,9 @@ from rhoknp.units.utils import Features, Semantics
 
 if TYPE_CHECKING:
     from rhoknp.units.base_phrase import BasePhrase
-    from rhoknp.units.chunk import Chunk
     from rhoknp.units.clause import Clause
     from rhoknp.units.document import Document
+    from rhoknp.units.phrase import Phrase
     from rhoknp.units.sentence import Sentence
 
 
@@ -145,16 +145,16 @@ class Morpheme(Unit):
         Raises:
             AttributeError: 解析結果にアクセスできない場合．
         """
-        return self.chunk.clause
+        return self.phrase.clause
 
     @property
-    def chunk(self) -> "Chunk":
+    def phrase(self) -> "Phrase":
         """文節．
 
         Raises:
             AttributeError: 解析結果にアクセスできない場合．
         """
-        return self.base_phrase.chunk
+        return self.base_phrase.phrase
 
     @property
     def base_phrase(self) -> "BasePhrase":

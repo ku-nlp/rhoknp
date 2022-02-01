@@ -9,9 +9,9 @@ from rhoknp.units.utils import DepType, Features, Rels
 
 if TYPE_CHECKING:
     from rhoknp.pas.pas import Pas
-    from rhoknp.units.chunk import Chunk
     from rhoknp.units.clause import Clause
     from rhoknp.units.document import Document
+    from rhoknp.units.phrase import Phrase
     from rhoknp.units.sentence import Sentence
 
 
@@ -29,7 +29,7 @@ class BasePhrase(Unit):
         super().__init__()
 
         # parent unit
-        self._chunk: Optional["Chunk"] = None
+        self._phrase: Optional["Phrase"] = None
 
         # child units
         self._morphemes: Optional[list[Morpheme]] = None
@@ -46,9 +46,9 @@ class BasePhrase(Unit):
         self._pas: Optional["Pas"] = None
 
     @property
-    def parent_unit(self) -> Optional["Chunk"]:
+    def parent_unit(self) -> Optional["Phrase"]:
         """上位の言語単位（文節）．未登録なら None．"""
-        return self._chunk
+        return self._phrase
 
     @property
     def child_units(self) -> Optional[list[Morpheme]]:
@@ -62,7 +62,7 @@ class BasePhrase(Unit):
         Raises:
             AttributeError: 解析結果にアクセスできない場合．
         """
-        return self.chunk.document
+        return self.phrase.document
 
     @property
     def sentence(self) -> "Sentence":
@@ -71,7 +71,7 @@ class BasePhrase(Unit):
         Raises:
             AttributeError: 解析結果にアクセスできない場合．
         """
-        return self.chunk.sentence
+        return self.phrase.sentence
 
     @property
     def clause(self) -> "Clause":
@@ -80,27 +80,27 @@ class BasePhrase(Unit):
         Raises:
             AttributeError: 解析結果にアクセスできない場合．
         """
-        return self.chunk.clause
+        return self.phrase.clause
 
     @property
-    def chunk(self) -> "Chunk":
+    def phrase(self) -> "Phrase":
         """文節．
 
         Raises:
             AttributeError: 解析結果にアクセスできない場合．
         """
-        if self._chunk is None:
+        if self._phrase is None:
             raise AttributeError("chunk has not been set")
-        return self._chunk
+        return self._phrase
 
-    @chunk.setter
-    def chunk(self, chunk: "Chunk") -> None:
+    @phrase.setter
+    def phrase(self, phrase: "Phrase") -> None:
         """文節．
 
         Args:
-            chunk: 文節．
+            phrase: 文節．
         """
-        self._chunk = chunk
+        self._phrase = phrase
 
     @property
     def morphemes(self) -> list[Morpheme]:

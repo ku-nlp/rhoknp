@@ -3,8 +3,8 @@ from functools import cached_property
 from typing import TYPE_CHECKING, Optional
 
 from rhoknp.units.base_phrase import BasePhrase
-from rhoknp.units.chunk import Chunk
 from rhoknp.units.morpheme import Morpheme
+from rhoknp.units.phrase import Phrase
 from rhoknp.units.unit import Unit
 
 if TYPE_CHECKING:
@@ -24,7 +24,7 @@ class Clause(Unit):
         self._sentence: Optional["Sentence"] = None
 
         # child units
-        self._chunks: Optional[list[Chunk]] = None
+        self._phrases: Optional[list[Phrase]] = None
 
         self.index = self.count
         Clause.count += 1
@@ -35,9 +35,9 @@ class Clause(Unit):
         return self._sentence
 
     @property
-    def child_units(self) -> Optional[list[Chunk]]:
+    def child_units(self) -> Optional[list[Phrase]]:
         """下位の言語単位（文節）．解析結果にアクセスできないなら None．"""
-        return self._chunks
+        return self._phrases
 
     @property
     def document(self) -> "Document":
@@ -69,26 +69,26 @@ class Clause(Unit):
         self._sentence = sentence
 
     @property
-    def chunks(self) -> list[Chunk]:
+    def phrases(self) -> list[Phrase]:
         """文節のリスト．
 
         Raises:
             AttributeError: 解析結果にアクセスできない場合．
         """
-        if self._chunks is None:
-            raise AttributeError("chunks have not been set")
-        return self._chunks
+        if self._phrases is None:
+            raise AttributeError("phrases have not been set")
+        return self._phrases
 
-    @chunks.setter
-    def chunks(self, chunks: list[Chunk]) -> None:
+    @phrases.setter
+    def phrases(self, phrases: list[Phrase]) -> None:
         """文節のリスト．
 
         Args:
-            chunks: 文節のリスト．
+            phrases: 文節のリスト．
         """
-        for chunk in chunks:
-            chunk.clause = weakref.proxy(self)
-        self._chunks = chunks
+        for phrase in phrases:
+            phrase.clause = weakref.proxy(self)
+        self._phrases = phrases
 
     @property
     def base_phrases(self) -> list[BasePhrase]:
@@ -98,7 +98,9 @@ class Clause(Unit):
             AttributeError: 解析結果にアクセスできない場合．
         """
         return [
-            base_phrase for chunk in self.chunks for base_phrase in chunk.base_phrases
+            base_phrase
+            for phrase in self.phrases
+            for base_phrase in phrase.base_phrases
         ]
 
     @property
@@ -146,21 +148,21 @@ class Clause(Unit):
             knp_text: KNP の解析結果．
         """
         clause = cls()
-        chunks = []
-        chunk_lines: list[str] = []
+        phrases = []
+        phrase_lines: list[str] = []
         for line in knp_text.split("\n"):
             if not line.strip():
                 continue
-            if line.startswith("*") and chunk_lines:
-                chunks.append(Chunk.from_knp("\n".join(chunk_lines)))
-                chunk_lines = []
-            chunk_lines.append(line)
+            if line.startswith("*") and phrase_lines:
+                phrases.append(Phrase.from_knp("\n".join(phrase_lines)))
+                phrase_lines = []
+            phrase_lines.append(line)
         else:
-            chunk = Chunk.from_knp("\n".join(chunk_lines))
-            chunks.append(chunk)
-        clause.chunks = chunks
+            phrase = Phrase.from_knp("\n".join(phrase_lines))
+            phrases.append(phrase)
+        clause.phrases = phrases
         return clause
 
     def to_knp(self) -> str:
         """KNP フォーマットに変換．"""
-        return "".join(chunk.to_knp() for chunk in self.chunks)
+        return "".join(phrase.to_knp() for phrase in self.phrases)

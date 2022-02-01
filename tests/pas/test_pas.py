@@ -41,7 +41,7 @@ EOS
     assert isinstance(argument, Argument)
     assert argument.type == ArgumentType("N")
     assert argument.base_phrase == argument_base_phrase
-    assert argument.chunk == argument_base_phrase.chunk
+    assert argument.phrase == argument_base_phrase.phrase
     assert argument.clause == argument_base_phrase.clause
     assert argument.sentence == argument_base_phrase.sentence
     assert argument.document == argument_base_phrase.document
@@ -52,7 +52,7 @@ EOS
     assert isinstance(argument, Argument)
     assert argument.type == ArgumentType("C")
     assert argument.base_phrase == argument_base_phrase
-    assert argument.chunk == argument_base_phrase.chunk
+    assert argument.phrase == argument_base_phrase.phrase
     assert argument.clause == argument_base_phrase.clause
     assert argument.sentence == argument_base_phrase.sentence
     assert argument.document == argument_base_phrase.document
@@ -94,7 +94,7 @@ EOS
     assert isinstance(argument, Argument)
     assert argument.type == ArgumentType("N")
     assert argument.base_phrase == argument_phrase
-    assert argument.chunk == argument_phrase.chunk
+    assert argument.phrase == argument_phrase.phrase
     assert argument.clause == argument_phrase.clause
     assert argument.sentence == argument_phrase.sentence
     assert argument.document == argument_phrase.document
@@ -148,7 +148,7 @@ EOS
     assert isinstance(argument, Argument)
     assert argument.type == ArgumentType("N")
     assert argument.base_phrase == argument_base_phrase
-    assert argument.chunk == argument_base_phrase.chunk
+    assert argument.phrase == argument_base_phrase.phrase
     assert argument.clause == argument_base_phrase.clause
     assert argument.sentence == argument_base_phrase.sentence
     assert argument.document == argument_base_phrase.document

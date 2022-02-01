@@ -3,9 +3,9 @@ import weakref
 from typing import TYPE_CHECKING, Optional, Union
 
 from rhoknp.units.base_phrase import BasePhrase
-from rhoknp.units.chunk import Chunk
 from rhoknp.units.clause import Clause
 from rhoknp.units.morpheme import Morpheme
+from rhoknp.units.phrase import Phrase
 from rhoknp.units.unit import Unit
 from rhoknp.units.utils import is_comment_line
 
@@ -37,7 +37,7 @@ class Sentence(Unit):
             self.text = text
 
         Clause.count = 0
-        Chunk.count = 0
+        Phrase.count = 0
         BasePhrase.count = 0
         Morpheme.count = 0
 
@@ -46,7 +46,7 @@ class Sentence(Unit):
 
         # child units
         self._clauses: Optional[list[Clause]] = None
-        self._chunks: Optional[list[Chunk]] = None
+        self._phrases: Optional[list[Phrase]] = None
         self._morphemes: Optional[list[Morpheme]] = None
 
         self.sid: Optional[str] = None
@@ -61,7 +61,9 @@ class Sentence(Unit):
         return self._document
 
     @property
-    def child_units(self) -> Optional[Union[list[Clause], list[Chunk], list[Morpheme]]]:
+    def child_units(
+        self,
+    ) -> Optional[Union[list[Clause], list[Phrase], list[Morpheme]]]:
         """下位の言語単位（節もしくは形態素）のリスト．解析結果にアクセスできないなら None．
 
         .. note::
@@ -70,8 +72,8 @@ class Sentence(Unit):
         """
         if self._clauses is not None:
             return self._clauses
-        elif self._chunks is not None:
-            return self._chunks
+        elif self._phrases is not None:
+            return self._phrases
         elif self._morphemes is not None:
             return self._morphemes
         return None
@@ -119,28 +121,28 @@ class Sentence(Unit):
         self._clauses = clauses
 
     @property
-    def chunks(self) -> list[Chunk]:
+    def phrases(self) -> list[Phrase]:
         """文節のリスト．
 
         Raises:
             AttributeError: 解析結果にアクセスできない場合．
         """
-        if self._chunks is not None:
-            return self._chunks
+        if self._phrases is not None:
+            return self._phrases
         elif self._clauses is not None:
-            return [chunk for clause in self.clauses for chunk in clause.chunks]
+            return [phrase for clause in self.clauses for phrase in clause.phrases]
         raise AttributeError("not available before applying KNP")
 
-    @chunks.setter
-    def chunks(self, chunks: list[Chunk]) -> None:
+    @phrases.setter
+    def phrases(self, phrases: list[Phrase]) -> None:
         """文節のリスト．
 
         Args:
-            chunks: 文節のリスト．
+            phrases: 文節のリスト．
         """
-        for chunk in chunks:
-            chunk.sentence = weakref.proxy(self)
-        self._chunks = chunks
+        for phrase in phrases:
+            phrase.sentence = weakref.proxy(self)
+        self._phrases = phrases
 
     @property
     def base_phrases(self) -> list[BasePhrase]:
@@ -150,7 +152,9 @@ class Sentence(Unit):
             AttributeError: 解析結果にアクセスできない場合．
         """
         return [
-            base_phrase for chunk in self.chunks for base_phrase in chunk.base_phrases
+            base_phrase
+            for phrase in self.phrases
+            for base_phrase in phrase.base_phrases
         ]
 
     @property
@@ -185,13 +189,13 @@ class Sentence(Unit):
     def need_jumanpp(self) -> bool:
         """Juman++ による形態素解析がまだなら True．"""
         return (
-            self._morphemes is None and self._chunks is None and self._clauses is None
+            self._morphemes is None and self._phrases is None and self._clauses is None
         )
 
     @property
     def need_knp(self) -> bool:
         """KNP による構文解析がまだなら True．"""
-        return self.need_jumanpp or self._chunks is None and self._clauses is None
+        return self.need_jumanpp or self._phrases is None and self._clauses is None
 
     @classmethod
     def from_string(cls, text: str) -> "Sentence":
@@ -300,7 +304,7 @@ class Sentence(Unit):
             "節-区切" in line for line in lines if line.startswith("+")
         )
         clauses: list[Clause] = []
-        chunks: list[Chunk] = []
+        phrases: list[Phrase] = []
         child_lines: list[str] = []
         is_clause_end = False
         for line in lines:
@@ -320,7 +324,7 @@ class Sentence(Unit):
                 if has_clause_boundary is True:
                     clauses.append(Clause.from_knp("\n".join(child_lines)))
                 else:
-                    chunks.append(Chunk.from_knp("\n".join(child_lines)))
+                    phrases.append(Phrase.from_knp("\n".join(child_lines)))
                 break
             if line.startswith("*"):
                 if is_clause_end is True:
@@ -328,13 +332,13 @@ class Sentence(Unit):
                     child_lines = []
                     is_clause_end = False
                 elif has_clause_boundary is False and child_lines:
-                    chunks.append(Chunk.from_knp("\n".join(child_lines)))
+                    phrases.append(Phrase.from_knp("\n".join(child_lines)))
                     child_lines = []
             child_lines.append(line)
         if has_clause_boundary is True:
             sentence.clauses = clauses
         else:
-            sentence.chunks = chunks
+            sentence.phrases = phrases
         return sentence
 
     @staticmethod
@@ -374,6 +378,6 @@ class Sentence(Unit):
         ret = ""
         if self.comment is not None:
             ret += self.comment + "\n"
-        ret += "".join(child.to_knp() for child in self._clauses or self.chunks)
+        ret += "".join(child.to_knp() for child in self._clauses or self.phrases)
         ret += self.EOS + "\n"
         return ret

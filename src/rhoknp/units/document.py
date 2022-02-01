@@ -4,9 +4,9 @@ from typing import Optional, Sequence, Union
 from rhoknp.pas.pas import Pas
 from rhoknp.pas.predicate import Predicate
 from rhoknp.units.base_phrase import BasePhrase
-from rhoknp.units.chunk import Chunk
 from rhoknp.units.clause import Clause
 from rhoknp.units.morpheme import Morpheme
+from rhoknp.units.phrase import Phrase
 from rhoknp.units.sentence import Sentence
 from rhoknp.units.unit import Unit
 from rhoknp.units.utils import is_comment_line
@@ -91,13 +91,13 @@ class Document(Unit):
         return [clause for sentence in self.sentences for clause in sentence.clauses]
 
     @property
-    def chunks(self) -> list[Chunk]:
+    def phrases(self) -> list[Phrase]:
         """文節のリスト．
 
         Raises:
             AttributeError: 解析結果にアクセスできない場合．
         """
-        return [chunk for sentence in self.sentences for chunk in sentence.chunks]
+        return [phrase for sentence in self.sentences for phrase in sentence.phrases]
 
     @property
     def base_phrases(self) -> list[BasePhrase]:

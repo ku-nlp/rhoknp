@@ -164,14 +164,14 @@ def test_sentence_clauses_error() -> None:
 def test_sentence_chunks() -> None:
     knp = cases[0]["knp"]
     sent = Sentence.from_knp(knp)
-    assert len(sent.chunks) == 3
+    assert len(sent.phrases) == 3
 
 
 def test_sentence_chunks_error() -> None:
     text = cases[0]["text"]
     sent = Sentence.from_string(text)
     with pytest.raises(AttributeError):
-        _ = sent.chunks
+        _ = sent.phrases
 
 
 def test_sentence_phrases() -> None:

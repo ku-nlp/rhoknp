@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from rhoknp.units.sentence import Sentence
 
 
-class Chunk(Unit):
+class Phrase(Unit):
     """文節クラス．"""
 
     KNP_PAT = re.compile(
@@ -37,7 +37,7 @@ class Chunk(Unit):
         self.features: Features = features  #: 素性．
 
         self.index = self.count
-        Chunk.count += 1
+        Phrase.count += 1
 
     @property
     def parent_unit(self) -> Optional[Union["Clause", "Sentence"]]:
@@ -119,7 +119,7 @@ class Chunk(Unit):
             base_phrases: 基本句．
         """
         for base_phrase in base_phrases:
-            base_phrase.chunk = weakref.proxy(self)
+            base_phrase.phrase = weakref.proxy(self)
         self._base_phrases = base_phrases
 
     @property
@@ -136,19 +136,19 @@ class Chunk(Unit):
         ]
 
     @property
-    def parent(self) -> Optional["Chunk"]:
+    def parent(self) -> Optional["Phrase"]:
         """係り先の文節．ないなら None．"""
         if self.parent_index == -1:
             return None
-        return self.sentence.chunks[self.parent_index]
+        return self.sentence.phrases[self.parent_index]
 
     @cached_property
-    def children(self) -> list["Chunk"]:
+    def children(self) -> list["Phrase"]:
         """この文節に係っている文節のリスト．"""
-        return [chunk for chunk in self.sentence.chunks if chunk.parent == self]
+        return [phrase for phrase in self.sentence.phrases if phrase.parent == self]
 
     @classmethod
-    def from_knp(cls, knp_text: str) -> "Chunk":
+    def from_knp(cls, knp_text: str) -> "Phrase":
         """文節クラスのインスタンスを KNP の解析結果から初期化．
 
         Args:
@@ -161,7 +161,7 @@ class Chunk(Unit):
         parent_index = int(match.group("pid"))
         dep_type = DepType(match.group("dtype"))
         features = Features(match.group("feats") or "")
-        chunk = cls(parent_index, dep_type, features)
+        phrase = cls(parent_index, dep_type, features)
 
         base_phrases: list[BasePhrase] = []
         base_phrase_lines: list[str] = []
@@ -174,8 +174,8 @@ class Chunk(Unit):
             base_phrase_lines.append(line)
         else:
             base_phrases.append(BasePhrase.from_knp("\n".join(base_phrase_lines)))
-        chunk.base_phrases = base_phrases
-        return chunk
+        phrase.base_phrases = base_phrases
+        return phrase
 
     def to_knp(self) -> str:
         """KNP フォーマットに変換．"""
