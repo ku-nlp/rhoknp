@@ -212,7 +212,7 @@ def test_base_phrase_to_knp(knp: str) -> None:
     assert base_phrase.to_knp() == knp
 
 
-def test_base_phrase_phrase():
+def test_phrase():
     base_phrase = BasePhrase.from_knp(
         textwrap.dedent(
             """\
@@ -223,3 +223,16 @@ def test_base_phrase_phrase():
     )
     with pytest.raises(AttributeError):
         _ = base_phrase.phrase
+
+
+def test_pas():
+    base_phrase = BasePhrase.from_knp(
+        textwrap.dedent(
+            """\
+        + -1D <文頭><文末><句点><受けNONE><用言:判><体言止><レベル:C><区切:5-5><ID:（文末）><係:文末><提題受:30><主節><格要素><連用要素><状態述語><判定詞句><用言代表表記:。/。><節-区切><節-主辞><時制:非過去>
+        。 。 。 特殊 1 句点 1 * 0 * 0 NIL <英記号><記号><文頭><文末><付属><タグ単位始><文節始><用言表記先頭><用言表記末尾><用言意味表記末尾>
+        """
+        )
+    )
+    with pytest.raises(AttributeError):
+        _ = base_phrase.pas
