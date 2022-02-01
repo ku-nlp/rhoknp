@@ -2,10 +2,10 @@ import re
 import weakref
 from typing import TYPE_CHECKING, Optional, Union
 
+from rhoknp.units.base_phrase import BasePhrase
 from rhoknp.units.chunk import Chunk
 from rhoknp.units.clause import Clause
 from rhoknp.units.morpheme import Morpheme
-from rhoknp.units.phrase import Phrase
 from rhoknp.units.unit import Unit
 from rhoknp.units.utils import is_comment_line
 
@@ -38,7 +38,7 @@ class Sentence(Unit):
 
         Clause.count = 0
         Chunk.count = 0
-        Phrase.count = 0
+        BasePhrase.count = 0
         Morpheme.count = 0
 
         # parent unit
@@ -143,13 +143,15 @@ class Sentence(Unit):
         self._chunks = chunks
 
     @property
-    def phrases(self) -> list[Phrase]:
+    def base_phrases(self) -> list[BasePhrase]:
         """基本句のリスト．
 
         Raises:
             AttributeError: 解析結果にアクセスできない場合．
         """
-        return [phrase for chunk in self.chunks for phrase in chunk.phrases]
+        return [
+            base_phrase for chunk in self.chunks for base_phrase in chunk.base_phrases
+        ]
 
     @property
     def morphemes(self) -> list[Morpheme]:
@@ -162,7 +164,9 @@ class Sentence(Unit):
             return self._morphemes
         elif self._clauses is not None:
             return [
-                morpheme for phrase in self.phrases for morpheme in phrase.morphemes
+                morpheme
+                for base_phrase in self.base_phrases
+                for morpheme in base_phrase.morphemes
             ]
         raise AttributeError("not available before applying Jumanpp")
 

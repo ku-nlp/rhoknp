@@ -30,32 +30,32 @@ EOS
 """
     doc = Document.from_knp(knp_text)
     # <格解析結果:行く/いく:動12:ガ/N/彼/0/0/1;ニ/U/-/-/-/-;デ/U/-/-/-/-;ヘ/C/大学/3/0/1;時間/U/-/-/-/->
-    predicate_phrase = doc.phrases[4]
-    pas = Pas.from_phrase(predicate_phrase)
-    assert predicate_phrase.pas == pas
+    predicate_base_phrase = doc.base_phrases[4]
+    pas = Pas.from_base_phrase(predicate_base_phrase)
+    assert predicate_base_phrase.pas == pas
     assert pas.predicate.cfid == "行く/いく:動12"
 
     # 彼 ガ 行った
-    argument_phrase = doc.phrases[0]  # 彼は
+    argument_base_phrase = doc.base_phrases[0]  # 彼は
     argument = pas.arguments["ガ"][0]
     assert isinstance(argument, Argument)
     assert argument.type == ArgumentType("N")
-    assert argument.phrase == argument_phrase
-    assert argument.chunk == argument_phrase.chunk
-    assert argument.clause == argument_phrase.clause
-    assert argument.sentence == argument_phrase.sentence
-    assert argument.document == argument_phrase.document
+    assert argument.base_phrase == argument_base_phrase
+    assert argument.chunk == argument_base_phrase.chunk
+    assert argument.clause == argument_base_phrase.clause
+    assert argument.sentence == argument_base_phrase.sentence
+    assert argument.document == argument_base_phrase.document
 
     # 大学 ヘ 行った
-    argument_phrase = doc.phrases[3]  # 大学へ
+    argument_base_phrase = doc.base_phrases[3]  # 大学へ
     argument = pas.arguments["ヘ"][0]
     assert isinstance(argument, Argument)
     assert argument.type == ArgumentType("C")
-    assert argument.phrase == argument_phrase
-    assert argument.chunk == argument_phrase.chunk
-    assert argument.clause == argument_phrase.clause
-    assert argument.sentence == argument_phrase.sentence
-    assert argument.document == argument_phrase.document
+    assert argument.base_phrase == argument_base_phrase
+    assert argument.chunk == argument_base_phrase.chunk
+    assert argument.clause == argument_base_phrase.clause
+    assert argument.sentence == argument_base_phrase.sentence
+    assert argument.document == argument_base_phrase.document
 
 
 def test_pas_pas() -> None:
@@ -84,16 +84,16 @@ EOS
 """
     doc = Document.from_knp(knp_text)
     # <EID:9><述語項構造:行く/いく:動12:ガ/N/彼/0/0/5;ニ/E/著者/2/-1/0;ト/-/-/-/-/-;デ/-/-/-/-/-;カラ/-/-/-/-/-;ヨリ/-/-/-/-/-;マデ/-/-/-/-/-;ヘ/C/大学/0/3/8;時間/-/-/-/-/-;外の関係/-/-/-/-/-;修飾/-/-/-/-/-;ノ/-/-/-/-/->
-    predicate_phrase = doc.phrases[4]
-    pas = Pas.from_phrase(predicate_phrase)
+    predicate_base_phrase = doc.base_phrases[4]
+    pas = Pas.from_base_phrase(predicate_base_phrase)
     assert pas.predicate.cfid == "行く/いく:動12"
 
     # 彼 ガ 行った
-    argument_phrase = doc.phrases[0]  # 彼は
+    argument_phrase = doc.base_phrases[0]  # 彼は
     argument = pas.arguments["ガ"][0]
     assert isinstance(argument, Argument)
     assert argument.type == ArgumentType("N")
-    assert argument.phrase == argument_phrase
+    assert argument.base_phrase == argument_phrase
     assert argument.chunk == argument_phrase.chunk
     assert argument.clause == argument_phrase.clause
     assert argument.sentence == argument_phrase.sentence
@@ -120,8 +120,8 @@ EOS
 """
     doc = Document.from_knp(knp_text)
     # <格解析結果::/::判0>
-    predicate_phrase = doc.phrases[1]
-    pas = Pas.from_phrase(predicate_phrase)
+    predicate_base_phrase = doc.base_phrases[1]
+    pas = Pas.from_base_phrase(predicate_base_phrase)
     assert pas.predicate.cfid == ":/::判0"
 
 
@@ -138,20 +138,20 @@ EOS
 """
     doc = Document.from_knp(knp_text)
     # <格解析結果:表示/ひょうじ:動1:ガ/N/;/1/0/1;ヲ/U/-/-/-/-;ニ/U/-/-/-/-;デ/U/-/-/-/->
-    predicate_phrase = doc.phrases[0]
-    pas = Pas.from_phrase(predicate_phrase)
+    predicate_base_phrase = doc.base_phrases[0]
+    pas = Pas.from_base_phrase(predicate_base_phrase)
     assert pas.predicate.cfid == "表示/ひょうじ:動1"
 
     # ; ガ 表示する
-    argument_phrase = doc.phrases[1]  # ;
+    argument_base_phrase = doc.base_phrases[1]  # ;
     argument = pas.arguments["ガ"][0]
     assert isinstance(argument, Argument)
     assert argument.type == ArgumentType("N")
-    assert argument.phrase == argument_phrase
-    assert argument.chunk == argument_phrase.chunk
-    assert argument.clause == argument_phrase.clause
-    assert argument.sentence == argument_phrase.sentence
-    assert argument.document == argument_phrase.document
+    assert argument.base_phrase == argument_base_phrase
+    assert argument.chunk == argument_base_phrase.chunk
+    assert argument.clause == argument_base_phrase.clause
+    assert argument.sentence == argument_base_phrase.sentence
+    assert argument.document == argument_base_phrase.document
 
 
 def test_pas_case_analysis3() -> None:
@@ -171,8 +171,8 @@ EOS
 """
     doc = Document.from_knp(knp_text)
     # <格解析結果:束の間/つかのま:判0>
-    predicate_phrase = doc.phrases[0]
-    pas = Pas.from_phrase(predicate_phrase)
+    predicate_phrase = doc.base_phrases[0]
+    pas = Pas.from_base_phrase(predicate_phrase)
     assert pas.predicate.cfid == "束の間/つかのま:判0"
     assert len(pas.arguments) == 0
 
@@ -188,6 +188,6 @@ def test_pas_rel() -> None:
     assert (
         repr(pas) == "Pas(predicate=Predicate(text='トスを'), "
         "arguments={'ガ': [SpecialArgument(exophor='不特定:人', eid=1)], "
-        "'ヲ': [Argument(phrase=Phrase(index=0, text='コイン'), "
+        "'ヲ': [Argument(base_phrase=BasePhrase(index=0, text='コイン'), "
         "arg_type=<ArgumentType.CASE_HIDDEN: 'N'>)]})"
     )

@@ -2,9 +2,9 @@ import weakref
 from functools import cached_property
 from typing import TYPE_CHECKING, Optional
 
+from rhoknp.units.base_phrase import BasePhrase
 from rhoknp.units.chunk import Chunk
 from rhoknp.units.morpheme import Morpheme
-from rhoknp.units.phrase import Phrase
 from rhoknp.units.unit import Unit
 
 if TYPE_CHECKING:
@@ -91,13 +91,15 @@ class Clause(Unit):
         self._chunks = chunks
 
     @property
-    def phrases(self) -> list[Phrase]:
+    def base_phrases(self) -> list[BasePhrase]:
         """基本句のリスト．
 
         Raises:
             AttributeError: 解析結果にアクセスできない場合．
         """
-        return [phrase for chunk in self.chunks for phrase in chunk.phrases]
+        return [
+            base_phrase for chunk in self.chunks for base_phrase in chunk.base_phrases
+        ]
 
     @property
     def morphemes(self) -> list[Morpheme]:
@@ -106,24 +108,28 @@ class Clause(Unit):
         Raises:
             AttributeError: 解析結果にアクセスできない場合．
         """
-        return [morpheme for phrase in self.phrases for morpheme in phrase.morphemes]
+        return [
+            morpheme
+            for base_phrase in self.base_phrases
+            for morpheme in base_phrase.morphemes
+        ]
 
     @cached_property
-    def head(self) -> Phrase:
+    def head(self) -> BasePhrase:
         """節主辞の基本句．"""
-        for phrase in self.phrases:
-            if phrase.features and "節-主辞" in phrase.features:
-                return phrase
+        for base_phrase in self.base_phrases:
+            if base_phrase.features and "節-主辞" in base_phrase.features:
+                return base_phrase
         raise AssertionError
 
     @cached_property
     def parent(self) -> Optional["Clause"]:
         """係り先の節．ないなら None．"""
         head_parent = self.head.parent
-        while head_parent in self.phrases:
+        while head_parent in self.base_phrases:
             head_parent = head_parent.parent
         for clause in self.sentence.clauses:
-            if head_parent in clause.phrases:
+            if head_parent in clause.base_phrases:
                 return clause
         return None
 

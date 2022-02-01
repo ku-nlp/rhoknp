@@ -3,17 +3,17 @@ from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
     from rhoknp.pas.pas import Pas
-    from rhoknp.units.phrase import Phrase
+    from rhoknp.units.base_phrase import BasePhrase
 
 
 class Predicate:
-    def __init__(self, unit: "Phrase", cfid: Optional[str] = None):
-        self.unit: "Phrase" = unit
+    def __init__(self, unit: "BasePhrase", cfid: Optional[str] = None):
+        self.unit: "BasePhrase" = unit
         self.cfid = cfid
         self._pas: Optional["Pas"] = None
 
     @property
-    def phrase(self) -> "Phrase":
+    def phrase(self) -> "BasePhrase":
         return self.unit
 
     @property

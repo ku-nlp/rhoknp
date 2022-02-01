@@ -6,7 +6,7 @@ from typing import Optional
 
 from rhoknp.pas.argument import Argument, ArgumentType, BaseArgument, SpecialArgument
 from rhoknp.pas.predicate import Predicate
-from rhoknp.units.phrase import Phrase
+from rhoknp.units.base_phrase import BasePhrase
 from rhoknp.units.utils import RelMode
 
 
@@ -36,7 +36,7 @@ class Pas:
 
     @classmethod
     def _from_pas_string(
-        cls, phrase: Phrase, fstring: str, format_: CaseInfoFormat
+        cls, base_phrase: BasePhrase, fstring: str, format_: CaseInfoFormat
     ) -> "Pas":
         # language=RegExp
         cfid_pat = r"(.*?):([^:/]+?)"  # 食べる/たべる:動1
@@ -49,10 +49,10 @@ class Pas:
 
         if match is None:
             print(f"invalid tag format: '{fstring}' is ignored", file=sys.stderr)
-            return cls(Predicate(phrase))
+            return cls(Predicate(base_phrase))
 
         cfid = match.group(1) + ":" + match.group(2)
-        predicate = Predicate(unit=phrase, cfid=cfid)
+        predicate = Predicate(unit=base_phrase, cfid=cfid)
 
         if match.group(3) is None:  # <述語項構造:束の間/つかのま:判0> など
             return cls(predicate)
@@ -68,50 +68,58 @@ class Pas:
                 tid, sdist, sid = int(fields[0]), int(fields[1]), fields[2]
                 assert arg_type != ArgumentType.EXOPHOR
                 assert (
-                    phrase.document.sentences[phrase.sentence.index - sdist].sid == sid
+                    base_phrase.document.sentences[
+                        base_phrase.sentence.index - sdist
+                    ].sid
+                    == sid
                 )
-                arg_phrase = phrase.document.sentences[
-                    phrase.sentence.index - sdist
-                ].phrases[tid]
-                assert surf in arg_phrase.text
-                pas.add_argument(case, arg_phrase, arg_type=arg_type)
+                arg_base_phrase = base_phrase.document.sentences[
+                    base_phrase.sentence.index - sdist
+                ].base_phrases[tid]
+                assert surf in arg_base_phrase.text
+                pas.add_argument(case, arg_base_phrase, arg_type=arg_type)
             else:
                 assert format_ == CaseInfoFormat.PAS
                 sdist, tid, eid = int(fields[0]), int(fields[1]), int(fields[2])
                 if arg_type == ArgumentType.EXOPHOR:
                     pas.add_special_argument(case, surf, eid)
                 else:
-                    arg_phrase = phrase.document.sentences[
-                        phrase.sentence.index - sdist
-                    ].phrases[tid]
-                    assert surf in arg_phrase.text
-                    pas.add_argument(case, arg_phrase)
+                    arg_base_phrase = base_phrase.document.sentences[
+                        base_phrase.sentence.index - sdist
+                    ].base_phrases[tid]
+                    assert surf in arg_base_phrase.text
+                    pas.add_argument(case, arg_base_phrase)
         return pas
 
     @classmethod
-    def from_phrase(cls, phrase: Phrase) -> "Pas":
-        if "述語項構造" in phrase.features:
-            pas_string = phrase.features["述語項構造"]
+    def from_base_phrase(cls, base_phrase: BasePhrase) -> "Pas":
+        if "述語項構造" in base_phrase.features:
+            pas_string = base_phrase.features["述語項構造"]
             assert isinstance(pas_string, str)
-            pas = cls._from_pas_string(phrase, pas_string, format_=CaseInfoFormat.PAS)
-        elif "格解析結果" in phrase.features:
-            pas_string = phrase.features["格解析結果"]
+            pas = cls._from_pas_string(
+                base_phrase, pas_string, format_=CaseInfoFormat.PAS
+            )
+        elif "格解析結果" in base_phrase.features:
+            pas_string = base_phrase.features["格解析結果"]
             assert isinstance(pas_string, str)
-            pas = cls._from_pas_string(phrase, pas_string, format_=CaseInfoFormat.CASE)
+            pas = cls._from_pas_string(
+                base_phrase, pas_string, format_=CaseInfoFormat.CASE
+            )
         else:
-            pas = cls(Predicate(phrase))
-        phrase.pas = pas
+            pas = cls(Predicate(base_phrase))
+        base_phrase.pas = pas
         return pas
 
     def add_argument(
         self,
         case: str,
-        phrase: Phrase,
+        base_phrase: BasePhrase,
         mode: Optional[RelMode] = None,
         arg_type: Optional[ArgumentType] = None,
     ) -> None:
         argument = Argument(
-            phrase, arg_type or self._get_arg_type(self.predicate, phrase, case)
+            base_phrase,
+            arg_type or self._get_arg_type(self.predicate, base_phrase, case),
         )
         argument.pas = self
         if mode is not None:
@@ -131,10 +139,10 @@ class Pas:
 
     @staticmethod
     def _get_arg_type(
-        predicate: Predicate, arg_phrase: Phrase, case: str
+        predicate: Predicate, arg_base_phrase: BasePhrase, case: str
     ) -> ArgumentType:
-        if arg_phrase in predicate.phrase.children:
-            dep_case = arg_phrase.features.get("係", "")
+        if arg_base_phrase in predicate.phrase.children:
+            dep_case = arg_base_phrase.features.get("係", "")
             assert isinstance(dep_case, str)
             dep_case = dep_case.rstrip("格")
             if (
@@ -145,7 +153,7 @@ class Pas:
                 return ArgumentType.CASE_EXPLICIT
             else:
                 return ArgumentType.CASE_HIDDEN
-        elif predicate.phrase.parent and predicate.phrase.parent == arg_phrase:
+        elif predicate.phrase.parent and predicate.phrase.parent == arg_base_phrase:
             return ArgumentType.CASE_HIDDEN
         else:
             return ArgumentType.OMISSION

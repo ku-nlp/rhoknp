@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from enum import Enum
 from typing import TYPE_CHECKING, Any, Optional
 
-from rhoknp.units.phrase import Phrase
+from rhoknp.units.base_phrase import BasePhrase
 
 if TYPE_CHECKING:
     from rhoknp.pas.pas import Pas
@@ -62,38 +62,38 @@ class BaseArgument(ABC):
 
 
 class Argument(BaseArgument):
-    def __init__(self, phrase: Phrase, arg_type: ArgumentType):
+    def __init__(self, base_phrase: BasePhrase, arg_type: ArgumentType):
         super().__init__(arg_type)
-        self.phrase: Phrase = phrase
+        self.base_phrase: BasePhrase = base_phrase
 
     @property
-    def unit(self) -> Phrase:
-        return self.phrase
+    def unit(self) -> BasePhrase:
+        return self.base_phrase
 
     @property
     def document(self) -> "Document":
-        return self.phrase.document
+        return self.base_phrase.document
 
     @property
     def sentence(self) -> "Sentence":
-        return self.phrase.sentence
+        return self.base_phrase.sentence
 
     @property
     def clause(self) -> "Clause":
-        return self.phrase.clause
+        return self.base_phrase.clause
 
     @property
     def chunk(self) -> "Chunk":
-        return self.phrase.chunk
+        return self.base_phrase.chunk
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(phrase={repr(self.phrase)}, arg_type={repr(self.type)})"
+        return f"{self.__class__.__name__}(base_phrase={repr(self.base_phrase)}, arg_type={repr(self.type)})"
 
     def __str__(self) -> str:
-        return self.phrase.text
+        return self.base_phrase.text
 
     def __eq__(self, other: Any) -> bool:
-        return isinstance(other, Argument) and self.phrase == other.phrase
+        return isinstance(other, Argument) and self.base_phrase == other.base_phrase
 
 
 class SpecialArgument(BaseArgument):

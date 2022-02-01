@@ -2,8 +2,8 @@ import re
 import sys
 from typing import Sequence, TextIO, Union
 
+from rhoknp.units.base_phrase import BasePhrase
 from rhoknp.units.chunk import Chunk
-from rhoknp.units.phrase import Phrase
 from rhoknp.units.utils import DepType
 
 POS_MARK = {
@@ -30,7 +30,7 @@ POS_MARK = {
 
 
 def draw_tree(
-    leaves: Sequence[Union[Chunk, Phrase]],
+    leaves: Sequence[Union[Chunk, BasePhrase]],
     fh: TextIO = sys.stdout,
     show_pos: bool = True,
 ) -> None:
@@ -38,7 +38,9 @@ def draw_tree(
     print(sprint_tree(leaves, show_pos=show_pos), file=fh, end="")
 
 
-def sprint_tree(leaves: Sequence[Union[Chunk, Phrase]], show_pos: bool = True) -> str:
+def sprint_tree(
+    leaves: Sequence[Union[Chunk, BasePhrase]], show_pos: bool = True
+) -> str:
     """構文木を文字列で返す．"""
     limit = len(leaves)
     item = [[""] * limit for _ in range(limit)]
@@ -99,7 +101,7 @@ def sprint_tree(leaves: Sequence[Union[Chunk, Phrase]], show_pos: bool = True) -
     return buf
 
 
-def _leaf_string(leaf: Union[Chunk, Phrase], show_pos: bool) -> str:
+def _leaf_string(leaf: Union[Chunk, BasePhrase], show_pos: bool) -> str:
     ret = ""
     for mrph in leaf.morphemes:
         ret += mrph.text

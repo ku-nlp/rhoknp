@@ -1,10 +1,10 @@
 import pytest
 
-from rhoknp import Document, Phrase, Sentence
+from rhoknp import BasePhrase, Document, Sentence
 
 
 @pytest.mark.parametrize(
-    "knp, phrase_texts",
+    "knp, base_phrase_texts",
     [
         (
             """# S-ID:1 KNP:5.0-2ad4f6df DATE:2021/08/05 SCORE:-10.73865
@@ -52,9 +52,9 @@ EOS
         ),
     ],
 )
-def test_document_from_knp(knp: str, phrase_texts: list[str]) -> None:
+def test_document_from_knp(knp: str, base_phrase_texts: list[str]) -> None:
     doc = Document.from_knp(knp)
-    assert [str(phrase) for phrase in doc.phrases] == phrase_texts
+    assert [str(base_phrase) for base_phrase in doc.base_phrases] == base_phrase_texts
 
 
 @pytest.mark.parametrize(
@@ -110,9 +110,9 @@ def test_parent(knp: str, parent_indexes: list[int]) -> None:
     sent = Sentence.from_knp(knp)
     for i, parent_index in enumerate(parent_indexes):
         if parent_index >= 0:
-            assert sent.phrases[i].parent == sent.phrases[parent_index]
+            assert sent.base_phrases[i].parent == sent.base_phrases[parent_index]
         else:
-            assert sent.phrases[i].parent is None
+            assert sent.base_phrases[i].parent is None
 
 
 @pytest.mark.parametrize(
@@ -167,7 +167,9 @@ EOS
 def test_children(knp: str, child_indexes: list[list[int]]) -> None:
     sent = Sentence.from_knp(knp)
     for i, child_index in enumerate(child_indexes):
-        assert sent.phrases[i].children == [sent.phrases[j] for j in child_index]
+        assert sent.base_phrases[i].children == [
+            sent.base_phrases[j] for j in child_index
+        ]
 
 
 @pytest.mark.parametrize(
@@ -203,6 +205,6 @@ EOS EOS EOS 名詞 6 組織名 6 * 0 * 0 "未知語:ローマ字 品詞推定:�
 """,
     ],
 )
-def test_phrase_to_knp(knp: str) -> None:
-    phrase = Phrase.from_knp(knp)
-    assert phrase.to_knp() == knp
+def test_base_phrase_to_knp(knp: str) -> None:
+    base_phrase = BasePhrase.from_knp(knp)
+    assert base_phrase.to_knp() == knp

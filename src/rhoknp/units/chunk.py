@@ -3,8 +3,8 @@ import weakref
 from functools import cached_property
 from typing import TYPE_CHECKING, Optional, Union
 
+from rhoknp.units.base_phrase import BasePhrase
 from rhoknp.units.morpheme import Morpheme
-from rhoknp.units.phrase import Phrase
 from rhoknp.units.unit import Unit
 from rhoknp.units.utils import DepType, Features
 
@@ -30,7 +30,7 @@ class Chunk(Unit):
         self._sentence: Optional["Sentence"] = None
 
         # child units
-        self._phrases: Optional[list[Phrase]] = None
+        self._base_phrases: Optional[list[BasePhrase]] = None
 
         self.parent_index: int = parent_index  #: 係り先の文節の文内におけるインデックス．
         self.dep_type: DepType = dep_type  #: 係り受けの種類．
@@ -49,9 +49,9 @@ class Chunk(Unit):
         return None
 
     @property
-    def child_units(self) -> Optional[list[Phrase]]:
+    def child_units(self) -> Optional[list[BasePhrase]]:
         """下位の言語単位（基本句）．解析結果にアクセスできないなら None．"""
-        return self._phrases
+        return self._base_phrases
 
     @property
     def document(self) -> "Document":
@@ -101,26 +101,26 @@ class Chunk(Unit):
         self._clause = clause
 
     @property
-    def phrases(self) -> list[Phrase]:
+    def base_phrases(self) -> list[BasePhrase]:
         """基本句のリスト．
 
         Raises:
             AttributeError: 解析結果にアクセスできない場合．
         """
-        if self._phrases is None:
+        if self._base_phrases is None:
             raise AttributeError("phrases have not been set")
-        return self._phrases
+        return self._base_phrases
 
-    @phrases.setter
-    def phrases(self, phrases: list[Phrase]) -> None:
+    @base_phrases.setter
+    def base_phrases(self, base_phrases: list[BasePhrase]) -> None:
         """基本句．
 
         Args:
-            phrases: 基本句．
+            base_phrases: 基本句．
         """
-        for phrase in phrases:
-            phrase.chunk = weakref.proxy(self)
-        self._phrases = phrases
+        for base_phrase in base_phrases:
+            base_phrase.chunk = weakref.proxy(self)
+        self._base_phrases = base_phrases
 
     @property
     def morphemes(self) -> list[Morpheme]:
@@ -129,7 +129,11 @@ class Chunk(Unit):
         Raises:
             AttributeError: 解析結果にアクセスできない場合．
         """
-        return [morpheme for phrase in self.phrases for morpheme in phrase.morphemes]
+        return [
+            morpheme
+            for base_phrase in self.base_phrases
+            for morpheme in base_phrase.morphemes
+        ]
 
     @property
     def parent(self) -> Optional["Chunk"]:
@@ -159,18 +163,18 @@ class Chunk(Unit):
         features = Features(match.group("feats") or "")
         chunk = cls(parent_index, dep_type, features)
 
-        phrases: list[Phrase] = []
-        phrase_lines: list[str] = []
+        base_phrases: list[BasePhrase] = []
+        base_phrase_lines: list[str] = []
         for line in lines:
             if not line.strip():
                 continue
-            if line.startswith("+") and phrase_lines:
-                phrases.append(Phrase.from_knp("\n".join(phrase_lines)))
-                phrase_lines = []
-            phrase_lines.append(line)
+            if line.startswith("+") and base_phrase_lines:
+                base_phrases.append(BasePhrase.from_knp("\n".join(base_phrase_lines)))
+                base_phrase_lines = []
+            base_phrase_lines.append(line)
         else:
-            phrases.append(Phrase.from_knp("\n".join(phrase_lines)))
-        chunk.phrases = phrases
+            base_phrases.append(BasePhrase.from_knp("\n".join(base_phrase_lines)))
+        chunk.base_phrases = base_phrases
         return chunk
 
     def to_knp(self) -> str:
@@ -179,5 +183,5 @@ class Chunk(Unit):
         if self.features:
             ret += f" {self.features}"
         ret += "\n"
-        ret += "".join(phrase.to_knp() for phrase in self.phrases)
+        ret += "".join(base_phrase.to_knp() for base_phrase in self.base_phrases)
         return ret

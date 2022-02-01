@@ -3,10 +3,10 @@ from typing import Optional, Sequence, Union
 
 from rhoknp.pas.pas import Pas
 from rhoknp.pas.predicate import Predicate
+from rhoknp.units.base_phrase import BasePhrase
 from rhoknp.units.chunk import Chunk
 from rhoknp.units.clause import Clause
 from rhoknp.units.morpheme import Morpheme
-from rhoknp.units.phrase import Phrase
 from rhoknp.units.sentence import Sentence
 from rhoknp.units.unit import Unit
 from rhoknp.units.utils import is_comment_line
@@ -100,13 +100,17 @@ class Document(Unit):
         return [chunk for sentence in self.sentences for chunk in sentence.chunks]
 
     @property
-    def phrases(self) -> list[Phrase]:
+    def base_phrases(self) -> list[BasePhrase]:
         """基本句のリスト．
 
         Raises:
             AttributeError: 解析結果にアクセスできない場合．
         """
-        return [phrases for sentence in self.sentences for phrases in sentence.phrases]
+        return [
+            base_phrase
+            for sentence in self.sentences
+            for base_phrase in sentence.base_phrases
+        ]
 
     @property
     def morphemes(self) -> list[Morpheme]:
@@ -331,23 +335,23 @@ class Document(Unit):
 
     def _parse_rel(self) -> None:
         """関係タグ付きコーパスにおける <rel> タグをパース．"""
-        for phrase in self.phrases:
-            pas = Pas(Predicate(phrase))
-            for rel in phrase.rels:
+        for base_phrase in self.base_phrases:
+            pas = Pas(Predicate(base_phrase))
+            for rel in base_phrase.rels:
                 if rel.type not in ALL_CASES:
                     continue
                 if rel.sid is not None:
                     sentence = next(
                         sent
-                        for sent in phrase.document.sentences
+                        for sent in base_phrase.document.sentences
                         if sent.sid == rel.sid
                     )
-                    assert rel.phrase_index is not None
-                    arg_phrase = sentence.phrases[rel.phrase_index]
-                    assert rel.target in arg_phrase.text
-                    pas.add_argument(rel.type, arg_phrase, mode=rel.mode)
+                    assert rel.base_phrase_index is not None
+                    arg_base_phrase = sentence.base_phrases[rel.base_phrase_index]
+                    assert rel.target in arg_base_phrase.text
+                    pas.add_argument(rel.type, arg_base_phrase, mode=rel.mode)
                 else:
                     pas.add_special_argument(
-                        rel.type, rel.target, phrase.index, mode=rel.mode
+                        rel.type, rel.target, base_phrase.index, mode=rel.mode
                     )  # TODO: fix eid
             self._pass.append(pas)

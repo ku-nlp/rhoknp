@@ -116,7 +116,7 @@ class Rel:
     type: str
     target: str
     sid: Optional[str]
-    phrase_index: Optional[int]
+    base_phrase_index: Optional[int]
     mode: Optional[RelMode]
 
     def to_fstring(self) -> str:
@@ -125,8 +125,8 @@ class Rel:
             ret += f' mode="{self.mode.value}"'
         ret += f' target="{self.target}"'
         if self.sid is not None:
-            assert self.phrase_index is not None
-            ret += f' sid="{self.sid}" id="{self.phrase_index}"'
+            assert self.base_phrase_index is not None
+            ret += f' sid="{self.sid}" id="{self.base_phrase_index}"'
         ret += "/>"
         return ret
 
@@ -140,7 +140,7 @@ class Rels(list[Rel]):
                     type=match["type"],
                     target=match["target"],
                     sid=match["sid"],
-                    phrase_index=int(match["id"]) if match["id"] else None,
+                    base_phrase_index=int(match["id"]) if match["id"] else None,
                     mode=RelMode(match["mode"]) if match["mode"] else None,
                 )
             )

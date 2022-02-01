@@ -7,10 +7,10 @@ from rhoknp.units.unit import Unit
 from rhoknp.units.utils import Features, Semantics
 
 if TYPE_CHECKING:
+    from rhoknp.units.base_phrase import BasePhrase
     from rhoknp.units.chunk import Chunk
     from rhoknp.units.clause import Clause
     from rhoknp.units.document import Document
-    from rhoknp.units.phrase import Phrase
     from rhoknp.units.sentence import Sentence
 
 
@@ -75,7 +75,7 @@ class Morpheme(Unit):
         super().__init__()
 
         # parent unit
-        self._phrase: Optional["Phrase"] = None
+        self._base_phrase: Optional["BasePhrase"] = None
         self._sentence: Optional["Sentence"] = None
 
         self._attributes = attributes
@@ -90,14 +90,14 @@ class Morpheme(Unit):
             Morpheme.count += 1
 
     @property
-    def parent_unit(self) -> Optional[Union["Phrase", "Sentence"]]:
+    def parent_unit(self) -> Optional[Union["BasePhrase", "Sentence"]]:
         """上位の言語単位（基本句もしくは文）．未登録なら None．
 
         ..note::
             KNP によって解析済みなら基本句， Jumanpp によって解析済みなら文を返却．
         """
-        if self._phrase is not None:
-            return self._phrase
+        if self._base_phrase is not None:
+            return self._base_phrase
         if self._sentence is not None:
             return self._sentence
         return None
@@ -125,7 +125,7 @@ class Morpheme(Unit):
         """
         if self._sentence is not None:
             return self._sentence
-        if self._phrase is not None:
+        if self._base_phrase is not None:
             return self.clause.sentence
         raise AttributeError("sentence has not been set")
 
@@ -154,27 +154,27 @@ class Morpheme(Unit):
         Raises:
             AttributeError: 解析結果にアクセスできない場合．
         """
-        return self.phrase.chunk
+        return self.base_phrase.chunk
 
     @property
-    def phrase(self) -> "Phrase":
+    def base_phrase(self) -> "BasePhrase":
         """基本句．
 
         Raises:
             AttributeError: 解析結果にアクセスできない場合．
         """
-        if self._phrase is None:
+        if self._base_phrase is None:
             raise AttributeError("not available before applying KNP")
-        return self._phrase
+        return self._base_phrase
 
-    @phrase.setter
-    def phrase(self, phrase: "Phrase") -> None:
+    @base_phrase.setter
+    def base_phrase(self, base_phrase: "BasePhrase") -> None:
         """基本句．
 
         Args:
-            phrase: 基本句．
+            base_phrase: 基本句．
         """
-        self._phrase = phrase
+        self._base_phrase = base_phrase
 
     @property
     def surf(self) -> str:
@@ -231,11 +231,11 @@ class Morpheme(Unit):
     @cached_property
     def parent(self) -> Optional["Morpheme"]:
         """係り先の形態素．ないなら None．"""
-        if self.phrase.head == self:
-            if self.phrase.parent is not None:
-                return self.phrase.parent.head
+        if self.base_phrase.head == self:
+            if self.base_phrase.parent is not None:
+                return self.base_phrase.parent.head
             return None
-        return self.phrase.head
+        return self.base_phrase.head
 
     @cached_property
     def span(self) -> tuple[int, int]:

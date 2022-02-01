@@ -1,7 +1,7 @@
 import pytest
 
 from rhoknp.pas import Predicate
-from rhoknp.units import Phrase
+from rhoknp.units import BasePhrase
 
 
 def test_predicate() -> None:
@@ -9,7 +9,7 @@ def test_predicate() -> None:
 行った いった 行く 動詞 2 * 0 子音動詞カ行促音便形 3 タ形 10 "代表表記:行く/いく ドメイン:交通 反義:動詞:帰る/かえる 付属動詞候補（タ系）" <代表表記:行く/いく><ドメイン:交通><反義:動詞:帰る/かえる><付属動詞候補（タ系）><正規化代表表記:行く/いく><移動動詞><かな漢字><活用語><表現文末><自立><内容語><タグ単位始><文節始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
 。 。 。 特殊 1 句点 1 * 0 * 0 NIL <英記号><記号><文末><付属>
 """
-    phrase = Phrase.from_knp(knp)
+    phrase = BasePhrase.from_knp(knp)
     predicate = Predicate(phrase, cfid="行く/いく:動12")
     assert predicate.unit == phrase
     assert predicate.cfid == "行く/いく:動12"

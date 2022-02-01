@@ -1,7 +1,7 @@
 import pytest
 
 from rhoknp.pas import Argument, ArgumentType, SpecialArgument
-from rhoknp.units import Phrase
+from rhoknp.units import BasePhrase
 
 
 def test_argument() -> None:
@@ -9,21 +9,21 @@ def test_argument() -> None:
 彼 かれ 彼 名詞 6 普通名詞 1 * 0 * 0 "代表表記:彼/かれ カテゴリ:人 漢字読み:訓" <代表表記:彼/かれ><カテゴリ:人><漢字読み:訓><正規化代表表記:彼/かれ><漢字><かな漢字><名詞相当語><文頭><自立><内容語><タグ単位始><文節始><文節主辞>
 は は は 助詞 9 副助詞 2 * 0 * 0 NIL <かな漢字><ひらがな><付属>
 """
-    phrase = Phrase.from_knp(knp)
-    argument = Argument(phrase, arg_type=ArgumentType.OMISSION)
-    assert argument.unit == phrase
+    base_phrase = BasePhrase.from_knp(knp)
+    argument = Argument(base_phrase, arg_type=ArgumentType.OMISSION)
+    assert argument.unit == base_phrase
     # assert argument.document == phrase.document
     # assert argument.sentence == phrase.sentence
     # assert argument.clause == phrase.clause
     # assert argument.chunk == phrase.chunk
     assert (
         repr(argument)
-        == f"Argument(phrase={repr(phrase)}, arg_type={repr(ArgumentType.OMISSION)})"
+        == f"Argument(base_phrase={repr(base_phrase)}, arg_type={repr(ArgumentType.OMISSION)})"
     )
-    assert str(argument) == phrase.text
+    assert str(argument) == base_phrase.text
     assert argument != "test"
     assert argument == Argument(
-        phrase, arg_type=ArgumentType.EXOPHOR
+        base_phrase, arg_type=ArgumentType.EXOPHOR
     )  # TODO: consider whether this is expected
     with pytest.raises(AttributeError):
         _ = argument.pas

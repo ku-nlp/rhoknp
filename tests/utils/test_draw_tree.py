@@ -43,4 +43,4 @@ def test_draw_phrase_tree() -> None:
       少女nをp┐
         見たv。*
 """
-    assert sprint_tree(sentence.phrases, show_pos=True) == out.lstrip("\n")
+    assert sprint_tree(sentence.base_phrases, show_pos=True) == out.lstrip("\n")

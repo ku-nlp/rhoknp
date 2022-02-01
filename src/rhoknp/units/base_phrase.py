@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from rhoknp.units.sentence import Sentence
 
 
-class Phrase(Unit):
+class BasePhrase(Unit):
     """基本句クラス．"""
 
     KNP_PAT = re.compile(
@@ -40,7 +40,7 @@ class Phrase(Unit):
         self.rels: Rels = rels  #: 基本句間関係．
 
         self.index = self.count
-        Phrase.count += 1
+        BasePhrase.count += 1
 
         # Predicate-argument structure
         self._pas: Optional["Pas"] = None
@@ -121,7 +121,7 @@ class Phrase(Unit):
             morphemes: 形態素．
         """
         for morpheme in morphemes:
-            morpheme.phrase = weakref.proxy(self)
+            morpheme.base_phrase = weakref.proxy(self)
         self._morphemes = morphemes
 
     @cached_property
@@ -142,16 +142,20 @@ class Phrase(Unit):
         return self.morphemes[0]
 
     @property
-    def parent(self) -> Optional["Phrase"]:
+    def parent(self) -> Optional["BasePhrase"]:
         """係り先の基本句．ないなら None．"""
         if self.parent_index == -1:
             return None
-        return self.sentence.phrases[self.parent_index]
+        return self.sentence.base_phrases[self.parent_index]
 
     @cached_property
-    def children(self) -> list["Phrase"]:
+    def children(self) -> list["BasePhrase"]:
         """この基本句に係っている基本句のリスト．"""
-        return [phrase for phrase in self.sentence.phrases if phrase.parent == self]
+        return [
+            base_phrase
+            for base_phrase in self.sentence.base_phrases
+            if base_phrase.parent == self
+        ]
 
     @property
     def pas(self) -> "Pas":
@@ -170,7 +174,7 @@ class Phrase(Unit):
         self._pas = weakref.proxy(pas)
 
     @classmethod
-    def from_knp(cls, knp_text: str) -> "Phrase":
+    def from_knp(cls, knp_text: str) -> "BasePhrase":
         """基本句クラスのインスタンスを KNP の解析結果から初期化．
 
         Args:
@@ -184,15 +188,15 @@ class Phrase(Unit):
         dep_type = DepType(match.group("dtype"))
         features = Features(match.group("tags") or "")
         rels = Rels.from_fstring(match.group("tags") or "")
-        phrase = cls(parent_index, dep_type, features, rels)
+        base_phrase = cls(parent_index, dep_type, features, rels)
 
         morphemes: list[Morpheme] = []
         for line in lines:
             if not line.strip():
                 continue
             morphemes.append(Morpheme.from_jumanpp(line))
-        phrase.morphemes = morphemes
-        return phrase
+        base_phrase.morphemes = morphemes
+        return base_phrase
 
     def to_knp(self) -> str:
         """KNP フォーマットに変換．"""
