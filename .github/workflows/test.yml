@@ -10,7 +10,6 @@ jobs:
   test:
     name: Run tests with pytest
     runs-on: ubuntu-latest
-    container: kunlp/jumanpp-knp:ubuntu
     strategy:
       max-parallel: 2
       fail-fast: false
@@ -47,7 +46,7 @@ jobs:
         poetry run flake8 . --count --exit-zero --max-complexity=10 --max-line-length=120 --statistics
     - name: Run tests
       run: |
-        poetry run pytest --mypy --cov-config=./.coveragerc --cov=rhoknp --cov-branch --cov-report=xml -v ./tests
+        poetry run pytest --mypy --cov-config=./.coveragerc --cov=rhoknp --cov-branch --cov-report=xml -v ./tests/pas ./tests/units ./tests/utils
     - name: Upload coverage to Codecov
       if: ${{ matrix.python-version==3.9 }}
       uses: codecov/codecov-action@v2
