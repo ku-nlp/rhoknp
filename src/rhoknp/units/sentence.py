@@ -252,11 +252,12 @@ class Sentence(Unit):
         for line in jumanpp_text.split("\n"):
             if not line.strip():
                 continue
-            if is_comment_line("#"):
+            if is_comment_line(line):
                 sentence.comment = line
                 doc_id, sid = cls._extract_sid(line)
                 if sid is not None:
                     sentence.sid = sid
+                continue
             elif line.startswith("@") and not line.startswith("@ @"):
                 # homograph
                 pass
@@ -310,7 +311,7 @@ class Sentence(Unit):
         for line in lines:
             if not line.strip():
                 continue
-            if line.startswith("#"):
+            if is_comment_line(line):
                 sentence.comment = line
                 doc_id, sid = cls._extract_sid(line)
                 if sid is not None:
