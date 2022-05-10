@@ -37,7 +37,7 @@ for phrase in sentence.base_phrases:
 
 For more examples, explore the [examples](./examples) directory.
 
-## Differences from [pyknp](https://github.com/ku-nlp/pyknp/tree/master/pyknp)
+## Differences from [pyknp](https://github.com/ku-nlp/pyknp/)
 
 - Provide APIs for document-level text processing
 - Employ consistent class names
