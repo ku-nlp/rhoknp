@@ -18,12 +18,6 @@ class Sentence(Unit):
 
     Args:
         text: 文の文字列．
-
-    Example::
-
-        from rhoknp import Sentence
-
-        sent = Sentence("天気が良かったので散歩した。")
     """
 
     EOS = "EOS"

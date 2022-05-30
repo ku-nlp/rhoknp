@@ -21,12 +21,6 @@ class Document(Unit):
 
     Args:
         text: 文書の文字列．
-
-    Example::
-
-        from rhoknp import Document
-
-        doc = Document("天気が良かったので散歩した。途中で先生に会った。")
     """
 
     count = 0
