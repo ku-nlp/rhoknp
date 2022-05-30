@@ -252,8 +252,8 @@ class Morpheme(Unit):
             start = 0
         else:
             _, prev_end = self.sentence.morphemes[self.index - 1].span
-            start = prev_end + 1
-        end = start + len(self.text) - 1  # TODO: correctly handle multibyte characters
+            start = prev_end
+        end = start + len(self.text)  # TODO: correctly handle multibyte characters
         return start, end
 
     @cached_property

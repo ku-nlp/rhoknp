@@ -282,19 +282,19 @@ def test_morpheme_char_span() -> None:
         """
     )
     sentence = Sentence.from_jumanpp(jumanpp)
-    assert sentence.morphemes[0].span == (0, 1)
-    assert sentence.morphemes[1].span == (2, 2)
-    assert sentence.morphemes[2].span == (3, 4)
-    assert sentence.morphemes[3].span == (5, 6)
-    assert sentence.morphemes[4].span == (7, 8)
-    assert sentence.morphemes[5].span == (9, 10)
-    assert sentence.morphemes[6].span == (11, 11)
+    assert sentence.morphemes[0].span == (0, 2)
+    assert sentence.morphemes[1].span == (2, 3)
+    assert sentence.morphemes[2].span == (3, 5)
+    assert sentence.morphemes[3].span == (5, 7)
+    assert sentence.morphemes[4].span == (7, 9)
+    assert sentence.morphemes[5].span == (9, 11)
+    assert sentence.morphemes[6].span == (11, 12)
 
 
 def test_morpheme_char_span_none() -> None:
     jumanpp = '外国 がいこく 外国 名詞 6 普通名詞 1 * 0 * 0 "代表表記:外国/がいこく ドメイン:政治 カテゴリ:場所-その他"\n'
     morpheme = Morpheme.from_jumanpp(jumanpp)
-    assert morpheme.span == (0, 1)
+    assert morpheme.span == (0, 2)
 
 
 def test_morpheme_attributes() -> None:
