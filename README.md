@@ -18,25 +18,13 @@
 pip install rhoknp
 ```
 
-## Parse a sentence/document
+## Documentation
 
-```python
-from rhoknp import KNP, Sentence, Document
+[https://rhoknp.readthedocs.io/en/latest/](https://rhoknp.readthedocs.io/en/latest/)
 
-# Create a KNP instance
-knp = KNP()
-# Parse the sentence using KNP
-sentence: Sentence = knp.apply("電気抵抗率は、電気の通しにくさを表す物性値である。")
+## Examples
 
-# Parse a document
-document: Document = knp.apply_to_document("電気抵抗率は、電気の通しにくさを表す物性値である。単に、抵抗率とも呼ばれる。")
-
-# Show the parent of each phrase
-for phrase in sentence.base_phrases:
-    print(f"{phrase} -> {phrase.parent}")
-```
-
-For more examples, explore the [examples](./examples) directory.
+Explore the [examples](./examples) directory.
 
 ## Differences from [pyknp](https://github.com/ku-nlp/pyknp/)
 
