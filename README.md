@@ -4,6 +4,8 @@
 [![Codecov](https://codecov.io/gh/ku-nlp/rhoknp/branch/main/graph/badge.svg?token=29S0XMLTRG)](https://codecov.io/gh/ku-nlp/rhoknp)
 ![License](http://img.shields.io/badge/license-MIT-blue.svg)
 [![Documentation](https://readthedocs.org/projects/rhoknp/badge/?version=latest)](https://rhoknp.readthedocs.io/en/latest/?badge=latest)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/rhoknp)
+![PyPI](https://img.shields.io/pypi/v/rhoknp)
 
 `rhoknp` is a Python binding for [Juman++](https://github.com/ku-nlp/jumanpp) and [KNP](https://github.com/ku-nlp/knp).
 
