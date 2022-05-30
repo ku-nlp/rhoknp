@@ -1,0 +1,4 @@
+sphinx
+sphinx-prompt
+sphinx-copybutton
+furo
