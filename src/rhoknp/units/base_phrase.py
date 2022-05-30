@@ -50,7 +50,7 @@ class BasePhrase(Unit):
         """文書全体におけるインデックス．"""
         offset = 0
         for prev_sentence in self.document.sentences[: self.sentence.index]:
-            offset += prev_sentence.num_base_phrases
+            offset += len(prev_sentence.base_phrases)
         return self.index + offset
 
     @property

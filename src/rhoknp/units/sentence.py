@@ -1,6 +1,5 @@
 import re
 import weakref
-from functools import cached_property
 from typing import TYPE_CHECKING, Optional, Union
 
 from rhoknp.units.base_phrase import BasePhrase
@@ -126,11 +125,6 @@ class Sentence(Unit):
             clause.sentence = weakref.proxy(self)
         self._clauses = clauses
 
-    @cached_property
-    def num_clauses(self) -> int:
-        """節の数．"""
-        return len(self.clauses)
-
     @property
     def phrases(self) -> list[Phrase]:
         """文節のリスト．
@@ -155,11 +149,6 @@ class Sentence(Unit):
             phrase.sentence = weakref.proxy(self)
         self._phrases = phrases
 
-    @cached_property
-    def num_phrases(self) -> int:
-        """文節の数．"""
-        return len(self.phrases)
-
     @property
     def base_phrases(self) -> list[BasePhrase]:
         """基本句のリスト．
@@ -172,11 +161,6 @@ class Sentence(Unit):
             for phrase in self.phrases
             for base_phrase in phrase.base_phrases
         ]
-
-    @cached_property
-    def num_base_phrases(self) -> int:
-        """基本句の数．"""
-        return len(self.base_phrases)
 
     @property
     def morphemes(self) -> list[Morpheme]:
@@ -205,11 +189,6 @@ class Sentence(Unit):
         for morpheme in morphemes:
             morpheme.sentence = weakref.proxy(self)
         self._morphemes = morphemes
-
-    @cached_property
-    def num_morphemes(self) -> int:
-        """形態素の数．"""
-        return len(self.morphemes)
 
     @property
     def need_jumanpp(self) -> bool:
