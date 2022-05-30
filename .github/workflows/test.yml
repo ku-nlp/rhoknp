@@ -56,10 +56,9 @@ jobs:
         poetry run pytest --mypy --cov-config=./.coveragerc --cov=rhoknp --cov-branch --cov-report=xml -v ./tests
     - name: Upload coverage to Codecov
       if: ${{ matrix.python-version==3.9 }}
-      uses: codecov/codecov-action@v2
+      uses: codecov/codecov-action@v3
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
-        version: v0.1.15
         files: ./coverage.xml
         name: codecov-umbrella
         verbose: true
