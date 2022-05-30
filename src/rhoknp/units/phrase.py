@@ -18,7 +18,7 @@ class Phrase(Unit):
     """文節クラス．"""
 
     KNP_PAT = re.compile(
-        fr"^\* (?P<pid>-1|\d+)(?P<dtype>[DPAI])( {Features.PAT.pattern})?$"
+        rf"^\* (?P<pid>-1|\d+)(?P<dtype>[DPAI])( {Features.PAT.pattern})?$"
     )
     count = 0
 
@@ -38,6 +38,14 @@ class Phrase(Unit):
 
         self.index = self.count
         Phrase.count += 1
+
+    @property
+    def global_index(self) -> int:
+        """文書全体におけるインデックス．"""
+        offset = 0
+        for prev_sentence in self.document.sentences[: self.sentence.index]:
+            offset += len(prev_sentence.phrases)
+        return self.index + offset
 
     @property
     def parent_unit(self) -> Optional[Union["Clause", "Sentence"]]:

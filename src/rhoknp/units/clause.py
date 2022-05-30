@@ -30,6 +30,14 @@ class Clause(Unit):
         Clause.count += 1
 
     @property
+    def global_index(self) -> int:
+        """文書全体におけるインデックス．"""
+        offset = 0
+        for prev_sentence in self.document.sentences[: self.sentence.index]:
+            offset += len(prev_sentence.clauses)
+        return self.index + offset
+
+    @property
     def parent_unit(self) -> Optional["Sentence"]:
         """上位の言語単位（文）．未登録なら None．"""
         return self._sentence

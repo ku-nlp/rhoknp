@@ -19,7 +19,7 @@ class BasePhrase(Unit):
     """基本句クラス．"""
 
     KNP_PAT = re.compile(
-        fr"^\+ (?P<pid>-1|\d+)(?P<dtype>[{''.join(e.value for e in DepType)}])( (?P<tags>(<[^>]+>)*))?$"
+        rf"^\+ (?P<pid>-1|\d+)(?P<dtype>[{''.join(e.value for e in DepType)}])( (?P<tags>(<[^>]+>)*))?$"
     )
     count = 0
 
@@ -44,6 +44,14 @@ class BasePhrase(Unit):
 
         # Predicate-argument structure
         self._pas: Optional["Pas"] = None
+
+    @property
+    def global_index(self) -> int:
+        """文書全体におけるインデックス．"""
+        offset = 0
+        for prev_sentence in self.document.sentences[: self.sentence.index]:
+            offset += len(prev_sentence.phrases)
+        return self.index + offset
 
     @property
     def parent_unit(self) -> Optional["Phrase"]:

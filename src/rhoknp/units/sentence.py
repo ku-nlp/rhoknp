@@ -56,6 +56,11 @@ class Sentence(Unit):
         Sentence.count += 1
 
     @property
+    def global_index(self) -> int:
+        """文書全体におけるインデックス．"""
+        return self.index
+
+    @property
     def parent_unit(self) -> Optional["Document"]:
         """上位の言語単位（文書）．未登録なら None．"""
         return self._document
