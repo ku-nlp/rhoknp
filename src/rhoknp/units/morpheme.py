@@ -94,7 +94,7 @@ class Morpheme(Unit):
         """文書全体におけるインデックス．"""
         offset = 0
         for prev_sentence in self.document.sentences[: self.sentence.index]:
-            offset += len(prev_sentence.morphemes)
+            offset += prev_sentence.num_morphemes
         return self.index + offset
 
     @property

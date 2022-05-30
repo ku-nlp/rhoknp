@@ -44,7 +44,7 @@ class Phrase(Unit):
         """文書全体におけるインデックス．"""
         offset = 0
         for prev_sentence in self.document.sentences[: self.sentence.index]:
-            offset += len(prev_sentence.phrases)
+            offset += prev_sentence.num_phrases
         return self.index + offset
 
     @property

@@ -34,7 +34,7 @@ class Clause(Unit):
         """文書全体におけるインデックス．"""
         offset = 0
         for prev_sentence in self.document.sentences[: self.sentence.index]:
-            offset += len(prev_sentence.clauses)
+            offset += prev_sentence.num_clauses
         return self.index + offset
 
     @property
