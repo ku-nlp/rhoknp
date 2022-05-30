@@ -172,15 +172,15 @@ class Document(Unit):
 
             from rhoknp import Document
 
-            sent_texts = \"\"\"# S-ID: 1
+            sent_texts = \"\"\"# S-ID:1
             天気が良かったので散歩した。
-            # S-ID: 2
+            # S-ID:2
             途中で先生に会った。
             \"\"\"
             doc = Document.from_line_by_line_text(sent_texts)
 
         .. note::
-            # から始まる行はコメントとして認識される．
+            # から始まる行は直後の文に対するコメントとして認識される．
         """
         document = cls()
         sentences = []
