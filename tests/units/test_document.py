@@ -484,6 +484,13 @@ def test_document_to_knp_kwdlc() -> None:
     assert doc.to_knp() == knp
 
 
+def test_document_to_knp_wac() -> None:
+    doc_id = "wiki00100176"
+    knp = Path(f"tests/data/{doc_id}.knp").read_text()
+    doc = Document.from_knp(knp)
+    assert doc.to_knp() == knp
+
+
 def test_document_sentences_error() -> None:
     doc = Document("天気が良かったので散歩した。")
     with pytest.raises(AttributeError):

@@ -23,6 +23,7 @@ class Sentence(Unit):
     EOS = "EOS"
     SID_PAT = re.compile(r"^(?P<sid>(?P<did>[a-zA-Z0-9-_]+?)(-(\d+))?)$")
     SID_PAT_KWDLC = re.compile(r"^(?P<sid>(?P<did>w\d{6}-\d{10})(-\d+){1,2})$")
+    SID_PAT_WAC = re.compile(r"^(?P<sid>(?P<did>wiki\d{8})(-\d{2})(-\d{2})?)$")
     count = 0
 
     def __init__(self, text: Optional[str] = None):
@@ -370,8 +371,10 @@ class Sentence(Unit):
         """
         if match_sid := re.match(r"# S-ID: ?(\S*)( .+)?$", comment):
             sid_string = match_sid.group(1)
-            match = Sentence.SID_PAT_KWDLC.match(sid_string) or Sentence.SID_PAT.match(
-                sid_string
+            match = (
+                Sentence.SID_PAT_KWDLC.match(sid_string)
+                or Sentence.SID_PAT_WAC.match(sid_string)
+                or Sentence.SID_PAT.match(sid_string)
             )
             if match is None:
                 raise ValueError(f"unsupported S-ID format: {sid_string}")
