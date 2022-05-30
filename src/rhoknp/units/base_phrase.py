@@ -98,7 +98,7 @@ class BasePhrase(Unit):
             AttributeError: 解析結果にアクセスできない場合．
         """
         if self._phrase is None:
-            raise AttributeError("chunk has not been set")
+            raise AttributeError("phrase has not been set")
         return self._phrase
 
     @phrase.setter

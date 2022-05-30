@@ -7,8 +7,8 @@ rhoknp.units package
    rhoknp.units.document
    rhoknp.units.sentence
    rhoknp.units.clause
-   rhoknp.units.chunk
    rhoknp.units.phrase
+   rhoknp.units.base_phrase
    rhoknp.units.morpheme
    rhoknp.units.unit
    rhoknp.units.utils

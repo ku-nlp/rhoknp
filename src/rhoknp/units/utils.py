@@ -54,7 +54,7 @@ class Semantics(dict[str, Union[str, bool]]):
 
 
 class Features(dict[str, Union[str, bool]]):
-    """A class to represent a feature information for a chunk or a phrase
+    """A class to represent a feature information for a phrase or a base phrase
 
     This class parses tags in features string and converts to a dictionary.
     ex. "<正規化代表表記:遅れる/おくれる>" --> {"正規化代表表記": "遅れる/おくれる"}
