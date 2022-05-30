@@ -44,7 +44,7 @@ class Sentence(Unit):
         self._morphemes: Optional[list[Morpheme]] = None
 
         self.sid: Optional[str] = None
-        self.comment: Optional[str] = None
+        self.misc_comment: str = ""
 
         self.index = self.count
         Sentence.count += 1
@@ -185,6 +185,30 @@ class Sentence(Unit):
         self._morphemes = morphemes
 
     @property
+    def comment(self) -> str:
+        """コメント行．"""
+        ret = ""
+        if sid := self.sid:
+            ret += f"S-ID:{sid} "
+        if misc := self.misc_comment:
+            ret += f"{misc} "
+        if ret != "":
+            ret = "# " + ret
+        return ret.rstrip(" ")
+
+    @comment.setter
+    def comment(self, comment: str) -> None:
+        """コメント行．
+
+        Args:
+            comment: コメント行．
+        """
+        doc_id, sid, rest = self._extract_sid(comment)
+        if sid is not None:
+            self.sid = sid
+        self.misc_comment = rest
+
+    @property
     def need_jumanpp(self) -> bool:
         """Juman++ による形態素解析がまだなら True．"""
         return (
@@ -215,9 +239,6 @@ class Sentence(Unit):
         for line in text.split("\n"):
             if is_comment_line(line):
                 sentence.comment = line
-                doc_id, sid = cls._extract_sid(line)
-                if sid is not None:
-                    sentence.sid = sid
             else:
                 text_lines.append(line)
         sentence.text = "\n".join(text_lines)
@@ -253,9 +274,6 @@ class Sentence(Unit):
                 continue
             if is_comment_line(line):
                 sentence.comment = line
-                doc_id, sid = cls._extract_sid(line)
-                if sid is not None:
-                    sentence.sid = sid
                 continue
             elif line.startswith("@") and not line.startswith("@ @"):
                 # homograph
@@ -312,9 +330,6 @@ class Sentence(Unit):
                 continue
             if is_comment_line(line):
                 sentence.comment = line
-                doc_id, sid = cls._extract_sid(line)
-                if sid is not None:
-                    sentence.sid = sid
                 continue
             if line.startswith(";;"):
                 raise Exception(f"Error: {line}")
@@ -342,7 +357,17 @@ class Sentence(Unit):
         return sentence
 
     @staticmethod
-    def _extract_sid(comment: str) -> tuple[Optional[str], Optional[str]]:
+    def _extract_sid(comment: str) -> tuple[Optional[str], Optional[str], str]:
+        """Extract sentence id and document id from comment line.
+
+        Args:
+            comment: A comment line.
+
+        Returns:
+            Optional[str]: Document id if exists; otherwise, None.
+            Optional[str]: Sentence id if exists; otherwise, None.
+            str: The rest of the comment line.
+        """
         if match_sid := re.match(r"# S-ID: ?(\S*)( .+)?$", comment):
             sid_string = match_sid.group(1)
             match = Sentence.SID_PAT_KWDLC.match(sid_string) or Sentence.SID_PAT.match(
@@ -350,13 +375,18 @@ class Sentence(Unit):
             )
             if match is None:
                 raise ValueError(f"unsupported S-ID format: {sid_string}")
-            return match.group("did"), match.group("sid")
-        return None, None
+            return (
+                match.group("did"),
+                match.group("sid"),
+                match_sid.group(2).lstrip() if match_sid.group(2) else "",
+            )
+        assert comment.startswith("# ")
+        return None, None, comment[2:]
 
     def to_plain(self) -> str:
         """プレーンテキストフォーマットに変換．"""
         ret = ""
-        if self.comment is not None:
+        if self.comment != "":
             ret += self.comment + "\n"
         ret += self.text.rstrip("\n") + "\n"
         return ret
@@ -364,7 +394,7 @@ class Sentence(Unit):
     def to_jumanpp(self) -> str:
         """Juman++ フォーマットに変換．"""
         ret = ""
-        if self.comment is not None:
+        if self.comment != "":
             ret += self.comment + "\n"
         ret += (
             "".join(morpheme.to_jumanpp() for morpheme in self.morphemes)
@@ -376,7 +406,7 @@ class Sentence(Unit):
     def to_knp(self) -> str:
         """KNP フォーマットに変換．"""
         ret = ""
-        if self.comment is not None:
+        if self.comment != "":
             ret += self.comment + "\n"
         ret += "".join(child.to_knp() for child in self._clauses or self.phrases)
         ret += self.EOS + "\n"

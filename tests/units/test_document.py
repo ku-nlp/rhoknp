@@ -247,9 +247,9 @@ def test_document_from_sentences_1(sentence_strings: list[str]) -> None:
             "天気がいいので散歩した。途中で先生に会った。",
             textwrap.dedent(
                 """\
-                # S-ID: 1
+                # S-ID:1
                 天気がいいので散歩した。
-                # S-ID: 2
+                # S-ID:2
                 途中で先生に会った。
                 """
             ),
