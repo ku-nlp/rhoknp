@@ -1,10 +1,7 @@
 name: test
 
 on:
-  push:
-  pull_request:
-    types: [opened]
-  workflow_dispatch:
+  [push, pull_request, workflow_dispatch]
 
 jobs:
   test:
@@ -16,7 +13,6 @@ jobs:
       fail-fast: false
       matrix:
         python-version: ["3.9", "3.10"]
-
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
@@ -25,7 +21,7 @@ jobs:
         apt update -y
         apt install -y curl libsqlite3-dev gcc libffi-dev
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v3
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install Poetry
@@ -39,18 +35,12 @@ jobs:
       run: |
         poetry config virtualenvs.create false
         poetry install --no-interaction
-    - name: Lint with flake8
-      run: |
-        # stop the build if there are Python syntax errors or undefined names
-        poetry run flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        poetry run flake8 . --count --exit-zero --max-complexity=10 --max-line-length=120 --statistics
     - name: Run tests
       run: |
-        poetry run pytest --mypy --cov-config=./.coveragerc --cov=rhoknp --cov-branch --cov-report=xml -v ./tests
+        poetry run pytest --cov=./ --cov-report=xml -v ./tests
     - name: Upload coverage to Codecov
       if: ${{ matrix.python-version==3.9 }}
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v2
       with:
         files: ./coverage.xml
         name: codecov-umbrella
