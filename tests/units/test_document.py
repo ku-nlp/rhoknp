@@ -585,7 +585,10 @@ def test_document_reference(knp: str) -> None:
         assert morpheme.document == document
 
 
-def test_global_index():
+@pytest.mark.parametrize(
+    "attr", ["sentences", "clauses", "phrases", "base_phrases", "morphemes"]
+)
+def test_global_index(attr: str):
     knp = textwrap.dedent(
         """\
         # S-ID:000-1 KNP:5.0-2ad4f6df
@@ -614,11 +617,10 @@ def test_global_index():
         """
     )
     document = Document.from_knp(knp)
-    for attr in ("sentences", "clauses", "phrases", "base_phrases", "morphemes"):
-        next_index = 0
-        for unit in getattr(document, attr):
-            assert unit.global_index == next_index
-            next_index += 1
+    next_index = 0
+    for unit in getattr(document, attr):
+        assert unit.global_index == next_index
+        next_index += 1
 
 
 def test_global_span():
