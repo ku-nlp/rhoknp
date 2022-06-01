@@ -291,10 +291,11 @@ def test_morpheme_char_span() -> None:
     assert sentence.morphemes[6].span == (11, 12)
 
 
-def test_morpheme_char_span_none() -> None:
+def test_morpheme_char_span_error() -> None:
     jumanpp = '外国 がいこく 外国 名詞 6 普通名詞 1 * 0 * 0 "代表表記:外国/がいこく ドメイン:政治 カテゴリ:場所-その他"\n'
     morpheme = Morpheme.from_jumanpp(jumanpp)
-    assert morpheme.span == (0, 2)
+    with pytest.raises(AttributeError):
+        _ = morpheme.span
 
 
 def test_morpheme_attributes() -> None:

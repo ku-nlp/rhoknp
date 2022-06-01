@@ -247,14 +247,22 @@ class Morpheme(Unit):
 
     @cached_property
     def span(self) -> tuple[int, int]:
-        """文中での文字レベルのスパン．"""
-        if self._sentence is None or self.index == 0:
+        """文における文字レベルのスパン．"""
+        if self.index == 0:
             start = 0
         else:
-            _, prev_end = self.sentence.morphemes[self.index - 1].span
-            start = prev_end
+            _, start = self.sentence.morphemes[self.index - 1].span
         end = start + len(self.text)  # TODO: correctly handle multibyte characters
         return start, end
+
+    @cached_property
+    def global_span(self) -> tuple[int, int]:
+        """文書全体における文字レベルのスパン．"""
+        offset = 0
+        for prev_sentence in self.document.sentences[: self.sentence.index]:
+            offset += len(prev_sentence.text)
+        start, end = self.span
+        return start + offset, end + offset
 
     @cached_property
     def children(self) -> list["Morpheme"]:
