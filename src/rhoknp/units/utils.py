@@ -1,7 +1,10 @@
 import re
 from dataclasses import dataclass
 from enum import Enum
-from typing import ClassVar, Optional, Union
+from typing import TYPE_CHECKING, ClassVar, Optional, Union
+
+if TYPE_CHECKING:
+    from rhoknp.units.clause import Clause
 
 
 def is_comment_line(line: str) -> bool:
@@ -151,6 +154,66 @@ class Rels(list[Rel]):
 
     def to_fstring(self) -> str:
         return "".join(rel.to_fstring() for rel in self)
+
+    def __str__(self) -> str:
+        return self.to_fstring()
+
+
+@dataclass
+class DiscourseRelation:
+    PAT: ClassVar[re.Pattern[str]] = re.compile(
+        r"(?P<sid>.+?)/(?P<base_phrase_index>\d+?)/(?P<label>[^;]+);?"
+    )
+    sid: str
+    base_phrase_index: int
+    label: str
+    modifier: Optional["Clause"] = None
+    head: Optional["Clause"] = None
+
+    def to_fstring(self) -> str:
+        return f"{self.sid}/{self.base_phrase_index}/{self.label}"
+
+    def __str__(self) -> str:
+        return self.to_fstring()
+
+
+class DiscourseRelationList(list[DiscourseRelation]):
+    def __init__(self, fstring: str, clause: Optional["Clause"] = None):
+        super().__init__()
+        for match in DiscourseRelation.PAT.finditer(fstring):
+            sid = match["sid"]
+            base_phrase_index = int(match["base_phrase_index"])
+            label = match["label"]
+            modifier: Optional["Clause"] = None
+            head: Optional["Clause"] = None
+            if clause:
+                modifier = clause
+                head_sentence = None
+                for sentence in clause.document.sentences:
+                    if sentence.sid == sid:
+                        head_sentence = sentence
+                        break
+                if head_sentence and base_phrase_index:
+                    head_base_phrase = head_sentence.base_phrases[base_phrase_index]
+                    head = head_base_phrase.clause
+                    assert head.end == head_base_phrase
+                assert head is not None
+            self.append(
+                DiscourseRelation(
+                    sid=sid,
+                    base_phrase_index=base_phrase_index,
+                    label=label,
+                    modifier=modifier,
+                    head=head,
+                )
+            )
+
+    @classmethod
+    def from_fstring(cls, fstring: str) -> "DiscourseRelationList":
+        return cls(fstring)
+
+    def to_fstring(self) -> str:
+        return ";".join(map(str, self))
 
     def __str__(self) -> str:
         return self.to_fstring()
