@@ -6,6 +6,7 @@ from rhoknp.units.base_phrase import BasePhrase
 from rhoknp.units.morpheme import Morpheme
 from rhoknp.units.phrase import Phrase
 from rhoknp.units.unit import Unit
+from rhoknp.units.utils import DiscourseRelationList
 
 if TYPE_CHECKING:
     from rhoknp.units.document import Document
@@ -25,6 +26,8 @@ class Clause(Unit):
 
         # child units
         self._phrases: Optional[list[Phrase]] = None
+
+        self._discourse_relations: Optional[DiscourseRelationList] = None
 
         self.index = self.count
         Clause.count += 1
@@ -152,6 +155,17 @@ class Clause(Unit):
         """この節に係っている節のリスト．"""
         return [clause for clause in self.sentence.clauses if clause.parent == self]
 
+    @property
+    def discourse_relations(self) -> "DiscourseRelationList":
+        """談話関係．
+
+        Raises:
+            AttributeError: 解析結果にアクセスできない場合．
+        """
+        if self._discourse_relations is None:
+            raise AttributeError("discourse relations have not been set")
+        return self._discourse_relations
+
     @classmethod
     def from_knp(cls, knp_text: str) -> "Clause":
         """節クラスのインスタンスを KNP の解析結果から初期化．
@@ -178,3 +192,8 @@ class Clause(Unit):
     def to_knp(self) -> str:
         """KNP フォーマットに変換．"""
         return "".join(phrase.to_knp() for phrase in self.phrases)
+
+    def parse_discourse_relation(self) -> None:
+        fstring = self.end.features.get("談話関係", "")
+        assert isinstance(fstring, str)
+        self._discourse_relations = DiscourseRelationList(fstring, self)

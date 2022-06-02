@@ -47,6 +47,8 @@ class Document(Unit):
         """インスタンス作成後の追加処理を行う．"""
         if self.need_knp is False:
             self._parse_rel()
+        if self.need_clause_tag is False:
+            self._parse_discourse_relation()
 
     @property
     def parent_unit(self) -> None:
@@ -138,6 +140,15 @@ class Document(Unit):
     def need_knp(self) -> bool:
         """KNP による構文解析がまだなら True．"""
         return self.need_senter or any(sentence.need_knp for sentence in self.sentences)
+
+    @property
+    def need_clause_tag(self) -> bool:
+        """KNP による節-主辞・節-区切のタグ付与がまだなら True．"""
+        try:
+            _ = self.clauses
+            return False
+        except AttributeError:
+            return True
 
     def pas_list(self) -> list[Pas]:
         """述語項構造のリストを返却．"""
@@ -382,3 +393,8 @@ class Document(Unit):
                         rel.type, rel.target, base_phrase.index, mode=rel.mode
                     )  # TODO: fix eid
             self._pass.append(pas)
+
+    def _parse_discourse_relation(self) -> None:
+        """<談話関係> タグをパース．"""
+        for clause in self.clauses:
+            clause.parse_discourse_relation()
