@@ -168,15 +168,11 @@ class Sentence(Unit):
             return self._morphemes
         elif self._clauses is not None:
             return [
-                morpheme
-                for clause in self.clauses
-                for morpheme in clause.morphemes
+                morpheme for clause in self.clauses for morpheme in clause.morphemes
             ]
         elif self._phrases is not None:
             return [
-                morpheme
-                for phrase in self.phrases
-                for morpheme in phrase.morphemes
+                morpheme for phrase in self.phrases for morpheme in phrase.morphemes
             ]
         raise AttributeError("not available before applying Jumanpp")
 
