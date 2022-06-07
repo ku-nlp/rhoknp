@@ -1,10 +1,14 @@
 import re
 from dataclasses import dataclass
 from enum import Enum
+from logging import getLogger
 from typing import TYPE_CHECKING, ClassVar, Optional, Union
 
 if TYPE_CHECKING:
     from rhoknp.units.clause import Clause
+    from rhoknp.units.sentence import Sentence
+
+logger = getLogger(__file__)
 
 
 def is_comment_line(line: str) -> bool:
@@ -188,16 +192,22 @@ class DiscourseRelationList(list[DiscourseRelation]):
             head: Optional["Clause"] = None
             if clause:
                 modifier = clause
-                head_sentence = None
+                head_sentence: Optional["Sentence"] = None
                 for sentence in clause.document.sentences:
                     if sentence.sid == sid:
                         head_sentence = sentence
                         break
-                if head_sentence and base_phrase_index:
-                    head_base_phrase = head_sentence.base_phrases[base_phrase_index]
-                    head = head_base_phrase.clause
-                    assert head.end == head_base_phrase
-                assert head is not None
+                if head_sentence is None:
+                    logger.warning(f"sentence {sid} not found")
+                    continue
+                if base_phrase_index >= len(head_sentence.base_phrases):
+                    logger.warning(f"index out of range in sentence {sid}")
+                    continue
+                head_base_phrase = head_sentence.base_phrases[base_phrase_index]
+                head = head_base_phrase.clause
+                if head.end != head_base_phrase:
+                    logger.warning("head base phrase is not end of clause")
+                    continue
             self.append(
                 DiscourseRelation(
                     sid=sid,
