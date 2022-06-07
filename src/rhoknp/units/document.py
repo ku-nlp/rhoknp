@@ -378,6 +378,11 @@ class Document(Unit):
             for rel in base_phrase.rels:
                 if rel.type not in ALL_CASES:
                     continue
+                if rel.sid == "":
+                    logger.warning(
+                        f"empty sid found in {base_phrase.sentence.sid}, assuming to be self"
+                    )
+                    rel.sid = base_phrase.sentence.sid
                 if rel.sid is not None:
                     sentence = next(
                         sent
@@ -385,8 +390,16 @@ class Document(Unit):
                         if sent.sid == rel.sid
                     )
                     assert rel.base_phrase_index is not None
+                    if rel.base_phrase_index >= len(sentence.base_phrases):
+                        logger.warning(
+                            f"skipped {rel} in {base_phrase.sentence.sid} due to index out of range"
+                        )
+                        continue
                     arg_base_phrase = sentence.base_phrases[rel.base_phrase_index]
-                    assert rel.target in arg_base_phrase.text
+                    if not (set(rel.target) <= set(arg_base_phrase.text)):
+                        logger.info(
+                            f"rel target mismatch: '{rel.target}' vs '{arg_base_phrase.text}'"
+                        )
                     pas.add_argument(rel.type, arg_base_phrase, mode=rel.mode)
                 else:
                     pas.add_special_argument(

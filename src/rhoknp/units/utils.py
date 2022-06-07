@@ -113,7 +113,7 @@ class RelMode(Enum):
 @dataclass
 class Rel:
     PAT: ClassVar[re.Pattern[str]] = re.compile(
-        r'<rel type="(?P<type>\S+?)"( mode="(?P<mode>[^>]+?)")? target="(?P<target>.+?)"( sid="(?P<sid>.+?)" '
+        r'<rel type="(?P<type>\S+?)"( mode="(?P<mode>[^>]+?)")? target="(?P<target>.+?)"( sid="(?P<sid>.*?)" '
         r'id="(?P<id>\d+?)")?/>'
     )
     type: str
