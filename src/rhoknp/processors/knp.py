@@ -69,19 +69,17 @@ class KNP(Processor):
         if document.need_senter:
             logger.debug("document needs to be split into sentences")
             if self.senter is None:
-                logger.debug(
-                    "senter is not specified when initializing KNP: use RegexSenter with no option"
-                )
+                logger.debug("senter is not specified; use RegexSenter")
                 self.senter = RegexSenter()
+                logger.debug(self.senter)
             document = self.senter.apply_to_document(document)
 
         if document.need_jumanpp:
             logger.debug("document needs to be processed by Juman++")
             if self.jumanpp is None:
-                logger.info(
-                    "jumanpp is not specified when initializing KNP: use Jumanpp with no option"
-                )
+                logger.info("jumanpp is not specified; use Jumanpp")
                 self.jumanpp = Jumanpp()
+                logger.debug(self.jumanpp)
             document = self.jumanpp.apply_to_document(document)
 
         with Popen(self.run_command, stdout=PIPE, stdin=PIPE, encoding="utf-8") as p:

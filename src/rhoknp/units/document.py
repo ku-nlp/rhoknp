@@ -380,7 +380,7 @@ class Document(Unit):
                     continue
                 if rel.sid == "":
                     logger.warning(
-                        f"empty sid found in {base_phrase.sentence.sid}, assuming to be self"
+                        f"empty sid found in {base_phrase.sentence.sid}; assume to be self"
                     )
                     rel.sid = base_phrase.sentence.sid
                 if rel.sid is not None:
@@ -392,13 +392,13 @@ class Document(Unit):
                     assert rel.base_phrase_index is not None
                     if rel.base_phrase_index >= len(sentence.base_phrases):
                         logger.warning(
-                            f"skipped {rel} in {base_phrase.sentence.sid} due to index out of range"
+                            f"index out of range in {base_phrase.sentence.sid}"
                         )
                         continue
                     arg_base_phrase = sentence.base_phrases[rel.base_phrase_index]
                     if not (set(rel.target) <= set(arg_base_phrase.text)):
                         logger.info(
-                            f"rel target mismatch: '{rel.target}' vs '{arg_base_phrase.text}'"
+                            f"rel target mismatch; '{rel.target}' is not '{arg_base_phrase.text}'"
                         )
                     pas.add_argument(rel.type, arg_base_phrase, mode=rel.mode)
                 else:

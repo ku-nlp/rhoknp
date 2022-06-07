@@ -198,15 +198,15 @@ class DiscourseRelationList(list[DiscourseRelation]):
                         head_sentence = sentence
                         break
                 if head_sentence is None:
-                    logger.warning(f"sentence {sid} not found")
+                    logger.warning(f"{sid} not found")
                     continue
                 if base_phrase_index >= len(head_sentence.base_phrases):
-                    logger.warning(f"index out of range in sentence {sid}")
+                    logger.warning(f"index out of range in {sid}")
                     continue
                 head_base_phrase = head_sentence.base_phrases[base_phrase_index]
                 head = head_base_phrase.clause
                 if head.end != head_base_phrase:
-                    logger.warning("head base phrase is not end of clause")
+                    logger.warning(f"invalid clause tag in {sid}")
                     continue
             self.append(
                 DiscourseRelation(

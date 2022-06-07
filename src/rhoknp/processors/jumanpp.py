@@ -61,9 +61,7 @@ class Jumanpp(Processor):
         if document.need_senter:
             logger.debug("document needs to be split into sentences")
             if self.senter is None:
-                logger.debug(
-                    "senter is not specified when initializing KNP: use RegexSenter with no option"
-                )
+                logger.debug("senter is not specified; use RegexSenter")
                 self.senter = RegexSenter()
             document = self.senter.apply_to_document(document)
 
