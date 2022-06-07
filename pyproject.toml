@@ -18,6 +18,7 @@ Sphinx = "^4.2.0"
 furo = "^2022.4.7"
 sphinx-prompt = "^1.5.0"
 sphinx-copybutton = "^0.5.0"
+ipdb = "^0.13.9"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
