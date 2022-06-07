@@ -299,9 +299,7 @@ class Morpheme(Unit):
         assert "\n" not in jumanpp_line.strip()
         match = cls.JUMANPP_PAT.match(jumanpp_line)
         if match is None:
-            raise ValueError(
-                f"malformed line: {jumanpp_line}"
-            )  # TODO: address "undefined" in KyotoCorpus
+            raise ValueError(f"malformed line: {jumanpp_line}")
         attributes = MorphemeAttributes.from_jumanpp(match.group("attrs"))
         semantics = Semantics.from_sstring(match.group("sems") or "")
         features = Features.from_fstring(match.group("feats") or "")
