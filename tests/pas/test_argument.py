@@ -1,6 +1,6 @@
 import pytest
 
-from rhoknp.pas import Argument, ArgumentType, SpecialArgument
+from rhoknp.pas import Argument, ArgumentType, ExophoraReferent, SpecialArgument
 from rhoknp.units import BasePhrase
 
 
@@ -16,28 +16,22 @@ def test_argument() -> None:
     # assert argument.sentence == phrase.sentence
     # assert argument.clause == phrase.clause
     # assert argument.chunk == phrase.chunk
-    assert (
-        repr(argument)
-        == f"Argument(base_phrase={repr(base_phrase)}, arg_type={repr(ArgumentType.OMISSION)})"
-    )
+    assert repr(argument) == f"Argument(base_phrase={repr(base_phrase)}, arg_type={repr(ArgumentType.OMISSION)})"
     assert str(argument) == base_phrase.text
     assert argument != "test"
-    assert argument == Argument(
-        base_phrase, arg_type=ArgumentType.EXOPHOR
-    )  # TODO: consider whether this is expected
+    assert argument == Argument(base_phrase, arg_type=ArgumentType.EXOPHOR)  # TODO: consider whether this is expected
     with pytest.raises(AttributeError):
         _ = argument.pas
 
 
 def test_special_argument() -> None:
-    argument = SpecialArgument("不特定:人", eid=3)
-    assert argument.exophor == "不特定:人"
+    exophora_referent = ExophoraReferent("不特定:人")
+    argument = SpecialArgument(exophora_referent, eid=3)
+    assert argument.exophora_referent == exophora_referent
     assert argument.eid == 3
-    assert repr(argument) == "SpecialArgument(exophor='不特定:人', eid=3)"
+    assert repr(argument) == "SpecialArgument(exophora_referent=ExophoraReferent(text='不特定:人'), eid=3)"
     assert str(argument) == "不特定:人"
     assert argument != "test"
-    assert argument == SpecialArgument(
-        "不特定:人", eid=1
-    )  # TODO: consider whether this is expected
+    assert argument == SpecialArgument(exophora_referent, eid=1)  # TODO: consider whether this is expected
     with pytest.raises(AttributeError):
         _ = argument.pas

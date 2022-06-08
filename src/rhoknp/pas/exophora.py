@@ -1,6 +1,6 @@
 import re
 from enum import Enum
-from typing import ClassVar, Optional
+from typing import Any, ClassVar, Optional
 
 
 class ExophoraReferentType(Enum):
@@ -36,20 +36,19 @@ class ExophoraReferent:
         match: Optional[re.Match[str]] = self.PAT.match(text)
         if match is None:
             raise ValueError(f"invalid exophora referent: {text}")
-        self.index: Optional[int] = (
-            int(match.group("index")) if match.group("index") else None
-        )
+        self.index: Optional[int] = int(match.group("index")) if match.group("index") else None
         self.type = ExophoraReferentType(match.group("type"))
 
     @property
     def text(self) -> str:
         """外界照応の照応先を表すテキスト表現．"""
-        return self.type.value + "".join(
-            self._HAN2ZEN[s] for s in str(self.index or "")
-        )
+        return self.type.value + "".join(self._HAN2ZEN[s] for s in str(self.index or ""))
 
     def __str__(self) -> str:
         return self.text
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(text={repr(self.text)})"
+
+    def __eq__(self, other: Any):
+        return isinstance(other, type(self)) and self.type == other.type and self.index == other.index

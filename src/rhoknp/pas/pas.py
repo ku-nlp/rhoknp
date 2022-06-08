@@ -2,9 +2,10 @@ import re
 import sys
 from collections import defaultdict
 from enum import Enum, auto
-from typing import Optional
+from typing import Optional, Union
 
 from rhoknp.pas.argument import Argument, ArgumentType, BaseArgument, SpecialArgument
+from rhoknp.pas.exophora import ExophoraReferent
 from rhoknp.pas.predicate import Predicate
 from rhoknp.units.base_phrase import BasePhrase
 from rhoknp.units.utils import RelMode
@@ -16,9 +17,7 @@ class CaseInfoFormat(Enum):
 
 
 class Pas:
-    ARGUMENT_PAT = re.compile(
-        r"([^/;]+/[CNODEU-]/[^/]+/(-?\d*)/(-?\d*)/[^/;]+)"
-    )  # ガ/N/彼/0/0/5
+    ARGUMENT_PAT = re.compile(r"([^/;]+/[CNODEU-]/[^/]+/(-?\d*)/(-?\d*)/[^/;]+)")  # ガ/N/彼/0/0/5
 
     def __init__(self, predicate: Predicate):
         self._predicate = predicate
@@ -35,15 +34,11 @@ class Pas:
         return self._arguments
 
     @classmethod
-    def _from_pas_string(
-        cls, base_phrase: BasePhrase, fstring: str, format_: CaseInfoFormat
-    ) -> "Pas":
+    def _from_pas_string(cls, base_phrase: BasePhrase, fstring: str, format_: CaseInfoFormat) -> "Pas":
         # language=RegExp
         cfid_pat = r"(.*?):([^:/]+?)"  # 食べる/たべる:動1
         match = re.match(
-            r"{cfid}(:(?P<args>{args}(;{args})*))?$".format(
-                cfid=cfid_pat, args=cls.ARGUMENT_PAT.pattern
-            ),
+            r"{cfid}(:(?P<args>{args}(;{args})*))?$".format(cfid=cfid_pat, args=cls.ARGUMENT_PAT.pattern),
             fstring,
         )
 
@@ -67,15 +62,8 @@ class Pas:
             if format_ == CaseInfoFormat.CASE:
                 tid, sdist, sid = int(fields[0]), int(fields[1]), fields[2]
                 assert arg_type != ArgumentType.EXOPHOR
-                assert (
-                    base_phrase.document.sentences[
-                        base_phrase.sentence.index - sdist
-                    ].sid
-                    == sid
-                )
-                arg_base_phrase = base_phrase.document.sentences[
-                    base_phrase.sentence.index - sdist
-                ].base_phrases[tid]
+                assert base_phrase.document.sentences[base_phrase.sentence.index - sdist].sid == sid
+                arg_base_phrase = base_phrase.document.sentences[base_phrase.sentence.index - sdist].base_phrases[tid]
                 assert surf in arg_base_phrase.text
                 pas.add_argument(case, arg_base_phrase, arg_type=arg_type)
             else:
@@ -84,9 +72,9 @@ class Pas:
                 if arg_type == ArgumentType.EXOPHOR:
                     pas.add_special_argument(case, surf, eid)
                 else:
-                    arg_base_phrase = base_phrase.document.sentences[
-                        base_phrase.sentence.index - sdist
-                    ].base_phrases[tid]
+                    arg_base_phrase = base_phrase.document.sentences[base_phrase.sentence.index - sdist].base_phrases[
+                        tid
+                    ]
                     assert surf in arg_base_phrase.text
                     pas.add_argument(case, arg_base_phrase)
         return pas
@@ -96,15 +84,11 @@ class Pas:
         if "述語項構造" in base_phrase.features:
             pas_string = base_phrase.features["述語項構造"]
             assert isinstance(pas_string, str)
-            pas = cls._from_pas_string(
-                base_phrase, pas_string, format_=CaseInfoFormat.PAS
-            )
+            pas = cls._from_pas_string(base_phrase, pas_string, format_=CaseInfoFormat.PAS)
         elif "格解析結果" in base_phrase.features:
             pas_string = base_phrase.features["格解析結果"]
             assert isinstance(pas_string, str)
-            pas = cls._from_pas_string(
-                base_phrase, pas_string, format_=CaseInfoFormat.CASE
-            )
+            pas = cls._from_pas_string(base_phrase, pas_string, format_=CaseInfoFormat.CASE)
         else:
             pas = cls(Predicate(base_phrase))
         base_phrase.pas = pas
@@ -128,9 +112,11 @@ class Pas:
             self.arguments[case].append(argument)
 
     def add_special_argument(
-        self, case: str, exophor: str, eid: int, mode: Optional[RelMode] = None
+        self, case: str, exophora_referent: Union[ExophoraReferent, str], eid: int, mode: Optional[RelMode] = None
     ) -> None:
-        special_argument = SpecialArgument(exophor, eid)
+        if isinstance(exophora_referent, str):
+            exophora_referent = ExophoraReferent(exophora_referent)
+        special_argument = SpecialArgument(exophora_referent, eid)
         special_argument.pas = self
         if mode is not None:
             self.modes[case] = mode
@@ -138,18 +124,12 @@ class Pas:
             self.arguments[case].append(special_argument)
 
     @staticmethod
-    def _get_arg_type(
-        predicate: Predicate, arg_base_phrase: BasePhrase, case: str
-    ) -> ArgumentType:
+    def _get_arg_type(predicate: Predicate, arg_base_phrase: BasePhrase, case: str) -> ArgumentType:
         if arg_base_phrase in predicate.phrase.children:
             dep_case = arg_base_phrase.features.get("係", "")
             assert isinstance(dep_case, str)
             dep_case = dep_case.rstrip("格")
-            if (
-                (case == dep_case)
-                or (case == "判ガ" and dep_case == "ガ")
-                or (case == "ノ？" and dep_case == "ノ")
-            ):
+            if (case == dep_case) or (case == "判ガ" and dep_case == "ガ") or (case == "ノ？" and dep_case == "ノ"):
                 return ArgumentType.CASE_EXPLICIT
             else:
                 return ArgumentType.CASE_HIDDEN

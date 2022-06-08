@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 from enum import Enum
 from typing import TYPE_CHECKING, Any, Optional
 
+from rhoknp.pas.exophora import ExophoraReferent
 from rhoknp.units.base_phrase import BasePhrase
 
 if TYPE_CHECKING:
@@ -97,23 +98,23 @@ class Argument(BaseArgument):
 
 
 class SpecialArgument(BaseArgument):
-    """外界を指す項を表すクラス
+    """外界を指す項を表すクラス．
 
     Args:
-        exophor (str): 外界照応詞 (不特定:人など)
+        exophora_referent (str): 外界照応詞 (不特定:人など)
         eid (int): 外界照応詞のエンティティID
     """
 
-    def __init__(self, exophor: str, eid: int):
+    def __init__(self, exophora_referent: ExophoraReferent, eid: int):
         super().__init__(ArgumentType.EXOPHOR)
-        self.exophor: str = exophor
+        self.exophora_referent: ExophoraReferent = exophora_referent
         self.eid: int = eid
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(exophor={repr(self.exophor)}, eid={repr(self.eid)})"
+        return f"{self.__class__.__name__}(exophora_referent={repr(self.exophora_referent)}, eid={repr(self.eid)})"
 
     def __str__(self) -> str:
-        return self.exophor
+        return str(self.exophora_referent)
 
     def __eq__(self, other: Any) -> bool:
-        return isinstance(other, SpecialArgument) and self.exophor == other.exophor
+        return isinstance(other, SpecialArgument) and self.exophora_referent == other.exophora_referent

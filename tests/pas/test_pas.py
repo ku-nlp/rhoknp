@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from rhoknp.pas import Argument, ArgumentType, Pas, SpecialArgument
+from rhoknp.pas import Argument, ArgumentType, ExophoraReferent, Pas, SpecialArgument
 from rhoknp.units import Document
 
 
@@ -103,7 +103,7 @@ EOS
     argument = pas.arguments["ニ"][0]
     assert isinstance(argument, SpecialArgument)
     assert argument.type == ArgumentType("E")
-    assert argument.exophor == "著者"
+    assert argument.exophora_referent == ExophoraReferent("著者")
     assert argument.eid == 0
 
 
@@ -187,7 +187,7 @@ def test_pas_rel() -> None:
     pas = pas_list[1]
     assert (
         repr(pas) == "Pas(predicate=Predicate(text='トスを'), "
-        "arguments={'ガ': [SpecialArgument(exophor='不特定:人', eid=1)], "
+        "arguments={'ガ': [SpecialArgument(exophora_referent=ExophoraReferent(text='不特定:人'), eid=1)], "
         "'ヲ': [Argument(base_phrase=BasePhrase(index=0, text='コイン'), "
         "arg_type=<ArgumentType.CASE_HIDDEN: 'N'>)]})"
     )
