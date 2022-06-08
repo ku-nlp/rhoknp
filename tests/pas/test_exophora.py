@@ -15,3 +15,11 @@ def test_exophora_number():
     assert referent.index == 3
     assert str(referent) == "不特定:人３"
     assert repr(referent) == "ExophoraReferent(text='不特定:人３')"
+
+
+def test_exophora_other():
+    referent = ExophoraReferent("ほげほげ２")
+    assert referent.type == ExophoraReferentType.OTHER
+    assert referent.index is None
+    assert str(referent) == "ほげほげ２"
+    assert repr(referent) == "ExophoraReferent(text='ほげほげ２')"
