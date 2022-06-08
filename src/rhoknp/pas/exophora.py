@@ -14,7 +14,7 @@ class ExophoraReferentType(Enum):
 
 
 class ExophoraReferent:
-    _NUM2ZEN: dict[str, str] = {
+    _HAN2ZEN: dict[str, str] = {
         "0": "０",
         "1": "１",
         "2": "２",
@@ -42,7 +42,7 @@ class ExophoraReferent:
     @property
     def text(self) -> str:
         return self.type.value + "".join(
-            self._NUM2ZEN[s] for s in str(self.index or "")
+            self._HAN2ZEN[s] for s in str(self.index or "")
         )
 
     def __str__(self) -> str:
