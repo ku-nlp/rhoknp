@@ -14,6 +14,8 @@ class ExophoraReferentType(Enum):
 
 
 class ExophoraReferent:
+    """外界照応における照応先を表すクラス．"""
+
     _HAN2ZEN: dict[str, str] = {
         "0": "０",
         "1": "１",
@@ -41,6 +43,7 @@ class ExophoraReferent:
 
     @property
     def text(self) -> str:
+        """外界照応の照応先を表すテキスト表現．"""
         return self.type.value + "".join(
             self._HAN2ZEN[s] for s in str(self.index or "")
         )
