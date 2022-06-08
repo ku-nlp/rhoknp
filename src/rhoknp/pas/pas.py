@@ -2,6 +2,7 @@ import re
 import sys
 from collections import defaultdict
 from enum import Enum, auto
+from logging import getLogger
 from typing import Optional, Union
 
 from rhoknp.pas.argument import Argument, ArgumentType, BaseArgument, SpecialArgument
@@ -9,6 +10,8 @@ from rhoknp.pas.exophora import ExophoraReferent
 from rhoknp.pas.predicate import Predicate
 from rhoknp.units.base_phrase import BasePhrase
 from rhoknp.units.utils import RelMode
+
+logger = getLogger(__file__)
 
 
 class CaseInfoFormat(Enum):
@@ -32,6 +35,10 @@ class Pas:
     @property
     def arguments(self) -> dict[str, list[BaseArgument]]:
         return self._arguments
+
+    @property
+    def sid(self) -> str:
+        return self._predicate.sid
 
     @classmethod
     def _from_pas_string(cls, base_phrase: BasePhrase, fstring: str, format_: CaseInfoFormat) -> "Pas":
@@ -122,6 +129,14 @@ class Pas:
             self.modes[case] = mode
         if special_argument not in self.arguments[case]:
             self.arguments[case].append(special_argument)
+
+    def set_arguments_optional(self, case: str) -> None:
+        if not self.arguments[case]:
+            logger.info(f"no preceding argument found in {self.sid}. 'なし' is ignored")
+            return
+        for arg in self.arguments[case]:
+            arg.optional = True
+            logger.info(f"marked {arg} as optional in {self.sid}")
 
     @staticmethod
     def _get_arg_type(predicate: Predicate, arg_base_phrase: BasePhrase, case: str) -> ArgumentType:

@@ -107,11 +107,7 @@ class Document(Unit):
         Raises:
             AttributeError: 解析結果にアクセスできない場合．
         """
-        return [
-            base_phrase
-            for sentence in self.sentences
-            for base_phrase in sentence.base_phrases
-        ]
+        return [base_phrase for sentence in self.sentences for base_phrase in sentence.base_phrases]
 
     @property
     def morphemes(self) -> list[Morpheme]:
@@ -120,9 +116,7 @@ class Document(Unit):
         Raises:
             AttributeError: 解析結果にアクセスできない場合．
         """
-        return [
-            morpheme for sentence in self.sentences for morpheme in sentence.morphemes
-        ]
+        return [morpheme for sentence in self.sentences for morpheme in sentence.morphemes]
 
     @property
     def need_senter(self) -> bool:
@@ -132,9 +126,7 @@ class Document(Unit):
     @property
     def need_jumanpp(self) -> bool:
         """Juman++ による形態素解析がまだなら True．"""
-        return self.need_senter or any(
-            sentence.need_jumanpp for sentence in self.sentences
-        )
+        return self.need_senter or any(sentence.need_jumanpp for sentence in self.sentences)
 
     @property
     def need_knp(self) -> bool:
@@ -207,9 +199,7 @@ class Document(Unit):
         return document
 
     @classmethod
-    def from_sentences(
-        cls, sentences: Union[Sequence[Union[Sentence, str]], str]
-    ) -> "Document":
+    def from_sentences(cls, sentences: Union[Sequence[Union[Sentence, str]], str]) -> "Document":
         """文書クラスのインスタンスを文のリストから初期化．
 
         Args:
@@ -273,9 +263,7 @@ class Document(Unit):
             sentence_lines.append(line)
             if line.strip() == Sentence.EOS:
                 try:
-                    sentences.append(
-                        Sentence.from_jumanpp("\n".join(sentence_lines) + "\n")
-                    )
+                    sentences.append(Sentence.from_jumanpp("\n".join(sentence_lines) + "\n"))
                 except Exception as e:
                     document.has_error = True
                     if not ignore_errors:
@@ -341,9 +329,7 @@ class Document(Unit):
             sentence_lines.append(line)
             if line.strip() == Sentence.EOS:
                 try:
-                    sentences.append(
-                        Sentence.from_knp("\n".join(sentence_lines) + "\n")
-                    )
+                    sentences.append(Sentence.from_knp("\n".join(sentence_lines) + "\n"))
                 except Exception as e:
                     document.has_error = True
                     if not ignore_errors:
@@ -379,32 +365,24 @@ class Document(Unit):
                 if rel.type not in ALL_CASES:
                     continue
                 if rel.sid == "":
-                    logger.warning(
-                        f"empty sid found in {base_phrase.sentence.sid}; assume to be self"
-                    )
+                    logger.warning(f"empty sid found in {base_phrase.sentence.sid}; assume to be self")
                     rel.sid = base_phrase.sentence.sid
                 if rel.sid is not None:
-                    sentence = next(
-                        sent
-                        for sent in base_phrase.document.sentences
-                        if sent.sid == rel.sid
-                    )
+                    sentence = next(sent for sent in base_phrase.document.sentences if sent.sid == rel.sid)
                     assert rel.base_phrase_index is not None
                     if rel.base_phrase_index >= len(sentence.base_phrases):
-                        logger.warning(
-                            f"index out of range in {base_phrase.sentence.sid}"
-                        )
+                        logger.warning(f"index out of range in {base_phrase.sentence.sid}")
                         continue
                     arg_base_phrase = sentence.base_phrases[rel.base_phrase_index]
                     if not (set(rel.target) <= set(arg_base_phrase.text)):
-                        logger.info(
-                            f"rel target mismatch; '{rel.target}' is not '{arg_base_phrase.text}'"
-                        )
+                        logger.info(f"rel target mismatch; '{rel.target}' is not '{arg_base_phrase.text}'")
                     pas.add_argument(rel.type, arg_base_phrase, mode=rel.mode)
                 else:
-                    pas.add_special_argument(
-                        rel.type, rel.target, base_phrase.index, mode=rel.mode
-                    )  # TODO: fix eid
+                    if rel.target == "なし":
+                        pas.set_arguments_optional(rel.type)
+                        continue
+                    # exophora
+                    pas.add_special_argument(rel.type, rel.target, base_phrase.index, mode=rel.mode)  # TODO: fix eid
             self._pass.append(pas)
 
     def _parse_discourse_relation(self) -> None:

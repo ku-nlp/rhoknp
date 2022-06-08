@@ -34,6 +34,7 @@ EOS
     pas = Pas.from_base_phrase(predicate_base_phrase)
     assert predicate_base_phrase.pas == pas
     assert pas.predicate.cfid == "行く/いく:動12"
+    assert pas.sid == "1"
 
     # 彼 ガ 行った
     argument_base_phrase = doc.base_phrases[0]  # 彼は
@@ -87,6 +88,7 @@ EOS
     predicate_base_phrase = doc.base_phrases[4]
     pas = Pas.from_base_phrase(predicate_base_phrase)
     assert pas.predicate.cfid == "行く/いく:動12"
+    assert pas.sid == "1"
 
     # 彼 ガ 行った
     argument_phrase = doc.base_phrases[0]  # 彼は
