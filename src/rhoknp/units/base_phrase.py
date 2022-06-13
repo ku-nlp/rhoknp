@@ -23,9 +23,7 @@ class BasePhrase(Unit):
     )
     count = 0
 
-    def __init__(
-        self, parent_index: int, dep_type: DepType, features: Features, rels: Rels
-    ):
+    def __init__(self, parent_index: int, dep_type: DepType, features: Features, rels: Rels):
         super().__init__()
 
         # parent unit
@@ -155,11 +153,7 @@ class BasePhrase(Unit):
     @cached_property
     def children(self) -> list["BasePhrase"]:
         """この基本句に係っている基本句のリスト．"""
-        return [
-            base_phrase
-            for base_phrase in self.sentence.base_phrases
-            if base_phrase.parent == self
-        ]
+        return [base_phrase for base_phrase in self.sentence.base_phrases if base_phrase.parent == self]
 
     @property
     def pas(self) -> "Pas":

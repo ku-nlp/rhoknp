@@ -32,9 +32,7 @@ cases = [
 
 
 @pytest.mark.parametrize("fstring,features,length", [astuple(case) for case in cases])
-def test_features_from_fstring(
-    fstring: str, features: dict[str, Union[str, bool]], length: int
-) -> None:
+def test_features_from_fstring(fstring: str, features: dict[str, Union[str, bool]], length: int) -> None:
     fs = Features(fstring)
     assert len(fs) == length
     assert dict(fs) == features
@@ -42,8 +40,6 @@ def test_features_from_fstring(
 
 
 @pytest.mark.parametrize("fstring,features,length", [astuple(case) for case in cases])
-def test_features_to_fstring(
-    fstring: str, features: dict[str, Union[str, bool]], length: int
-) -> None:
+def test_features_to_fstring(fstring: str, features: dict[str, Union[str, bool]], length: int) -> None:
     fs = Features(fstring)
     assert fs.to_fstring() == fstring

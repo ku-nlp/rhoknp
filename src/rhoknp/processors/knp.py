@@ -102,9 +102,7 @@ class KNP(Processor):
         if sentence.need_jumanpp:
             logger.debug("sentence needs to be processed by Juman++")
             if self.jumanpp is None:
-                logger.info(
-                    "jumanpp is not specified when initializing KNP: use Jumanpp with no option"
-                )
+                logger.info("jumanpp is not specified when initializing KNP: use Jumanpp with no option")
                 self.jumanpp = Jumanpp()
             sentence = self.jumanpp.apply_to_sentence(sentence)
 

@@ -38,9 +38,7 @@ def draw_tree(
     print(sprint_tree(leaves, show_pos=show_pos), file=fh, end="")
 
 
-def sprint_tree(
-    leaves: Sequence[Union[Phrase, BasePhrase]], show_pos: bool = True
-) -> str:
+def sprint_tree(leaves: Sequence[Union[Phrase, BasePhrase]], show_pos: bool = True) -> str:
     """構文木を文字列で返す．"""
     limit = len(leaves)
     item = [[""] * limit for _ in range(limit)]

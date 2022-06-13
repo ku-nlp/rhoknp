@@ -146,9 +146,7 @@ def test_sentence_from_raw_text(text: str) -> None:
     assert sentence.text == text
 
 
-@pytest.mark.parametrize(
-    "jumanpp, text", [(case["jumanpp"], case["text"]) for case in cases]
-)
+@pytest.mark.parametrize("jumanpp, text", [(case["jumanpp"], case["text"]) for case in cases])
 def test_sentence_from_jumanpp(jumanpp: str, text: str) -> None:
     sentence = Sentence.from_jumanpp(jumanpp)
     assert str(sentence) == text

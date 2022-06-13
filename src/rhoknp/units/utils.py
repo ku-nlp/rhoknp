@@ -165,9 +165,7 @@ class Rels(list[Rel]):
 
 @dataclass
 class DiscourseRelation:
-    PAT: ClassVar[re.Pattern[str]] = re.compile(
-        r"(?P<sid>.+?)/(?P<base_phrase_index>\d+?)/(?P<label>[^;]+);?"
-    )
+    PAT: ClassVar[re.Pattern[str]] = re.compile(r"(?P<sid>.+?)/(?P<base_phrase_index>\d+?)/(?P<label>[^;]+);?")
     sid: str
     base_phrase_index: int
     label: str

@@ -199,9 +199,7 @@ def test_parent(knp: str, parent_indexes: list[int]) -> None:
 def test_children(knp: str, child_indexes: list[list[int]]) -> None:
     sent = Sentence.from_knp(knp)
     for i, child_index in enumerate(child_indexes):
-        assert sent.base_phrases[i].children == [
-            sent.base_phrases[j] for j in child_index
-        ]
+        assert sent.base_phrases[i].children == [sent.base_phrases[j] for j in child_index]
 
 
 @pytest.mark.parametrize(

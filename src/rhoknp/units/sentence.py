@@ -151,11 +151,7 @@ class Sentence(Unit):
         Raises:
             AttributeError: 解析結果にアクセスできない場合．
         """
-        return [
-            base_phrase
-            for phrase in self.phrases
-            for base_phrase in phrase.base_phrases
-        ]
+        return [base_phrase for phrase in self.phrases for base_phrase in phrase.base_phrases]
 
     @property
     def morphemes(self) -> list[Morpheme]:
@@ -167,13 +163,9 @@ class Sentence(Unit):
         if self._morphemes is not None:
             return self._morphemes
         elif self._clauses is not None:
-            return [
-                morpheme for clause in self.clauses for morpheme in clause.morphemes
-            ]
+            return [morpheme for clause in self.clauses for morpheme in clause.morphemes]
         elif self._phrases is not None:
-            return [
-                morpheme for phrase in self.phrases for morpheme in phrase.morphemes
-            ]
+            return [morpheme for phrase in self.phrases for morpheme in phrase.morphemes]
         raise AttributeError("not available before applying Jumanpp")
 
     @morphemes.setter
@@ -214,9 +206,7 @@ class Sentence(Unit):
     @property
     def need_jumanpp(self) -> bool:
         """Juman++ による形態素解析がまだなら True．"""
-        return (
-            self._morphemes is None and self._phrases is None and self._clauses is None
-        )
+        return self._morphemes is None and self._phrases is None and self._clauses is None
 
     @property
     def need_knp(self) -> bool:
@@ -321,9 +311,7 @@ class Sentence(Unit):
         """
         lines = knp_text.split("\n")
         sentence = cls()
-        has_clause_boundary = any(
-            "節-区切" in line for line in lines if line.startswith("+")
-        )
+        has_clause_boundary = any("節-区切" in line for line in lines if line.startswith("+"))
         clauses: list[Clause] = []
         phrases: list[Phrase] = []
         child_lines: list[str] = []
@@ -401,11 +389,7 @@ class Sentence(Unit):
         ret = ""
         if self.comment != "":
             ret += self.comment + "\n"
-        ret += (
-            "".join(morpheme.to_jumanpp() for morpheme in self.morphemes)
-            + self.EOS
-            + "\n"
-        )
+        ret += "".join(morpheme.to_jumanpp() for morpheme in self.morphemes) + self.EOS + "\n"
         return ret
 
     def to_knp(self) -> str:

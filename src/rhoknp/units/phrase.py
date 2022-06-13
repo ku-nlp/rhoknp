@@ -17,9 +17,7 @@ if TYPE_CHECKING:
 class Phrase(Unit):
     """文節クラス．"""
 
-    KNP_PAT = re.compile(
-        rf"^\* (?P<pid>-1|\d+)(?P<dtype>[DPAI])( {Features.PAT.pattern})?$"
-    )
+    KNP_PAT = re.compile(rf"^\* (?P<pid>-1|\d+)(?P<dtype>[DPAI])( {Features.PAT.pattern})?$")
     count = 0
 
     def __init__(self, parent_index: int, dep_type: DepType, features: Features):
@@ -133,11 +131,7 @@ class Phrase(Unit):
         Raises:
             AttributeError: 解析結果にアクセスできない場合．
         """
-        return [
-            morpheme
-            for base_phrase in self.base_phrases
-            for morpheme in base_phrase.morphemes
-        ]
+        return [morpheme for base_phrase in self.base_phrases for morpheme in base_phrase.morphemes]
 
     @property
     def parent(self) -> Optional["Phrase"]:

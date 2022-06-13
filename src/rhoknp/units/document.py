@@ -360,6 +360,7 @@ class Document(Unit):
     def _parse_rel(self) -> None:
         """関係タグ付きコーパスにおける <rel> タグをパース．"""
         for base_phrase in self.base_phrases:
+            # extract PAS
             pas = Pas(Predicate(base_phrase))
             for rel in base_phrase.rels:
                 if rel.type not in ALL_CASES:

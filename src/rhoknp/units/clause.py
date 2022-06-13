@@ -104,11 +104,7 @@ class Clause(Unit):
         Raises:
             AttributeError: 解析結果にアクセスできない場合．
         """
-        return [
-            base_phrase
-            for phrase in self.phrases
-            for base_phrase in phrase.base_phrases
-        ]
+        return [base_phrase for phrase in self.phrases for base_phrase in phrase.base_phrases]
 
     @property
     def morphemes(self) -> list[Morpheme]:
@@ -117,11 +113,7 @@ class Clause(Unit):
         Raises:
             AttributeError: 解析結果にアクセスできない場合．
         """
-        return [
-            morpheme
-            for base_phrase in self.base_phrases
-            for morpheme in base_phrase.morphemes
-        ]
+        return [morpheme for base_phrase in self.base_phrases for morpheme in base_phrase.morphemes]
 
     @cached_property
     def head(self) -> BasePhrase:

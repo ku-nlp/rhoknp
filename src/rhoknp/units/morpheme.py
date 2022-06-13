@@ -18,9 +18,7 @@ if TYPE_CHECKING:
 class MorphemeAttributes:
     """形態素の属性クラス．"""
 
-    JUMANPP_PAT = re.compile(
-        r"(?P<attrs>([^ ]+ [^ ]+ [^ ]+ [^ ]+ \d+ [^ ]+ \d+ [^ ]+ \d+ [^ ]+ \d+))"
-    )
+    JUMANPP_PAT = re.compile(r"(?P<attrs>([^ ]+ [^ ]+ [^ ]+ [^ ]+ \d+ [^ ]+ \d+ [^ ]+ \d+ [^ ]+ \d+))")
 
     surf: str  #: 表層表現．
     reading: str  #: 読み．
@@ -267,9 +265,7 @@ class Morpheme(Unit):
     @cached_property
     def children(self) -> list["Morpheme"]:
         """この形態素に係っている形態素のリスト．"""
-        return [
-            morpheme for morpheme in self.sentence.morphemes if morpheme.parent == self
-        ]
+        return [morpheme for morpheme in self.sentence.morphemes if morpheme.parent == self]
 
     @classmethod
     def from_jumanpp(cls, jumanpp_text: str) -> "Morpheme":
@@ -287,9 +283,7 @@ class Morpheme(Unit):
         return morpheme
 
     @classmethod
-    def _from_jumanpp_line(
-        cls, jumanpp_line: str, homograph: bool = False
-    ) -> "Morpheme":
+    def _from_jumanpp_line(cls, jumanpp_line: str, homograph: bool = False) -> "Morpheme":
         """形態素クラスのインスタンスを Juman++ の解析結果から初期化．
 
         Args:

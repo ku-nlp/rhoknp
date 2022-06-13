@@ -232,10 +232,7 @@ def test_document_from_sentences_0(sentence_strings: list[str]) -> None:
 @pytest.mark.parametrize("sentence_strings", [["天気がいいので散歩した。", "途中で先生に会った。"], ["。"]])
 def test_document_from_sentences_1(sentence_strings: list[str]) -> None:
     doc_from_sentences = Document.from_sentences(
-        [
-            Sentence.from_raw_text(sentence_string)
-            for sentence_string in sentence_strings
-        ]
+        [Sentence.from_raw_text(sentence_string) for sentence_string in sentence_strings]
     )
     assert doc_from_sentences.text == "".join(sentence_strings)
 
@@ -585,9 +582,7 @@ def test_document_reference(knp: str) -> None:
         assert morpheme.document == document
 
 
-@pytest.mark.parametrize(
-    "attr", ["sentences", "clauses", "phrases", "base_phrases", "morphemes"]
-)
+@pytest.mark.parametrize("attr", ["sentences", "clauses", "phrases", "base_phrases", "morphemes"])
 def test_global_index(attr: str):
     knp = textwrap.dedent(
         """\

@@ -47,20 +47,14 @@ def test_knp_batch_apply() -> None:
     ]
     knp = KNP()
     sents = knp.batch_apply(texts)
-    assert [sent.text for sent in sents] == [
-        text.replace(" ", "　").replace('"', "”") for text in texts
-    ]
+    assert [sent.text for sent in sents] == [text.replace(" ", "　").replace('"', "”") for text in texts]
 
     # parallel
     sents = knp.batch_apply(texts, processes=2)
-    assert [sent.text for sent in sents] == [
-        text.replace(" ", "　").replace('"', "”") for text in texts
-    ]
+    assert [sent.text for sent in sents] == [text.replace(" ", "　").replace('"', "”") for text in texts]
 
     sents = knp.batch_apply(texts, processes=4)
-    assert [sent.text for sent in sents] == [
-        text.replace(" ", "　").replace('"', "”") for text in texts
-    ]
+    assert [sent.text for sent in sents] == [text.replace(" ", "　").replace('"', "”") for text in texts]
 
 
 def test_knp_batch_apply_to_documents() -> None:
@@ -71,20 +65,14 @@ def test_knp_batch_apply_to_documents() -> None:
     ]
     knp = KNP()
     docs = knp.batch_apply_to_documents(texts)
-    assert [doc.text for doc in docs] == [
-        text.replace(" ", "　").replace('"', "”") for text in texts
-    ]
+    assert [doc.text for doc in docs] == [text.replace(" ", "　").replace('"', "”") for text in texts]
 
     # parallel
     docs = knp.batch_apply_to_documents(texts, processes=2)
-    assert [doc.text for doc in docs] == [
-        text.replace(" ", "　").replace('"', "”") for text in texts
-    ]
+    assert [doc.text for doc in docs] == [text.replace(" ", "　").replace('"', "”") for text in texts]
 
     docs = knp.batch_apply_to_documents(texts, processes=4)
-    assert [doc.text for doc in docs] == [
-        text.replace(" ", "　").replace('"', "”") for text in texts
-    ]
+    assert [doc.text for doc in docs] == [text.replace(" ", "　").replace('"', "”") for text in texts]
 
 
 def test_knp_is_available() -> None:
