@@ -3,7 +3,6 @@ from logging import getLogger
 from typing import Optional, Sequence, Union
 
 from rhoknp.pas.pas import Pas
-from rhoknp.pas.predicate import Predicate
 from rhoknp.units.base_phrase import BasePhrase
 from rhoknp.units.clause import Clause
 from rhoknp.units.morpheme import Morpheme
@@ -11,7 +10,6 @@ from rhoknp.units.phrase import Phrase
 from rhoknp.units.sentence import Sentence
 from rhoknp.units.unit import Unit
 from rhoknp.units.utils import is_comment_line
-from rhoknp.utils.constants import ALL_CASES
 
 logger = getLogger(__file__)
 
@@ -40,8 +38,6 @@ class Document(Unit):
         Document.count += 1
 
         self.has_error = False
-
-        self._pass: list[Pas] = []
 
     def _post_init(self) -> None:
         """インスタンス作成後の追加処理を行う．"""
@@ -144,7 +140,7 @@ class Document(Unit):
 
     def pas_list(self) -> list[Pas]:
         """述語項構造のリストを返却．"""
-        return self._pass
+        return [base_phrase.pas for base_phrase in self.base_phrases if base_phrase.pas is not None]
 
     @classmethod
     def from_raw_text(cls, text: str) -> "Document":
@@ -360,31 +356,7 @@ class Document(Unit):
     def _parse_rel(self) -> None:
         """関係タグ付きコーパスにおける <rel> タグをパース．"""
         for base_phrase in self.base_phrases:
-            # extract PAS
-            pas = Pas(Predicate(base_phrase))
-            for rel in base_phrase.rels:
-                if rel.type not in ALL_CASES:
-                    continue
-                if rel.sid == "":
-                    logger.warning(f"empty sid found in {base_phrase.sentence.sid}; assume to be self")
-                    rel.sid = base_phrase.sentence.sid
-                if rel.sid is not None:
-                    sentence = next(sent for sent in base_phrase.document.sentences if sent.sid == rel.sid)
-                    assert rel.base_phrase_index is not None
-                    if rel.base_phrase_index >= len(sentence.base_phrases):
-                        logger.warning(f"index out of range in {base_phrase.sentence.sid}")
-                        continue
-                    arg_base_phrase = sentence.base_phrases[rel.base_phrase_index]
-                    if not (set(rel.target) <= set(arg_base_phrase.text)):
-                        logger.info(f"rel target mismatch; '{rel.target}' is not '{arg_base_phrase.text}'")
-                    pas.add_argument(rel.type, arg_base_phrase, mode=rel.mode)
-                else:
-                    if rel.target == "なし":
-                        pas.set_arguments_optional(rel.type)
-                        continue
-                    # exophora
-                    pas.add_special_argument(rel.type, rel.target, base_phrase.index, mode=rel.mode)  # TODO: fix eid
-            self._pass.append(pas)
+            base_phrase.parse_rel()
 
     def _parse_discourse_relation(self) -> None:
         """<談話関係> タグをパース．"""

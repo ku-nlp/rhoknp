@@ -1,18 +1,23 @@
 import re
 import weakref
 from functools import cached_property
+from logging import getLogger
 from typing import TYPE_CHECKING, Optional
 
+from rhoknp.pas.pas import Pas
+from rhoknp.pas.predicate import Predicate
 from rhoknp.units.morpheme import Morpheme
 from rhoknp.units.unit import Unit
 from rhoknp.units.utils import DepType, Features, Rels
+from rhoknp.utils.constants import ALL_CASES
 
 if TYPE_CHECKING:
-    from rhoknp.pas.pas import Pas
     from rhoknp.units.clause import Clause
     from rhoknp.units.document import Document
     from rhoknp.units.phrase import Phrase
     from rhoknp.units.sentence import Sentence
+
+logger = getLogger(__file__)
 
 
 class BasePhrase(Unit):
@@ -36,12 +41,10 @@ class BasePhrase(Unit):
         self.dep_type: DepType = dep_type  #: 係り受けの種類．
         self.features: Features = features  #: 素性．
         self.rels: Rels = rels  #: 基本句間関係．
+        self.pas: Optional["Pas"] = None  #: 述語項構造
 
         self.index = self.count
         BasePhrase.count += 1
-
-        # Predicate-argument structure
-        self._pas: Optional["Pas"] = None
 
     @property
     def global_index(self) -> int:
@@ -155,22 +158,6 @@ class BasePhrase(Unit):
         """この基本句に係っている基本句のリスト．"""
         return [base_phrase for base_phrase in self.sentence.base_phrases if base_phrase.parent == self]
 
-    @property
-    def pas(self) -> "Pas":
-        """述語項構造．"""
-        if self._pas is None:
-            raise AttributeError("pas has not been set")
-        return self._pas
-
-    @pas.setter
-    def pas(self, pas: "Pas") -> None:
-        """述語項構造．
-
-        Args:
-            pas: 述語項構造．
-        """
-        self._pas = weakref.proxy(pas)
-
     @classmethod
     def from_knp(cls, knp_text: str) -> "BasePhrase":
         """基本句クラスのインスタンスを KNP の解析結果から初期化．
@@ -204,3 +191,31 @@ class BasePhrase(Unit):
         ret += "\n"
         ret += "".join(morpheme.to_jumanpp() for morpheme in self.morphemes)
         return ret
+
+    def parse_rel(self) -> None:
+        """関係タグ付きコーパスにおける <rel> タグをパース．"""
+        # extract PAS
+        pas = Pas(Predicate(self))
+        for rel in self.rels:
+            if rel.type not in ALL_CASES:
+                continue
+            if rel.sid == "":
+                logger.warning(f"empty sid found in {self.sentence.sid}; assume to be self")
+                rel.sid = self.sentence.sid
+            if rel.sid is not None:
+                sentence = next(sent for sent in self.document.sentences if sent.sid == rel.sid)
+                assert rel.base_phrase_index is not None
+                if rel.base_phrase_index >= len(sentence.base_phrases):
+                    logger.warning(f"index out of range in {self.sentence.sid}")
+                    continue
+                arg_base_phrase = sentence.base_phrases[rel.base_phrase_index]
+                if not (set(rel.target) <= set(arg_base_phrase.text)):
+                    logger.info(f"rel target mismatch; '{rel.target}' is not '{arg_base_phrase.text}'")
+                pas.add_argument(rel.type, arg_base_phrase, mode=rel.mode)
+            else:
+                if rel.target == "なし":
+                    pas.set_arguments_optional(rel.type)
+                    continue
+                # exophora
+                pas.add_special_argument(rel.type, rel.target, self.index, mode=rel.mode)  # TODO: fix eid
+        self.pas = pas

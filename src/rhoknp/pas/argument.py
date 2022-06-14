@@ -4,10 +4,10 @@ from enum import Enum
 from typing import TYPE_CHECKING, Any, Optional
 
 from rhoknp.pas.exophora import ExophoraReferent
-from rhoknp.units.base_phrase import BasePhrase
 
 if TYPE_CHECKING:
     from rhoknp.pas.pas import Pas
+    from rhoknp.units.base_phrase import BasePhrase
     from rhoknp.units.clause import Clause
     from rhoknp.units.document import Document
     from rhoknp.units.phrase import Phrase
@@ -63,12 +63,12 @@ class BaseArgument(ABC):
 
 
 class Argument(BaseArgument):
-    def __init__(self, base_phrase: BasePhrase, arg_type: ArgumentType):
+    def __init__(self, base_phrase: "BasePhrase", arg_type: ArgumentType):
         super().__init__(arg_type)
-        self.base_phrase: BasePhrase = base_phrase
+        self.base_phrase: "BasePhrase" = base_phrase
 
     @property
-    def unit(self) -> BasePhrase:
+    def unit(self) -> "BasePhrase":
         return self.base_phrase
 
     @property

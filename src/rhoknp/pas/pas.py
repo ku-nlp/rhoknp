@@ -3,13 +3,15 @@ import sys
 from collections import defaultdict
 from enum import Enum, auto
 from logging import getLogger
-from typing import Optional, Union
+from typing import TYPE_CHECKING, Optional, Union
 
 from rhoknp.pas.argument import Argument, ArgumentType, BaseArgument, SpecialArgument
 from rhoknp.pas.exophora import ExophoraReferent
 from rhoknp.pas.predicate import Predicate
-from rhoknp.units.base_phrase import BasePhrase
 from rhoknp.units.utils import RelMode
+
+if TYPE_CHECKING:
+    from rhoknp.units.base_phrase import BasePhrase
 
 logger = getLogger(__file__)
 
@@ -41,7 +43,7 @@ class Pas:
         return self._predicate.sid
 
     @classmethod
-    def _from_pas_string(cls, base_phrase: BasePhrase, fstring: str, format_: CaseInfoFormat) -> "Pas":
+    def _from_pas_string(cls, base_phrase: "BasePhrase", fstring: str, format_: CaseInfoFormat) -> "Pas":
         # language=RegExp
         cfid_pat = r"(.*?):([^:/]+?)"  # 食べる/たべる:動1
         match = re.match(
@@ -87,7 +89,7 @@ class Pas:
         return pas
 
     @classmethod
-    def from_base_phrase(cls, base_phrase: BasePhrase) -> "Pas":
+    def from_base_phrase(cls, base_phrase: "BasePhrase") -> "Pas":
         if "述語項構造" in base_phrase.features:
             pas_string = base_phrase.features["述語項構造"]
             assert isinstance(pas_string, str)
@@ -104,7 +106,7 @@ class Pas:
     def add_argument(
         self,
         case: str,
-        base_phrase: BasePhrase,
+        base_phrase: "BasePhrase",
         mode: Optional[RelMode] = None,
         arg_type: Optional[ArgumentType] = None,
     ) -> None:
@@ -139,7 +141,7 @@ class Pas:
             logger.info(f"marked {arg} as optional in {self.sid}")
 
     @staticmethod
-    def _get_arg_type(predicate: Predicate, arg_base_phrase: BasePhrase, case: str) -> ArgumentType:
+    def _get_arg_type(predicate: Predicate, arg_base_phrase: "BasePhrase", case: str) -> ArgumentType:
         if arg_base_phrase in predicate.phrase.children:
             dep_case = arg_base_phrase.features.get("係", "")
             assert isinstance(dep_case, str)

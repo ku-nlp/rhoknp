@@ -1,10 +1,12 @@
 import re
 import sys
-from typing import Sequence, TextIO, Union
+from typing import TYPE_CHECKING, Sequence, TextIO, Union
 
-from rhoknp.units.base_phrase import BasePhrase
-from rhoknp.units.phrase import Phrase
 from rhoknp.units.utils import DepType
+
+if TYPE_CHECKING:
+    from rhoknp.units.base_phrase import BasePhrase
+    from rhoknp.units.phrase import Phrase
 
 POS_MARK = {
     "特殊": "*",
@@ -30,7 +32,7 @@ POS_MARK = {
 
 
 def draw_tree(
-    leaves: Sequence[Union[Phrase, BasePhrase]],
+    leaves: Sequence[Union["Phrase", "BasePhrase"]],
     fh: TextIO = sys.stdout,
     show_pos: bool = True,
 ) -> None:
@@ -38,7 +40,7 @@ def draw_tree(
     print(sprint_tree(leaves, show_pos=show_pos), file=fh, end="")
 
 
-def sprint_tree(leaves: Sequence[Union[Phrase, BasePhrase]], show_pos: bool = True) -> str:
+def sprint_tree(leaves: Sequence[Union["Phrase", "BasePhrase"]], show_pos: bool = True) -> str:
     """構文木を文字列で返す．"""
     limit = len(leaves)
     item = [[""] * limit for _ in range(limit)]
@@ -99,7 +101,7 @@ def sprint_tree(leaves: Sequence[Union[Phrase, BasePhrase]], show_pos: bool = Tr
     return buf
 
 
-def _leaf_string(leaf: Union[Phrase, BasePhrase], show_pos: bool) -> str:
+def _leaf_string(leaf: Union["Phrase", "BasePhrase"], show_pos: bool) -> str:
     ret = ""
     for mrph in leaf.morphemes:
         ret += mrph.text

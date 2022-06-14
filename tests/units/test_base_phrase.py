@@ -283,5 +283,4 @@ def test_pas():
             """
         )
     )
-    with pytest.raises(AttributeError):
-        _ = base_phrase.pas
+    assert base_phrase.pas is None
