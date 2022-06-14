@@ -34,7 +34,7 @@ class ExophoraReferent:
     }
     PAT: ClassVar[re.Pattern[str]] = re.compile(
         rf"^(?P<type>{'|'.join(t.value for t in ExophoraReferentType if t != ExophoraReferentType.OTHER)})"
-        f"(?P<index>[0-9０-９]*)$"
+        rf"(?P<index>[０-９\d]*)$"
     )
 
     def __init__(self, text: str) -> None:

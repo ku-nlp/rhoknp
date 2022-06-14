@@ -21,7 +21,7 @@ class Sentence(Unit):
     """
 
     EOS = "EOS"
-    SID_PAT = re.compile(r"^(?P<sid>(?P<did>[a-zA-Z0-9-_]+?)(-(\d+))?)$")
+    SID_PAT = re.compile(r"^(?P<sid>(?P<did>[a-zA-Z\d\-_]+?)(-(\d+))?)$")
     SID_PAT_KWDLC = re.compile(r"^(?P<sid>(?P<did>w\d{6}-\d{10})(-\d+){1,2})$")
     SID_PAT_WAC = re.compile(r"^(?P<sid>(?P<did>wiki\d{8})(-\d{2})(-\d{2})?)$")
     count = 0
