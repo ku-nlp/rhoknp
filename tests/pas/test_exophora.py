@@ -13,8 +13,8 @@ def test_exophora_number():
     referent = ExophoraReferent("不特定:人３")
     assert referent.type == ExophoraReferentType.UNSPECIFIED_PERSON
     assert referent.index == 3
-    assert str(referent) == "不特定:人３"
-    assert repr(referent) == "ExophoraReferent(text='不特定:人３')"
+    assert str(referent) == "不特定:人3"
+    assert repr(referent) == "ExophoraReferent(text='不特定:人3')"
 
 
 def test_exophora_other():

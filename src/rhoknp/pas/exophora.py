@@ -20,18 +20,6 @@ class ExophoraReferentType(Enum):
 class ExophoraReferent:
     """外界照応における照応先を表すクラス．"""
 
-    _HAN2ZEN: dict[str, str] = {
-        "0": "０",
-        "1": "１",
-        "2": "２",
-        "3": "３",
-        "4": "４",
-        "5": "５",
-        "6": "６",
-        "7": "７",
-        "8": "８",
-        "9": "９",
-    }
     PAT: ClassVar[re.Pattern[str]] = re.compile(
         rf"^(?P<type>{'|'.join(t.value for t in ExophoraReferentType if t != ExophoraReferentType.OTHER)})"
         rf"(?P<index>[０-９\d]*)$"
@@ -54,7 +42,7 @@ class ExophoraReferent:
     def text(self) -> str:
         """外界照応の照応先を表すテキスト表現．"""
         if self.type != ExophoraReferentType.OTHER:
-            return self.type.value + "".join(self._HAN2ZEN[s] for s in str(self.index or ""))
+            return self.type.value + str(self.index or "")
         else:
             assert self._other_text is not None
             return self._other_text
