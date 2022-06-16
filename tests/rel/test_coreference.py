@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import pytest
+
 from rhoknp.rel import Entity, ExophoraReferent
 from rhoknp.units import BasePhrase, Document
 
@@ -163,42 +165,8 @@ def test_coref2() -> None:
     assert (mentions[3].head.surf, mentions[3].global_index, {e.eid for e in mentions[3].entities}) == ("皆様", 17, {14})
 
 
-def test_coref_link1() -> None:
-    doc_id = "w201106-0000060050"
-    document = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text())
-    entities: list[Entity] = sorted(document.entity_manager.entities, key=lambda e: e.eid)
-
-    for entity in entities:
-        for mention in entity.mentions:
-            assert entity in mention.entities
-        for mention in entity.mentions_nonidentical:
-            assert entity in mention.entities_nonidentical
-    for mention in document.base_phrases:
-        for entity in mention.entities:
-            assert mention in entity.mentions
-        for entity in mention.entities_nonidentical:
-            assert mention in entity.mentions_nonidentical
-
-
-def test_coref_link2() -> None:
-    doc_id = "w201106-0000060560"
-    document = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text())
-    entities: list[Entity] = sorted(document.entity_manager.entities, key=lambda e: e.eid)
-
-    for entity in entities:
-        for mention in entity.mentions:
-            assert entity in mention.entities
-        for mention in entity.mentions_nonidentical:
-            assert entity in mention.entities_nonidentical
-    for mention in document.base_phrases:
-        for entity in mention.entities:
-            assert mention in entity.mentions
-        for entity in mention.entities_nonidentical:
-            assert mention in entity.mentions_nonidentical
-
-
-def test_coref_link3() -> None:
-    doc_id = "w201106-0000060877"
+@pytest.mark.parametrize("doc_id", ["w201106-0000060560", "w201106-0000060560", "w201106-0000060877"])
+def test_coref_link(doc_id: str) -> None:
     document = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text())
     entities: list[Entity] = sorted(document.entity_manager.entities, key=lambda e: e.eid)
 
