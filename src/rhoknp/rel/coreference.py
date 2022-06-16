@@ -12,29 +12,23 @@ logger = logging.getLogger(__file__)
 
 class Entity:
     """共参照におけるエンティティ．
-    This class manages entity IDs of mentions that refer to this entity.
 
     Args:
-        eid (int): An entity ID.
-        exophora_referent (str, optional): The kind of exophor if this entity corresponds to some exophor. Otherwise, None.
+        eid: エンティティ ID
+        exophora_referent: 自身が外界照応の照応先に対応するなら照応先の種類. 対応しないなら None.
 
     Attributes:
-        eid (int): An Entity ID.
-        exophora_referent (str, optional): A string to represent exophor, such as "著者", "読者", and "不特定:人".
-        mentions (Set[Mention]): A set of mentions that refer to this entity.
-        mentions_nonidentical (Set[Mention]): Mentions that have uncertain relation with this entity.
+        eid: エンティティ ID
+        exophora_referent: 外界照応の照応先．対応するものがなければ None.
+        mentions: このエンティティを参照する基本句の集合
+        mentions_nonidentical: このエンティティを≒関係で参照する基本句の集合
     """
 
-    def __init__(self, eid: int, exophora_referent: Optional[ExophoraReferent] = None):
+    def __init__(self, eid: int, exophora_referent: Optional[ExophoraReferent] = None) -> None:
         self.eid: int = eid
         self.exophora_referent: Optional[ExophoraReferent] = exophora_referent
         self.mentions: set["BasePhrase"] = set()
         self.mentions_nonidentical: set["BasePhrase"] = set()
-
-    @property
-    def is_special(self) -> bool:
-        """Whether this entity corresponds to special entity, such as exophor."""
-        return self.exophora_referent is not None
 
     @property
     def all_mentions(self) -> set["BasePhrase"]:
@@ -72,7 +66,7 @@ class Entity:
             mention.entities_nonidentical.remove(self)
 
     def __str__(self) -> str:
-        if self.is_special:
+        if self.exophora_referent:
             return str(self.exophora_referent)
         if self.mentions:
             return list(self.mentions)[0].__str__()

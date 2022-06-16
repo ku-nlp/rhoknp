@@ -164,6 +164,7 @@ class BasePhrase(Unit):
 
     @property
     def entities_all(self) -> set[Entity]:
+        """nonidentical も含めた参照している全エンティティの集合．"""
         return self.entities | self.entities_nonidentical
 
     @classmethod
@@ -201,7 +202,11 @@ class BasePhrase(Unit):
         return ret
 
     def is_nonidentical_to(self, entity: Entity) -> bool:
-        """Whether this mention has uncertain relation with a specified entity."""
+        """エンティティに対して自身が nonidentical な場合に True を返す．
+
+        Raises:
+            AssertionError: 自身が参照しないエンティティだった場合．
+        """
         if entity in self.entities:
             return False
         else:
@@ -287,5 +292,5 @@ class BasePhrase(Unit):
                 target_entity = entity_manager.create_entity(exophora_referent=ExophoraReferent(rel.target))
                 entity_manager.merge_entities(self, None, source_entity, target_entity, nonidentical)
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash((self.global_index, self.sentence.sid))
