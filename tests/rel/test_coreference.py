@@ -149,10 +149,18 @@ def test_coref2() -> None:
     assert entity.exophora_referent is None
     mentions: list[BasePhrase] = sorted(entity.all_mentions, key=lambda x: x.global_index)
     assert len(mentions) == 4
-    assert (mentions[0].head.surf, mentions[0].global_index, set(mentions[0].entities.keys())) == ("ドクター", 7, {4})
-    assert (mentions[1].head.surf, mentions[1].global_index, set(mentions[1].entities.keys())) == ("ドクター", 11, {14})
-    assert (mentions[2].head.surf, mentions[2].global_index, set(mentions[2].entities.keys())) == ("ドクター", 16, {14})
-    assert (mentions[3].head.surf, mentions[3].global_index, set(mentions[3].entities.keys())) == ("皆様", 17, {14})
+    assert (mentions[0].head.surf, mentions[0].global_index, {e.eid for e in mentions[0].entities}) == ("ドクター", 7, {4})
+    assert (mentions[1].head.surf, mentions[1].global_index, {e.eid for e in mentions[1].entities}) == (
+        "ドクター",
+        11,
+        {14},
+    )
+    assert (mentions[2].head.surf, mentions[2].global_index, {e.eid for e in mentions[2].entities}) == (
+        "ドクター",
+        16,
+        {14},
+    )
+    assert (mentions[3].head.surf, mentions[3].global_index, {e.eid for e in mentions[3].entities}) == ("皆様", 17, {14})
 
 
 def test_coref_link1() -> None:
@@ -162,13 +170,13 @@ def test_coref_link1() -> None:
 
     for entity in entities:
         for mention in entity.mentions:
-            assert entity in mention.entities.values()
+            assert entity in mention.entities
         for mention in entity.mentions_nonidentical:
-            assert entity in mention.entities_nonidentical.values()
+            assert entity in mention.entities_nonidentical
     for mention in document.base_phrases:
-        for entity in mention.entities.values():
+        for entity in mention.entities:
             assert mention in entity.mentions
-        for entity in mention.entities_nonidentical.values():
+        for entity in mention.entities_nonidentical:
             assert mention in entity.mentions_nonidentical
 
 
@@ -179,13 +187,13 @@ def test_coref_link2() -> None:
 
     for entity in entities:
         for mention in entity.mentions:
-            assert entity in mention.entities.values()
+            assert entity in mention.entities
         for mention in entity.mentions_nonidentical:
-            assert entity in mention.entities_nonidentical.values()
+            assert entity in mention.entities_nonidentical
     for mention in document.base_phrases:
-        for entity in mention.entities.values():
+        for entity in mention.entities:
             assert mention in entity.mentions
-        for entity in mention.entities_nonidentical.values():
+        for entity in mention.entities_nonidentical:
             assert mention in entity.mentions_nonidentical
 
 
@@ -196,11 +204,11 @@ def test_coref_link3() -> None:
 
     for entity in entities:
         for mention in entity.mentions:
-            assert entity in mention.entities.values()
+            assert entity in mention.entities
         for mention in entity.mentions_nonidentical:
-            assert entity in mention.entities_nonidentical.values()
+            assert entity in mention.entities_nonidentical
     for mention in document.base_phrases:
-        for entity in mention.entities.values():
+        for entity in mention.entities:
             assert mention in entity.mentions
-        for entity in mention.entities_nonidentical.values():
+        for entity in mention.entities_nonidentical:
             assert mention in entity.mentions_nonidentical

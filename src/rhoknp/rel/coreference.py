@@ -1,5 +1,5 @@
 import logging
-from typing import TYPE_CHECKING, Optional, Set
+from typing import TYPE_CHECKING, Optional
 
 from rhoknp.rel.argument import SpecialArgument
 from rhoknp.rel.exophora import ExophoraReferent
@@ -28,8 +28,8 @@ class Entity:
     def __init__(self, eid: int, exophora_referent: Optional[ExophoraReferent] = None):
         self.eid: int = eid
         self.exophora_referent: Optional[ExophoraReferent] = exophora_referent
-        self.mentions: Set["BasePhrase"] = set()
-        self.mentions_nonidentical: Set["BasePhrase"] = set()
+        self.mentions: set["BasePhrase"] = set()
+        self.mentions_nonidentical: set["BasePhrase"] = set()
 
     @property
     def is_special(self) -> bool:
@@ -37,7 +37,7 @@ class Entity:
         return self.exophora_referent is not None
 
     @property
-    def all_mentions(self) -> Set["BasePhrase"]:
+    def all_mentions(self) -> set["BasePhrase"]:
         """All mentions that refer to this entity, including nonidentical ones."""
         return self.mentions | self.mentions_nonidentical
 
@@ -54,22 +54,22 @@ class Entity:
         if nonidentical:
             if mention in self.all_mentions:
                 return
-            mention.entities_nonidentical[self.eid] = self
+            mention.entities_nonidentical.add(self)
             self.mentions_nonidentical.add(mention)
         else:
             if mention in self.mentions_nonidentical:
                 self.remove_mention(mention)
-            mention.entities[self.eid] = self
+            mention.entities.add(self)
             self.mentions.add(mention)
 
     def remove_mention(self, mention: "BasePhrase") -> None:
         """Remove a mention that is managed by this entity."""
         if mention in self.mentions:
             self.mentions.remove(mention)
-            mention.entities.pop(self.eid)
+            mention.entities.remove(self)
         if mention in self.mentions_nonidentical:
             self.mentions_nonidentical.remove(mention)
-            mention.entities_nonidentical.pop(self.eid)
+            mention.entities_nonidentical.remove(self)
 
     def __str__(self) -> str:
         if self.is_special:
@@ -151,7 +151,8 @@ class EntityManager:
             target_mention (BasePhrase, optional): A target mention.
             se (Entity): A source entity.
             te (Entity): A target entity.
-            nonidentical (bool): Whether the relation between source and target mentions is nonidentical (i.e., annotated with "≒").
+            nonidentical (bool): Whether the relation between source and target mentions is nonidentical (i.e.,
+                annotated with "≒").
         """
         nonidentical_tgt = (target_mention is not None) and target_mention.is_nonidentical_to(te)
         nonidentical_src = source_mention.is_nonidentical_to(se)

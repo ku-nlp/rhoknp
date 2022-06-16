@@ -44,8 +44,8 @@ class BasePhrase(Unit):
         self.features: Features = features  #: 素性．
         self.rels: Rels = rels  #: 基本句間関係．
         self.pas: Optional["Pas"] = None  #: 述語項構造．
-        self.entities: dict[int, Entity] = {}  #: 参照しているエンティティ．
-        self.entities_nonidentical: dict[int, Entity] = {}  #: ≒で参照しているエンティティ．
+        self.entities: set[Entity] = set()  #: 参照しているエンティティ．
+        self.entities_nonidentical: set[Entity] = set()  #: ≒で参照しているエンティティ．
 
         self.index = self.count
         BasePhrase.count += 1
@@ -163,7 +163,7 @@ class BasePhrase(Unit):
         return [base_phrase for base_phrase in self.sentence.base_phrases if base_phrase.parent == self]
 
     @property
-    def entities_all(self) -> dict[int, Entity]:
+    def entities_all(self) -> set[Entity]:
         return self.entities | self.entities_nonidentical
 
     @classmethod
@@ -202,10 +202,10 @@ class BasePhrase(Unit):
 
     def is_nonidentical_to(self, entity: Entity) -> bool:
         """Whether this mention has uncertain relation with a specified entity."""
-        if entity in self.entities.values():
+        if entity in self.entities:
             return False
         else:
-            assert entity in self.entities_nonidentical.values(), f"non-referring entity: {entity}"
+            assert entity in self.entities_nonidentical, f"non-referring entity: {entity}"
             return True
 
     def parse_rel(self) -> None:
@@ -266,7 +266,7 @@ class BasePhrase(Unit):
             if not target_base_phrase.entities:
                 target_entity = entity_manager.create_entity()
                 target_entity.add_mention(target_base_phrase)
-                target_base_phrase.entities[target_entity.eid] = target_entity
+                target_base_phrase.entities.add(target_entity)
         else:
             # exophora
             target_base_phrase = None
@@ -275,13 +275,13 @@ class BasePhrase(Unit):
         if not self.entities:
             source_entity = entity_manager.create_entity()
             source_entity.add_mention(self)
-            self.entities[source_entity.eid] = source_entity
+            self.entities.add(source_entity)
 
         nonidentical: bool = rel.type.endswith("≒")
-        for source_entity in self.entities_all.values():
+        for source_entity in self.entities_all:
             if rel.sid is not None:
                 assert target_base_phrase is not None
-                for target_entity in target_base_phrase.entities_all.values():
+                for target_entity in target_base_phrase.entities_all:
                     entity_manager.merge_entities(self, target_base_phrase, source_entity, target_entity, nonidentical)
             else:
                 target_entity = entity_manager.create_entity(exophora_referent=ExophoraReferent(rel.target))
