@@ -15,24 +15,24 @@ def test_coref1() -> None:
 
     entity = entities[0]
     assert entity.exophora_referent == ExophoraReferent("不特定:人")
-    mentions = sorted(entity.all_mentions, key=lambda x: x.global_index)
+    mentions = sorted(entity.mentions_all, key=lambda x: x.global_index)
     assert len(mentions) == 0
 
     entity = entities[1]
     assert entity.exophora_referent is None
-    mentions = sorted(entity.all_mentions, key=lambda x: x.global_index)
+    mentions = sorted(entity.mentions_all, key=lambda x: x.global_index)
     assert len(mentions) == 1
     assert (mentions[0].head.surf, mentions[0].global_index) == ("コイン", 0)
     assert len(mentions[0].entities) == 1
 
     entity = entities[2]
     assert entity.exophora_referent == ExophoraReferent("不特定:人")
-    mentions = sorted(entity.all_mentions, key=lambda x: x.global_index)
+    mentions = sorted(entity.mentions_all, key=lambda x: x.global_index)
     assert len(mentions) == 0
 
     entity = entities[3]
     assert entity.exophora_referent == ExophoraReferent("読者")
-    mentions = sorted(entity.all_mentions, key=lambda x: x.global_index)
+    mentions = sorted(entity.mentions_all, key=lambda x: x.global_index)
     assert len(mentions) == 1
     assert (mentions[0].head.surf, mentions[0].global_index) == ("自分", 15)
     assert len(mentions[0].entities) == 1
@@ -40,7 +40,7 @@ def test_coref1() -> None:
 
     entity = entities[4]
     assert entity.exophora_referent == ExophoraReferent("著者")
-    mentions = sorted(entity.all_mentions, key=lambda x: x.global_index)
+    mentions = sorted(entity.mentions_all, key=lambda x: x.global_index)
     assert len(mentions) == 1
     assert (mentions[0].head.surf, mentions[0].global_index) == ("自分", 15)
     assert len(mentions[0].entities) == 1
@@ -48,94 +48,94 @@ def test_coref1() -> None:
 
     entity = entities[5]
     assert entity.exophora_referent is None
-    mentions = sorted(entity.all_mentions, key=lambda x: x.global_index)
+    mentions = sorted(entity.mentions_all, key=lambda x: x.global_index)
     assert len(mentions) == 1
     assert (mentions[0].head.surf, mentions[0].global_index) == ("トス", 1)
     assert len(mentions[0].entities) == 1
 
     entity = entities[6]
     assert entity.exophora_referent is None
-    mentions = sorted(entity.all_mentions, key=lambda x: x.global_index)
+    mentions = sorted(entity.mentions_all, key=lambda x: x.global_index)
     assert len(mentions) == 1
     assert (mentions[0].head.surf, mentions[0].global_index) == ("表", 4)
     assert len(mentions[0].entities) == 1
 
     entity = entities[7]
     assert entity.exophora_referent is None
-    mentions = sorted(entity.all_mentions, key=lambda x: x.global_index)
+    mentions = sorted(entity.mentions_all, key=lambda x: x.global_index)
     assert len(mentions) == 1
     assert (mentions[0].head.surf, mentions[0].global_index) == ("数", 6)
     assert len(mentions[0].entities) == 1
 
     entity = entities[8]
     assert entity.exophora_referent is None
-    mentions = sorted(entity.all_mentions, key=lambda x: x.global_index)
+    mentions = sorted(entity.mentions_all, key=lambda x: x.global_index)
     assert len(mentions) == 1
     assert (mentions[0].head.surf, mentions[0].global_index) == ("出た", 5)
     assert len(mentions[0].entities) == 1
 
     entity = entities[9]
     assert entity.exophora_referent is None
-    mentions = sorted(entity.all_mentions, key=lambda x: x.global_index)
+    mentions = sorted(entity.mentions_all, key=lambda x: x.global_index)
     assert len(mentions) == 1
     assert (mentions[0].head.surf, mentions[0].global_index) == ("フィールド", 7)
     assert len(mentions[0].entities) == 1
 
     entity = entities[10]
     assert entity.exophora_referent is None
-    mentions = sorted(entity.all_mentions, key=lambda x: x.global_index)
+    mentions = sorted(entity.mentions_all, key=lambda x: x.global_index)
     assert len(mentions) == 1
     assert (mentions[0].head.surf, mentions[0].global_index) == ("モンスター", 8)
     assert len(mentions[0].entities) == 1
 
     entity = entities[11]
     assert entity.exophora_referent == ExophoraReferent("不特定:状況")
-    mentions = sorted(entity.all_mentions, key=lambda x: x.global_index)
+    mentions = sorted(entity.mentions_all, key=lambda x: x.global_index)
     assert len(mentions) == 0
 
     entity = entities[12]
     assert entity.exophora_referent is None
-    mentions = sorted(entity.all_mentions, key=lambda x: x.global_index)
+    mentions = sorted(entity.mentions_all, key=lambda x: x.global_index)
     assert len(mentions) == 1
     assert (mentions[0].head.surf, mentions[0].global_index) == ("破壊", 9)
     assert len(mentions[0].entities) == 1
 
     entity = entities[13]
     assert entity.exophora_referent is None
-    mentions = sorted(entity.all_mentions, key=lambda x: x.global_index)
+    mentions = sorted(entity.mentions_all, key=lambda x: x.global_index)
     assert len(mentions) == 1
     assert (mentions[0].head.surf, mentions[0].global_index) == ("ターン", 13)
     assert len(mentions[0].entities) == 1
 
     entity = entities[14]
     assert entity.exophora_referent is None
-    mentions = sorted(entity.all_mentions, key=lambda x: x.global_index)
+    mentions = sorted(entity.mentions_all, key=lambda x: x.global_index)
     assert len(mentions) == 1
     assert (mentions[0].head.surf, mentions[0].global_index) == ("自分", 15)
     assert len(mentions[0].entities) == 1
 
     entity = entities[15]
     assert entity.exophora_referent == ExophoraReferent("不特定:人")
-    mentions = sorted(entity.all_mentions, key=lambda x: x.global_index)
+    mentions = sorted(entity.mentions_all, key=lambda x: x.global_index)
     assert len(mentions) == 1
     assert (mentions[0].head.surf, mentions[0].global_index) == ("自分", 15)
     assert len(mentions[0].entities) == 1
 
     entity = entities[16]
     assert entity.exophora_referent is None
-    mentions = sorted(entity.all_mentions, key=lambda x: x.global_index)
+    mentions = sorted(entity.mentions_all, key=lambda x: x.global_index)
     assert len(mentions) == 1
     assert (mentions[0].head.surf, mentions[0].global_index) == ("フェイズ", 17)
     assert len(mentions[0].entities) == 1
 
     entity = entities[17]
     assert entity.exophora_referent == ExophoraReferent("不特定:人")
-    mentions = sorted(entity.all_mentions, key=lambda x: x.global_index)
+    mentions = sorted(entity.mentions_all, key=lambda x: x.global_index)
     assert len(mentions) == 0
 
     entity = entities[18]
     assert entity.exophora_referent is None
-    mentions = sorted(entity.all_mentions, key=lambda x: x.global_index)
+    mentions = sorted(entity.mentions_all, key=lambda x: x.global_index)
     assert len(mentions) == 1
     assert (mentions[0].head.surf, mentions[0].global_index) == ("効果", 11)
     assert len(mentions[0].entities) == 1
@@ -149,7 +149,7 @@ def test_coref2() -> None:
 
     entity: Entity = entities[12]
     assert entity.exophora_referent is None
-    mentions: list[BasePhrase] = sorted(entity.all_mentions, key=lambda x: x.global_index)
+    mentions: list[BasePhrase] = sorted(entity.mentions_all, key=lambda x: x.global_index)
     assert len(mentions) == 4
     assert (mentions[0].head.surf, mentions[0].global_index, {e.eid for e in mentions[0].entities}) == ("ドクター", 7, {4})
     assert (mentions[1].head.surf, mentions[1].global_index, {e.eid for e in mentions[1].entities}) == (

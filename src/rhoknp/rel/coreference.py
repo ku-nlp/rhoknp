@@ -31,8 +31,8 @@ class Entity:
         self.mentions_nonidentical: set["BasePhrase"] = set()
 
     @property
-    def all_mentions(self) -> set["BasePhrase"]:
-        """All mentions that refer to this entity, including nonidentical ones."""
+    def mentions_all(self) -> set["BasePhrase"]:
+        """nonidentical を含めたこのエンティティを参照する全ての基本句の集合"""
         return self.mentions | self.mentions_nonidentical
 
     def add_mention(self, mention: "BasePhrase", nonidentical: bool = False) -> None:
@@ -46,7 +46,7 @@ class Entity:
             nonidentical (bool): Whether the mention is uncertain (i.e., annotated with "≒").
         """
         if nonidentical:
-            if mention in self.all_mentions:
+            if mention in self.mentions_all:
                 return
             mention.entities_nonidentical.add(self)
             self.mentions_nonidentical.add(mention)
@@ -175,7 +175,7 @@ class EntityManager:
         # 以下 te を削除する準備
         if se.exophora_referent is None:
             se.exophora_referent = te.exophora_referent
-        for tm in te.all_mentions:
+        for tm in te.mentions_all:
             se.add_mention(tm, nonidentical=tm.is_nonidentical_to(te))
         # argument も eid を持っているので eid が変わった場合はこちらも更新
         pas_list = source_mention.document.pas_list()
@@ -195,7 +195,7 @@ class EntityManager:
         """
         if entity not in self.entities:
             return
-        for mention in entity.all_mentions:
+        for mention in entity.mentions_all:
             entity.remove_mention(mention)
         self.entities.remove(entity)
 
