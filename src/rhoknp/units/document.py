@@ -2,6 +2,7 @@ import weakref
 from logging import getLogger
 from typing import Optional, Sequence, Union
 
+from rhoknp.pas.coreference import EntityManager
 from rhoknp.pas.pas import Pas
 from rhoknp.units.base_phrase import BasePhrase
 from rhoknp.units.clause import Clause
@@ -36,6 +37,8 @@ class Document(Unit):
 
         self.index = self.count
         Document.count += 1
+
+        self.entity_manager = EntityManager()
 
         self.has_error = False
 
