@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from rhoknp.pas import Argument, ArgumentType, ExophoraReferent, Pas, SpecialArgument
+from rhoknp.rel import Argument, ArgumentType, ExophoraReferent, Pas, SpecialArgument
 from rhoknp.units import Document
 
 

@@ -4,10 +4,10 @@ from functools import cached_property
 from logging import getLogger
 from typing import TYPE_CHECKING, Optional
 
-from rhoknp.pas.coreference import Entity, EntityManager
-from rhoknp.pas.exophora import ExophoraReferent
-from rhoknp.pas.pas import Pas
-from rhoknp.pas.predicate import Predicate
+from rhoknp.rel.coreference import Entity, EntityManager
+from rhoknp.rel.exophora import ExophoraReferent
+from rhoknp.rel.pas import Pas
+from rhoknp.rel.predicate import Predicate
 from rhoknp.units.morpheme import Morpheme
 from rhoknp.units.unit import Unit
 from rhoknp.units.utils import DepType, Features, Rel, RelMode, Rels

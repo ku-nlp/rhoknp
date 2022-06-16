@@ -3,10 +3,10 @@ from abc import ABC, abstractmethod
 from enum import Enum
 from typing import TYPE_CHECKING, Any, Optional
 
-from rhoknp.pas.exophora import ExophoraReferent
+from rhoknp.rel.exophora import ExophoraReferent
 
 if TYPE_CHECKING:
-    from rhoknp.pas.pas import Pas
+    from rhoknp.rel.pas import Pas
     from rhoknp.units.base_phrase import BasePhrase
     from rhoknp.units.clause import Clause
     from rhoknp.units.document import Document

@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from rhoknp.pas import Entity, ExophoraReferent
+from rhoknp.rel import Entity, ExophoraReferent
 from rhoknp.units import BasePhrase, Document
 
 

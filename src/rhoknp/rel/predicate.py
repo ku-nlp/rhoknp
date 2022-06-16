@@ -2,7 +2,7 @@ import weakref
 from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
-    from rhoknp.pas.pas import Pas
+    from rhoknp.rel.pas import Pas
     from rhoknp.units.base_phrase import BasePhrase
 
 

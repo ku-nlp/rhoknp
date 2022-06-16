@@ -2,8 +2,8 @@ import weakref
 from logging import getLogger
 from typing import Optional, Sequence, Union
 
-from rhoknp.pas.coreference import EntityManager
-from rhoknp.pas.pas import Pas
+from rhoknp.rel.coreference import EntityManager
+from rhoknp.rel.pas import Pas
 from rhoknp.units.base_phrase import BasePhrase
 from rhoknp.units.clause import Clause
 from rhoknp.units.morpheme import Morpheme

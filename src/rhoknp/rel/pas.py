@@ -5,9 +5,9 @@ from enum import Enum, auto
 from logging import getLogger
 from typing import TYPE_CHECKING, Optional, Union
 
-from rhoknp.pas.argument import Argument, ArgumentType, BaseArgument, SpecialArgument
-from rhoknp.pas.exophora import ExophoraReferent
-from rhoknp.pas.predicate import Predicate
+from rhoknp.rel.argument import Argument, ArgumentType, BaseArgument, SpecialArgument
+from rhoknp.rel.exophora import ExophoraReferent
+from rhoknp.rel.predicate import Predicate
 from rhoknp.units.utils import RelMode
 
 if TYPE_CHECKING:
