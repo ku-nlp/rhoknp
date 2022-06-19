@@ -242,8 +242,7 @@ class BasePhrase(Unit):
                 if not (set(rel.target) <= set(arg_base_phrase.text)):
                     logger.info(f"rel target mismatch; '{rel.target}' is not '{arg_base_phrase.text}'")
                 if not arg_base_phrase.entities:
-                    entity = entity_manager.create_entity()
-                    arg_base_phrase.add_entity(entity)
+                    arg_base_phrase.add_entity(entity_manager.create_entity())
                 pas.add_argument(rel.type, arg_base_phrase, mode=rel.mode)
             else:
                 if rel.target == "なし":
@@ -277,8 +276,7 @@ class BasePhrase(Unit):
                 return
             # create target entity
             if not target_base_phrase.entities:
-                target_entity = entity_manager.create_entity()
-                target_base_phrase.add_entity(target_entity)
+                target_base_phrase.add_entity(entity_manager.create_entity())
         else:
             # exophora
             target_base_phrase = None
