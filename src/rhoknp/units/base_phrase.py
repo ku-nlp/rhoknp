@@ -213,6 +213,14 @@ class BasePhrase(Unit):
             assert entity in self.entities_nonidentical, f"non-referring entity: {entity}"
             return True
 
+    def add_entity(self, entity: Entity, nonidentical: bool = False) -> None:
+        """エンティティを追加．"""
+        if nonidentical:
+            self.entities_nonidentical.add(entity)
+        else:
+            self.entities.add(entity)
+        entity.add_mention(self, nonidentical=nonidentical)
+
     def parse_rel(self) -> None:
         """関係タグ付きコーパスにおける <rel> タグをパース．"""
         entity_manager: EntityManager = self.document.entity_manager
@@ -235,7 +243,7 @@ class BasePhrase(Unit):
                     logger.info(f"rel target mismatch; '{rel.target}' is not '{arg_base_phrase.text}'")
                 if not arg_base_phrase.entities:
                     entity = entity_manager.create_entity()
-                    entity.add_mention(arg_base_phrase)
+                    arg_base_phrase.add_entity(entity)
                 pas.add_argument(rel.type, arg_base_phrase, mode=rel.mode)
             else:
                 if rel.target == "なし":
@@ -270,8 +278,7 @@ class BasePhrase(Unit):
             # create target entity
             if not target_base_phrase.entities:
                 target_entity = entity_manager.create_entity()
-                target_entity.add_mention(target_base_phrase)
-                target_base_phrase.entities.add(target_entity)
+                target_base_phrase.add_entity(target_entity)
         else:
             # exophora
             target_base_phrase = None
@@ -279,8 +286,7 @@ class BasePhrase(Unit):
         # create source entity
         if not self.entities:
             source_entity = entity_manager.create_entity()
-            source_entity.add_mention(self)
-            self.entities.add(source_entity)
+            self.add_entity(source_entity)
 
         nonidentical: bool = rel.type.endswith("≒")
         for source_entity in self.entities_all:
