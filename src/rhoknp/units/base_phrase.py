@@ -223,78 +223,73 @@ class BasePhrase(Unit):
 
     def parse_rel(self) -> None:
         """関係タグ付きコーパスにおける <rel> タグをパース．"""
-        entity_manager: EntityManager = self.document.entity_manager
-        # extract PAS
-        pas = Pas(Predicate(self))
+        self.pas = Pas(Predicate(self))
         for rel in self.rels:
-            if rel.type not in ALL_CASES:
-                continue
             if rel.sid == "":
                 logger.warning(f"empty sid found in {self.sentence.sid}; assume to be self")
                 rel.sid = self.sentence.sid
-            if rel.sid is not None:
-                sentence = next(sent for sent in self.document.sentences if sent.sid == rel.sid)
-                assert rel.base_phrase_index is not None
-                if rel.base_phrase_index >= len(sentence.base_phrases):
-                    logger.warning(f"index out of range in {self.sentence.sid}")
-                    continue
-                arg_base_phrase = sentence.base_phrases[rel.base_phrase_index]
-                if not (set(rel.target) <= set(arg_base_phrase.text)):
-                    logger.info(f"rel target mismatch; '{rel.target}' is not '{arg_base_phrase.text}'")
-                if not arg_base_phrase.entities:
-                    arg_base_phrase.add_entity(entity_manager.create_entity())
-                pas.add_argument(rel.type, arg_base_phrase, mode=rel.mode)
+            if rel.type in ALL_CASES:
+                self._add_pas(rel)
+            elif rel.type in ALL_COREFS:
+                if rel.mode in (None, RelMode.AND):  # ignore "OR" and "?"
+                    self._add_coreference(rel)
             else:
-                if rel.target == "なし":
-                    pas.set_arguments_optional(rel.type)
-                    continue
-                # exophora
-                entity = entity_manager.create_entity(ExophoraReferent(rel.target))
-                pas.add_special_argument(rel.type, rel.target, eid=entity.eid, mode=rel.mode)
-        self.pas = pas
+                logger.warning(f"unknown rel type: {rel.type}")
 
-        # extract coreference
-        for rel in self.rels:
-            if rel.type not in ALL_COREFS:
-                continue
-            if rel.mode in (None, RelMode.AND):  # ignore "OR" and "?"
-                self._add_coreference(rel)
+    def _add_pas(self, rel: Rel) -> None:
+        """述語項構造を追加．"""
+        entity_manager: EntityManager = self.document.entity_manager
+        assert self.pas is not None
+        if rel.sid is not None:
+            if (arg_base_phrase := self._get_target_base_phrase(rel)) is None:
+                return
+            if not arg_base_phrase.entities:
+                arg_base_phrase.add_entity(entity_manager.create_entity())
+            self.pas.add_argument(rel.type, arg_base_phrase, mode=rel.mode)
+        else:
+            if rel.target == "なし":
+                self.pas.set_arguments_optional(rel.type)
+                return
+            # exophora
+            entity = entity_manager.create_entity(ExophoraReferent(rel.target))
+            self.pas.add_special_argument(rel.type, rel.target, eid=entity.eid, mode=rel.mode)
 
     def _add_coreference(self, rel: Rel) -> None:
-        """Add a coreference relation."""
+        """共参照関係を追加．"""
         entity_manager: EntityManager = self.document.entity_manager
-        target_base_phrase: Optional[BasePhrase]
+        # create source entity
+        if not self.entities:
+            self.add_entity(entity_manager.create_entity())
+
+        nonidentical: bool = rel.type.endswith("≒")
         if rel.sid is not None:
-            sentence = next(sent for sent in self.document.sentences if sent.sid == rel.sid)
-            assert rel.base_phrase_index is not None
-            if rel.base_phrase_index >= len(sentence.base_phrases):
-                logger.warning(f"index out of range in {self.sentence.sid}")
+            if (target_base_phrase := self._get_target_base_phrase(rel)) is None:
                 return
-            target_base_phrase = sentence.base_phrases[rel.base_phrase_index]
-            if target_base_phrase.global_index == self.global_index:
+            if target_base_phrase == self:
                 logger.warning(f"{self.sentence.sid}: coreference with self found: {self}")
                 return
             # create target entity
             if not target_base_phrase.entities:
                 target_base_phrase.add_entity(entity_manager.create_entity())
-        else:
-            # exophora
-            target_base_phrase = None
-
-        # create source entity
-        if not self.entities:
-            source_entity = entity_manager.create_entity()
-            self.add_entity(source_entity)
-
-        nonidentical: bool = rel.type.endswith("≒")
-        for source_entity in self.entities_all:
-            if rel.sid is not None:
-                assert target_base_phrase is not None
+            for source_entity in self.entities_all:
                 for target_entity in target_base_phrase.entities_all:
                     entity_manager.merge_entities(self, target_base_phrase, source_entity, target_entity, nonidentical)
-            else:
+        else:
+            # exophora
+            for source_entity in self.entities_all:
                 target_entity = entity_manager.create_entity(exophora_referent=ExophoraReferent(rel.target))
                 entity_manager.merge_entities(self, None, source_entity, target_entity, nonidentical)
+
+    def _get_target_base_phrase(self, rel: Rel) -> Optional["BasePhrase"]:
+        sentence = next(sent for sent in self.document.sentences if sent.sid == rel.sid)
+        assert rel.base_phrase_index is not None
+        if rel.base_phrase_index >= len(sentence.base_phrases):
+            logger.warning(f"index out of range in {self.sentence.sid}")
+            return None
+        target_base_phrase = sentence.base_phrases[rel.base_phrase_index]
+        if not (set(rel.target) <= set(target_base_phrase.text)):
+            logger.info(f"rel target mismatch; '{rel.target}' is not '{target_base_phrase.text}'")
+        return target_base_phrase
 
     def __hash__(self) -> int:
         return hash((self.global_index, self.sentence.sid))
