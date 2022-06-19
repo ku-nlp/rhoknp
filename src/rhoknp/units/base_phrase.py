@@ -201,6 +201,26 @@ class BasePhrase(Unit):
         ret += "".join(morpheme.to_jumanpp() for morpheme in self.morphemes)
         return ret
 
+    def get_coreferents(self, include_nonidentical: bool = False, exclude_self: bool = True) -> set["BasePhrase"]:
+        """この基本句と共参照している基本句の集合を返却．
+
+        Args:
+            include_nonidentical: nonidentical なメンションを含めるなら True．
+            exclude_self: 自身を除くなら True．
+
+        Returns:
+            共参照している基本句の集合．
+        """
+        mentions: set["BasePhrase"] = set()
+        for entity in self.entities:
+            mentions.update(entity.mentions)
+        if include_nonidentical is True:
+            for entity in self.entities_nonidentical:
+                mentions.update(entity.mentions)
+        if exclude_self is True and self in mentions:
+            mentions.remove(self)
+        return mentions
+
     def is_nonidentical_to(self, entity: Entity) -> bool:
         """エンティティに対して自身が nonidentical な場合に True を返す．
 

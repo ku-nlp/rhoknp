@@ -180,3 +180,24 @@ def test_coref_link(doc_id: str) -> None:
             assert mention in entity.mentions
         for entity in mention.entities_nonidentical:
             assert mention in entity.mentions_nonidentical
+
+
+def test_coreferents() -> None:
+    doc_id = "w201106-0000060560"
+    document = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text())
+    mention = document.base_phrases[11]  # ドクター
+    coreferents = sorted(mention.get_coreferents(include_nonidentical=False), key=lambda m: m.global_index)
+    assert len(coreferents) == 2
+    assert (coreferents[0].text, coreferents[0].global_index) == ("ドクターの", 16)
+    assert (coreferents[1].text, coreferents[1].global_index) == ("皆様", 17)
+
+
+def test_coreferents_nonidentical() -> None:
+    doc_id = "w201106-0000060560"
+    document = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text())
+    mention = document.base_phrases[11]  # ドクター
+    coreferents = sorted(mention.get_coreferents(include_nonidentical=True), key=lambda m: m.global_index)
+    assert len(coreferents) == 3
+    assert (coreferents[0].text, coreferents[0].global_index) == ("ドクターを", 7)
+    assert (coreferents[1].text, coreferents[1].global_index) == ("ドクターの", 16)
+    assert (coreferents[2].text, coreferents[2].global_index) == ("皆様", 17)
