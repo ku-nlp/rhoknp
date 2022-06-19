@@ -14,14 +14,14 @@ class Entity:
     """共参照におけるエンティティ．
 
     Args:
-        eid: エンティティ ID
+        eid: エンティティ ID．
         exophora_referent: 自身が外界照応の照応先に対応するなら照応先の種類. 対応しないなら None.
 
     Attributes:
         eid: エンティティ ID
         exophora_referent: 外界照応の照応先．対応するものがなければ None.
-        mentions: このエンティティを参照する基本句の集合
-        mentions_nonidentical: このエンティティを≒関係で参照する基本句の集合
+        mentions: このエンティティを参照するメンションの集合．
+        mentions_nonidentical: このエンティティを≒関係で参照するメンションの集合．
     """
 
     def __init__(self, eid: int, exophora_referent: Optional[ExophoraReferent] = None) -> None:
@@ -32,18 +32,18 @@ class Entity:
 
     @property
     def mentions_all(self) -> set["BasePhrase"]:
-        """nonidentical を含めたこのエンティティを参照する全ての基本句の集合"""
+        """nonidentical を含めたこのエンティティを参照する全てのメンションの集合．"""
         return self.mentions | self.mentions_nonidentical
 
     def add_mention(self, mention: "BasePhrase", nonidentical: bool = False) -> None:
-        """Add a mention that refers to this entity.
+        """このエンティティを参照するメンションを追加．
 
-        When a non-uncertain mention is added and the mention has already been registered as an uncertain
-        mention, it will be overwritten as non-uncertain.
+        When an identical mention is added and the mention has already been registered as a nonidentical
+        mention, it will be overwritten as identical.
 
         Args:
-            mention (Mention): A mention
-            nonidentical (bool): Whether the mention is uncertain (i.e., annotated with "≒").
+            mention: 追加対象のメンション．
+            nonidentical: メンションが nonidentical ("≒" 付きでアノテーションされている) なら True．
         """
         if nonidentical:
             if mention in self.mentions_all:
@@ -57,7 +57,7 @@ class Entity:
             self.mentions.add(mention)
 
     def remove_mention(self, mention: "BasePhrase") -> None:
-        """Remove a mention that is managed by this entity."""
+        """このエンティティを参照するメンションを削除．"""
         if mention in self.mentions:
             self.mentions.remove(mention)
             mention.entities.remove(self)
@@ -91,6 +91,12 @@ class Entity:
 
 
 class EntityManager:
+    """文書全体のエンティティを管理．
+
+    Attributes:
+        entities: エンティティのリスト．
+    """
+
     def __init__(self):
         self.entities: list[Entity] = []
 
@@ -103,11 +109,11 @@ class EntityManager:
         eid を指定しない場合、最後に作成した entity の次の eid を選択．
 
         Args:
-            exophora_referent (Optional[ExophoraReferent]): 外界照応における照応先 (optional)
-            eid (Optional[int]): エンティティID (省略推奨)
+            exophora_referent: 外界照応における照応先．対応するものがなければ None．
+            eid: エンティティ ID．None の場合自動で割り振る．
 
         Returns:
-             Entity: An entity to be created.
+             Entity: 作成されたエンティティ．
         """
         if exophora_referent is not None and exophora_referent.is_singleton is True:
             entities = [e for e in self.entities if exophora_referent == e.exophora_referent]
@@ -137,16 +143,15 @@ class EntityManager:
         """2つのエンティティをマージ．
 
         source_mention と se, target_mention と te の間には mention が張られているが、
-        source と target 間には張られていないので、add_mention する
-        se と te が同一のエンティティであり、exophor も同じか片方が None ならば te の方を削除する
+        source と target 間には張られていないので、add_mention する．
+        se と te が同一のエンティティであり、exophor も同じか片方が None ならば te の方を削除する．
 
         Args:
-            source_mention (BasePhrase): A source mention.
-            target_mention (BasePhrase, optional): A target mention.
-            se (Entity): A source entity.
-            te (Entity): A target entity.
-            nonidentical (bool): Whether the relation between source and target mentions is nonidentical (i.e.,
-                annotated with "≒").
+            source_mention: ソース側メンション．
+            target_mention: ターゲット側メンション．メンションが存在しない場合は None．
+            se: ソース側エンティティ．
+            te: ターゲット側エンティティ．
+            nonidentical: ソース側メンションとターゲット側メンションの関係が nonidentical なら True．
         """
         nonidentical_tgt = (target_mention is not None) and target_mention.is_nonidentical_to(te)
         nonidentical_src = source_mention.is_nonidentical_to(se)
@@ -182,16 +187,16 @@ class EntityManager:
         for arg in [arg for pas in pas_list for args in pas.arguments.values() for arg in args]:
             if isinstance(arg, SpecialArgument) and arg.eid == te.eid:
                 arg.eid = se.eid
-        self._delete_entity(te)  # delete target entity
+        self.delete_entity(te)  # delete target entity
 
-    def _delete_entity(self, entity: Entity) -> None:
+    def delete_entity(self, entity: Entity) -> None:
         """エンティティを削除．
 
         Remove the target entity from all the mentions of the entity as well as from self.entities.
         Note that entity IDs can have a missing number.
 
         Args:
-            entity (Entity): The entity to be deleted.
+            entity: 削除対象のエンティティ．
         """
         if entity not in self.entities:
             return
