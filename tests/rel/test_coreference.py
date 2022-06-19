@@ -151,18 +151,10 @@ def test_coref2() -> None:
     assert entity.exophora_referent is None
     mentions: list[BasePhrase] = sorted(entity.mentions_all, key=lambda x: x.global_index)
     assert len(mentions) == 4
-    assert (mentions[0].head.surf, mentions[0].global_index, {e.eid for e in mentions[0].entities}) == ("ドクター", 7, {4})
-    assert (mentions[1].head.surf, mentions[1].global_index, {e.eid for e in mentions[1].entities}) == (
-        "ドクター",
-        11,
-        {14},
-    )
-    assert (mentions[2].head.surf, mentions[2].global_index, {e.eid for e in mentions[2].entities}) == (
-        "ドクター",
-        16,
-        {14},
-    )
-    assert (mentions[3].head.surf, mentions[3].global_index, {e.eid for e in mentions[3].entities}) == ("皆様", 17, {14})
+    assert (mentions[0].text, mentions[0].global_index, {e.eid for e in mentions[0].entities}) == ("ドクターを", 7, {4})
+    assert (mentions[1].text, mentions[1].global_index, {e.eid for e in mentions[1].entities}) == ("ドクターを", 11, {14})
+    assert (mentions[2].text, mentions[2].global_index, {e.eid for e in mentions[2].entities}) == ("ドクターの", 16, {14})
+    assert (mentions[3].text, mentions[3].global_index, {e.eid for e in mentions[3].entities}) == ("皆様", 17, {14})
 
 
 @pytest.mark.parametrize("doc_id", ["w201106-0000060560", "w201106-0000060560", "w201106-0000060877"])
