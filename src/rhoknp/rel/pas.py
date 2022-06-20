@@ -71,7 +71,7 @@ class Pas:
             arg: BaseArgument
             if format_ == CaseInfoFormat.CASE:
                 tid, sdist, sid = int(fields[0]), int(fields[1]), fields[2]
-                assert arg_type != ArgumentType.EXOPHOR
+                assert arg_type != ArgumentType.EXOPHORA
                 assert base_phrase.document.sentences[base_phrase.sentence.index - sdist].sid == sid
                 arg_base_phrase = base_phrase.document.sentences[base_phrase.sentence.index - sdist].base_phrases[tid]
                 assert surf in arg_base_phrase.text
@@ -79,7 +79,7 @@ class Pas:
             else:
                 assert format_ == CaseInfoFormat.PAS
                 sdist, tid, eid = int(fields[0]), int(fields[1]), int(fields[2])
-                if arg_type == ArgumentType.EXOPHOR:
+                if arg_type == ArgumentType.EXOPHORA:
                     pas.add_special_argument(case, surf, eid)
                 else:
                     arg_base_phrase = base_phrase.document.sentences[base_phrase.sentence.index - sdist].base_phrases[

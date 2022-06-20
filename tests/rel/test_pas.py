@@ -220,7 +220,7 @@ def test_pas_relax() -> None:
     args = pas.get_arguments(case, relax=True, include_nonidentical=True)
     arg = args[0]
     assert isinstance(arg, SpecialArgument)
-    assert (arg.exophora_referent.text, arg.eid, arg.type) == ("著者", 5, ArgumentType.EXOPHOR)
+    assert (arg.exophora_referent.text, arg.eid, arg.type) == ("著者", 5, ArgumentType.EXOPHORA)
     arg = args[1]
     assert isinstance(arg, Argument)
     assert (arg.base_phrase.text, arg.base_phrase.global_index, arg.type) == ("コーナーを", 14, ArgumentType.OMISSION)
