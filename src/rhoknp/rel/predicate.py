@@ -13,7 +13,7 @@ class Predicate:
         self._pas: Optional["Pas"] = None
 
     @property
-    def phrase(self) -> "BasePhrase":
+    def base_phrase(self) -> "BasePhrase":
         return self.unit
 
     @property

@@ -181,8 +181,7 @@ EOS
 
 def test_pas_rel() -> None:
     doc_id = "w201106-0000060050"
-    knp = Path(f"tests/data/{doc_id}.knp").read_text()
-    doc = Document.from_knp(knp)
+    doc = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text())
     pas_list = doc.pas_list()
     assert len(pas_list) == 19
 
@@ -193,3 +192,35 @@ def test_pas_rel() -> None:
         "'ヲ': [Argument(base_phrase=BasePhrase(index=0, text='コイン'), "
         "arg_type=<ArgumentType.CASE_HIDDEN: 'N'>)]})"
     )
+
+
+def test_pas_relax() -> None:
+    doc_id = "w201106-0000060560"
+    doc = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text())
+    pas = doc.base_phrases[18].pas
+    assert pas is not None
+    assert pas.predicate.text == "ご協力の"
+    case = "ガ"
+    args = pas.get_arguments(case, relax=True, include_nonidentical=True)
+    assert len(args) == 4
+    arg = args[0]
+    assert isinstance(arg, Argument)
+    assert (arg.base_phrase.text, arg.base_phrase.global_index, arg.type) == ("皆様", 17, ArgumentType.OMISSION)
+    arg = args[1]
+    assert isinstance(arg, Argument)
+    assert (arg.base_phrase.text, arg.base_phrase.global_index, arg.type) == ("ドクターを", 7, ArgumentType.OMISSION)
+    arg = args[2]
+    assert isinstance(arg, Argument)
+    assert (arg.base_phrase.text, arg.base_phrase.global_index, arg.type) == ("ドクターを", 11, ArgumentType.OMISSION)
+    arg = args[3]
+    assert isinstance(arg, Argument)
+    assert (arg.base_phrase.text, arg.base_phrase.global_index, arg.type) == ("ドクターの", 16, ArgumentType.OMISSION)
+
+    case = "ニ"
+    args = pas.get_arguments(case, relax=True, include_nonidentical=True)
+    arg = args[0]
+    assert isinstance(arg, SpecialArgument)
+    assert (arg.exophora_referent.text, arg.eid, arg.type) == ("著者", 5, ArgumentType.EXOPHOR)
+    arg = args[1]
+    assert isinstance(arg, Argument)
+    assert (arg.base_phrase.text, arg.base_phrase.global_index, arg.type) == ("コーナーを", 14, ArgumentType.OMISSION)
