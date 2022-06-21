@@ -45,6 +45,7 @@ class Sentence(Unit):
         self._morphemes: Optional[list[Morpheme]] = None
 
         self.sid: Optional[str] = None
+        self.doc_id: Optional[str] = None
         self.misc_comment: str = ""
 
         self.index = self.count
@@ -201,6 +202,8 @@ class Sentence(Unit):
         doc_id, sid, rest = self._extract_sid(comment)
         if sid is not None:
             self.sid = sid
+        if doc_id is not None:
+            self.doc_id = doc_id
         self.misc_comment = rest
 
     @property
