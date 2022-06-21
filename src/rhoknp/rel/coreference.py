@@ -154,6 +154,8 @@ class EntityManager:
             nonidentical: ソース側メンションとターゲット側メンションの関係が nonidentical なら True．
         """
         nonidentical_tgt = (target_mention is not None) and target_mention.is_nonidentical_to(te)
+        if se not in source_mention.entities_all:
+            return
         nonidentical_src = source_mention.is_nonidentical_to(se)
         if se is te:
             if not nonidentical:
