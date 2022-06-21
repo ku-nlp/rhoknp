@@ -201,20 +201,23 @@ def test_pas_relax() -> None:
     assert pas is not None
     assert pas.predicate.text == "ご協力の"
     case = "ガ"
-    args = pas.get_arguments(case, relax=True, include_nonidentical=True)
+    args = sorted(
+        pas.get_arguments(case, relax=True, include_nonidentical=True),
+        key=lambda a: a.base_phrase.global_index if isinstance(a, Argument) else 100,
+    )
     assert len(args) == 4
     arg = args[0]
     assert isinstance(arg, Argument)
-    assert (arg.base_phrase.text, arg.base_phrase.global_index, arg.type) == ("皆様", 17, ArgumentType.OMISSION)
+    assert (arg.base_phrase.text, arg.base_phrase.global_index, arg.type) == ("ドクターを", 7, ArgumentType.OMISSION)
     arg = args[1]
     assert isinstance(arg, Argument)
-    assert (arg.base_phrase.text, arg.base_phrase.global_index, arg.type) == ("ドクターを", 7, ArgumentType.OMISSION)
+    assert (arg.base_phrase.text, arg.base_phrase.global_index, arg.type) == ("ドクターを", 11, ArgumentType.OMISSION)
     arg = args[2]
     assert isinstance(arg, Argument)
-    assert (arg.base_phrase.text, arg.base_phrase.global_index, arg.type) == ("ドクターを", 11, ArgumentType.OMISSION)
+    assert (arg.base_phrase.text, arg.base_phrase.global_index, arg.type) == ("ドクターの", 16, ArgumentType.OMISSION)
     arg = args[3]
     assert isinstance(arg, Argument)
-    assert (arg.base_phrase.text, arg.base_phrase.global_index, arg.type) == ("ドクターの", 16, ArgumentType.OMISSION)
+    assert (arg.base_phrase.text, arg.base_phrase.global_index, arg.type) == ("皆様", 17, ArgumentType.OMISSION)
 
     case = "ニ"
     args = pas.get_arguments(case, relax=True, include_nonidentical=True)
