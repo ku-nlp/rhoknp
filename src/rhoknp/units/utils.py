@@ -126,42 +126,6 @@ class Rel:
     base_phrase_index: Optional[int]
     mode: Optional[RelMode]
 
-    def to_fstring(self) -> str:
-        ret = f'<rel type="{self.type}"'
-        if self.mode is not None:
-            ret += f' mode="{self.mode.value}"'
-        ret += f' target="{self.target}"'
-        if self.sid is not None:
-            assert self.base_phrase_index is not None
-            ret += f' sid="{self.sid}" id="{self.base_phrase_index}"'
-        ret += "/>"
-        return ret
-
-
-class Rels(list[Rel]):
-    def __init__(self, fstring: str):
-        super().__init__()
-        for match in Rel.PAT.finditer(fstring):
-            self.append(
-                Rel(
-                    type=match["type"],
-                    target=match["target"],
-                    sid=match["sid"],
-                    base_phrase_index=int(match["id"]) if match["id"] else None,
-                    mode=RelMode(match["mode"]) if match["mode"] else None,
-                )
-            )
-
-    @classmethod
-    def from_fstring(cls, fstring: str) -> "Rels":
-        return cls(fstring)
-
-    def to_fstring(self) -> str:
-        return "".join(rel.to_fstring() for rel in self)
-
-    def __str__(self) -> str:
-        return self.to_fstring()
-
 
 @dataclass
 class DiscourseRelation:

@@ -100,7 +100,9 @@ class EntityManager:
     def __init__(self):
         self.entities: list[Entity] = []
 
-    def create_entity(self, exophora_referent: Optional[ExophoraReferent] = None, eid: Optional[int] = None) -> Entity:
+    def get_or_create_entity(
+        self, exophora_referent: Optional[ExophoraReferent] = None, eid: Optional[int] = None
+    ) -> Entity:
         """自身が参照するエンティティを作成．
 
         exophora_referent が singleton entity だった場合を除き、新しく Entity のインスタンスを作成して返す．

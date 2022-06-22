@@ -10,7 +10,7 @@ from rhoknp.rel.pas import Pas
 from rhoknp.rel.predicate import Predicate
 from rhoknp.units.morpheme import Morpheme
 from rhoknp.units.unit import Unit
-from rhoknp.units.utils import DepType, Features, Rel, RelMode, Rels
+from rhoknp.units.utils import DepType, Features, Rel, RelMode
 from rhoknp.utils.constants import ALL_CASES, ALL_COREFS
 
 if TYPE_CHECKING:
@@ -30,7 +30,7 @@ class BasePhrase(Unit):
     )
     count = 0
 
-    def __init__(self, parent_index: int, dep_type: DepType, features: Features, rels: Rels):
+    def __init__(self, parent_index: int, dep_type: DepType, features: Features):
         super().__init__()
 
         # parent unit
@@ -42,7 +42,6 @@ class BasePhrase(Unit):
         self.parent_index: int = parent_index  #: 係り先の基本句の文内におけるインデックス．
         self.dep_type: DepType = dep_type  #: 係り受けの種類．
         self.features: Features = features  #: 素性．
-        self.rels: Rels = rels  #: 基本句間関係．
         self.pas: Optional["Pas"] = None  #: 述語項構造．
         self.entities: set[Entity] = set()  #: 参照しているエンティティ．
         self.entities_nonidentical: set[Entity] = set()  #: ≒で参照しているエンティティ．
@@ -181,8 +180,7 @@ class BasePhrase(Unit):
         parent_index = int(match.group("pid"))
         dep_type = DepType(match.group("dtype"))
         features = Features(match.group("tags") or "")
-        rels = Rels.from_fstring(match.group("tags") or "")
-        base_phrase = cls(parent_index, dep_type, features, rels)
+        base_phrase = cls(parent_index, dep_type, features)
 
         morphemes: list[Morpheme] = []
         for line in lines:
@@ -201,12 +199,12 @@ class BasePhrase(Unit):
         ret += "".join(morpheme.to_jumanpp() for morpheme in self.morphemes)
         return ret
 
-    def get_coreferents(self, include_nonidentical: bool = False, exclude_self: bool = True) -> set["BasePhrase"]:
+    def get_coreferents(self, include_nonidentical: bool = False, include_self: bool = False) -> set["BasePhrase"]:
         """この基本句と共参照している基本句の集合を返却．
 
         Args:
             include_nonidentical: nonidentical なメンションを含めるなら True．
-            exclude_self: 自身を除くなら True．
+            include_self: 自身を含めるなら True．
 
         Returns:
             共参照している基本句の集合．
@@ -217,7 +215,7 @@ class BasePhrase(Unit):
         if include_nonidentical is True:
             for entity in self.entities_nonidentical:
                 mentions.update(entity.mentions)
-        if exclude_self is True and self in mentions:
+        if include_self is False and self in mentions:
             mentions.remove(self)
         return mentions
 
@@ -244,7 +242,14 @@ class BasePhrase(Unit):
     def parse_rel(self) -> None:
         """関係タグ付きコーパスにおける <rel> タグをパース．"""
         self.pas = Pas(Predicate(self))
-        for rel in self.rels:
+        for match in Rel.PAT.finditer(self.features.to_fstring()):
+            rel = Rel(
+                type=match["type"],
+                target=match["target"],
+                sid=match["sid"],
+                base_phrase_index=int(match["id"]) if match["id"] else None,
+                mode=RelMode(match["mode"]) if match["mode"] else None,
+            )
             if rel.sid == "":
                 logger.warning(f"empty sid found in {self.sentence.sid}; assume to be self")
                 rel.sid = self.sentence.sid
@@ -264,14 +269,14 @@ class BasePhrase(Unit):
             if (arg_base_phrase := self._get_target_base_phrase(rel)) is None:
                 return
             if not arg_base_phrase.entities:
-                arg_base_phrase.add_entity(entity_manager.create_entity())
+                arg_base_phrase.add_entity(entity_manager.get_or_create_entity())
             self.pas.add_argument(rel.type, arg_base_phrase, mode=rel.mode)
         else:
             if rel.target == "なし":
                 self.pas.set_arguments_optional(rel.type)
                 return
             # exophora
-            entity = entity_manager.create_entity(ExophoraReferent(rel.target))
+            entity = entity_manager.get_or_create_entity(ExophoraReferent(rel.target))
             self.pas.add_special_argument(rel.type, rel.target, eid=entity.eid, mode=rel.mode)
 
     def _add_coreference(self, rel: Rel) -> None:
@@ -279,7 +284,7 @@ class BasePhrase(Unit):
         entity_manager: EntityManager = self.document.entity_manager
         # create source entity
         if not self.entities:
-            self.add_entity(entity_manager.create_entity())
+            self.add_entity(entity_manager.get_or_create_entity())
 
         nonidentical: bool = rel.type.endswith("≒")
         if rel.sid is not None:
@@ -290,14 +295,14 @@ class BasePhrase(Unit):
                 return
             # create target entity
             if not target_base_phrase.entities:
-                target_base_phrase.add_entity(entity_manager.create_entity())
+                target_base_phrase.add_entity(entity_manager.get_or_create_entity())
             for source_entity in self.entities_all:
                 for target_entity in target_base_phrase.entities_all:
                     entity_manager.merge_entities(self, target_base_phrase, source_entity, target_entity, nonidentical)
         else:
             # exophora
             for source_entity in self.entities_all:
-                target_entity = entity_manager.create_entity(exophora_referent=ExophoraReferent(rel.target))
+                target_entity = entity_manager.get_or_create_entity(exophora_referent=ExophoraReferent(rel.target))
                 entity_manager.merge_entities(self, None, source_entity, target_entity, nonidentical)
 
     def _get_target_base_phrase(self, rel: Rel) -> Optional["BasePhrase"]:
