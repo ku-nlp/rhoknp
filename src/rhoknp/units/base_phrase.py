@@ -4,12 +4,14 @@ from functools import cached_property
 from logging import getLogger
 from typing import TYPE_CHECKING, Optional
 
-from rhoknp.pas.pas import Pas
-from rhoknp.pas.predicate import Predicate
+from rhoknp.rel.coreference import Entity, EntityManager
+from rhoknp.rel.exophora import ExophoraReferent
+from rhoknp.rel.pas import Pas
+from rhoknp.rel.predicate import Predicate
 from rhoknp.units.morpheme import Morpheme
 from rhoknp.units.unit import Unit
-from rhoknp.units.utils import DepType, Features, Rels
-from rhoknp.utils.constants import ALL_CASES
+from rhoknp.units.utils import DepType, Features, Rel, RelMode
+from rhoknp.utils.constants import ALL_CASES, ALL_COREFS
 
 if TYPE_CHECKING:
     from rhoknp.units.clause import Clause
@@ -28,7 +30,7 @@ class BasePhrase(Unit):
     )
     count = 0
 
-    def __init__(self, parent_index: int, dep_type: DepType, features: Features, rels: Rels):
+    def __init__(self, parent_index: int, dep_type: DepType, features: Features):
         super().__init__()
 
         # parent unit
@@ -40,8 +42,9 @@ class BasePhrase(Unit):
         self.parent_index: int = parent_index  #: 係り先の基本句の文内におけるインデックス．
         self.dep_type: DepType = dep_type  #: 係り受けの種類．
         self.features: Features = features  #: 素性．
-        self.rels: Rels = rels  #: 基本句間関係．
-        self.pas: Optional["Pas"] = None  #: 述語項構造
+        self.pas: Optional["Pas"] = None  #: 述語項構造．
+        self.entities: set[Entity] = set()  #: 参照しているエンティティ．
+        self.entities_nonidentical: set[Entity] = set()  #: ≒で参照しているエンティティ．
 
         self.index = self.count
         BasePhrase.count += 1
@@ -158,6 +161,11 @@ class BasePhrase(Unit):
         """この基本句に係っている基本句のリスト．"""
         return [base_phrase for base_phrase in self.sentence.base_phrases if base_phrase.parent == self]
 
+    @property
+    def entities_all(self) -> set[Entity]:
+        """nonidentical も含めた参照している全エンティティの集合．"""
+        return self.entities | self.entities_nonidentical
+
     @classmethod
     def from_knp(cls, knp_text: str) -> "BasePhrase":
         """基本句クラスのインスタンスを KNP の解析結果から初期化．
@@ -172,8 +180,7 @@ class BasePhrase(Unit):
         parent_index = int(match.group("pid"))
         dep_type = DepType(match.group("dtype"))
         features = Features(match.group("tags") or "")
-        rels = Rels.from_fstring(match.group("tags") or "")
-        base_phrase = cls(parent_index, dep_type, features, rels)
+        base_phrase = cls(parent_index, dep_type, features)
 
         morphemes: list[Morpheme] = []
         for line in lines:
@@ -192,30 +199,122 @@ class BasePhrase(Unit):
         ret += "".join(morpheme.to_jumanpp() for morpheme in self.morphemes)
         return ret
 
+    def get_coreferents(self, include_nonidentical: bool = False, include_self: bool = False) -> set["BasePhrase"]:
+        """この基本句と共参照している基本句の集合を返却．
+
+        Args:
+            include_nonidentical: nonidentical なメンションを含めるなら True．
+            include_self: 自身を含めるなら True．
+
+        Returns:
+            共参照している基本句の集合．
+        """
+        mentions: set["BasePhrase"] = set()
+        for entity in self.entities:
+            mentions.update(entity.mentions)
+        if include_nonidentical is True:
+            for entity in self.entities_nonidentical:
+                mentions.update(entity.mentions)
+        if include_self is False and self in mentions:
+            mentions.remove(self)
+        return mentions
+
+    def is_nonidentical_to(self, entity: Entity) -> bool:
+        """エンティティに対して自身が nonidentical な場合に True を返す．
+
+        Raises:
+            AssertionError: 自身が参照しないエンティティだった場合．
+        """
+        if entity in self.entities:
+            return False
+        else:
+            assert entity in self.entities_nonidentical, f"non-referring entity: {entity}"
+            return True
+
+    def add_entity(self, entity: Entity, nonidentical: bool = False) -> None:
+        """エンティティを追加．"""
+        if nonidentical:
+            self.entities_nonidentical.add(entity)
+        else:
+            self.entities.add(entity)
+        entity.add_mention(self, nonidentical=nonidentical)
+
     def parse_rel(self) -> None:
         """関係タグ付きコーパスにおける <rel> タグをパース．"""
-        # extract PAS
-        pas = Pas(Predicate(self))
-        for rel in self.rels:
-            if rel.type not in ALL_CASES:
-                continue
+        self.pas = Pas(Predicate(self))
+        for match in Rel.PAT.finditer(self.features.to_fstring()):
+            rel = Rel(
+                type=match["type"],
+                target=match["target"],
+                sid=match["sid"],
+                base_phrase_index=int(match["id"]) if match["id"] else None,
+                mode=RelMode(match["mode"]) if match["mode"] else None,
+            )
             if rel.sid == "":
                 logger.warning(f"empty sid found in {self.sentence.sid}; assume to be self")
                 rel.sid = self.sentence.sid
-            if rel.sid is not None:
-                sentence = next(sent for sent in self.document.sentences if sent.sid == rel.sid)
-                assert rel.base_phrase_index is not None
-                if rel.base_phrase_index >= len(sentence.base_phrases):
-                    logger.warning(f"index out of range in {self.sentence.sid}")
-                    continue
-                arg_base_phrase = sentence.base_phrases[rel.base_phrase_index]
-                if not (set(rel.target) <= set(arg_base_phrase.text)):
-                    logger.info(f"rel target mismatch; '{rel.target}' is not '{arg_base_phrase.text}'")
-                pas.add_argument(rel.type, arg_base_phrase, mode=rel.mode)
+            if rel.type in ALL_CASES:
+                self._add_pas(rel)
+            elif rel.type in ALL_COREFS:
+                if rel.mode in (None, RelMode.AND):  # ignore "OR" and "?"
+                    self._add_coreference(rel)
             else:
-                if rel.target == "なし":
-                    pas.set_arguments_optional(rel.type)
-                    continue
-                # exophora
-                pas.add_special_argument(rel.type, rel.target, self.index, mode=rel.mode)  # TODO: fix eid
-        self.pas = pas
+                logger.warning(f"unknown rel type: {rel.type}")
+
+    def _add_pas(self, rel: Rel) -> None:
+        """述語項構造を追加．"""
+        entity_manager: EntityManager = self.document.entity_manager
+        assert self.pas is not None
+        if rel.sid is not None:
+            if (arg_base_phrase := self._get_target_base_phrase(rel)) is None:
+                return
+            if not arg_base_phrase.entities:
+                arg_base_phrase.add_entity(entity_manager.get_or_create_entity())
+            self.pas.add_argument(rel.type, arg_base_phrase, mode=rel.mode)
+        else:
+            if rel.target == "なし":
+                self.pas.set_arguments_optional(rel.type)
+                return
+            # exophora
+            entity = entity_manager.get_or_create_entity(ExophoraReferent(rel.target))
+            self.pas.add_special_argument(rel.type, rel.target, eid=entity.eid, mode=rel.mode)
+
+    def _add_coreference(self, rel: Rel) -> None:
+        """共参照関係を追加．"""
+        entity_manager: EntityManager = self.document.entity_manager
+        # create source entity
+        if not self.entities:
+            self.add_entity(entity_manager.get_or_create_entity())
+
+        nonidentical: bool = rel.type.endswith("≒")
+        if rel.sid is not None:
+            if (target_base_phrase := self._get_target_base_phrase(rel)) is None:
+                return
+            if target_base_phrase == self:
+                logger.warning(f"{self.sentence.sid}: coreference with self found: {self}")
+                return
+            # create target entity
+            if not target_base_phrase.entities:
+                target_base_phrase.add_entity(entity_manager.get_or_create_entity())
+            for source_entity in self.entities_all:
+                for target_entity in target_base_phrase.entities_all:
+                    entity_manager.merge_entities(self, target_base_phrase, source_entity, target_entity, nonidentical)
+        else:
+            # exophora
+            for source_entity in self.entities_all:
+                target_entity = entity_manager.get_or_create_entity(exophora_referent=ExophoraReferent(rel.target))
+                entity_manager.merge_entities(self, None, source_entity, target_entity, nonidentical)
+
+    def _get_target_base_phrase(self, rel: Rel) -> Optional["BasePhrase"]:
+        sentence = next(sent for sent in self.document.sentences if sent.sid == rel.sid)
+        assert rel.base_phrase_index is not None
+        if rel.base_phrase_index >= len(sentence.base_phrases):
+            logger.warning(f"index out of range in {self.sentence.sid}")
+            return None
+        target_base_phrase = sentence.base_phrases[rel.base_phrase_index]
+        if not (set(rel.target) <= set(target_base_phrase.text)):
+            logger.info(f"rel target mismatch; '{rel.target}' is not '{target_base_phrase.text}'")
+        return target_base_phrase
+
+    def __hash__(self) -> int:
+        return hash((self.global_index, self.sentence.sid))

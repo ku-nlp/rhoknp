@@ -3,10 +3,10 @@ from abc import ABC, abstractmethod
 from enum import Enum
 from typing import TYPE_CHECKING, Any, Optional
 
-from rhoknp.pas.exophora import ExophoraReferent
+from rhoknp.rel.exophora import ExophoraReferent
 
 if TYPE_CHECKING:
-    from rhoknp.pas.pas import Pas
+    from rhoknp.rel.pas import Pas
     from rhoknp.units.base_phrase import BasePhrase
     from rhoknp.units.clause import Clause
     from rhoknp.units.document import Document
@@ -23,7 +23,7 @@ class ArgumentType(Enum):
     CASE_HIDDEN = "N"
     OMISSION = "O"
     DEMONSTRATIVE = "D"
-    EXOPHOR = "E"
+    EXOPHORA = "E"
     UNASSIGNED = "U"
 
 
@@ -37,7 +37,7 @@ class BaseArgument(ABC):
 
     @property
     def is_special(self) -> bool:
-        return self.type == ArgumentType.EXOPHOR
+        return self.type == ArgumentType.EXOPHORA
 
     @property
     def pas(self) -> "Pas":
@@ -106,7 +106,7 @@ class SpecialArgument(BaseArgument):
     """
 
     def __init__(self, exophora_referent: ExophoraReferent, eid: int):
-        super().__init__(ArgumentType.EXOPHOR)
+        super().__init__(ArgumentType.EXOPHORA)
         self.exophora_referent: ExophoraReferent = exophora_referent
         self.eid: int = eid
 

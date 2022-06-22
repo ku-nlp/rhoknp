@@ -1,6 +1,6 @@
 import pytest
 
-from rhoknp.pas import Argument, ArgumentType, ExophoraReferent, SpecialArgument
+from rhoknp.rel import Argument, ArgumentType, ExophoraReferent, SpecialArgument
 from rhoknp.units import BasePhrase
 
 
@@ -19,7 +19,7 @@ def test_argument() -> None:
     assert repr(argument) == f"Argument(base_phrase={repr(base_phrase)}, arg_type={repr(ArgumentType.OMISSION)})"
     assert str(argument) == base_phrase.text
     assert argument != "test"
-    assert argument == Argument(base_phrase, arg_type=ArgumentType.EXOPHOR)  # TODO: consider whether this is expected
+    assert argument == Argument(base_phrase, arg_type=ArgumentType.EXOPHORA)  # TODO: consider whether this is expected
     with pytest.raises(AttributeError):
         _ = argument.pas
 

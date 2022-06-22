@@ -47,6 +47,15 @@ class ExophoraReferent:
             assert self._other_text is not None
             return self._other_text
 
+    @property
+    def is_singleton(self) -> bool:
+        """文書中に1つしか存在しないエンティティであれば True．"""
+        if self.type in (ExophoraReferentType.WRITER, ExophoraReferentType.READER):
+            return True
+        if self.index is not None:
+            return True
+        return False
+
     def __str__(self) -> str:
         return self.text
 

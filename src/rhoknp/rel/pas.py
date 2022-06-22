@@ -1,3 +1,4 @@
+import copy
 import re
 import sys
 from collections import defaultdict
@@ -5,9 +6,9 @@ from enum import Enum, auto
 from logging import getLogger
 from typing import TYPE_CHECKING, Optional, Union
 
-from rhoknp.pas.argument import Argument, ArgumentType, BaseArgument, SpecialArgument
-from rhoknp.pas.exophora import ExophoraReferent
-from rhoknp.pas.predicate import Predicate
+from rhoknp.rel.argument import Argument, ArgumentType, BaseArgument, SpecialArgument
+from rhoknp.rel.exophora import ExophoraReferent
+from rhoknp.rel.predicate import Predicate
 from rhoknp.units.utils import RelMode
 
 if TYPE_CHECKING:
@@ -70,7 +71,7 @@ class Pas:
             arg: BaseArgument
             if format_ == CaseInfoFormat.CASE:
                 tid, sdist, sid = int(fields[0]), int(fields[1]), fields[2]
-                assert arg_type != ArgumentType.EXOPHOR
+                assert arg_type != ArgumentType.EXOPHORA
                 assert base_phrase.document.sentences[base_phrase.sentence.index - sdist].sid == sid
                 arg_base_phrase = base_phrase.document.sentences[base_phrase.sentence.index - sdist].base_phrases[tid]
                 assert surf in arg_base_phrase.text
@@ -78,7 +79,7 @@ class Pas:
             else:
                 assert format_ == CaseInfoFormat.PAS
                 sdist, tid, eid = int(fields[0]), int(fields[1]), int(fields[2])
-                if arg_type == ArgumentType.EXOPHOR:
+                if arg_type == ArgumentType.EXOPHORA:
                     pas.add_special_argument(case, surf, eid)
                 else:
                     arg_base_phrase = base_phrase.document.sentences[base_phrase.sentence.index - sdist].base_phrases[
@@ -102,6 +103,52 @@ class Pas:
             pas = cls(Predicate(base_phrase))
         base_phrase.pas = pas
         return pas
+
+    def get_arguments(
+        self,
+        case: str,
+        relax: bool = True,
+        include_nonidentical: bool = False,
+        include_optional: bool = False,
+    ) -> list[BaseArgument]:
+        """Return all the arguments that the given predicate has.
+
+        Args:
+            case: 格．
+            relax: True なら 共参照関係で結ばれた項も含めて出力する．
+            include_nonidentical: True なら nonidentical な項も含めて出力する．
+            include_optional: True なら修飾的表現（「すぐに」など）も含めて出力する．
+
+        References:
+            格・省略・共参照タグ付けの基準 3.2.1 修飾的表現
+
+        Returns: 項のリスト
+        """
+        args = self.arguments[case]
+        if include_nonidentical is True:
+            args += self.arguments[case + "≒"]
+        if include_optional is False:
+            args = [arg for arg in args if arg.optional is False]
+        pas = copy.copy(self)
+        pas._arguments[case] = copy.copy(args)
+
+        sentence = self.predicate.base_phrase.sentence
+        if relax is True and sentence.parent_unit is not None:
+            entity_manager = sentence.document.entity_manager
+            for arg in args:
+                if isinstance(arg, SpecialArgument):
+                    entities = {entity_manager[arg.eid]}
+                else:
+                    assert isinstance(arg, Argument)
+                    entities = arg.base_phrase.entities_all if include_nonidentical else arg.base_phrase.entities
+                for entity in entities:
+                    if entity.exophora_referent is not None:
+                        pas.add_special_argument(case, entity.exophora_referent, entity.eid)
+                    for mention in entity.mentions:
+                        if isinstance(arg, Argument) and mention == arg.base_phrase:
+                            continue
+                        pas.add_argument(case, mention)
+        return pas.arguments[case]
 
     def add_argument(
         self,
@@ -142,7 +189,7 @@ class Pas:
 
     @staticmethod
     def _get_arg_type(predicate: Predicate, arg_base_phrase: "BasePhrase", case: str) -> ArgumentType:
-        if arg_base_phrase in predicate.phrase.children:
+        if arg_base_phrase in predicate.base_phrase.children:
             dep_case = arg_base_phrase.features.get("係", "")
             assert isinstance(dep_case, str)
             dep_case = dep_case.rstrip("格")
@@ -150,7 +197,7 @@ class Pas:
                 return ArgumentType.CASE_EXPLICIT
             else:
                 return ArgumentType.CASE_HIDDEN
-        elif predicate.phrase.parent and predicate.phrase.parent == arg_base_phrase:
+        elif predicate.base_phrase.parent and predicate.base_phrase.parent == arg_base_phrase:
             return ArgumentType.CASE_HIDDEN
         else:
             return ArgumentType.OMISSION

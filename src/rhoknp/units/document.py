@@ -2,7 +2,8 @@ import weakref
 from logging import getLogger
 from typing import Optional, Sequence, Union
 
-from rhoknp.pas.pas import Pas
+from rhoknp.rel.coreference import EntityManager
+from rhoknp.rel.pas import Pas
 from rhoknp.units.base_phrase import BasePhrase
 from rhoknp.units.clause import Clause
 from rhoknp.units.morpheme import Morpheme
@@ -19,11 +20,12 @@ class Document(Unit):
 
     Args:
         text: 文書の文字列．
+        doc_id: 文書 ID．
     """
 
     count = 0
 
-    def __init__(self, text: Optional[str] = None):
+    def __init__(self, text: Optional[str] = None, doc_id: Optional[str] = None) -> None:
         super().__init__()
 
         Sentence.count = 0
@@ -36,6 +38,10 @@ class Document(Unit):
 
         self.index = self.count
         Document.count += 1
+
+        self.doc_id: Optional[str] = doc_id
+
+        self.entity_manager = EntityManager()
 
         self.has_error = False
 
@@ -215,6 +221,8 @@ class Document(Unit):
                 sentence = sentence.text
             sentences_.append(Sentence.from_raw_text(sentence))
         document.sentences = sentences_
+        if sentences_:
+            document.doc_id = sentences_[0].doc_id
         document._post_init()
         return document
 
@@ -332,6 +340,8 @@ class Document(Unit):
                         raise e
                 sentence_lines = []
         document.sentences = sentences
+        if sentences:
+            document.doc_id = sentences[0].doc_id
         document._post_init()
         return document
 
