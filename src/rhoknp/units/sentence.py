@@ -86,9 +86,9 @@ class Sentence(Unit):
         Raises:
             AttributeError: 解析結果にアクセスできない場合．
         """
-        if self.parent_unit is None:
+        if self._document is None:
             raise AttributeError("document has not been set")
-        return self.parent_unit
+        return self._document
 
     @document.setter
     def document(self, document: "Document") -> None:

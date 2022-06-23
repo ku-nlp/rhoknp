@@ -129,11 +129,7 @@ class Morpheme(Unit):
         Raises:
             AttributeError: 解析結果にアクセスできない場合．
         """
-        if self._sentence is not None:
-            return self._sentence
-        if self._base_phrase is not None:
-            return self._base_phrase.sentence
-        raise AttributeError("sentence has not been set")
+        return self._sentence or self.base_phrase.sentence
 
     @sentence.setter
     def sentence(self, sentence: "Sentence") -> None:
