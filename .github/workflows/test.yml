@@ -43,5 +43,6 @@ jobs:
         uses: codecov/codecov-action@v2
         with:
           files: ./coverage.xml
+          flags: R
           name: codecov-umbrella
           verbose: true
