@@ -40,7 +40,7 @@ jobs:
           poetry run pytest --cov=./ --cov-report=xml -v ./tests
       - name: Upload coverage to Codecov
         if: ${{ matrix.python-version == 3.9 }}
-        uses: codecov/codecov-action@v2
+        uses: codecov/codecov-action@v3
         with:
           files: ./coverage.xml
           flags: R
