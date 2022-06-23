@@ -132,7 +132,7 @@ class Morpheme(Unit):
         if self._sentence is not None:
             return self._sentence
         if self._base_phrase is not None:
-            return self.clause.sentence
+            return self._base_phrase.sentence
         raise AttributeError("sentence has not been set")
 
     @sentence.setter
