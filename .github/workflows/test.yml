@@ -1,7 +1,7 @@
 name: test
 
 on:
-  [push, pull_request, workflow_dispatch]
+  [ push, pull_request, workflow_dispatch ]
 
 jobs:
   test:
@@ -12,36 +12,36 @@ jobs:
       max-parallel: 2
       fail-fast: false
       matrix:
-        python-version: ["3.9", "3.10"]
+        python-version: [ "3.9", "3.10" ]
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
-    - name: Install required apt packages
-      run: |
-        apt update -y
-        apt install -y curl libsqlite3-dev gcc libffi-dev
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v3
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install Poetry
-      run: |
-        python3 -m pip install --user pipx
-        python3 -m pipx ensurepath
-        python3 -m pipx install poetry
-    - name: Add path for Python packages
-      run: echo "$HOME/.local/bin" >> $GITHUB_PATH
-    - name: Install dependencies
-      run: |
-        poetry config virtualenvs.create false
-        poetry install --no-interaction
-    - name: Run tests
-      run: |
-        poetry run pytest --cov=./ --cov-report=xml -v ./tests
-    - name: Upload coverage to Codecov
-      if: ${{ matrix.python-version==3.9 }}
-      uses: codecov/codecov-action@v2
-      with:
-        files: ./coverage.xml
-        name: codecov-umbrella
-        verbose: true
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Install required apt packages
+        run: |
+          apt update -y
+          apt install -y curl libsqlite3-dev gcc libffi-dev
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install Poetry
+        run: |
+          python3 -m pip install --user pipx
+          python3 -m pipx ensurepath
+          python3 -m pipx install poetry
+      - name: Add path for Python packages
+        run: echo "$HOME/.local/bin" >> $GITHUB_PATH
+      - name: Install dependencies
+        run: |
+          poetry config virtualenvs.create false
+          poetry install --no-interaction
+      - name: Run tests
+        run: |
+          poetry run pytest --cov=./ --cov-report=xml -v ./tests
+      - name: Upload coverage to Codecov
+        if: ${{ matrix.python-version == "3.9" }}
+        uses: codecov/codecov-action@v2
+        with:
+          files: ./coverage.xml
+          name: codecov-umbrella
+          verbose: true
