@@ -6,6 +6,7 @@
 [![Documentation](https://readthedocs.org/projects/rhoknp/badge/?version=latest)](https://rhoknp.readthedocs.io/en/latest/?badge=latest)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/rhoknp)
 ![PyPI](https://img.shields.io/pypi/v/rhoknp)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 `rhoknp` is a Python binding for [Juman++](https://github.com/ku-nlp/jumanpp) and [KNP](https://github.com/ku-nlp/knp).
 
