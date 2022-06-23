@@ -556,38 +556,38 @@ def test_document_reference(knp: str) -> None:
             assert clause.document == document
             assert clause.sentence == sentence
             assert clause == clause
-            for chunk in clause.phrases:
-                assert chunk.document == document
-                assert chunk.sentence == sentence
-                assert chunk.clause == clause
-                for base_phrase in chunk.base_phrases:
+            for phrase in clause.phrases:
+                assert phrase.document == document
+                assert phrase.sentence == sentence
+                assert phrase.clause == clause
+                for base_phrase in phrase.base_phrases:
                     assert base_phrase.document == document
                     assert base_phrase.sentence == sentence
-                    assert base_phrase.phrase == chunk
+                    assert base_phrase.phrase == phrase
                     assert base_phrase == base_phrase
                     for morpheme in base_phrase.morphemes:
                         assert morpheme.document == document
                         assert morpheme.sentence == sentence
                         assert morpheme.clause == clause
-                        assert morpheme.phrase == chunk
+                        assert morpheme.phrase == phrase
                         assert morpheme.base_phrase == base_phrase
                         assert morpheme == morpheme
-                for morpheme in chunk.morphemes:
-                    assert morpheme.phrase == chunk
+                for morpheme in phrase.morphemes:
+                    assert morpheme.phrase == phrase
             for base_phrase in clause.base_phrases:
                 assert base_phrase.clause == clause
             for morpheme in clause.morphemes:
                 assert morpheme.clause == clause
-        for chunk in sentence.phrases:
-            assert chunk.sentence == sentence
+        for phrase in sentence.phrases:
+            assert phrase.sentence == sentence
         for base_phrase in sentence.base_phrases:
             assert base_phrase.sentence == sentence
         for morpheme in sentence.morphemes:
             assert morpheme.sentence == sentence
     for clause in document.clauses:
         assert clause.document == document
-    for chunk in document.phrases:
-        assert chunk.document == document
+    for phrase in document.phrases:
+        assert phrase.document == document
     for base_phrase in document.base_phrases:
         assert base_phrase.document == document
     for morpheme in document.morphemes:

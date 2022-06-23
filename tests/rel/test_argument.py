@@ -12,10 +12,10 @@ def test_argument() -> None:
     base_phrase = BasePhrase.from_knp(knp)
     argument = Argument(base_phrase, arg_type=ArgumentType.OMISSION)
     assert argument.unit == base_phrase
-    # assert argument.document == phrase.document
-    # assert argument.sentence == phrase.sentence
-    # assert argument.clause == phrase.clause
-    # assert argument.chunk == phrase.chunk
+    # assert argument.document == base_phrase.document
+    # assert argument.sentence == base_phrase.sentence
+    # assert argument.clause == base_phrase.clause
+    # assert argument.phrase == base_phrase.phrase
     assert repr(argument) == f"Argument(base_phrase={repr(base_phrase)}, arg_type={repr(ArgumentType.OMISSION)})"
     assert str(argument) == base_phrase.text
     assert argument != "test"

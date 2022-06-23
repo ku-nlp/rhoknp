@@ -30,7 +30,7 @@ knp = textwrap.dedent(
 sentence = Sentence.from_knp(knp)
 
 
-def test_draw_chunk_tree() -> None:
+def test_draw_phrase_tree() -> None:
     out = textwrap.dedent(
         """\
         望遠n鏡nでp┐　　
@@ -42,7 +42,7 @@ def test_draw_chunk_tree() -> None:
     assert sprint_tree(sentence.phrases, show_pos=True) == out.lstrip("\n")
 
 
-def test_draw_phrase_tree() -> None:
+def test_draw_base_phrase_tree() -> None:
     out = textwrap.dedent(
         """\
            望遠n┐　　　
