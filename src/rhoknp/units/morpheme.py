@@ -151,7 +151,7 @@ class Morpheme(Unit):
         Raises:
             AttributeError: 解析結果にアクセスできない場合．
         """
-        return self.phrase.clause
+        return self.base_phrase.clause
 
     @property
     def phrase(self) -> "Phrase":
