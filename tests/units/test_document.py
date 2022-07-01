@@ -705,6 +705,13 @@ def test_cut_0():
     assert document_1.text == "すると桶屋が儲かる。"
     assert document_1.need_knp is False
 
+    for sentence in document_all.sentences:
+        assert sentence.document == document_all
+    for sentence in document_0.sentences:
+        assert sentence.document == document_0
+    for sentence in document_1.sentences:
+        assert sentence.document == document_1
+
 
 def test_paste_0():
     knp = textwrap.dedent(

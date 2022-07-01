@@ -1,4 +1,5 @@
 import weakref
+from copy import deepcopy
 from logging import getLogger
 from typing import Optional, Sequence, Union
 
@@ -218,7 +219,7 @@ class Document(Unit):
         sentences_ = []
         for sentence in sentences:
             if isinstance(sentence, Sentence):
-                sentences_.append(sentence)
+                sentences_.append(deepcopy(sentence))
             else:
                 sentences_.append(Sentence.from_raw_text(sentence))
         document.sentences = sentences_
