@@ -218,8 +218,9 @@ class Document(Unit):
         sentences_ = []
         for sentence in sentences:
             if isinstance(sentence, Sentence):
-                sentence = sentence.text
-            sentences_.append(Sentence.from_raw_text(sentence))
+                sentences_.append(sentence)
+            else:
+                sentences_.append(Sentence.from_raw_text(sentence))
         document.sentences = sentences_
         if sentences_:
             document.doc_id = sentences_[0].doc_id
