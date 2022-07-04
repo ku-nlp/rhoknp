@@ -51,6 +51,11 @@ class Sentence(Unit):
         self.index = self.count
         Sentence.count += 1
 
+    def _post_init(self) -> None:
+        """インスタンス作成後の追加処理を行う．"""
+        if self.need_knp is False:
+            self._parse_knp_pas()
+
     @property
     def global_index(self) -> int:
         """文書全体におけるインデックス．"""
@@ -238,6 +243,7 @@ class Sentence(Unit):
             else:
                 text_lines.append(line)
         sentence.text = "\n".join(text_lines)
+        sentence._post_init()
         return sentence
 
     @classmethod
@@ -281,6 +287,7 @@ class Sentence(Unit):
             if line.strip() == cls.EOS:
                 break
         sentence.morphemes = morphemes
+        sentence._post_init()
         return sentence
 
     @classmethod
@@ -348,6 +355,7 @@ class Sentence(Unit):
             sentence.clauses = clauses
         else:
             sentence.phrases = phrases
+        sentence._post_init()
         return sentence
 
     @staticmethod
@@ -403,3 +411,8 @@ class Sentence(Unit):
         ret += "".join(child.to_knp() for child in self._clauses or self.phrases)
         ret += self.EOS + "\n"
         return ret
+
+    def _parse_knp_pas(self) -> None:
+        """KNP 解析結果における <述語項構造> タグおよび <格解析結果> タグをパース．"""
+        for base_phrase in self.base_phrases:
+            base_phrase.parse_knp_pas()

@@ -1,7 +1,7 @@
 import textwrap
 from pathlib import Path
 
-from rhoknp.rel import Argument, ArgumentType, ExophoraReferent, Pas, SpecialArgument
+from rhoknp.rel import Argument, ArgumentType, ExophoraReferent, SpecialArgument
 from rhoknp.units import Document
 
 
@@ -34,9 +34,8 @@ def test_pas_case_analysis() -> None:
     )
     doc = Document.from_knp(knp_text)
     # <格解析結果:行く/いく:動12:ガ/N/彼/0/0/1;ニ/U/-/-/-/-;デ/U/-/-/-/-;ヘ/C/大学/3/0/1;時間/U/-/-/-/->
-    predicate_base_phrase = doc.base_phrases[4]
-    pas = Pas.from_base_phrase(predicate_base_phrase)
-    assert predicate_base_phrase.pas == pas
+    pas = doc.base_phrases[4].pas
+    assert pas is not None
     assert pas.predicate.cfid == "行く/いく:動12"
     assert pas.sid == "1"
 
@@ -92,8 +91,8 @@ def test_pas_pas() -> None:
     )
     doc = Document.from_knp(knp_text)
     # <EID:9><述語項構造:行く/いく:動12:ガ/N/彼/0/0/5;ニ/E/著者/2/-1/0;ト/-/-/-/-/-;デ/-/-/-/-/-;カラ/-/-/-/-/-;ヨリ/-/-/-/-/-;マデ/-/-/-/-/-;ヘ/C/大学/0/3/8;時間/-/-/-/-/-;外の関係/-/-/-/-/-;修飾/-/-/-/-/-;ノ/-/-/-/-/->
-    predicate_base_phrase = doc.base_phrases[4]
-    pas = Pas.from_base_phrase(predicate_base_phrase)
+    pas = doc.base_phrases[4].pas
+    assert pas is not None
     assert pas.predicate.cfid == "行く/いく:動12"
     assert pas.sid == "1"
 
@@ -132,8 +131,8 @@ def test_pas_pas2() -> None:
     )
     doc = Document.from_knp(knp_text)
     # <格解析結果::/::判0>
-    predicate_base_phrase = doc.base_phrases[1]
-    pas = Pas.from_base_phrase(predicate_base_phrase)
+    pas = doc.base_phrases[1].pas
+    assert pas is not None
     assert pas.predicate.cfid == ":/::判0"
 
 
@@ -153,8 +152,8 @@ def test_pas_case_analysis2() -> None:
     )
     doc = Document.from_knp(knp_text)
     # <格解析結果:表示/ひょうじ:動1:ガ/N/;/1/0/1;ヲ/U/-/-/-/-;ニ/U/-/-/-/-;デ/U/-/-/-/->
-    predicate_base_phrase = doc.base_phrases[0]
-    pas = Pas.from_base_phrase(predicate_base_phrase)
+    pas = doc.base_phrases[0].pas
+    assert pas is not None
     assert pas.predicate.cfid == "表示/ひょうじ:動1"
 
     # ; ガ 表示する
@@ -189,8 +188,8 @@ def test_pas_case_analysis3() -> None:
     )
     doc = Document.from_knp(knp_text)
     # <格解析結果:束の間/つかのま:判0>
-    predicate_phrase = doc.base_phrases[0]
-    pas = Pas.from_base_phrase(predicate_phrase)
+    pas = doc.base_phrases[0].pas
+    assert pas is not None
     assert pas.predicate.cfid == "束の間/つかのま:判0"
     assert len(pas.arguments) == 0
 

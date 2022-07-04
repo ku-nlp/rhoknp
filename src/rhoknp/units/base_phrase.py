@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Optional
 
 from rhoknp.rel.coreference import Entity, EntityManager
 from rhoknp.rel.exophora import ExophoraReferent
-from rhoknp.rel.pas import Pas
+from rhoknp.rel.pas import CaseInfoFormat, Pas
 from rhoknp.rel.predicate import Predicate
 from rhoknp.units.morpheme import Morpheme
 from rhoknp.units.unit import Unit
@@ -243,6 +243,8 @@ class BasePhrase(Unit):
 
     def parse_rel(self) -> None:
         """関係タグ付きコーパスにおける <rel> タグをパース．"""
+        if not self.rels:
+            return
         self.pas = Pas(Predicate(self))
         for rel in self.rels:
             if rel.sid == "":
@@ -255,6 +257,20 @@ class BasePhrase(Unit):
                     self._add_coreference(rel)
             else:
                 logger.warning(f"unknown rel type: {rel.type}")
+
+    def parse_knp_pas(self) -> None:
+        """KNP 解析結果における <述語項構造> タグおよび <格解析結果> タグをパース．"""
+        if "述語項構造" in self.features:
+            pas_string = self.features["述語項構造"]
+            assert isinstance(pas_string, str)
+            pas = Pas.from_pas_string(self, pas_string, format_=CaseInfoFormat.PAS)
+        elif "格解析結果" in self.features:
+            pas_string = self.features["格解析結果"]
+            assert isinstance(pas_string, str)
+            pas = Pas.from_pas_string(self, pas_string, format_=CaseInfoFormat.CASE)
+        else:
+            pas = Pas(Predicate(self))
+        self.pas = pas
 
     def _add_pas(self, rel: Rel) -> None:
         """述語項構造を追加．"""

@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 class Predicate:
     def __init__(self, unit: "BasePhrase", cfid: Optional[str] = None):
         self.unit: "BasePhrase" = weakref.proxy(unit)
-        self.cfid = cfid
+        self.cfid: Optional[str] = cfid
         self._pas: Optional["Pas"] = None
 
     @property
