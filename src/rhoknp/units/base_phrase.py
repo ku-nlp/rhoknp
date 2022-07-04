@@ -10,7 +10,7 @@ from rhoknp.rel.pas import Pas
 from rhoknp.rel.predicate import Predicate
 from rhoknp.units.morpheme import Morpheme
 from rhoknp.units.unit import Unit
-from rhoknp.units.utils import DepType, Features, Rel, RelMode
+from rhoknp.units.utils import DepType, Features, Rel, RelMode, Rels
 from rhoknp.utils.constants import ALL_CASES, ALL_COREFS
 
 if TYPE_CHECKING:
@@ -30,7 +30,7 @@ class BasePhrase(Unit):
     )
     count = 0
 
-    def __init__(self, parent_index: int, dep_type: DepType, features: Features):
+    def __init__(self, parent_index: int, dep_type: DepType, features: Features, rels: Rels):
         super().__init__()
 
         # parent unit
@@ -42,6 +42,7 @@ class BasePhrase(Unit):
         self.parent_index: int = parent_index  #: 係り先の基本句の文内におけるインデックス．
         self.dep_type: DepType = dep_type  #: 係り受けの種類．
         self.features: Features = features  #: 素性．
+        self.rels: Rels = rels  #: 基本句間関係．
         self.pas: Optional["Pas"] = None  #: 述語項構造．
         self.entities: set[Entity] = set()  #: 参照しているエンティティ．
         self.entities_nonidentical: set[Entity] = set()  #: ≒で参照しているエンティティ．
@@ -180,7 +181,8 @@ class BasePhrase(Unit):
         parent_index = int(match.group("pid"))
         dep_type = DepType(match.group("dtype"))
         features = Features(match.group("tags") or "")
-        base_phrase = cls(parent_index, dep_type, features)
+        rels = Rels.from_fstring(match.group("tags") or "")
+        base_phrase = cls(parent_index, dep_type, features, rels)
 
         morphemes: list[Morpheme] = []
         for line in lines:
@@ -193,8 +195,8 @@ class BasePhrase(Unit):
     def to_knp(self) -> str:
         """KNP フォーマットに変換．"""
         ret = f"+ {self.parent_index}{self.dep_type.value}"
-        if self.features:
-            ret += f" {self.features}"
+        if self.rels or self.features:
+            ret += f" {self.rels.to_fstring()}{self.features.to_fstring()}"
         ret += "\n"
         ret += "".join(morpheme.to_jumanpp() for morpheme in self.morphemes)
         return ret
@@ -242,14 +244,7 @@ class BasePhrase(Unit):
     def parse_rel(self) -> None:
         """関係タグ付きコーパスにおける <rel> タグをパース．"""
         self.pas = Pas(Predicate(self))
-        for match in Rel.PAT.finditer(self.features.to_fstring()):
-            rel = Rel(
-                type=match["type"],
-                target=match["target"],
-                sid=match["sid"],
-                base_phrase_index=int(match["id"]) if match["id"] else None,
-                mode=RelMode(match["mode"]) if match["mode"] else None,
-            )
+        for rel in self.rels:
             if rel.sid == "":
                 logger.warning(f"empty sid found in {self.sentence.sid}; assume to be self")
                 rel.sid = self.sentence.sid
