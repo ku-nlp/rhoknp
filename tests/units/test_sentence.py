@@ -165,26 +165,26 @@ def test_sentence_clauses_error() -> None:
         _ = doc.clauses
 
 
-def test_sentence_chunks() -> None:
+def test_sentence_phrases() -> None:
     knp = cases[0]["knp"]
     sent = Sentence.from_knp(knp)
     assert len(sent.phrases) == 3
 
 
-def test_sentence_chunks_error() -> None:
+def test_sentence_phrases_error() -> None:
     text = cases[0]["text"]
     sent = Sentence.from_raw_text(text)
     with pytest.raises(AttributeError):
         _ = sent.phrases
 
 
-def test_sentence_phrases() -> None:
+def test_sentence_base_phrases() -> None:
     knp = cases[0]["knp"]
     sent = Sentence.from_knp(knp)
     assert len(sent.base_phrases) == 3
 
 
-def test_sentence_phrases_error() -> None:
+def test_sentence_base_phrases_error() -> None:
     text = cases[0]["text"]
     sent = Sentence.from_raw_text(text)
     with pytest.raises(AttributeError):

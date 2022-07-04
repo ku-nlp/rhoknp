@@ -66,9 +66,9 @@ class Clause(Unit):
         Raises:
             AttributeError: 解析結果にアクセスできない場合．
         """
-        if self.parent_unit is None:
+        if self._sentence is None:
             raise AttributeError("sentence has not been set")
-        return self.parent_unit
+        return self._sentence
 
     @sentence.setter
     def sentence(self, sentence: "Sentence") -> None:

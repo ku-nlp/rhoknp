@@ -6,7 +6,7 @@ from rhoknp import Document, Phrase, Sentence
 
 
 @pytest.mark.parametrize(
-    "knp, chunk_texts",
+    "knp, phrase_texts",
     [
         (
             textwrap.dedent(
@@ -64,9 +64,9 @@ from rhoknp import Document, Phrase, Sentence
         ),
     ],
 )
-def test_document_from_knp(knp: str, chunk_texts: list[str]) -> None:
+def test_document_from_knp(knp: str, phrase_texts: list[str]) -> None:
     doc = Document.from_knp(knp)
-    assert [str(chunk) for chunk in doc.phrases] == chunk_texts
+    assert [str(phrase) for phrase in doc.phrases] == phrase_texts
 
 
 @pytest.mark.parametrize(
@@ -258,9 +258,9 @@ def test_children(knp: str, child_indexes: list[list[int]]) -> None:
         ),
     ],
 )
-def test_chunk_to_knp(knp: str) -> None:
-    chunk = Phrase.from_knp(knp)
-    assert chunk.to_knp() == knp
+def test_phrase_to_knp(knp: str) -> None:
+    phrase = Phrase.from_knp(knp)
+    assert phrase.to_knp() == knp
 
 
 def test_sentence():
