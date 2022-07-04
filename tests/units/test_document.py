@@ -695,15 +695,24 @@ def test_cut_0():
         """
     )
     document_all = Document.from_knp(knp)
+    assert document_all.phrases[0].parent == document_all.phrases[1]
+    assert document_all.phrases[2].parent == document_all.phrases[4]
+    assert document_all.phrases[3].parent == document_all.phrases[4]
+
     sentences = document_all.sentences
+
     document_0 = Document.from_sentences([sentences[0]])
     assert len(document_0.sentences) == 1
     assert document_0.text == "風が吹く。"
     assert document_0.need_knp is False
+    assert document_0.phrases[0].parent == document_0.phrases[1]
+
     document_1 = Document.from_sentences([sentences[1]])
     assert len(document_1.sentences) == 1
     assert document_1.text == "すると桶屋が儲かる。"
     assert document_1.need_knp is False
+    assert document_1.phrases[0].parent == document_1.phrases[2]
+    assert document_1.phrases[1].parent == document_1.phrases[2]
 
     for sentence in document_all.sentences:
         assert sentence.document == document_all
@@ -749,3 +758,6 @@ def test_paste_0():
     assert len(document_rec.sentences) == 2
     assert document_rec.text == "風が吹く。すると桶屋が儲かる。"
     assert document_rec.need_knp is False
+    assert document_rec.phrases[0].parent == document_rec.phrases[1]
+    assert document_rec.phrases[2].parent == document_rec.phrases[4]
+    assert document_rec.phrases[3].parent == document_rec.phrases[4]

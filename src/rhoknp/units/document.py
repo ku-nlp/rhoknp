@@ -1,5 +1,4 @@
 import weakref
-from copy import deepcopy
 from logging import getLogger
 from typing import Optional, Sequence, Union
 
@@ -219,7 +218,12 @@ class Document(Unit):
         sentences_ = []
         for sentence in sentences:
             if isinstance(sentence, Sentence):
-                sentences_.append(deepcopy(sentence))
+                if sentence.need_jumanpp:
+                    sentences_.append(Sentence.from_raw_text(sentence.text))
+                elif sentence.need_knp:
+                    sentences_.append(Sentence.from_jumanpp(sentence.to_jumanpp()))
+                else:
+                    sentences_.append(Sentence.from_knp(sentence.to_knp()))
             else:
                 sentences_.append(Sentence.from_raw_text(sentence))
         document.sentences = sentences_
