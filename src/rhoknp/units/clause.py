@@ -123,13 +123,10 @@ class Clause(Unit):
                 return base_phrase
         raise AssertionError
 
-    @cached_property
+    @property
     def end(self) -> BasePhrase:
         """節区切の基本句．"""
-        for base_phrase in self.base_phrases:
-            if base_phrase.features and "節-区切" in base_phrase.features:
-                return base_phrase
-        raise AssertionError
+        return self.base_phrases[-1]
 
     @cached_property
     def parent(self) -> Optional["Clause"]:
