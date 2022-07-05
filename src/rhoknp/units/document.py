@@ -368,6 +368,13 @@ class Document(Unit):
         for base_phrase in self.base_phrases:
             base_phrase.parse_rel()
 
+    def reparse_rel(self) -> None:
+        """base_phrases の持つ rel に基づき PAS と共参照関係を再構築．"""
+        for base_phrase in self.base_phrases:
+            base_phrase.reset_rels()
+        self.entity_manager.reset()
+        self._parse_rel()
+
     def _parse_discourse_relation(self) -> None:
         """<談話関係> タグをパース．"""
         for clause in self.clauses:

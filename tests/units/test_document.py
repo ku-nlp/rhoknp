@@ -506,6 +506,14 @@ def test_document_sentences_error() -> None:
         _ = doc.sentences
 
 
+def test_document_reparse_rel() -> None:
+    doc_id = "w201106-0000060050"
+    knp = Path(f"tests/data/{doc_id}.knp").read_text()
+    doc = Document.from_knp(knp)
+    doc.reparse_rel()
+    assert doc.to_knp() == knp
+
+
 @pytest.mark.parametrize(
     "knp",
     [
