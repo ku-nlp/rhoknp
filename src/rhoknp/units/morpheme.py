@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from rhoknp.units.sentence import Sentence
 
 
-@dataclass(frozen=True)
+@dataclass
 class MorphemeAttributes:
     """形態素の属性クラス．"""
 
