@@ -6,25 +6,19 @@ import pytest
 
 from rhoknp import Document, Sentence
 
-
-def test_document_need_foo_0():
-    doc = Document.from_raw_text("天気がいいので散歩した。")
-    assert doc.need_senter is True
-    assert doc.need_jumanpp is True
-    assert doc.need_knp is True
-
-
-def test_document_need_foo_1():
-    doc = Document.from_sentences(["天気がいいので散歩した。"])
-    assert doc.need_senter is False
-    assert doc.need_jumanpp is True
-    assert doc.need_knp is True
-
-
-def test_document_need_foo_2():
-    doc = Document.from_jumanpp(
-        textwrap.dedent(
+CASES = [
+    {
+        "raw_text": "天気がいいので散歩した。",
+        "sentences": ["天気がいいので散歩した。"],
+        "line_by_line_text": textwrap.dedent(
             """\
+            # S-ID:1
+            天気がいいので散歩した。
+            """
+        ),
+        "jumanpp": textwrap.dedent(
+            """\
+            # S-ID:1
             天気 てんき 天気 名詞 6 普通名詞 1 * 0 * 0 "代表表記:天気/てんき カテゴリ:抽象物"
             が が が 助詞 9 格助詞 1 * 0 * 0 NIL
             いい いい いい 形容詞 3 * 0 イ形容詞イ段 19 基本形 2 "代表表記:良い/よい 反義:形容詞:悪い/わるい"
@@ -34,18 +28,10 @@ def test_document_need_foo_2():
             。 。 。 特殊 1 句点 1 * 0 * 0 NIL
             EOS
             """
-        )
-    )
-    assert doc.need_senter is False
-    assert doc.need_jumanpp is False
-    assert doc.need_knp is True
-
-
-def test_document_need_foo_3():
-    doc = Document.from_knp(
-        textwrap.dedent(
+        ),
+        "knp": textwrap.dedent(
             """\
-            # S-ID:1 KNP:5.0-2ad4f6df DATE:2021/08/05 SCORE:-10.73865
+            # S-ID:1
             * 1D <BGH:天気/てんき><文頭><ガ><助詞><体言><係:ガ格><区切:0-0><格要素><連用要素><正規化代表表記:天気/てんき><主辞代表表記:天気/てんき>
             + 1D <BGH:天気/てんき><文頭><ガ><助詞><体言><係:ガ格><区切:0-0><格要素><連用要素><名詞項候補><先行詞候補><正規化代表表記:天気/てんき><主辞代表表記:天気/てんき><解析格:ガ>
             天気 てんき 天気 名詞 6 普通名詞 1 * 0 * 0 "代表表記:天気/てんき カテゴリ:抽象物" <代表表記:天気/てんき><カテゴリ:抽象物><正規化代表表記:天気/てんき><漢字><かな漢字><名詞相当語><文頭><自立><内容語><タグ単位始><文節始><文節主辞>
@@ -61,598 +47,496 @@ def test_document_need_foo_3():
             。 。 。 特殊 1 句点 1 * 0 * 0 NIL <英記号><記号><文末><付属>
             EOS
             """
-        )
-    )
-    assert doc.need_senter is False
-    assert doc.need_jumanpp is False
-    assert doc.need_knp is False
-
-
-def test_from_jumanpp_parallel():
-    jumanpp_texts = [
-        textwrap.dedent(
+        ),
+        "knp_with_no_clause_tag": textwrap.dedent(
             """\
+            # S-ID:1
+            * 1D
+            + 1D
             天気 てんき 天気 名詞 6 普通名詞 1 * 0 * 0 "代表表記:天気/てんき カテゴリ:抽象物"
             が が が 助詞 9 格助詞 1 * 0 * 0 NIL
+            * 2D
+            + 2D
             いい いい いい 形容詞 3 * 0 イ形容詞イ段 19 基本形 2 "代表表記:良い/よい 反義:形容詞:悪い/わるい"
             ので ので のだ 助動詞 5 * 0 ナ形容詞 21 ダ列タ系連用テ形 12 NIL
-            散歩 さんぽ 散歩 名詞 6 サ変名詞 2 * 0 * 0 "代表表記:散歩/さんぽ ドメイン:レクリエーション カテゴリ:抽象物"
-            した した する 動詞 2 * 0 サ変動詞 16 タ形 10 "代表表記:する/する 自他動詞:自:成る/なる 付属動詞候補（基本）"
-            。 。 。 特殊 1 句点 1 * 0 * 0 NIL
-            EOS
-            """
-        )
-    ]
-    jumanpp_texts *= 4
-
-    with multiprocessing.Pool(processes=2) as pool:
-        docs = pool.map(Document.from_jumanpp, jumanpp_texts)
-
-    for doc, jumanpp_text in zip(docs, jumanpp_texts):
-        assert doc.to_jumanpp() == jumanpp_text
-
-
-def test_from_jumanpp_ignore_error_0():
-    _ = Document.from_jumanpp(
-        textwrap.dedent(
-            """\
-            天気 てんき 天気 名詞 6 普通名詞 1 * 0 *
-            が が が 助詞 9 格助詞 1 * 0 * 0 NIL
-            いい いい いい 形容詞 3 * 0 イ形容詞イ段 19 基本形 2 "代表表記:良い/よい 反義:形容詞:悪い/わるい"
-            ので ので のだ 助動詞 5 * 0 ナ形容詞 21 ダ列タ系連用テ形 12 NIL
+            * -1D
+            + -1D
             散歩 さんぽ 散歩 名詞 6 サ変名詞 2 * 0 * 0 "代表表記:散歩/さんぽ ドメイン:レクリエーション カテゴリ:抽象物"
             した した する 動詞 2 * 0 サ変動詞 16 タ形 10 "代表表記:する/する 自他動詞:自:成る/なる 付属動詞候補（基本）"
             。 。 。 特殊 1 句点 1 * 0 * 0 NIL
             EOS
             """
         ),
-        ignore_errors=True,
+    },
+    {
+        "raw_text": "風が吹いたら桶屋が儲かる。服屋も儲かる。",
+        "sentences": ["風が吹いたら桶屋が儲かる。", "服屋も儲かる。"],
+        "line_by_line_text": textwrap.dedent(
+            """\
+            # S-ID:1
+            風が吹いたら桶屋が儲かる。
+            # S-ID:2
+            服屋も儲かる。
+            """
+        ),
+        "jumanpp": textwrap.dedent(
+            """\
+            # S-ID:1
+            風 かぜ 風 名詞 6 普通名詞 1 * 0 * 0 "代表表記:風/かぜ カテゴリ:抽象物 漢字読み:訓"
+            が が が 助詞 9 格助詞 1 * 0 * 0 NIL
+            吹いたら ふいたら 吹く 動詞 2 * 0 子音動詞カ行 2 タ系条件形 13 "代表表記:吹く/ふく 補文ト"
+            桶 おけ 桶 名詞 6 普通名詞 1 * 0 * 0 "代表表記:桶/おけ ドメイン:家庭・暮らし カテゴリ:人工物-その他"
+            屋 や 屋 名詞 6 普通名詞 1 * 0 * 0 "代表表記:屋/や カテゴリ:場所-施設 漢字読み:訓"
+            が が が 助詞 9 格助詞 1 * 0 * 0 NIL
+            儲かる もうかる 儲かる 動詞 2 * 0 子音動詞ラ行 10 基本形 2 "代表表記:儲かる/もうかる ドメイン:ビジネス 自他動詞:他:儲ける/もうける"
+            。 。 。 特殊 1 句点 1 * 0 * 0 NIL
+            EOS
+            # S-ID:2
+            服屋 服屋 服屋 名詞 6 普通名詞 1 * 0 * 0 "自動獲得:Wikipedia Wikipediaページ内一覧:ドラゴンボールの登場人物 読み不明 疑似代表表記 代表表記:服屋/服屋"
+            も も も 助詞 9 副助詞 2 * 0 * 0 NIL
+            儲かる もうかる 儲かる 動詞 2 * 0 子音動詞ラ行 10 基本形 2 "代表表記:儲かる/もうかる ドメイン:ビジネス 自他動詞:他:儲ける/もうける"
+            。 。 。 特殊 1 句点 1 * 0 * 0 NIL
+            EOS
+            """
+        ),
+        "knp": textwrap.dedent(
+            """\
+            # S-ID:1
+            * 1D <BGH:風/かぜ><文頭><ガ><助詞><体言><一文字漢字><係:ガ格><区切:0-0><格要素><連用要素><正規化代表表記:風/かぜ><主辞代表表記:風/かぜ>
+            + 1D <BGH:風/かぜ><文頭><ガ><助詞><体言><一文字漢字><係:ガ格><区切:0-0><格要素><連用要素><名詞項候補><先行詞候補><正規化代表表記:風/かぜ><主辞代表表記:風/かぜ><解析格:ガ>
+            風 かぜ 風 名詞 6 普通名詞 1 * 0 * 0 "代表表記:風/かぜ カテゴリ:抽象物 漢字読み:訓" <代表表記:風/かぜ><カテゴリ:抽象物><漢字読み:訓><正規化代表表記:風/かぜ><漢字><かな漢字><名詞相当語><文頭><自立><内容語><タグ単位始><文節始><文節主辞>
+            が が が 助詞 9 格助詞 1 * 0 * 0 NIL <かな漢字><ひらがな><付属>
+            * 3D <BGH:吹く/ふく><補文ト><用言:動><係:連用><レベル:B><区切:3-5><ID:〜たら><連用要素><連用節><動態述語><正規化代表表記:吹く/ふく><主辞代表表記:吹く/ふく>
+            + 4D <BGH:吹く/ふく><補文ト><用言:動><係:連用><レベル:B><区切:3-5><ID:〜たら><連用要素><連用節><動態述語><正規化代表表記:吹く/ふく><主辞代表表記:吹く/ふく><用言代表表記:吹く/ふく><節-区切><節-主辞><節-機能-条件><格関係0:ガ:風><格解析結果:吹く/ふく:動1:ガ/C/風/0/0/1;ニ/U/-/-/-/-;ト/U/-/-/-/-;デ/U/-/-/-/-;カラ/U/-/-/-/-;時間/U/-/-/-/-><標準用言代表表記:吹く/ふく><談話関係:1/4/条件;2/1/条件>
+            吹いたら ふいたら 吹く 動詞 2 * 0 子音動詞カ行 2 タ系条件形 13 "代表表記:吹く/ふく 補文ト" <代表表記:吹く/ふく><補文ト><正規化代表表記:吹く/ふく><かな漢字><活用語><自立><内容語><タグ単位始><文節始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
+            * 3D <SM-主体><SM-人><BGH:屋/や><ガ><助詞><体言><係:ガ格><区切:0-0><格要素><連用要素><正規化代表表記:桶/おけ+屋/や><主辞代表表記:屋/や><主辞’代表表記:桶/おけ+屋/や>
+            + 3D <BGH:桶/おけ><文節内><係:文節内><体言><一文字漢字><名詞項候補><先行詞候補><正規化代表表記:桶/おけ>
+            桶 おけ 桶 名詞 6 普通名詞 1 * 0 * 0 "代表表記:桶/おけ ドメイン:家庭・暮らし カテゴリ:人工物-その他" <代表表記:桶/おけ><ドメイン:家庭・暮らし><カテゴリ:人工物-その他><正規化代表表記:桶/おけ><漢字><かな漢字><名詞相当語><自立><内容語><タグ単位始><文節始>
+            + 4D <SM-主体><SM-人><BGH:屋/や><ガ><助詞><体言><係:ガ格><区切:0-0><格要素><連用要素><一文字漢字><名詞項候補><先行詞候補><正規化代表表記:屋/や><主辞代表表記:屋/や><主辞’代表表記:桶/おけ+屋/や><解析格:ガ>
+            屋 や 屋 名詞 6 普通名詞 1 * 0 * 0 "代表表記:屋/や カテゴリ:場所-施設 漢字読み:訓" <代表表記:屋/や><カテゴリ:場所-施設><漢字読み:訓><正規化代表表記:屋/や><漢字><かな漢字><名詞相当語><自立><複合←><内容語><タグ単位始><文節主辞>
+            が が が 助詞 9 格助詞 1 * 0 * 0 NIL <かな漢字><ひらがな><付属>
+            * -1D <BGH:儲かる/もうかる><文末><句点><用言:動><レベル:C><区切:5-5><ID:（文末）><係:文末><提題受:30><主節><格要素><連用要素><動態述語><正規化代表表記:儲かる/もうかる><主辞代表表記:儲かる/もうかる>
+            + -1D <BGH:儲かる/もうかる><文末><句点><用言:動><レベル:C><区切:5-5><ID:（文末）><係:文末><提題受:30><主節><格要素><連用要素><動態述語><正規化代表表記:儲かる/もうかる><主辞代表表記:儲かる/もうかる><用言代表表記:儲かる/もうかる><節-区切><節-主辞><時制:非過去><主題格:一人称優位><格関係3:ガ:屋><格解析結果:儲かる/もうかる:動2:ガ/C/屋/3/0/1><標準用言代表表記:儲かる/もうかる>
+            儲かる もうかる 儲かる 動詞 2 * 0 子音動詞ラ行 10 基本形 2 "代表表記:儲かる/もうかる ドメイン:ビジネス 自他動詞:他:儲ける/もうける" <代表表記:儲かる/もうかる><ドメイン:ビジネス><自他動詞:他:儲ける/もうける><正規化代表表記:儲かる/もうかる><かな漢字><活用語><表現文末><自立><内容語><タグ単位始><文節始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
+            。 。 。 特殊 1 句点 1 * 0 * 0 NIL <英記号><記号><文末><付属>
+            EOS
+            # S-ID:2
+            * 1D <文頭><モ><助詞><体言><係:未格><並キ:名:&ST:2.5&&モ><区切:1-4><並列タイプ:AND><格要素><連用要素><正規化代表表記:服屋/服屋><主辞代表表記:服屋/服屋><並列類似度:-100.000>
+            + 1D <文頭><モ><助詞><体言><係:未格><並キ:名:&ST:2.5&&モ><区切:1-4><並列タイプ:AND><格要素><連用要素><名詞項候補><先行詞候補><正規化代表表記:服屋/服屋><主辞代表表記:服屋/服屋><解析格:ガ>
+            服屋 服屋 服屋 名詞 6 普通名詞 1 * 0 * 0 "自動獲得:Wikipedia Wikipediaページ内一覧:ドラゴンボールの登場人物 読み不明 疑似代表表記 代表表記:服屋/服屋" <自動獲得:Wikipedia><Wikipediaページ内一覧:ドラゴンボールの登場人物><読み不明><疑似代表表記><代表表記:服屋/服屋><正規化代表表記:服屋/服屋><漢字><かな漢字><名詞相当語><文頭><自立><内容語><タグ単位始><文節始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
+            も も も 助詞 9 副助詞 2 * 0 * 0 NIL <かな漢字><ひらがな><付属>
+            * -1D <BGH:儲かる/もうかる><文末><モ〜><句点><用言:動><レベル:C><区切:5-5><ID:（文末）><係:文末><提題受:30><主節><格要素><連用要素><動態述語><正規化代表表記:儲かる/もうかる><主辞代表表記:儲かる/もうかる>
+            + -1D <BGH:儲かる/もうかる><文末><モ〜><句点><用言:動><レベル:C><区切:5-5><ID:（文末）><係:文末><提題受:30><主節><格要素><連用要素><動態述語><正規化代表表記:儲かる/もうかる><主辞代表表記:儲かる/もうかる><用言代表表記:儲かる/もうかる><節-区切><節-主辞><時制:非過去><主題格:一人称優位><格関係0:ガ:服屋><格解析結果:儲かる/もうかる:動11:ガ/N/服屋/0/0/2;ニ/U/-/-/-/-;デ/U/-/-/-/-><標準用言代表表記:儲かる/もうかる>
+            儲かる もうかる 儲かる 動詞 2 * 0 子音動詞ラ行 10 基本形 2 "代表表記:儲かる/もうかる ドメイン:ビジネス 自他動詞:他:儲ける/もうける" <代表表記:儲かる/もうかる><ドメイン:ビジネス><自他動詞:他:儲ける/もうける><正規化代表表記:儲かる/もうかる><かな漢字><活用語><表現文末><自立><内容語><タグ単位始><文節始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
+            。 。 。 特殊 1 句点 1 * 0 * 0 NIL <英記号><記号><文末><付属>
+            EOS
+            """
+        ),
+        "knp_with_no_clause_tag": textwrap.dedent(
+            """\
+            # S-ID:1
+            * 1D
+            + 1D
+            風 かぜ 風 名詞 6 普通名詞 1 * 0 * 0 "代表表記:風/かぜ カテゴリ:抽象物 漢字読み:訓"
+            が が が 助詞 9 格助詞 1 * 0 * 0 NIL
+            * 3D
+            + 4D
+            吹いたら ふいたら 吹く 動詞 2 * 0 子音動詞カ行 2 タ系条件形 13 "代表表記:吹く/ふく 補文ト"
+            * 3D
+            + 3D
+            桶 おけ 桶 名詞 6 普通名詞 1 * 0 * 0 "代表表記:桶/おけ ドメイン:家庭・暮らし カテゴリ:人工物-その他"
+            + 4D
+            屋 や 屋 名詞 6 普通名詞 1 * 0 * 0 "代表表記:屋/や カテゴリ:場所-施設 漢字読み:訓"
+            が が が 助詞 9 格助詞 1 * 0 * 0 NIL
+            * -1D
+            + -1D
+            儲かる もうかる 儲かる 動詞 2 * 0 子音動詞ラ行 10 基本形 2 "代表表記:儲かる/もうかる ドメイン:ビジネス 自他動詞:他:儲ける/もうける"
+            。 。 。 特殊 1 句点 1 * 0 * 0 NIL
+            EOS
+            # S-ID:2
+            * 1D
+            + 1D
+            服屋 服屋 服屋 名詞 6 普通名詞 1 * 0 * 0 "自動獲得:Wikipedia Wikipediaページ内一覧:ドラゴンボールの登場人物 読み不明 疑似代表表記 代表表記:服屋/服屋"
+            も も も 助詞 9 副助詞 2 * 0 * 0 NIL
+            * -1D
+            + -1D
+            儲かる もうかる 儲かる 動詞 2 * 0 子音動詞ラ行 10 基本形 2 "代表表記:儲かる/もうかる ドメイン:ビジネス 自他動詞:他:儲ける/もうける"
+            。 。 。 特殊 1 句点 1 * 0 * 0 NIL
+            EOS
+            """
+        ),
+    },
+]
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_from_raw_text(case: dict[str, str]) -> None:
+    _ = Document.from_raw_text(case["raw_text"])
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_from_raw_text_parallel(case: dict[str, str]) -> None:
+    with multiprocessing.Pool(processes=1) as pool:
+        _ = pool.map(Document.from_raw_text, [case["raw_text"]])
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_from_sentences(case: dict[str, str]) -> None:
+    _ = Document.from_sentences(case["sentences"])
+    # from_sentences() allows Sentence objects as input.
+    _ = Document.from_sentences(list(map(Sentence.from_raw_text, case["sentences"])))
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_from_sentences_parallel(case: dict[str, str]) -> None:
+    with multiprocessing.Pool(processes=1) as pool:
+        _ = pool.map(Document.from_sentences, [case["sentences"]])
+        # from_sentences() allows Sentence objects as input.
+        _ = pool.map(Document.from_sentences, [list(map(Sentence.from_raw_text, case["sentences"]))])
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_from_line_by_line_text(case: dict[str, str]) -> None:
+    _ = Document.from_line_by_line_text(case["line_by_line_text"])
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_from_line_by_line_text_parallel(case: dict[str, str]) -> None:
+    with multiprocessing.Pool(processes=1) as pool:
+        _ = pool.map(Document.from_line_by_line_text, [case["line_by_line_text"]])
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_from_jumanpp(case: dict[str, str]) -> None:
+    _ = Document.from_jumanpp(case["jumanpp"])
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_from_jumanpp_parallel(case: dict[str, str]) -> None:
+    with multiprocessing.Pool(processes=1) as pool:
+        _ = pool.map(Document.from_jumanpp, [case["jumanpp"]])
+
+
+def test_from_jumanpp_ignore_error():
+    invalid_jumanpp_text = textwrap.dedent(
+        """\
+        # S-ID:1
+        天気 てんき 天気 名詞 6 普通名詞 1 * 0 *
+        が が が 助詞 9 格助詞 1 * 0 * 0 NIL
+        いい いい いい 形容詞 3 * 0 イ形容詞イ段 19 基本形 2 "代表表記:良い/よい 反義:形容詞:悪い/わるい"
+        ので ので のだ 助動詞 5 * 0 ナ形容詞 21 ダ列タ系連用テ形 12 NIL
+        散歩 さんぽ 散歩 名詞 6 サ変名詞 2 * 0 * 0 "代表表記:散歩/さんぽ ドメイン:レクリエーション カテゴリ:抽象物"
+        した した する 動詞 2 * 0 サ変動詞 16 タ形 10 "代表表記:する/する 自他動詞:自:成る/なる 付属動詞候補（基本）"
+        。 。 。 特殊 1 句点 1 * 0 * 0 NIL
+        EOS
+        """
     )
-
-
-def test_from_jumanpp_ignore_error_1():
     with pytest.raises(ValueError):
-        _ = Document.from_jumanpp(
-            textwrap.dedent(
-                """\
-                天気 てんき 天気 名詞 6 普通名詞 1 * 0 *
-                が が が 助詞 9 格助詞 1 * 0 * 0 NIL
-                いい いい いい 形容詞 3 * 0 イ形容詞イ段 19 基本形 2 "代表表記:良い/よい 反義:形容詞:悪い/わるい"
-                ので ので のだ 助動詞 5 * 0 ナ形容詞 21 ダ列タ系連用テ形 12 NIL
-                散歩 さんぽ 散歩 名詞 6 サ変名詞 2 * 0 * 0 "代表表記:散歩/さんぽ ドメイン:レクリエーション カテゴリ:抽象物"
-                した した する 動詞 2 * 0 サ変動詞 16 タ形 10 "代表表記:する/する 自他動詞:自:成る/なる 付属動詞候補（基本）"
-                。 。 。 特殊 1 句点 1 * 0 * 0 NIL
-                EOS
-                """
-            )
-        )
+        _ = Document.from_jumanpp(invalid_jumanpp_text)
+    _ = Document.from_jumanpp(invalid_jumanpp_text, ignore_errors=True)
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_from_knp_with_no_clause_tag(case: dict[str, str]) -> None:
+    _ = Document.from_knp(case["knp_with_no_clause_tag"])
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_from_knp_with_no_clause_tag_parallel(case: dict[str, str]) -> None:
+    with multiprocessing.Pool(processes=1) as pool:
+        _ = pool.map(Document.from_knp, [case["knp_with_no_clause_tag"]])
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_from_knp(case: dict[str, str]) -> None:
+    _ = Document.from_knp(case["knp"])
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_from_knp_parallel(case: dict[str, str]) -> None:
+    with multiprocessing.Pool(processes=1) as pool:
+        _ = pool.map(Document.from_knp, [case["knp"]])
 
 
 def test_from_knp_ignore_error():
-    _ = Document.from_knp(
-        textwrap.dedent(
-            """\
-            # S-ID:1 KNP:5.0-2ad4f6df DATE:2021/08/05 SCORE:-10.73865
-            * 1D <BGH:天気/てんき><文頭><ガ><助詞><体言><係:ガ格><区切:0-0><格要素><連用要素><正規化代表表記:天気/てんき><主辞代表表記:天気/てんき>
-            + 1D <BGH:天気/てんき><文頭><ガ><助詞><体言><係:ガ格><区切:0-0><格要素><連用要素><名詞項候補><先行詞候補><正規化代表表記:天気/てんき><主辞代表表記:天気/てんき><解析格:ガ>
-            天気 てんき 天気 名詞 6 普通名詞 1 * 0 *
-            が が が 助詞 9 格助詞 1 * 0 * 0 NIL <かな漢字><ひらがな><付属>
-            * 2D <BGH:良い/よい><用言:形><係:連用><レベル:B+><区切:3-5><ID:〜ので><提題受:20><連用要素><連用節><状態述語><正規化代表表記:良い/よい><主辞代表表記:良い/よい>
-            + 2D <BGH:良い/よい><用言:形><係:連用><レベル:B+><区切:3-5><ID:〜ので><提題受:20><連用要素><連用節><状態述語><節-機能-原因・理由:ので><正規化代表表記:良い/よい><主辞代表表記:良い/よい><用言代表表記:良い/よい><節-区切><節-主辞><時制:非過去><格関係0:ガ:天気><格解析結果:良い/よい:形5:ガ/C/天気/0/0/1;カラ/U/-/-/-/-;時間/U/-/-/-/-><標準用言代表表記:良い/よい>
-            いい いい いい 形容詞 3 * 0 イ形容詞イ段 19 基本形 2 "代表表記:良い/よい 反義:形容詞:悪い/わるい" <代表表記:良い/よい><反義:形容詞:悪い/わるい><正規化代表表記:良い/よい><かな漢字><ひらがな><活用語><自立><内容語><タグ単位始><文節始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
-            ので ので のだ 助動詞 5 * 0 ナ形容詞 21 ダ列タ系連用テ形 12 NIL <かな漢字><ひらがな><活用語><付属>
-            * -1D <BGH:散歩/さんぽ+する/する><文末><サ変><サ変動詞><時制:過去><句点><用言:動><レベル:C><区切:5-5><ID:（文末）><係:文末><提題受:30><主節><格要素><連用要素><動態述語><正規化代表表記:散歩/さんぽ><主辞代表表記:散歩/さんぽ>
-            + -1D <BGH:散歩/さんぽ+する/する><文末><サ変動詞><時制:過去><句点><用言:動><レベル:C><区切:5-5><ID:（文末）><係:文末><提題受:30><主節><格要素><連用要素><動態述語><サ変><正規化代表表記:散歩/さんぽ><主辞代表表記:散歩/さんぽ><用言代表表記:散歩/さんぽ><節-区切><節-主辞><主題格:一人称優位><格解析結果:散歩/さんぽ:動0:ガ/U/-/-/-/-;ヲ/U/-/-/-/-;ニ/U/-/-/-/-;ト/U/-/-/-/-;デ/U/-/-/-/-;カラ/U/-/-/-/-;マデ/U/-/-/-/-;時間/U/-/-/-/-><標準用言代表表記:散歩/さんぽ>
-            散歩 さんぽ 散歩 名詞 6 サ変名詞 2 * 0 * 0 "代表表記:散歩/さんぽ ドメイン:レクリエーション カテゴリ:抽象物" <代表表記:散歩/さんぽ><ドメイン:レクリエーション><カテゴリ:抽象物><正規化代表表記:散歩/さんぽ><漢字><かな漢字><名詞相当語><サ変><サ変動詞><自立><内容語><タグ単位始><文節始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
-            した した する 動詞 2 * 0 サ変動詞 16 タ形 10 "代表表記:する/する 自他動詞:自:成る/なる 付属動詞候補（基本）" <代表表記:する/する><自他動詞:自:成る/なる><付属動詞候補（基本）><正規化代表表記:する/する><かな漢字><ひらがな><活用語><表現文末><とタ系連用テ形複合辞><付属>
-            。 。 。 特殊 1 句点 1 * 0 * 0 NIL <英記号><記号><文末><付属>
-            EOS
-            """
-        ),
-        ignore_errors=True,
+    invalid_knp_text = textwrap.dedent(
+        """\
+        # S-ID:1
+        * 1D <BGH:天気/てんき><文頭><ガ><助詞><体言><係:ガ格><区切:0-0><格要素><連用要素><正規化代表表記:天気/てんき><主辞代表表記:天気/てんき>
+        + 1D <BGH:天気/てんき><文頭><ガ><助詞><体言><係:ガ格><区切:0-0><格要素><連用要素><名詞項候補><先行詞候補><正規化代表表記:天気/てんき><主辞代表表記:天気/てんき><解析格:ガ>
+        天気 てんき 天気 名詞 6 普通名詞 1 * 0 *
+        が が が 助詞 9 格助詞 1 * 0 * 0 NIL <かな漢字><ひらがな><付属>
+        * 2D <BGH:良い/よい><用言:形><係:連用><レベル:B+><区切:3-5><ID:〜ので><提題受:20><連用要素><連用節><状態述語><正規化代表表記:良い/よい><主辞代表表記:良い/よい>
+        + 2D <BGH:良い/よい><用言:形><係:連用><レベル:B+><区切:3-5><ID:〜ので><提題受:20><連用要素><連用節><状態述語><節-機能-原因・理由:ので><正規化代表表記:良い/よい><主辞代表表記:良い/よい><用言代表表記:良い/よい><節-区切><節-主辞><時制:非過去><格関係0:ガ:天気><格解析結果:良い/よい:形5:ガ/C/天気/0/0/1;カラ/U/-/-/-/-;時間/U/-/-/-/-><標準用言代表表記:良い/よい>
+        いい いい いい 形容詞 3 * 0 イ形容詞イ段 19 基本形 2 "代表表記:良い/よい 反義:形容詞:悪い/わるい" <代表表記:良い/よい><反義:形容詞:悪い/わるい><正規化代表表記:良い/よい><かな漢字><ひらがな><活用語><自立><内容語><タグ単位始><文節始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
+        ので ので のだ 助動詞 5 * 0 ナ形容詞 21 ダ列タ系連用テ形 12 NIL <かな漢字><ひらがな><活用語><付属>
+        * -1D <BGH:散歩/さんぽ+する/する><文末><サ変><サ変動詞><時制:過去><句点><用言:動><レベル:C><区切:5-5><ID:（文末）><係:文末><提題受:30><主節><格要素><連用要素><動態述語><正規化代表表記:散歩/さんぽ><主辞代表表記:散歩/さんぽ>
+        + -1D <BGH:散歩/さんぽ+する/する><文末><サ変動詞><時制:過去><句点><用言:動><レベル:C><区切:5-5><ID:（文末）><係:文末><提題受:30><主節><格要素><連用要素><動態述語><サ変><正規化代表表記:散歩/さんぽ><主辞代表表記:散歩/さんぽ><用言代表表記:散歩/さんぽ><節-区切><節-主辞><主題格:一人称優位><格解析結果:散歩/さんぽ:動0:ガ/U/-/-/-/-;ヲ/U/-/-/-/-;ニ/U/-/-/-/-;ト/U/-/-/-/-;デ/U/-/-/-/-;カラ/U/-/-/-/-;マデ/U/-/-/-/-;時間/U/-/-/-/-><標準用言代表表記:散歩/さんぽ>
+        散歩 さんぽ 散歩 名詞 6 サ変名詞 2 * 0 * 0 "代表表記:散歩/さんぽ ドメイン:レクリエーション カテゴリ:抽象物" <代表表記:散歩/さんぽ><ドメイン:レクリエーション><カテゴリ:抽象物><正規化代表表記:散歩/さんぽ><漢字><かな漢字><名詞相当語><サ変><サ変動詞><自立><内容語><タグ単位始><文節始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
+        した した する 動詞 2 * 0 サ変動詞 16 タ形 10 "代表表記:する/する 自他動詞:自:成る/なる 付属動詞候補（基本）" <代表表記:する/する><自他動詞:自:成る/なる><付属動詞候補（基本）><正規化代表表記:する/する><かな漢字><ひらがな><活用語><表現文末><とタ系連用テ形複合辞><付属>
+        。 。 。 特殊 1 句点 1 * 0 * 0 NIL <英記号><記号><文末><付属>
+        EOS
+        """
     )
-
-
-def test_from_knp_ignore_error_1():
     with pytest.raises(ValueError):
-        _ = Document.from_knp(
-            textwrap.dedent(
-                """\
-                # S-ID:1 KNP:5.0-2ad4f6df DATE:2021/08/05 SCORE:-10.73865
-                * 1D <BGH:天気/てんき><文頭><ガ><助詞><体言><係:ガ格><区切:0-0><格要素><連用要素><正規化代表表記:天気/てんき><主辞代表表記:天気/てんき>
-                + 1D <BGH:天気/てんき><文頭><ガ><助詞><体言><係:ガ格><区切:0-0><格要素><連用要素><名詞項候補><先行詞候補><正規化代表表記:天気/てんき><主辞代表表記:天気/てんき><解析格:ガ>
-                天気 てんき 天気 名詞 6 普通名詞 1 * 0 *
-                が が が 助詞 9 格助詞 1 * 0 * 0 NIL <かな漢字><ひらがな><付属>
-                * 2D <BGH:良い/よい><用言:形><係:連用><レベル:B+><区切:3-5><ID:〜ので><提題受:20><連用要素><連用節><状態述語><正規化代表表記:良い/よい><主辞代表表記:良い/よい>
-                + 2D <BGH:良い/よい><用言:形><係:連用><レベル:B+><区切:3-5><ID:〜ので><提題受:20><連用要素><連用節><状態述語><節-機能-原因・理由:ので><正規化代表表記:良い/よい><主辞代表表記:良い/よい><用言代表表記:良い/よい><節-区切><節-主辞><時制:非過去><格関係0:ガ:天気><格解析結果:良い/よい:形5:ガ/C/天気/0/0/1;カラ/U/-/-/-/-;時間/U/-/-/-/-><標準用言代表表記:良い/よい>
-                いい いい いい 形容詞 3 * 0 イ形容詞イ段 19 基本形 2 "代表表記:良い/よい 反義:形容詞:悪い/わるい" <代表表記:良い/よい><反義:形容詞:悪い/わるい><正規化代表表記:良い/よい><かな漢字><ひらがな><活用語><自立><内容語><タグ単位始><文節始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
-                ので ので のだ 助動詞 5 * 0 ナ形容詞 21 ダ列タ系連用テ形 12 NIL <かな漢字><ひらがな><活用語><付属>
-                * -1D <BGH:散歩/さんぽ+する/する><文末><サ変><サ変動詞><時制:過去><句点><用言:動><レベル:C><区切:5-5><ID:（文末）><係:文末><提題受:30><主節><格要素><連用要素><動態述語><正規化代表表記:散歩/さんぽ><主辞代表表記:散歩/さんぽ>
-                + -1D <BGH:散歩/さんぽ+する/する><文末><サ変動詞><時制:過去><句点><用言:動><レベル:C><区切:5-5><ID:（文末）><係:文末><提題受:30><主節><格要素><連用要素><動態述語><サ変><正規化代表表記:散歩/さんぽ><主辞代表表記:散歩/さんぽ><用言代表表記:散歩/さんぽ><節-区切><節-主辞><主題格:一人称優位><格解析結果:散歩/さんぽ:動0:ガ/U/-/-/-/-;ヲ/U/-/-/-/-;ニ/U/-/-/-/-;ト/U/-/-/-/-;デ/U/-/-/-/-;カラ/U/-/-/-/-;マデ/U/-/-/-/-;時間/U/-/-/-/-><標準用言代表表記:散歩/さんぽ>
-                散歩 さんぽ 散歩 名詞 6 サ変名詞 2 * 0 * 0 "代表表記:散歩/さんぽ ドメイン:レクリエーション カテゴリ:抽象物" <代表表記:散歩/さんぽ><ドメイン:レクリエーション><カテゴリ:抽象物><正規化代表表記:散歩/さんぽ><漢字><かな漢字><名詞相当語><サ変><サ変動詞><自立><内容語><タグ単位始><文節始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
-                した した する 動詞 2 * 0 サ変動詞 16 タ形 10 "代表表記:する/する 自他動詞:自:成る/なる 付属動詞候補（基本）" <代表表記:する/する><自他動詞:自:成る/なる><付属動詞候補（基本）><正規化代表表記:する/する><かな漢字><ひらがな><活用語><表現文末><とタ系連用テ形複合辞><付属>
-                。 。 。 特殊 1 句点 1 * 0 * 0 NIL <英記号><記号><文末><付属>
-                EOS
-                """
-            )
-        )
+        _ = Document.from_knp(invalid_knp_text)
+    _ = Document.from_knp(invalid_knp_text, ignore_errors=True)
 
 
-@pytest.mark.parametrize(
-    "text, knp",
-    [
-        (
-            "天気がいいので散歩した。",
-            textwrap.dedent(
-                """\
-                # S-ID:1 KNP:5.0-2ad4f6df DATE:2021/08/05 SCORE:-10.73865
-                * 1D <BGH:天気/てんき><文頭><ガ><助詞><体言><係:ガ格><区切:0-0><格要素><連用要素><正規化代表表記:天気/てんき><主辞代表表記:天気/てんき>
-                + 1D <BGH:天気/てんき><文頭><ガ><助詞><体言><係:ガ格><区切:0-0><格要素><連用要素><名詞項候補><先行詞候補><正規化代表表記:天気/てんき><主辞代表表記:天気/てんき><解析格:ガ>
-                天気 てんき 天気 名詞 6 普通名詞 1 * 0 * 0 "代表表記:天気/てんき カテゴリ:抽象物" <代表表記:天気/てんき><カテゴリ:抽象物><正規化代表表記:天気/てんき><漢字><かな漢字><名詞相当語><文頭><自立><内容語><タグ単位始><文節始><文節主辞>
-                が が が 助詞 9 格助詞 1 * 0 * 0 NIL <かな漢字><ひらがな><付属>
-                * 2D <BGH:良い/よい><用言:形><係:連用><レベル:B+><区切:3-5><ID:〜ので><提題受:20><連用要素><連用節><状態述語><正規化代表表記:良い/よい><主辞代表表記:良い/よい>
-                + 2D <BGH:良い/よい><用言:形><係:連用><レベル:B+><区切:3-5><ID:〜ので><提題受:20><連用要素><連用節><状態述語><節-機能-原因・理由:ので><正規化代表表記:良い/よい><主辞代表表記:良い/よい><用言代表表記:良い/よい><節-区切><節-主辞><時制:非過去><格関係0:ガ:天気><格解析結果:良い/よい:形5:ガ/C/天気/0/0/1;カラ/U/-/-/-/-;時間/U/-/-/-/-><標準用言代表表記:良い/よい>
-                いい いい いい 形容詞 3 * 0 イ形容詞イ段 19 基本形 2 "代表表記:良い/よい 反義:形容詞:悪い/わるい" <代表表記:良い/よい><反義:形容詞:悪い/わるい><正規化代表表記:良い/よい><かな漢字><ひらがな><活用語><自立><内容語><タグ単位始><文節始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
-                ので ので のだ 助動詞 5 * 0 ナ形容詞 21 ダ列タ系連用テ形 12 NIL <かな漢字><ひらがな><活用語><付属>
-                * -1D <BGH:散歩/さんぽ+する/する><文末><サ変><サ変動詞><時制:過去><句点><用言:動><レベル:C><区切:5-5><ID:（文末）><係:文末><提題受:30><主節><格要素><連用要素><動態述語><正規化代表表記:散歩/さんぽ><主辞代表表記:散歩/さんぽ>
-                + -1D <BGH:散歩/さんぽ+する/する><文末><サ変動詞><時制:過去><句点><用言:動><レベル:C><区切:5-5><ID:（文末）><係:文末><提題受:30><主節><格要素><連用要素><動態述語><サ変><正規化代表表記:散歩/さんぽ><主辞代表表記:散歩/さんぽ><用言代表表記:散歩/さんぽ><節-区切><節-主辞><主題格:一人称優位><格解析結果:散歩/さんぽ:動0:ガ/U/-/-/-/-;ヲ/U/-/-/-/-;ニ/U/-/-/-/-;ト/U/-/-/-/-;デ/U/-/-/-/-;カラ/U/-/-/-/-;マデ/U/-/-/-/-;時間/U/-/-/-/-><標準用言代表表記:散歩/さんぽ>
-                散歩 さんぽ 散歩 名詞 6 サ変名詞 2 * 0 * 0 "代表表記:散歩/さんぽ ドメイン:レクリエーション カテゴリ:抽象物" <代表表記:散歩/さんぽ><ドメイン:レクリエーション><カテゴリ:抽象物><正規化代表表記:散歩/さんぽ><漢字><かな漢字><名詞相当語><サ変><サ変動詞><自立><内容語><タグ単位始><文節始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
-                した した する 動詞 2 * 0 サ変動詞 16 タ形 10 "代表表記:する/する 自他動詞:自:成る/なる 付属動詞候補（基本）" <代表表記:する/する><自他動詞:自:成る/なる><付属動詞候補（基本）><正規化代表表記:する/する><かな漢字><ひらがな><活用語><表現文末><とタ系連用テ形複合辞><付属>
-                。 。 。 特殊 1 句点 1 * 0 * 0 NIL <英記号><記号><文末><付属>
-                EOS
-                """
-            ),
-        ),
-        (
-            "EOSは特殊記号です。",
-            textwrap.dedent(
-                """\
-                # S-ID:1 KNP:5.0-2ad4f6df DATE:2021/09/21 SCORE:-17.80638
-                * 1D <文頭><組織名疑><ハ><助詞><体言><係:未格><提題><区切:3-5><主題表現><格要素><連用要素><正規化代表表記:EOS/EOS><主辞代表表記:EOS/EOS>
-                + 2D <文頭><組織名疑><ハ><助詞><体言><係:未格><提題><区切:3-5><主題表現><格要素><連用要素><名詞項候補><先行詞候補><正規化代表表記:EOS/EOS><主辞代表表記:EOS/EOS><解析格:ガ>
-                EOS EOS EOS 名詞 6 組織名 6 * 0 * 0 "未知語:ローマ字 品詞推定:名詞 疑似代表表記 代表表記:EOS/EOS 品詞変更:EOS-EOS-EOS-15-3-0-0" <未知語><品詞推定:名詞><疑似代表表記><代表表記:EOS/EOS><正規化代表表記:EOS/EOS><品詞変更:EOS-EOS-EOS-15-3-0-0-"未知語:ローマ字 品詞推定:名詞 疑似代表表記 代表表記:EOS/EOS"><品曖><品曖-アルファベット><品曖-組織名><記英数カ><英記号><記号><名詞相当語><文頭><自立><内容語><タグ単位始><文節始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
-                は は は 助詞 9 副助詞 2 * 0 * 0 NIL <かな漢字><ひらがな><付属>
-                * -1D <BGH:記号/きごう><文末><句点><体言><判定詞><用言:判><レベル:C><区切:5-5><ID:（文末）><裸名詞><係:文末><提題受:30><主節><格要素><連用要素><状態述語><敬語:丁寧表現><正規化代表表記:特殊/とくしゅa+記号/きごう><主辞代表表記:記号/きごう>
-                + 2D <BGH:特殊だ/とくしゅだ><文節内><係:文節内><名詞的形容詞語幹><体言><名詞項候補><先行詞候補><非用言格解析:形><正規化代表表記:特殊/とくしゅa>
-                特殊 とくしゅ 特殊だ 形容詞 3 * 0 ナノ形容詞 22 語幹 1 "代表表記:特殊/とくしゅa 代表表記変更:特殊だ/とくしゅだ 反義:名詞-普通名詞:一般/いっぱん;名詞-普通名詞:普遍/ふへん" <代表表記:特殊/とくしゅa><反義:名詞-普通名詞:一般/いっぱん;名詞-普通名詞:普遍/ふへん><正規化代表表記:特殊/とくしゅa><漢字><かな漢字><名詞的形容詞語幹><代表表記変更:特殊だ/とくしゅだ><名詞相当語><自立><内容語><タグ単位始><文節始><用言表記先頭><用言表記末尾><用言意味表記末尾>
-                + -1D <BGH:記号/きごう><文末><句点><体言><判定詞><用言:判><レベル:C><区切:5-5><ID:（文末）><裸名詞><係:文末><提題受:30><主節><格要素><連用要素><状態述語><敬語:丁寧表現><判定詞句><名詞項候補><先行詞候補><正規化代表表記:記号/きごう><主辞代表表記:記号/きごう><用言代表表記:記号/きごう><節-区切><節-主辞><時制:非過去><格関係0:ガ:EOS><格解析結果:記号/きごう:判3:ガ/N/EOS/0/0/1><標準用言代表表記:記号/きごう>
-                記号 きごう 記号 名詞 6 普通名詞 1 * 0 * 0 "代表表記:記号/きごう カテゴリ:抽象物" <代表表記:記号/きごう><カテゴリ:抽象物><正規化代表表記:記号/きごう><漢字><かな漢字><名詞相当語><自立><複合←><内容語><タグ単位始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
-                です です だ 判定詞 4 * 0 判定詞 25 デス列基本形 27 NIL <かな漢字><ひらがな><活用語><表現文末><付属>
-                。 。 。 特殊 1 句点 1 * 0 * 0 NIL <英記号><記号><文末><付属>
-                EOS
-                """
-            ),
-        ),
-        (
-            "。",
-            textwrap.dedent(
-                """\
-                # S-ID:2 KNP:5.0-2ad4f6df DATE:2021/09/21 SCORE:0.00000
-                * -1D <文頭><文末><句点><受けNONE><用言:判><体言止><レベル:C><区切:5-5><ID:（文末）><係:文末><提題受:30><主節><格要素><連用要素><状態述語>
-                + -1D <文頭><文末><句点><受けNONE><用言:判><体言止><レベル:C><区切:5-5><ID:（文末）><係:文末><提題受:30><主節><格要素><連用要素><状態述語><判定詞句><用言代表表記:。/。><節-区切><節-主辞><時制:非過去>
-                。 。 。 特殊 1 句点 1 * 0 * 0 NIL <英記号><記号><文頭><文末><付属><タグ単位始><文節始><用言表記先頭><用言表記末尾><用言意味表記末尾>
-                EOS
-                """
-            ),
-        ),
-    ],
-)
-def test_document_from_knp(text: str, knp: str) -> None:
-    doc = Document.from_knp(knp)
-    assert str(doc) == text
+@pytest.mark.parametrize("case", CASES)
+def test_need_senter(case: dict[str, str]) -> None:
+    doc = Document.from_raw_text(case["raw_text"])
+    assert doc.need_senter is True
+    doc = Document.from_sentences(case["sentences"])
+    assert doc.need_senter is False
+    doc = Document.from_line_by_line_text(case["line_by_line_text"])
+    assert doc.need_senter is False
+    doc = Document.from_jumanpp(case["jumanpp"])
+    assert doc.need_senter is False
+    doc = Document.from_knp(case["knp_with_no_clause_tag"])
+    assert doc.need_senter is False
+    doc = Document.from_knp(case["knp"])
+    assert doc.need_senter is False
 
 
-def test_from_knp_parallel():
-    knp_texts = [
-        textwrap.dedent(
-            """\
-            # S-ID:1 KNP:5.0-2ad4f6df DATE:2021/08/05 SCORE:-10.73865
-            * 1D <BGH:天気/てんき><文頭><ガ><助詞><体言><係:ガ格><区切:0-0><格要素><連用要素><正規化代表表記:天気/てんき><主辞代表表記:天気/てんき>
-            + 1D <BGH:天気/てんき><文頭><ガ><助詞><体言><係:ガ格><区切:0-0><格要素><連用要素><名詞項候補><先行詞候補><正規化代表表記:天気/てんき><主辞代表表記:天気/てんき><解析格:ガ>
-            天気 てんき 天気 名詞 6 普通名詞 1 * 0 * 0 "代表表記:天気/てんき カテゴリ:抽象物" <代表表記:天気/てんき><カテゴリ:抽象物><正規化代表表記:天気/てんき><漢字><かな漢字><名詞相当語><文頭><自立><内容語><タグ単位始><文節始><文節主辞>
-            が が が 助詞 9 格助詞 1 * 0 * 0 NIL <かな漢字><ひらがな><付属>
-            * 2D <BGH:良い/よい><用言:形><係:連用><レベル:B+><区切:3-5><ID:〜ので><提題受:20><連用要素><連用節><状態述語><正規化代表表記:良い/よい><主辞代表表記:良い/よい>
-            + 2D <BGH:良い/よい><用言:形><係:連用><レベル:B+><区切:3-5><ID:〜ので><提題受:20><連用要素><連用節><状態述語><節-機能-原因・理由:ので><正規化代表表記:良い/よい><主辞代表表記:良い/よい><用言代表表記:良い/よい><節-区切><節-主辞><時制:非過去><格関係0:ガ:天気><格解析結果:良い/よい:形5:ガ/C/天気/0/0/1;カラ/U/-/-/-/-;時間/U/-/-/-/-><標準用言代表表記:良い/よい>
-            いい いい いい 形容詞 3 * 0 イ形容詞イ段 19 基本形 2 "代表表記:良い/よい 反義:形容詞:悪い/わるい" <代表表記:良い/よい><反義:形容詞:悪い/わるい><正規化代表表記:良い/よい><かな漢字><ひらがな><活用語><自立><内容語><タグ単位始><文節始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
-            ので ので のだ 助動詞 5 * 0 ナ形容詞 21 ダ列タ系連用テ形 12 NIL <かな漢字><ひらがな><活用語><付属>
-            * -1D <BGH:散歩/さんぽ+する/する><文末><サ変><サ変動詞><時制:過去><句点><用言:動><レベル:C><区切:5-5><ID:（文末）><係:文末><提題受:30><主節><格要素><連用要素><動態述語><正規化代表表記:散歩/さんぽ><主辞代表表記:散歩/さんぽ>
-            + -1D <BGH:散歩/さんぽ+する/する><文末><サ変動詞><時制:過去><句点><用言:動><レベル:C><区切:5-5><ID:（文末）><係:文末><提題受:30><主節><格要素><連用要素><動態述語><サ変><正規化代表表記:散歩/さんぽ><主辞代表表記:散歩/さんぽ><用言代表表記:散歩/さんぽ><節-区切><節-主辞><主題格:一人称優位><格解析結果:散歩/さんぽ:動0:ガ/U/-/-/-/-;ヲ/U/-/-/-/-;ニ/U/-/-/-/-;ト/U/-/-/-/-;デ/U/-/-/-/-;カラ/U/-/-/-/-;マデ/U/-/-/-/-;時間/U/-/-/-/-><標準用言代表表記:散歩/さんぽ>
-            散歩 さんぽ 散歩 名詞 6 サ変名詞 2 * 0 * 0 "代表表記:散歩/さんぽ ドメイン:レクリエーション カテゴリ:抽象物" <代表表記:散歩/さんぽ><ドメイン:レクリエーション><カテゴリ:抽象物><正規化代表表記:散歩/さんぽ><漢字><かな漢字><名詞相当語><サ変><サ変動詞><自立><内容語><タグ単位始><文節始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
-            した した する 動詞 2 * 0 サ変動詞 16 タ形 10 "代表表記:する/する 自他動詞:自:成る/なる 付属動詞候補（基本）" <代表表記:する/する><自他動詞:自:成る/なる><付属動詞候補（基本）><正規化代表表記:する/する><かな漢字><ひらがな><活用語><表現文末><とタ系連用テ形複合辞><付属>
-            。 。 。 特殊 1 句点 1 * 0 * 0 NIL <英記号><記号><文末><付属>
-            EOS
-            """
-        )
-    ]
-    knp_texts *= 4
-
-    with multiprocessing.Pool(processes=2) as pool:
-        docs = pool.map(Document.from_knp, knp_texts)
-
-    for doc, knp_text in zip(docs, knp_texts):
-        assert doc.to_knp() == knp_text
+@pytest.mark.parametrize("case", CASES)
+def test_need_jumanpp(case: dict[str, str]) -> None:
+    doc = Document.from_raw_text(case["raw_text"])
+    assert doc.need_jumanpp is True
+    doc = Document.from_sentences(case["sentences"])
+    assert doc.need_jumanpp is True
+    doc = Document.from_line_by_line_text(case["line_by_line_text"])
+    assert doc.need_jumanpp is True
+    doc = Document.from_jumanpp(case["jumanpp"])
+    assert doc.need_jumanpp is False
+    doc = Document.from_knp(case["knp_with_no_clause_tag"])
+    assert doc.need_jumanpp is False
+    doc = Document.from_knp(case["knp"])
+    assert doc.need_jumanpp is False
 
 
-@pytest.mark.parametrize("sentence_string", ["天気がいいので散歩した。", "。"])
-def test_document_from_raw_text(sentence_string: str) -> None:
-    doc_from_string = Document.from_raw_text(sentence_string)
-    assert doc_from_string.text == sentence_string
+@pytest.mark.parametrize("case", CASES)
+def test_need_knp(case: dict[str, str]) -> None:
+    doc = Document.from_raw_text(case["raw_text"])
+    assert doc.need_knp is True
+    doc = Document.from_sentences(case["sentences"])
+    assert doc.need_knp is True
+    doc = Document.from_line_by_line_text(case["line_by_line_text"])
+    assert doc.need_knp is True
+    doc = Document.from_jumanpp(case["jumanpp"])
+    assert doc.need_knp is True
+    doc = Document.from_knp(case["knp_with_no_clause_tag"])
+    assert doc.need_knp is False
+    doc = Document.from_knp(case["knp"])
+    assert doc.need_knp is False
 
 
-def test_document_from_raw_text_parallel() -> None:
-    raw_texts = ["天気がいいので散歩した。"]
-    raw_texts *= 4
-
-    with multiprocessing.Pool(processes=2) as pool:
-        docs = pool.map(Document.from_raw_text, raw_texts)
-
-    for doc, raw_text in zip(docs, raw_texts):
-        assert doc.text == raw_text
-
-
-@pytest.mark.parametrize("sentence_strings", [["天気がいいので散歩した。", "途中で先生に会った。"], ["。"]])
-def test_document_from_sentences_0(sentence_strings: list[str]) -> None:
-    doc_from_strings = Document.from_sentences(sentence_strings)
-    assert doc_from_strings.text == "".join(sentence_strings)
-
-
-@pytest.mark.parametrize("sentence_strings", [["天気がいいので散歩した。", "途中で先生に会った。"], ["。"]])
-def test_document_from_sentences_1(sentence_strings: list[str]) -> None:
-    doc_from_sentences = Document.from_sentences(
-        [Sentence.from_raw_text(sentence_string) for sentence_string in sentence_strings]
-    )
-    assert doc_from_sentences.text == "".join(sentence_strings)
+@pytest.mark.parametrize("case", CASES)
+def test_need_clause_tag(case: dict[str, str]) -> None:
+    doc = Document.from_raw_text(case["raw_text"])
+    assert doc.need_clause_tag is True
+    doc = Document.from_sentences(case["sentences"])
+    assert doc.need_clause_tag is True
+    doc = Document.from_line_by_line_text(case["line_by_line_text"])
+    assert doc.need_clause_tag is True
+    doc = Document.from_jumanpp(case["jumanpp"])
+    assert doc.need_clause_tag is True
+    doc = Document.from_knp(case["knp_with_no_clause_tag"])
+    assert doc.need_clause_tag is True
+    doc = Document.from_knp(case["knp"])
+    assert doc.need_clause_tag is False
 
 
-def test_document_from_sentences_parallel() -> None:
-    sentences_list = [["天気がいいので散歩した。"]]
-    sentences_list *= 4
-
-    with multiprocessing.Pool(processes=2) as pool:
-        docs = pool.map(Document.from_sentences, sentences_list)
-
-    for doc, sentences in zip(docs, sentences_list):
-        assert [sentence.text for sentence in doc.sentences] == sentences
-
-
-@pytest.mark.parametrize(
-    "text, sentence_strings",
-    [
-        (
-            "天気がいいので散歩した。途中で先生に会った。",
-            textwrap.dedent(
-                """\
-                # S-ID:1
-                天気がいいので散歩した。
-                # S-ID:2
-                途中で先生に会った。
-                """
-            ),
-        ),
-        (
-            "。",
-            """。""",
-        ),
-    ],
-)
-def test_document_from_line_by_line_text(text: str, sentence_strings: str) -> None:
-    doc_from_strings = Document.from_line_by_line_text(sentence_strings)
-    assert doc_from_strings.text == text
+@pytest.mark.parametrize("case", CASES)
+def test_text(case: dict[str, str]) -> None:
+    doc = Document.from_raw_text(case["raw_text"])
+    assert doc.text == case["raw_text"]
+    doc = Document.from_sentences(case["sentences"])
+    assert doc.text == case["raw_text"]
+    doc = Document.from_line_by_line_text(case["line_by_line_text"])
+    assert doc.text == case["raw_text"]
+    doc = Document.from_jumanpp(case["jumanpp"])
+    assert doc.text == case["raw_text"]
+    doc = Document.from_knp(case["knp_with_no_clause_tag"])
+    assert doc.text == case["raw_text"]
+    doc = Document.from_knp(case["knp"])
+    assert doc.text == case["raw_text"]
 
 
-@pytest.mark.parametrize(
-    "text",
-    [
-        textwrap.dedent(
-            """\
-            天気がいいので散歩した。
-            途中で先生に会った。
-            """
-        ),
-        textwrap.dedent(
-            """\
-            。
-            """,
-        ),
-    ],
-)
-def test_document_to_plain_1(text: str) -> None:
-    doc_from_strings = Document.from_raw_text(text)
-    assert doc_from_strings.to_plain() == text
+@pytest.mark.parametrize("case", CASES)
+def test_to_plain(case: dict[str, str]) -> None:
+    doc = Document.from_raw_text(case["raw_text"])
+    assert doc.to_plain() == case["raw_text"] + "\n"
+    doc = Document.from_sentences(case["sentences"])
+    assert doc.to_plain() == "\n".join(case["sentences"]) + "\n"
+    doc = Document.from_line_by_line_text(case["line_by_line_text"])
+    assert doc.to_plain() == case["line_by_line_text"]
+    doc = Document.from_jumanpp(case["jumanpp"])
+    assert doc.to_plain() == case["line_by_line_text"]
+    doc = Document.from_knp(case["knp_with_no_clause_tag"])
+    assert doc.to_plain() == case["line_by_line_text"]
+    doc = Document.from_knp(case["knp"])
+    assert doc.to_plain() == case["line_by_line_text"]
 
 
-@pytest.mark.parametrize(
-    "text, sentence_strings",
-    [
-        (
-            textwrap.dedent(
-                """\
-                天気がいいので散歩した。
-                途中で先生に会った。
-                """
-            ),
-            ["天気がいいので散歩した。", "途中で先生に会った。"],
-        ),
-        (
-            textwrap.dedent(
-                """\
-                。
-                """
-            ),
-            ["。"],
-        ),
-    ],
-)
-def test_document_to_plain_2(text: str, sentence_strings: list[str]) -> None:
-    doc_from_strings = Document.from_sentences(sentence_strings)
-    assert doc_from_strings.to_plain() == text
+@pytest.mark.parametrize("case", CASES)
+def test_to_jumanpp(case: dict[str, str]) -> None:
+    doc = Document.from_raw_text(case["raw_text"])
+    with pytest.raises(AttributeError):
+        assert doc.to_jumanpp() == case["jumanpp"]
+    doc = Document.from_sentences(case["sentences"])
+    with pytest.raises(AttributeError):
+        assert doc.to_jumanpp() == case["jumanpp"]
+    doc = Document.from_line_by_line_text(case["line_by_line_text"])
+    with pytest.raises(AttributeError):
+        assert doc.to_jumanpp() == case["jumanpp"]
+    doc = Document.from_jumanpp(case["jumanpp"])
+    assert doc.to_jumanpp() == case["jumanpp"]
+    doc = Document.from_knp(case["knp_with_no_clause_tag"])
+    assert doc.to_jumanpp() == case["jumanpp"]
+    # NOTE: does not match because KNP appends features to morphemes
+    # doc = Document.from_knp(case["knp"])
+    # assert doc.to_jumanpp() == case["jumanpp"]
 
 
-@pytest.mark.parametrize(
-    "text, knp",
-    [
-        (
-            textwrap.dedent(
-                """\
-                # S-ID:1 KNP:5.0-2ad4f6df DATE:2021/08/05 SCORE:-10.73865
-                天気がいいので散歩した。
-                """
-            ),
-            textwrap.dedent(
-                """\
-                # S-ID:1 KNP:5.0-2ad4f6df DATE:2021/08/05 SCORE:-10.73865
-                * 1D <BGH:天気/てんき><文頭><ガ><助詞><体言><係:ガ格><区切:0-0><格要素><連用要素><正規化代表表記:天気/てんき><主辞代表表記:天気/てんき>
-                + 1D <BGH:天気/てんき><文頭><ガ><助詞><体言><係:ガ格><区切:0-0><格要素><連用要素><名詞項候補><先行詞候補><正規化代表表記:天気/てんき><主辞代表表記:天気/てんき><解析格:ガ>
-                天気 てんき 天気 名詞 6 普通名詞 1 * 0 * 0 "代表表記:天気/てんき カテゴリ:抽象物" <代表表記:天気/てんき><カテゴリ:抽象物><正規化代表表記:天気/てんき><漢字><かな漢字><名詞相当語><文頭><自立><内容語><タグ単位始><文節始><文節主辞>
-                が が が 助詞 9 格助詞 1 * 0 * 0 NIL <かな漢字><ひらがな><付属>
-                * 2D <BGH:良い/よい><用言:形><係:連用><レベル:B+><区切:3-5><ID:〜ので><提題受:20><連用要素><連用節><状態述語><正規化代表表記:良い/よい><主辞代表表記:良い/よい>
-                + 2D <BGH:良い/よい><用言:形><係:連用><レベル:B+><区切:3-5><ID:〜ので><提題受:20><連用要素><連用節><状態述語><節-機能-原因・理由:ので><正規化代表表記:良い/よい><主辞代表表記:良い/よい><用言代表表記:良い/よい><節-区切><節-主辞><時制:非過去><格関係0:ガ:天気><格解析結果:良い/よい:形5:ガ/C/天気/0/0/1;カラ/U/-/-/-/-;時間/U/-/-/-/-><標準用言代表表記:良い/よい>
-                いい いい いい 形容詞 3 * 0 イ形容詞イ段 19 基本形 2 "代表表記:良い/よい 反義:形容詞:悪い/わるい" <代表表記:良い/よい><反義:形容詞:悪い/わるい><正規化代表表記:良い/よい><かな漢字><ひらがな><活用語><自立><内容語><タグ単位始><文節始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
-                ので ので のだ 助動詞 5 * 0 ナ形容詞 21 ダ列タ系連用テ形 12 NIL <かな漢字><ひらがな><活用語><付属>
-                * -1D <BGH:散歩/さんぽ+する/する><文末><サ変><サ変動詞><時制:過去><句点><用言:動><レベル:C><区切:5-5><ID:（文末）><係:文末><提題受:30><主節><格要素><連用要素><動態述語><正規化代表表記:散歩/さんぽ><主辞代表表記:散歩/さんぽ>
-                + -1D <BGH:散歩/さんぽ+する/する><文末><サ変動詞><時制:過去><句点><用言:動><レベル:C><区切:5-5><ID:（文末）><係:文末><提題受:30><主節><格要素><連用要素><動態述語><サ変><正規化代表表記:散歩/さんぽ><主辞代表表記:散歩/さんぽ><用言代表表記:散歩/さんぽ><節-区切><節-主辞><主題格:一人称優位><格解析結果:散歩/さんぽ:動0:ガ/U/-/-/-/-;ヲ/U/-/-/-/-;ニ/U/-/-/-/-;ト/U/-/-/-/-;デ/U/-/-/-/-;カラ/U/-/-/-/-;マデ/U/-/-/-/-;時間/U/-/-/-/-><標準用言代表表記:散歩/さんぽ>
-                散歩 さんぽ 散歩 名詞 6 サ変名詞 2 * 0 * 0 "代表表記:散歩/さんぽ ドメイン:レクリエーション カテゴリ:抽象物" <代表表記:散歩/さんぽ><ドメイン:レクリエーション><カテゴリ:抽象物><正規化代表表記:散歩/さんぽ><漢字><かな漢字><名詞相当語><サ変><サ変動詞><自立><内容語><タグ単位始><文節始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
-                した した する 動詞 2 * 0 サ変動詞 16 タ形 10 "代表表記:する/する 自他動詞:自:成る/なる 付属動詞候補（基本）" <代表表記:する/する><自他動詞:自:成る/なる><付属動詞候補（基本）><正規化代表表記:する/する><かな漢字><ひらがな><活用語><表現文末><とタ系連用テ形複合辞><付属>
-                。 。 。 特殊 1 句点 1 * 0 * 0 NIL <英記号><記号><文末><付属>
-                EOS
-                """
-            ),
-        ),
-        (
-            textwrap.dedent(
-                """\
-                # S-ID:1 KNP:5.0-2ad4f6df DATE:2021/09/21 SCORE:-17.80638
-                EOSは特殊記号です。
-                """
-            ),
-            textwrap.dedent(
-                """\
-                # S-ID:1 KNP:5.0-2ad4f6df DATE:2021/09/21 SCORE:-17.80638
-                * 1D <文頭><組織名疑><ハ><助詞><体言><係:未格><提題><区切:3-5><主題表現><格要素><連用要素><正規化代表表記:EOS/EOS><主辞代表表記:EOS/EOS>
-                + 2D <文頭><組織名疑><ハ><助詞><体言><係:未格><提題><区切:3-5><主題表現><格要素><連用要素><名詞項候補><先行詞候補><正規化代表表記:EOS/EOS><主辞代表表記:EOS/EOS><解析格:ガ>
-                EOS EOS EOS 名詞 6 組織名 6 * 0 * 0 "未知語:ローマ字 品詞推定:名詞 疑似代表表記 代表表記:EOS/EOS 品詞変更:EOS-EOS-EOS-15-3-0-0" <未知語><品詞推定:名詞><疑似代表表記><代表表記:EOS/EOS><正規化代表表記:EOS/EOS><品詞変更:EOS-EOS-EOS-15-3-0-0-"未知語:ローマ字 品詞推定:名詞 疑似代表表記 代表表記:EOS/EOS"><品曖><品曖-アルファベット><品曖-組織名><記英数カ><英記号><記号><名詞相当語><文頭><自立><内容語><タグ単位始><文節始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
-                は は は 助詞 9 副助詞 2 * 0 * 0 NIL <かな漢字><ひらがな><付属>
-                * -1D <BGH:記号/きごう><文末><句点><体言><判定詞><用言:判><レベル:C><区切:5-5><ID:（文末）><裸名詞><係:文末><提題受:30><主節><格要素><連用要素><状態述語><敬語:丁寧表現><正規化代表表記:特殊/とくしゅa+記号/きごう><主辞代表表記:記号/きごう>
-                + 2D <BGH:特殊だ/とくしゅだ><文節内><係:文節内><名詞的形容詞語幹><体言><名詞項候補><先行詞候補><非用言格解析:形><正規化代表表記:特殊/とくしゅa>
-                特殊 とくしゅ 特殊だ 形容詞 3 * 0 ナノ形容詞 22 語幹 1 "代表表記:特殊/とくしゅa 代表表記変更:特殊だ/とくしゅだ 反義:名詞-普通名詞:一般/いっぱん;名詞-普通名詞:普遍/ふへん" <代表表記:特殊/とくしゅa><反義:名詞-普通名詞:一般/いっぱん;名詞-普通名詞:普遍/ふへん><正規化代表表記:特殊/とくしゅa><漢字><かな漢字><名詞的形容詞語幹><代表表記変更:特殊だ/とくしゅだ><名詞相当語><自立><内容語><タグ単位始><文節始><用言表記先頭><用言表記末尾><用言意味表記末尾>
-                + -1D <BGH:記号/きごう><文末><句点><体言><判定詞><用言:判><レベル:C><区切:5-5><ID:（文末）><裸名詞><係:文末><提題受:30><主節><格要素><連用要素><状態述語><敬語:丁寧表現><判定詞句><名詞項候補><先行詞候補><正規化代表表記:記号/きごう><主辞代表表記:記号/きごう><用言代表表記:記号/きごう><節-区切><節-主辞><時制:非過去><格関係0:ガ:EOS><格解析結果:記号/きごう:判3:ガ/N/EOS/0/0/1><標準用言代表表記:記号/きごう>
-                記号 きごう 記号 名詞 6 普通名詞 1 * 0 * 0 "代表表記:記号/きごう カテゴリ:抽象物" <代表表記:記号/きごう><カテゴリ:抽象物><正規化代表表記:記号/きごう><漢字><かな漢字><名詞相当語><自立><複合←><内容語><タグ単位始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
-                です です だ 判定詞 4 * 0 判定詞 25 デス列基本形 27 NIL <かな漢字><ひらがな><活用語><表現文末><付属>
-                。 。 。 特殊 1 句点 1 * 0 * 0 NIL <英記号><記号><文末><付属>
-                EOS
-                """
-            ),
-        ),
-        (
-            textwrap.dedent(
-                """\
-                # S-ID:2 KNP:5.0-2ad4f6df DATE:2021/09/21 SCORE:0.00000
-                。
-                """
-            ),
-            textwrap.dedent(
-                """\
-                # S-ID:2 KNP:5.0-2ad4f6df DATE:2021/09/21 SCORE:0.00000
-                * -1D <文頭><文末><句点><受けNONE><用言:判><体言止><レベル:C><区切:5-5><ID:（文末）><係:文末><提題受:30><主節><格要素><連用要素><状態述語>
-                + -1D <文頭><文末><句点><受けNONE><用言:判><体言止><レベル:C><区切:5-5><ID:（文末）><係:文末><提題受:30><主節><格要素><連用要素><状態述語><判定詞句><用言代表表記:。/。><節-区切><節-主辞><時制:非過去>
-                。 。 。 特殊 1 句点 1 * 0 * 0 NIL <英記号><記号><文頭><文末><付属><タグ単位始><文節始><用言表記先頭><用言表記末尾><用言意味表記末尾>
-                EOS
-                """
-            ),
-        ),
-    ],
-)
-def test_document_to_plain_3(text: str, knp: str) -> None:
-    doc = Document.from_knp(knp)
-    assert doc.to_plain() == text
+@pytest.mark.parametrize("case", CASES)
+def test_to_knp(case: dict[str, str]) -> None:
+    doc = Document.from_raw_text(case["raw_text"])
+    with pytest.raises(AttributeError):
+        assert doc.to_knp() == case["knp"]
+    doc = Document.from_sentences(case["sentences"])
+    with pytest.raises(AttributeError):
+        assert doc.to_knp() == case["knp"]
+    doc = Document.from_line_by_line_text(case["line_by_line_text"])
+    with pytest.raises(AttributeError):
+        assert doc.to_knp() == case["knp"]
+    doc = Document.from_jumanpp(case["jumanpp"])
+    with pytest.raises(AttributeError):
+        assert doc.to_knp() == case["knp"]
+    doc = Document.from_knp(case["knp_with_no_clause_tag"])
+    assert doc.to_knp() == case["knp_with_no_clause_tag"]
+    doc = Document.from_knp(case["knp"])
+    assert doc.to_knp() == case["knp"]
 
 
-@pytest.mark.parametrize(
-    "jumanpp",
-    [
-        textwrap.dedent(
-            """\
-            天気 てんき 天気 名詞 6 普通名詞 1 * 0 * 0 "代表表記:天気/てんき カテゴリ:抽象物" <代表表記:天気/てんき><カテゴリ:抽象物><正規化代表表記:天気/てんき><漢字><かな漢字><名詞相当語><文頭><自立><内容語><タグ単位始><文節始><文節主辞>
-            が が が 助詞 9 格助詞 1 * 0 * 0 NIL <かな漢字><ひらがな><付属>
-            いい いい いい 形容詞 3 * 0 イ形容詞イ段 19 基本形 2 "代表表記:良い/よい 反義:形容詞:悪い/わるい" <代表表記:良い/よい><反義:形容詞:悪い/わるい><正規化代表表記:良い/よい><かな漢字><ひらがな><活用語><自立><内容語><タグ単位始><文節始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
-            ので ので のだ 助動詞 5 * 0 ナ形容詞 21 ダ列タ系連用テ形 12 NIL <かな漢字><ひらがな><活用語><付属>
-            散歩 さんぽ 散歩 名詞 6 サ変名詞 2 * 0 * 0 "代表表記:散歩/さんぽ ドメイン:レクリエーション カテゴリ:抽象物" <代表表記:散歩/さんぽ><ドメイン:レクリエーション><カテゴリ:抽象物><正規化代表表記:散歩/さんぽ><漢字><かな漢字><名詞相当語><サ変><サ変動詞><自立><内容語><タグ単位始><文節始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
-            した した する 動詞 2 * 0 サ変動詞 16 タ形 10 "代表表記:する/する 自他動詞:自:成る/なる 付属動詞候補（基本）" <代表表記:する/する><自他動詞:自:成る/なる><付属動詞候補（基本）><正規化代表表記:する/する><かな漢字><ひらがな><活用語><表現文末><とタ系連用テ形複合辞><付属>
-            。 。 。 特殊 1 句点 1 * 0 * 0 NIL <英記号><記号><文末><付属>
-            EOS
-            """
-        ),
-        textwrap.dedent(
-            """\
-            EOS EOS EOS 名詞 6 組織名 6 * 0 * 0 "未知語:ローマ字 品詞推定:名詞 疑似代表表記 代表表記:EOS/EOS 品詞変更:EOS-EOS-EOS-15-3-0-0" <未知語><品詞推定:名詞><疑似代表表記><代表表記:EOS/EOS><正規化代表表記:EOS/EOS><品詞変更:EOS-EOS-EOS-15-3-0-0-"未知語:ローマ字 品詞推定:名詞 疑似代表表記 代表表記:EOS/EOS"><品曖><品曖-アルファベット><品曖-組織名><記英数カ><英記号><記号><名詞相当語><文頭><自立><内容語><タグ単位始><文節始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
-            は は は 助詞 9 副助詞 2 * 0 * 0 NIL <かな漢字><ひらがな><付属>
-            特殊 とくしゅ 特殊だ 形容詞 3 * 0 ナノ形容詞 22 語幹 1 "代表表記:特殊/とくしゅa 代表表記変更:特殊だ/とくしゅだ 反義:名詞-普通名詞:一般/いっぱん;名詞-普通名詞:普遍/ふへん" <代表表記:特殊/とくしゅa><反義:名詞-普通名詞:一般/いっぱん;名詞-普通名詞:普遍/ふへん><正規化代表表記:特殊/とくしゅa><漢字><かな漢字><名詞的形容詞語幹><代表表記変更:特殊だ/とくしゅだ><名詞相当語><自立><内容語><タグ単位始><文節始><用言表記先頭><用言表記末尾><用言意味表記末尾>
-            記号 きごう 記号 名詞 6 普通名詞 1 * 0 * 0 "代表表記:記号/きごう カテゴリ:抽象物" <代表表記:記号/きごう><カテゴリ:抽象物><正規化代表表記:記号/きごう><漢字><かな漢字><名詞相当語><自立><複合←><内容語><タグ単位始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
-            です です だ 判定詞 4 * 0 判定詞 25 デス列基本形 27 NIL <かな漢字><ひらがな><活用語><表現文末><付属>
-            。 。 。 特殊 1 句点 1 * 0 * 0 NIL <英記号><記号><文末><付属>
-            EOS
-            """
-        ),
-        textwrap.dedent(
-            """\
-            @ @ @ 特殊 1 記号 5 * 0 * 0 NIL
-            EOS
-            """
-        ),
-    ],
-)
-def test_document_to_jumanpp(jumanpp: str) -> None:
-    doc = Document.from_jumanpp(jumanpp)
-    assert doc.to_jumanpp() == jumanpp
-
-
-@pytest.mark.parametrize(
-    "knp",
-    [
-        textwrap.dedent(
-            """\
-            # S-ID:1 KNP:5.0-2ad4f6df DATE:2021/08/05 SCORE:-10.73865
-            * 1D <BGH:天気/てんき><文頭><ガ><助詞><体言><係:ガ格><区切:0-0><格要素><連用要素><正規化代表表記:天気/てんき><主辞代表表記:天気/てんき>
-            + 1D <BGH:天気/てんき><文頭><ガ><助詞><体言><係:ガ格><区切:0-0><格要素><連用要素><名詞項候補><先行詞候補><正規化代表表記:天気/てんき><主辞代表表記:天気/てんき><解析格:ガ>
-            天気 てんき 天気 名詞 6 普通名詞 1 * 0 * 0 "代表表記:天気/てんき カテゴリ:抽象物" <代表表記:天気/てんき><カテゴリ:抽象物><正規化代表表記:天気/てんき><漢字><かな漢字><名詞相当語><文頭><自立><内容語><タグ単位始><文節始><文節主辞>
-            が が が 助詞 9 格助詞 1 * 0 * 0 NIL <かな漢字><ひらがな><付属>
-            * 2D <BGH:良い/よい><用言:形><係:連用><レベル:B+><区切:3-5><ID:〜ので><提題受:20><連用要素><連用節><状態述語><正規化代表表記:良い/よい><主辞代表表記:良い/よい>
-            + 2D <BGH:良い/よい><用言:形><係:連用><レベル:B+><区切:3-5><ID:〜ので><提題受:20><連用要素><連用節><状態述語><節-機能-原因・理由:ので><正規化代表表記:良い/よい><主辞代表表記:良い/よい><用言代表表記:良い/よい><節-区切><節-主辞><時制:非過去><格関係0:ガ:天気><格解析結果:良い/よい:形5:ガ/C/天気/0/0/1;カラ/U/-/-/-/-;時間/U/-/-/-/-><標準用言代表表記:良い/よい>
-            いい いい いい 形容詞 3 * 0 イ形容詞イ段 19 基本形 2 "代表表記:良い/よい 反義:形容詞:悪い/わるい" <代表表記:良い/よい><反義:形容詞:悪い/わるい><正規化代表表記:良い/よい><かな漢字><ひらがな><活用語><自立><内容語><タグ単位始><文節始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
-            ので ので のだ 助動詞 5 * 0 ナ形容詞 21 ダ列タ系連用テ形 12 NIL <かな漢字><ひらがな><活用語><付属>
-            * -1D <BGH:散歩/さんぽ+する/する><文末><サ変><サ変動詞><時制:過去><句点><用言:動><レベル:C><区切:5-5><ID:（文末）><係:文末><提題受:30><主節><格要素><連用要素><動態述語><正規化代表表記:散歩/さんぽ><主辞代表表記:散歩/さんぽ>
-            + -1D <BGH:散歩/さんぽ+する/する><文末><サ変動詞><時制:過去><句点><用言:動><レベル:C><区切:5-5><ID:（文末）><係:文末><提題受:30><主節><格要素><連用要素><動態述語><サ変><正規化代表表記:散歩/さんぽ><主辞代表表記:散歩/さんぽ><用言代表表記:散歩/さんぽ><節-区切><節-主辞><主題格:一人称優位><格解析結果:散歩/さんぽ:動0:ガ/U/-/-/-/-;ヲ/U/-/-/-/-;ニ/U/-/-/-/-;ト/U/-/-/-/-;デ/U/-/-/-/-;カラ/U/-/-/-/-;マデ/U/-/-/-/-;時間/U/-/-/-/-><標準用言代表表記:散歩/さんぽ>
-            散歩 さんぽ 散歩 名詞 6 サ変名詞 2 * 0 * 0 "代表表記:散歩/さんぽ ドメイン:レクリエーション カテゴリ:抽象物" <代表表記:散歩/さんぽ><ドメイン:レクリエーション><カテゴリ:抽象物><正規化代表表記:散歩/さんぽ><漢字><かな漢字><名詞相当語><サ変><サ変動詞><自立><内容語><タグ単位始><文節始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
-            した した する 動詞 2 * 0 サ変動詞 16 タ形 10 "代表表記:する/する 自他動詞:自:成る/なる 付属動詞候補（基本）" <代表表記:する/する><自他動詞:自:成る/なる><付属動詞候補（基本）><正規化代表表記:する/する><かな漢字><ひらがな><活用語><表現文末><とタ系連用テ形複合辞><付属>
-            。 。 。 特殊 1 句点 1 * 0 * 0 NIL <英記号><記号><文末><付属>
-            EOS
-            """
-        ),
-        textwrap.dedent(
-            """\
-            # S-ID:1 KNP:5.0-2ad4f6df DATE:2021/09/21 SCORE:-17.80638
-            * 1D <文頭><組織名疑><ハ><助詞><体言><係:未格><提題><区切:3-5><主題表現><格要素><連用要素><正規化代表表記:EOS/EOS><主辞代表表記:EOS/EOS>
-            + 2D <文頭><組織名疑><ハ><助詞><体言><係:未格><提題><区切:3-5><主題表現><格要素><連用要素><名詞項候補><先行詞候補><正規化代表表記:EOS/EOS><主辞代表表記:EOS/EOS><解析格:ガ>
-            EOS EOS EOS 名詞 6 組織名 6 * 0 * 0 "未知語:ローマ字 品詞推定:名詞 疑似代表表記 代表表記:EOS/EOS 品詞変更:EOS-EOS-EOS-15-3-0-0" <未知語><品詞推定:名詞><疑似代表表記><代表表記:EOS/EOS><正規化代表表記:EOS/EOS><品詞変更:EOS-EOS-EOS-15-3-0-0-"未知語:ローマ字 品詞推定:名詞 疑似代表表記 代表表記:EOS/EOS"><品曖><品曖-アルファベット><品曖-組織名><記英数カ><英記号><記号><名詞相当語><文頭><自立><内容語><タグ単位始><文節始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
-            は は は 助詞 9 副助詞 2 * 0 * 0 NIL <かな漢字><ひらがな><付属>
-            * -1D <BGH:記号/きごう><文末><句点><体言><判定詞><用言:判><レベル:C><区切:5-5><ID:（文末）><裸名詞><係:文末><提題受:30><主節><格要素><連用要素><状態述語><敬語:丁寧表現><正規化代表表記:特殊/とくしゅa+記号/きごう><主辞代表表記:記号/きごう>
-            + 2D <BGH:特殊だ/とくしゅだ><文節内><係:文節内><名詞的形容詞語幹><体言><名詞項候補><先行詞候補><非用言格解析:形><正規化代表表記:特殊/とくしゅa>
-            特殊 とくしゅ 特殊だ 形容詞 3 * 0 ナノ形容詞 22 語幹 1 "代表表記:特殊/とくしゅa 代表表記変更:特殊だ/とくしゅだ 反義:名詞-普通名詞:一般/いっぱん;名詞-普通名詞:普遍/ふへん" <代表表記:特殊/とくしゅa><反義:名詞-普通名詞:一般/いっぱん;名詞-普通名詞:普遍/ふへん><正規化代表表記:特殊/とくしゅa><漢字><かな漢字><名詞的形容詞語幹><代表表記変更:特殊だ/とくしゅだ><名詞相当語><自立><内容語><タグ単位始><文節始><用言表記先頭><用言表記末尾><用言意味表記末尾>
-            + -1D <BGH:記号/きごう><文末><句点><体言><判定詞><用言:判><レベル:C><区切:5-5><ID:（文末）><裸名詞><係:文末><提題受:30><主節><格要素><連用要素><状態述語><敬語:丁寧表現><判定詞句><名詞項候補><先行詞候補><正規化代表表記:記号/きごう><主辞代表表記:記号/きごう><用言代表表記:記号/きごう><節-区切><節-主辞><時制:非過去><格関係0:ガ:EOS><格解析結果:記号/きごう:判3:ガ/N/EOS/0/0/1><標準用言代表表記:記号/きごう>
-            記号 きごう 記号 名詞 6 普通名詞 1 * 0 * 0 "代表表記:記号/きごう カテゴリ:抽象物" <代表表記:記号/きごう><カテゴリ:抽象物><正規化代表表記:記号/きごう><漢字><かな漢字><名詞相当語><自立><複合←><内容語><タグ単位始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
-            です です だ 判定詞 4 * 0 判定詞 25 デス列基本形 27 NIL <かな漢字><ひらがな><活用語><表現文末><付属>
-            。 。 。 特殊 1 句点 1 * 0 * 0 NIL <英記号><記号><文末><付属>
-            EOS
-            """
-        ),
-    ],
-)
-def test_document_to_knp(knp: str) -> None:
-    doc = Document.from_knp(knp)
-    assert doc.to_knp() == knp
-
-
-def test_document_to_knp_kwdlc() -> None:
-    doc_id = "w201106-0000060050"
-    knp = Path(f"tests/data/{doc_id}.knp").read_text()
-    doc = Document.from_knp(knp)
-    assert doc.to_knp() == knp
-
-
-def test_document_to_knp_wac() -> None:
-    doc_id = "wiki00100176"
-    knp = Path(f"tests/data/{doc_id}.knp").read_text()
-    doc = Document.from_knp(knp)
-    assert doc.to_knp() == knp
-
-
-def test_id_kwdlc() -> None:
-    doc_id = "w201106-0000060050"
-    doc = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text())
-    assert doc.doc_id == doc_id
-
-
-def test_id_wac() -> None:
-    doc_id = "wiki00100176"
-    doc = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text())
-    assert doc.doc_id == doc_id
-
-
-def test_document_sentences_error() -> None:
-    doc = Document("天気が良かったので散歩した。")
+@pytest.mark.parametrize("case", CASES)
+def test_sentences(case: dict[str, str]) -> None:
+    doc = Document.from_raw_text(case["raw_text"])
     with pytest.raises(AttributeError):
         _ = doc.sentences
+    doc = Document.from_sentences(case["sentences"])
+    _ = doc.sentences
+    doc = Document.from_line_by_line_text(case["line_by_line_text"])
+    _ = doc.sentences
+    doc = Document.from_jumanpp(case["jumanpp"])
+    _ = doc.sentences
+    doc = Document.from_knp(case["knp_with_no_clause_tag"])
+    _ = doc.sentences
+    doc = Document.from_knp(case["knp"])
+    _ = doc.sentences
 
 
-def test_document_reparse_rel() -> None:
-    doc_id = "w201106-0000060050"
-    knp = Path(f"tests/data/{doc_id}.knp").read_text()
-    doc = Document.from_knp(knp)
-    doc.reparse_rel()
-    assert doc.to_knp() == knp
+@pytest.mark.parametrize("case", CASES)
+def test_clauses(case: dict[str, str]) -> None:
+    doc = Document.from_raw_text(case["raw_text"])
+    with pytest.raises(AttributeError):
+        _ = doc.clauses
+    doc = Document.from_sentences(case["sentences"])
+    with pytest.raises(AttributeError):
+        _ = doc.clauses
+    doc = Document.from_line_by_line_text(case["line_by_line_text"])
+    with pytest.raises(AttributeError):
+        _ = doc.clauses
+    doc = Document.from_jumanpp(case["jumanpp"])
+    with pytest.raises(AttributeError):
+        _ = doc.clauses
+    doc = Document.from_knp(case["knp_with_no_clause_tag"])
+    with pytest.raises(AttributeError):
+        _ = doc.clauses
+    doc = Document.from_knp(case["knp"])
+    _ = doc.clauses
 
 
-@pytest.mark.parametrize(
-    "knp",
-    [
-        textwrap.dedent(
-            """\
-            # S-ID:1 KNP:5.0-2ad4f6df DATE:2021/08/05 SCORE:-10.73865
-            * 1D <BGH:天気/てんき><文頭><ガ><助詞><体言><係:ガ格><区切:0-0><格要素><連用要素><正規化代表表記:天気/てんき><主辞代表表記:天気/てんき>
-            + 1D <BGH:天気/てんき><文頭><ガ><助詞><体言><係:ガ格><区切:0-0><格要素><連用要素><名詞項候補><先行詞候補><正規化代表表記:天気/てんき><主辞代表表記:天気/てんき><解析格:ガ>
-            天気 てんき 天気 名詞 6 普通名詞 1 * 0 * 0 "代表表記:天気/てんき カテゴリ:抽象物" <代表表記:天気/てんき><カテゴリ:抽象物><正規化代表表記:天気/てんき><漢字><かな漢字><名詞相当語><文頭><自立><内容語><タグ単位始><文節始><文節主辞>
-            が が が 助詞 9 格助詞 1 * 0 * 0 NIL <かな漢字><ひらがな><付属>
-            * 2D <BGH:良い/よい><用言:形><係:連用><レベル:B+><区切:3-5><ID:〜ので><提題受:20><連用要素><連用節><状態述語><正規化代表表記:良い/よい><主辞代表表記:良い/よい>
-            + 2D <BGH:良い/よい><用言:形><係:連用><レベル:B+><区切:3-5><ID:〜ので><提題受:20><連用要素><連用節><状態述語><節-機能-原因・理由:ので><正規化代表表記:良い/よい><主辞代表表記:良い/よい><用言代表表記:良い/よい><節-区切><節-主辞><時制:非過去><格関係0:ガ:天気><格解析結果:良い/よい:形5:ガ/C/天気/0/0/1;カラ/U/-/-/-/-;時間/U/-/-/-/-><標準用言代表表記:良い/よい>
-            いい いい いい 形容詞 3 * 0 イ形容詞イ段 19 基本形 2 "代表表記:良い/よい 反義:形容詞:悪い/わるい" <代表表記:良い/よい><反義:形容詞:悪い/わるい><正規化代表表記:良い/よい><かな漢字><ひらがな><活用語><自立><内容語><タグ単位始><文節始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
-            ので ので のだ 助動詞 5 * 0 ナ形容詞 21 ダ列タ系連用テ形 12 NIL <かな漢字><ひらがな><活用語><付属>
-            * -1D <BGH:散歩/さんぽ+する/する><文末><サ変><サ変動詞><時制:過去><句点><用言:動><レベル:C><区切:5-5><ID:（文末）><係:文末><提題受:30><主節><格要素><連用要素><動態述語><正規化代表表記:散歩/さんぽ><主辞代表表記:散歩/さんぽ>
-            + -1D <BGH:散歩/さんぽ+する/する><文末><サ変動詞><時制:過去><句点><用言:動><レベル:C><区切:5-5><ID:（文末）><係:文末><提題受:30><主節><格要素><連用要素><動態述語><サ変><正規化代表表記:散歩/さんぽ><主辞代表表記:散歩/さんぽ><用言代表表記:散歩/さんぽ><節-区切><節-主辞><主題格:一人称優位><格解析結果:散歩/さんぽ:動0:ガ/U/-/-/-/-;ヲ/U/-/-/-/-;ニ/U/-/-/-/-;ト/U/-/-/-/-;デ/U/-/-/-/-;カラ/U/-/-/-/-;マデ/U/-/-/-/-;時間/U/-/-/-/-><標準用言代表表記:散歩/さんぽ>
-            散歩 さんぽ 散歩 名詞 6 サ変名詞 2 * 0 * 0 "代表表記:散歩/さんぽ ドメイン:レクリエーション カテゴリ:抽象物" <代表表記:散歩/さんぽ><ドメイン:レクリエーション><カテゴリ:抽象物><正規化代表表記:散歩/さんぽ><漢字><かな漢字><名詞相当語><サ変><サ変動詞><自立><内容語><タグ単位始><文節始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
-            した した する 動詞 2 * 0 サ変動詞 16 タ形 10 "代表表記:する/する 自他動詞:自:成る/なる 付属動詞候補（基本）" <代表表記:する/する><自他動詞:自:成る/なる><付属動詞候補（基本）><正規化代表表記:する/する><かな漢字><ひらがな><活用語><表現文末><とタ系連用テ形複合辞><付属>
-            。 。 。 特殊 1 句点 1 * 0 * 0 NIL <英記号><記号><文末><付属>
-            EOS
-            """
-        ),
-        textwrap.dedent(
-            """\
-            # S-ID:1 KNP:5.0-2ad4f6df DATE:2021/09/21 SCORE:-17.80638
-            * 1D <文頭><組織名疑><ハ><助詞><体言><係:未格><提題><区切:3-5><主題表現><格要素><連用要素><正規化代表表記:EOS/EOS><主辞代表表記:EOS/EOS>
-            + 2D <文頭><組織名疑><ハ><助詞><体言><係:未格><提題><区切:3-5><主題表現><格要素><連用要素><名詞項候補><先行詞候補><正規化代表表記:EOS/EOS><主辞代表表記:EOS/EOS><解析格:ガ>
-            EOS EOS EOS 名詞 6 組織名 6 * 0 * 0 "未知語:ローマ字 品詞推定:名詞 疑似代表表記 代表表記:EOS/EOS 品詞変更:EOS-EOS-EOS-15-3-0-0" <未知語><品詞推定:名詞><疑似代表表記><代表表記:EOS/EOS><正規化代表表記:EOS/EOS><品詞変更:EOS-EOS-EOS-15-3-0-0-"未知語:ローマ字 品詞推定:名詞 疑似代表表記 代表表記:EOS/EOS"><品曖><品曖-アルファベット><品曖-組織名><記英数カ><英記号><記号><名詞相当語><文頭><自立><内容語><タグ単位始><文節始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
-            は は は 助詞 9 副助詞 2 * 0 * 0 NIL <かな漢字><ひらがな><付属>
-            * -1D <BGH:記号/きごう><文末><句点><体言><判定詞><用言:判><レベル:C><区切:5-5><ID:（文末）><裸名詞><係:文末><提題受:30><主節><格要素><連用要素><状態述語><敬語:丁寧表現><正規化代表表記:特殊/とくしゅa+記号/きごう><主辞代表表記:記号/きごう>
-            + 2D <BGH:特殊だ/とくしゅだ><文節内><係:文節内><名詞的形容詞語幹><体言><名詞項候補><先行詞候補><非用言格解析:形><正規化代表表記:特殊/とくしゅa>
-            特殊 とくしゅ 特殊だ 形容詞 3 * 0 ナノ形容詞 22 語幹 1 "代表表記:特殊/とくしゅa 代表表記変更:特殊だ/とくしゅだ 反義:名詞-普通名詞:一般/いっぱん;名詞-普通名詞:普遍/ふへん" <代表表記:特殊/とくしゅa><反義:名詞-普通名詞:一般/いっぱん;名詞-普通名詞:普遍/ふへん><正規化代表表記:特殊/とくしゅa><漢字><かな漢字><名詞的形容詞語幹><代表表記変更:特殊だ/とくしゅだ><名詞相当語><自立><内容語><タグ単位始><文節始><用言表記先頭><用言表記末尾><用言意味表記末尾>
-            + -1D <BGH:記号/きごう><文末><句点><体言><判定詞><用言:判><レベル:C><区切:5-5><ID:（文末）><裸名詞><係:文末><提題受:30><主節><格要素><連用要素><状態述語><敬語:丁寧表現><判定詞句><名詞項候補><先行詞候補><正規化代表表記:記号/きごう><主辞代表表記:記号/きごう><用言代表表記:記号/きごう><節-区切><節-主辞><時制:非過去><格関係0:ガ:EOS><格解析結果:記号/きごう:判3:ガ/N/EOS/0/0/1><標準用言代表表記:記号/きごう>
-            記号 きごう 記号 名詞 6 普通名詞 1 * 0 * 0 "代表表記:記号/きごう カテゴリ:抽象物" <代表表記:記号/きごう><カテゴリ:抽象物><正規化代表表記:記号/きごう><漢字><かな漢字><名詞相当語><自立><複合←><内容語><タグ単位始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
-            です です だ 判定詞 4 * 0 判定詞 25 デス列基本形 27 NIL <かな漢字><ひらがな><活用語><表現文末><付属>
-            。 。 。 特殊 1 句点 1 * 0 * 0 NIL <英記号><記号><文末><付属>
-            EOS
-            """
-        ),
-    ],
-)
-def test_document_reference(knp: str) -> None:
-    document = Document.from_knp(knp)
-    for sentence in document.sentences:
-        assert sentence.document == document
+@pytest.mark.parametrize("case", CASES)
+def test_phrases(case: dict[str, str]) -> None:
+    doc = Document.from_raw_text(case["raw_text"])
+    with pytest.raises(AttributeError):
+        _ = doc.phrases
+    doc = Document.from_sentences(case["sentences"])
+    with pytest.raises(AttributeError):
+        _ = doc.phrases
+    doc = Document.from_line_by_line_text(case["line_by_line_text"])
+    with pytest.raises(AttributeError):
+        _ = doc.phrases
+    doc = Document.from_jumanpp(case["jumanpp"])
+    with pytest.raises(AttributeError):
+        _ = doc.phrases
+    doc = Document.from_knp(case["knp_with_no_clause_tag"])
+    _ = doc.phrases
+    doc = Document.from_knp(case["knp"])
+    _ = doc.phrases
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_base_phrases(case: dict[str, str]) -> None:
+    doc = Document.from_raw_text(case["raw_text"])
+    with pytest.raises(AttributeError):
+        _ = doc.base_phrases
+    doc = Document.from_sentences(case["sentences"])
+    with pytest.raises(AttributeError):
+        _ = doc.base_phrases
+    doc = Document.from_line_by_line_text(case["line_by_line_text"])
+    with pytest.raises(AttributeError):
+        _ = doc.base_phrases
+    doc = Document.from_jumanpp(case["jumanpp"])
+    with pytest.raises(AttributeError):
+        _ = doc.base_phrases
+    doc = Document.from_knp(case["knp_with_no_clause_tag"])
+    _ = doc.base_phrases
+    doc = Document.from_knp(case["knp"])
+    _ = doc.base_phrases
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_morphemes(case: dict[str, str]) -> None:
+    doc = Document.from_raw_text(case["raw_text"])
+    with pytest.raises(AttributeError):
+        _ = doc.morphemes
+    doc = Document.from_sentences(case["sentences"])
+    with pytest.raises(AttributeError):
+        _ = doc.morphemes
+    doc = Document.from_line_by_line_text(case["line_by_line_text"])
+    with pytest.raises(AttributeError):
+        _ = doc.morphemes
+    doc = Document.from_jumanpp(case["jumanpp"])
+    _ = doc.morphemes
+    doc = Document.from_knp(case["knp_with_no_clause_tag"])
+    _ = doc.morphemes
+    doc = Document.from_knp(case["knp"])
+    _ = doc.morphemes
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_reference(case: dict[str, str]) -> None:
+    doc = Document.from_knp(case["knp"])
+    for sentence in doc.sentences:
+        assert sentence.document == doc
         assert sentence == sentence
         for clause in sentence.clauses:
-            assert clause.document == document
+            assert clause.document == doc
             assert clause.sentence == sentence
             assert clause == clause
             for phrase in clause.phrases:
-                assert phrase.document == document
+                assert phrase.document == doc
                 assert phrase.sentence == sentence
                 assert phrase.clause == clause
                 for base_phrase in phrase.base_phrases:
-                    assert base_phrase.document == document
+                    assert base_phrase.document == doc
                     assert base_phrase.sentence == sentence
                     assert base_phrase.phrase == phrase
                     assert base_phrase == base_phrase
                     for morpheme in base_phrase.morphemes:
-                        assert morpheme.document == document
+                        assert morpheme.document == doc
                         assert morpheme.sentence == sentence
                         assert morpheme.clause == clause
                         assert morpheme.phrase == phrase
@@ -670,14 +554,14 @@ def test_document_reference(knp: str) -> None:
             assert base_phrase.sentence == sentence
         for morpheme in sentence.morphemes:
             assert morpheme.sentence == sentence
-    for clause in document.clauses:
-        assert clause.document == document
-    for phrase in document.phrases:
-        assert phrase.document == document
-    for base_phrase in document.base_phrases:
-        assert base_phrase.document == document
-    for morpheme in document.morphemes:
-        assert morpheme.document == document
+    for clause in doc.clauses:
+        assert clause.document == doc
+    for phrase in doc.phrases:
+        assert phrase.document == doc
+    for base_phrase in doc.base_phrases:
+        assert base_phrase.document == doc
+    for morpheme in doc.morphemes:
+        assert morpheme.document == doc
 
 
 @pytest.mark.parametrize(
@@ -687,7 +571,7 @@ def test_document_reference(knp: str) -> None:
         Path("tests/data/wiki00100176.knp").read_text(),
     ],
 )
-def test_document_reference_without_clause(knp: str) -> None:
+def test_reference_with_no_clause_tag(knp: str) -> None:
     document = Document.from_knp(knp)
     for sentence in document.sentences:
         assert sentence.document == document
@@ -722,191 +606,93 @@ def test_document_reference_without_clause(knp: str) -> None:
         assert morpheme.document == document
 
 
-@pytest.mark.parametrize("attr", ["sentences", "clauses", "phrases", "base_phrases", "morphemes"])
-def test_global_index(attr: str):
-    knp = textwrap.dedent(
-        """\
-        # S-ID:000-1 KNP:5.0-2ad4f6df
-        * 1D <BGH:風/かぜ><文頭><ガ><助詞><体言><一文字漢字><係:ガ格><区切:0-0><格要素><連用要素><正規化代表表記:風/かぜ><主辞代表表記:風/かぜ>
-        + 1D <BGH:風/かぜ><文頭><ガ><助詞><体言><一文字漢字><係:ガ格><区切:0-0><格要素><連用要素><名詞項候補><先行詞候補><正規化代表表記:風/かぜ><主辞代表表記:風/かぜ><解析格:ガ>
-        風 かぜ 風 名詞 6 普通名詞 1 * 0 * 0 "代表表記:風/かぜ カテゴリ:抽象物 漢字読み:訓" <代表表記:風/かぜ><カテゴリ:抽象物><漢字読み:訓><正規化代表表記:風/かぜ><漢字><かな漢字><名詞相当語><文頭><自立><内容語><タグ単位始><文節始><文節主辞>
-        が が が 助詞 9 格助詞 1 * 0 * 0 NIL <かな漢字><ひらがな><付属>
-        * -1D <BGH:吹く/ふく><文末><補文ト><句点><用言:動><レベル:C><区切:5-5><ID:（文末）><係:文末><提題受:30><主節><格要素><連用要素><動態述語><正規化代表表記:吹く/ふく><主辞代表表記:吹く/ふく>
-        + -1D <BGH:吹く/ふく><文末><補文ト><句点><用言:動><レベル:C><区切:5-5><ID:（文末）><係:文末><提題受:30><主節><格要素><連用要素><動態述語><正規化代表表記:吹く/ふく><主辞代表表記:吹く/ふく><用言代表表記:吹く/ふく><節-区切><節-主辞><時制:非過去><主題格:一人称優位><格関係0:ガ:風><格解析結果:吹く/ふく:動1:ガ/C/風/0/0/000-1;ニ/U/-/-/-/-;ト/U/-/-/-/-;デ/U/-/-/-/-;カラ/U/-/-/-/-;時間/U/-/-/-/-><標準用言代表表記:吹く/ふく>
-        吹く ふく 吹く 動詞 2 * 0 子音動詞カ行 2 基本形 2 "代表表記:吹く/ふく 補文ト" <代表表記:吹く/ふく><補文ト><正規化代表表記:吹く/ふく><かな漢字><活用語><表現文末><自立><内容語><タグ単位始><文節始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
-        。 。 。 特殊 1 句点 1 * 0 * 0 NIL <英記号><記号><文末><付属>
-        EOS
-        # S-ID:000-2 KNP:5.0-2ad4f6df
-        * 2D <BGH:すると/すると><文頭><接続詞><修飾><係:連用><区切:0-4><連用要素><連用節><正規化代表表記:すると/すると><主辞代表表記:すると/すると>
-        + 2D <BGH:すると/すると><文頭><接続詞><修飾><係:連用><区切:0-4><連用要素><連用節><節-前向き機能-条件:すると><正規化代表表記:すると/すると><主辞代表表記:すると/すると><解析格:修飾>
-        すると すると すると 接続詞 10 * 0 * 0 * 0 "代表表記:すると/すると" <代表表記:すると/すると><正規化代表表記:すると/すると><かな漢字><ひらがな><文頭><自立><内容語><タグ単位始><文節始><文節主辞>
-        * 2D <ガ><助詞><体言><係:ガ格><区切:0-0><格要素><連用要素><正規化代表表記:桶屋/桶屋><主辞代表表記:桶屋/桶屋>
-        + 2D <ガ><助詞><体言><係:ガ格><区切:0-0><格要素><連用要素><名詞項候補><先行詞候補><正規化代表表記:桶屋/桶屋><主辞代表表記:桶屋/桶屋><Wikipediaリダイレクト:桶><解析格:ガ>
-        桶屋 桶屋 桶屋 名詞 6 普通名詞 1 * 0 * 0 "自動獲得:Wikipedia 読み不明 Wikipediaリダイレクト:桶 疑似代表表記 代表表記:桶屋/桶屋" <自動獲得:Wikipedia><読み不明><Wikipediaリダイレクト:桶><疑似代表表記><代表表記:桶屋/桶屋><正規化代表表記:桶屋/桶屋><漢字><かな漢字><名詞相当語><自立><内容語><タグ単位始><文節始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
-        が が が 助詞 9 格助詞 1 * 0 * 0 NIL <かな漢字><ひらがな><付属>
-        * -1D <BGH:儲かる/もうかる><文末><句点><用言:動><レベル:C><区切:5-5><ID:（文末）><係:文末><提題受:30><主節><格要素><連用要素><動態述語><正規化代表表記:儲かる/もうかる><主辞代表表記:儲かる/もうかる>
-        + -1D <BGH:儲かる/もうかる><文末><句点><用言:動><レベル:C><区切:5-5><ID:（文末）><係:文末><提題受:30><主節><格要素><連用要素><動態述語><正規化代表表記:儲かる/もうかる><主辞代表表記:儲かる/もうかる><用言代表表記:儲かる/もうかる><節-区切><節-主辞><時制:非過去><主題格:一人称優位><格関係0:修飾:すると><格関係1:ガ:桶屋><格解析結果:儲かる/もうかる:動2:ガ/C/桶屋/1/0/000-2;修飾/C/すると/0/0/000-2><標準用言代表表記:儲かる/もうかる>
-        儲かる もうかる 儲かる 動詞 2 * 0 子音動詞ラ行 10 基本形 2 "代表表記:儲かる/もうかる ドメイン:ビジネス 自他動詞:他:儲ける/もうける" <代表表記:儲かる/もうかる><ドメイン:ビジネス><自他動詞:他:儲ける/もうける><正規化代表表記:儲かる/もうかる><かな漢字><活用語><表現文末><自立><内容語><タグ単位始><文節始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
-        。 。 。 特殊 1 句点 1 * 0 * 0 NIL <英記号><記号><文末><付属>
-        EOS
-        """
-    )
-    document = Document.from_knp(knp)
-    next_index = 0
-    for unit in getattr(document, attr):
-        assert unit.global_index == next_index
-        next_index += 1
+@pytest.mark.parametrize("case", CASES)
+def test_global_index(case: dict[str, str]) -> None:
+    def _test_global_index(doc: Document, attr: str) -> None:
+        next_index = 0
+        for unit in getattr(doc, attr):
+            assert unit.global_index == next_index
+            next_index += 1
+
+    doc = Document.from_sentences(case["sentences"])
+    for attr in ("sentences",):
+        _test_global_index(doc, attr)
+    doc = Document.from_line_by_line_text(case["line_by_line_text"])
+    for attr in ("sentences",):
+        _test_global_index(doc, attr)
+    doc = Document.from_jumanpp(case["jumanpp"])
+    for attr in ("sentences", "morphemes"):
+        _test_global_index(doc, attr)
+    doc = Document.from_knp(case["knp_with_no_clause_tag"])
+    for attr in ("sentences", "phrases", "base_phrases", "morphemes"):
+        _test_global_index(doc, attr)
+    doc = Document.from_knp(case["knp"])
+    for attr in ("sentences", "clauses", "phrases", "base_phrases", "morphemes"):
+        _test_global_index(doc, attr)
 
 
-def test_global_span():
-    knp = textwrap.dedent(
-        """\
-        # S-ID:000-1 KNP:5.0-2ad4f6df
-        * 1D <BGH:風/かぜ><文頭><ガ><助詞><体言><一文字漢字><係:ガ格><区切:0-0><格要素><連用要素><正規化代表表記:風/かぜ><主辞代表表記:風/かぜ>
-        + 1D <BGH:風/かぜ><文頭><ガ><助詞><体言><一文字漢字><係:ガ格><区切:0-0><格要素><連用要素><名詞項候補><先行詞候補><正規化代表表記:風/かぜ><主辞代表表記:風/かぜ><解析格:ガ>
-        風 かぜ 風 名詞 6 普通名詞 1 * 0 * 0 "代表表記:風/かぜ カテゴリ:抽象物 漢字読み:訓" <代表表記:風/かぜ><カテゴリ:抽象物><漢字読み:訓><正規化代表表記:風/かぜ><漢字><かな漢字><名詞相当語><文頭><自立><内容語><タグ単位始><文節始><文節主辞>
-        が が が 助詞 9 格助詞 1 * 0 * 0 NIL <かな漢字><ひらがな><付属>
-        * -1D <BGH:吹く/ふく><文末><補文ト><句点><用言:動><レベル:C><区切:5-5><ID:（文末）><係:文末><提題受:30><主節><格要素><連用要素><動態述語><正規化代表表記:吹く/ふく><主辞代表表記:吹く/ふく>
-        + -1D <BGH:吹く/ふく><文末><補文ト><句点><用言:動><レベル:C><区切:5-5><ID:（文末）><係:文末><提題受:30><主節><格要素><連用要素><動態述語><正規化代表表記:吹く/ふく><主辞代表表記:吹く/ふく><用言代表表記:吹く/ふく><節-区切><節-主辞><時制:非過去><主題格:一人称優位><格関係0:ガ:風><格解析結果:吹く/ふく:動1:ガ/C/風/0/0/000-1;ニ/U/-/-/-/-;ト/U/-/-/-/-;デ/U/-/-/-/-;カラ/U/-/-/-/-;時間/U/-/-/-/-><標準用言代表表記:吹く/ふく>
-        吹く ふく 吹く 動詞 2 * 0 子音動詞カ行 2 基本形 2 "代表表記:吹く/ふく 補文ト" <代表表記:吹く/ふく><補文ト><正規化代表表記:吹く/ふく><かな漢字><活用語><表現文末><自立><内容語><タグ単位始><文節始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
-        。 。 。 特殊 1 句点 1 * 0 * 0 NIL <英記号><記号><文末><付属>
-        EOS
-        # S-ID:000-2 KNP:5.0-2ad4f6df
-        * 2D <BGH:すると/すると><文頭><接続詞><修飾><係:連用><区切:0-4><連用要素><連用節><正規化代表表記:すると/すると><主辞代表表記:すると/すると>
-        + 2D <BGH:すると/すると><文頭><接続詞><修飾><係:連用><区切:0-4><連用要素><連用節><節-前向き機能-条件:すると><正規化代表表記:すると/すると><主辞代表表記:すると/すると><解析格:修飾>
-        すると すると すると 接続詞 10 * 0 * 0 * 0 "代表表記:すると/すると" <代表表記:すると/すると><正規化代表表記:すると/すると><かな漢字><ひらがな><文頭><自立><内容語><タグ単位始><文節始><文節主辞>
-        * 2D <ガ><助詞><体言><係:ガ格><区切:0-0><格要素><連用要素><正規化代表表記:桶屋/桶屋><主辞代表表記:桶屋/桶屋>
-        + 2D <ガ><助詞><体言><係:ガ格><区切:0-0><格要素><連用要素><名詞項候補><先行詞候補><正規化代表表記:桶屋/桶屋><主辞代表表記:桶屋/桶屋><Wikipediaリダイレクト:桶><解析格:ガ>
-        桶屋 桶屋 桶屋 名詞 6 普通名詞 1 * 0 * 0 "自動獲得:Wikipedia 読み不明 Wikipediaリダイレクト:桶 疑似代表表記 代表表記:桶屋/桶屋" <自動獲得:Wikipedia><読み不明><Wikipediaリダイレクト:桶><疑似代表表記><代表表記:桶屋/桶屋><正規化代表表記:桶屋/桶屋><漢字><かな漢字><名詞相当語><自立><内容語><タグ単位始><文節始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
-        が が が 助詞 9 格助詞 1 * 0 * 0 NIL <かな漢字><ひらがな><付属>
-        * -1D <BGH:儲かる/もうかる><文末><句点><用言:動><レベル:C><区切:5-5><ID:（文末）><係:文末><提題受:30><主節><格要素><連用要素><動態述語><正規化代表表記:儲かる/もうかる><主辞代表表記:儲かる/もうかる>
-        + -1D <BGH:儲かる/もうかる><文末><句点><用言:動><レベル:C><区切:5-5><ID:（文末）><係:文末><提題受:30><主節><格要素><連用要素><動態述語><正規化代表表記:儲かる/もうかる><主辞代表表記:儲かる/もうかる><用言代表表記:儲かる/もうかる><節-区切><節-主辞><時制:非過去><主題格:一人称優位><格関係0:修飾:すると><格関係1:ガ:桶屋><格解析結果:儲かる/もうかる:動2:ガ/C/桶屋/1/0/000-2;修飾/C/すると/0/0/000-2><標準用言代表表記:儲かる/もうかる>
-        儲かる もうかる 儲かる 動詞 2 * 0 子音動詞ラ行 10 基本形 2 "代表表記:儲かる/もうかる ドメイン:ビジネス 自他動詞:他:儲ける/もうける" <代表表記:儲かる/もうかる><ドメイン:ビジネス><自他動詞:他:儲ける/もうける><正規化代表表記:儲かる/もうかる><かな漢字><活用語><表現文末><自立><内容語><タグ単位始><文節始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
-        。 。 。 特殊 1 句点 1 * 0 * 0 NIL <英記号><記号><文末><付属>
-        EOS
-        """
-    )
-    document = Document.from_knp(knp)
-    prev_end = 0
-    for morpheme in document.morphemes:
-        start, end = morpheme.global_span
-        assert prev_end == start
-        prev_end = end
+@pytest.mark.parametrize("case", CASES)
+def test_global_span(case: dict[str, str]) -> None:
+    def _test_global_span(doc: Document) -> None:
+        prev_end = 0
+        for morpheme in doc.morphemes:
+            start, end = morpheme.global_span
+            assert prev_end == start
+            prev_end = end
+
+    doc = Document.from_jumanpp(case["jumanpp"])
+    _test_global_span(doc)
+    doc = Document.from_knp(case["knp_with_no_clause_tag"])
+    _test_global_span(doc)
+    doc = Document.from_knp(case["knp"])
+    _test_global_span(doc)
 
 
-def test_cut_0():
-    knp = textwrap.dedent(
-        """\
-        # S-ID:1 KNP:5.0-2ad4f6df
-        * 1D <BGH:風/かぜ><文頭><ガ><助詞><体言><一文字漢字><係:ガ格><区切:0-0><格要素><連用要素><正規化代表表記:風/かぜ><主辞代表表記:風/かぜ>
-        + 1D <BGH:風/かぜ><文頭><ガ><助詞><体言><一文字漢字><係:ガ格><区切:0-0><格要素><連用要素><名詞項候補><先行詞候補><正規化代表表記:風/かぜ><主辞代表表記:風/かぜ><解析格:ガ>
-        風 かぜ 風 名詞 6 普通名詞 1 * 0 * 0 "代表表記:風/かぜ カテゴリ:抽象物 漢字読み:訓" <代表表記:風/かぜ><カテゴリ:抽象物><漢字読み:訓><正規化代表表記:風/かぜ><漢字><かな漢字><名詞相当語><文頭><自立><内容語><タグ単位始><文節始><文節主辞>
-        が が が 助詞 9 格助詞 1 * 0 * 0 NIL <かな漢字><ひらがな><付属>
-        * 3D <BGH:吹く/ふく><補文ト><用言:動><係:連用><レベル:B><区切:3-5><ID:〜たら><連用要素><連用節><動態述語><正規化代表表記:吹く/ふく><主辞代表表記:吹く/ふく>
-        + 4D <BGH:吹く/ふく><補文ト><用言:動><係:連用><レベル:B><区切:3-5><ID:〜たら><連用要素><連用節><動態述語><正規化代表表記:吹く/ふく><主辞代表表記:吹く/ふく><用言代表表記:吹く/ふく><節-区切><節-主辞><節-機能-条件><格関係0:ガ:風><格解析結果:吹く/ふく:動1:ガ/C/風/0/0/1;ニ/U/-/-/-/-;ト/U/-/-/-/-;デ/U/-/-/-/-;カラ/U/-/-/-/-;時間/U/-/-/-/-><標準用言代表表記:吹く/ふく><談話関係:1/4/条件;2/1/条件>
-        吹いたら ふいたら 吹く 動詞 2 * 0 子音動詞カ行 2 タ系条件形 13 "代表表記:吹く/ふく 補文ト" <代表表記:吹く/ふく><補文ト><正規化代表表記:吹く/ふく><かな漢字><活用語><自立><内容語><タグ単位始><文節始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
-        * 3D <SM-主体><SM-人><BGH:屋/や><ガ><助詞><体言><係:ガ格><区切:0-0><格要素><連用要素><正規化代表表記:桶/おけ+屋/や><主辞代表表記:屋/や><主辞’代表表記:桶/おけ+屋/や>
-        + 3D <BGH:桶/おけ><文節内><係:文節内><体言><一文字漢字><名詞項候補><先行詞候補><正規化代表表記:桶/おけ>
-        桶 おけ 桶 名詞 6 普通名詞 1 * 0 * 0 "代表表記:桶/おけ ドメイン:家庭・暮らし カテゴリ:人工物-その他" <代表表記:桶/おけ><ドメイン:家庭・暮らし><カテゴリ:人工物-その他><正規化代表表記:桶/おけ><漢字><かな漢字><名詞相当語><自立><内容語><タグ単位始><文節始>
-        + 4D <SM-主体><SM-人><BGH:屋/や><ガ><助詞><体言><係:ガ格><区切:0-0><格要素><連用要素><一文字漢字><名詞項候補><先行詞候補><正規化代表表記:屋/や><主辞代表表記:屋/や><主辞’代表表記:桶/おけ+屋/や><解析格:ガ>
-        屋 や 屋 名詞 6 普通名詞 1 * 0 * 0 "代表表記:屋/や カテゴリ:場所-施設 漢字読み:訓" <代表表記:屋/や><カテゴリ:場所-施設><漢字読み:訓><正規化代表表記:屋/や><漢字><かな漢字><名詞相当語><自立><複合←><内容語><タグ単位始><文節主辞>
-        が が が 助詞 9 格助詞 1 * 0 * 0 NIL <かな漢字><ひらがな><付属>
-        * -1D <BGH:儲かる/もうかる><文末><句点><用言:動><レベル:C><区切:5-5><ID:（文末）><係:文末><提題受:30><主節><格要素><連用要素><動態述語><正規化代表表記:儲かる/もうかる><主辞代表表記:儲かる/もうかる>
-        + -1D <BGH:儲かる/もうかる><文末><句点><用言:動><レベル:C><区切:5-5><ID:（文末）><係:文末><提題受:30><主節><格要素><連用要素><動態述語><正規化代表表記:儲かる/もうかる><主辞代表表記:儲かる/もうかる><用言代表表記:儲かる/もうかる><節-区切><節-主辞><時制:非過去><主題格:一人称優位><格関係3:ガ:屋><格解析結果:儲かる/もうかる:動2:ガ/C/屋/3/0/1><標準用言代表表記:儲かる/もうかる>
-        儲かる もうかる 儲かる 動詞 2 * 0 子音動詞ラ行 10 基本形 2 "代表表記:儲かる/もうかる ドメイン:ビジネス 自他動詞:他:儲ける/もうける" <代表表記:儲かる/もうかる><ドメイン:ビジネス><自他動詞:他:儲ける/もうける><正規化代表表記:儲かる/もうかる><かな漢字><活用語><表現文末><自立><内容語><タグ単位始><文節始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
-        。 。 。 特殊 1 句点 1 * 0 * 0 NIL <英記号><記号><文末><付属>
-        EOS
-        # S-ID:2 KNP:5.0-2ad4f6df
-        * 1D <文頭><モ><助詞><体言><係:未格><並キ:名:&ST:2.5&&モ><区切:1-4><並列タイプ:AND><格要素><連用要素><正規化代表表記:服屋/服屋><主辞代表表記:服屋/服屋><並列類似度:-100.000>
-        + 1D <文頭><モ><助詞><体言><係:未格><並キ:名:&ST:2.5&&モ><区切:1-4><並列タイプ:AND><格要素><連用要素><名詞項候補><先行詞候補><正規化代表表記:服屋/服屋><主辞代表表記:服屋/服屋><解析格:ガ>
-        服屋 服屋 服屋 名詞 6 普通名詞 1 * 0 * 0 "自動獲得:Wikipedia Wikipediaページ内一覧:ドラゴンボールの登場人物 読み不明 疑似代表表記 代表表記:服屋/服屋" <自動獲得:Wikipedia><Wikipediaページ内一覧:ドラゴンボールの登場人物><読み不明><疑似代表表記><代表表記:服屋/服屋><正規化代表表記:服屋/服屋><漢字><かな漢字><名詞相当語><文頭><自立><内容語><タグ単位始><文節始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
-        も も も 助詞 9 副助詞 2 * 0 * 0 NIL <かな漢字><ひらがな><付属>
-        * -1D <BGH:儲かる/もうかる><文末><モ〜><句点><用言:動><レベル:C><区切:5-5><ID:（文末）><係:文末><提題受:30><主節><格要素><連用要素><動態述語><正規化代表表記:儲かる/もうかる><主辞代表表記:儲かる/もうかる>
-        + -1D <BGH:儲かる/もうかる><文末><モ〜><句点><用言:動><レベル:C><区切:5-5><ID:（文末）><係:文末><提題受:30><主節><格要素><連用要素><動態述語><正規化代表表記:儲かる/もうかる><主辞代表表記:儲かる/もうかる><用言代表表記:儲かる/もうかる><節-区切><節-主辞><時制:非過去><主題格:一人称優位><格関係0:ガ:服屋><格解析結果:儲かる/もうかる:動11:ガ/N/服屋/0/0/2;ニ/U/-/-/-/-;デ/U/-/-/-/-><標準用言代表表記:儲かる/もうかる>
-        儲かる もうかる 儲かる 動詞 2 * 0 子音動詞ラ行 10 基本形 2 "代表表記:儲かる/もうかる ドメイン:ビジネス 自他動詞:他:儲ける/もうける" <代表表記:儲かる/もうかる><ドメイン:ビジネス><自他動詞:他:儲ける/もうける><正規化代表表記:儲かる/もうかる><かな漢字><活用語><表現文末><自立><内容語><タグ単位始><文節始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
-        。 。 。 特殊 1 句点 1 * 0 * 0 NIL <英記号><記号><文末><付属>
-        EOS
-        """
-    )
-    document_all = Document.from_knp(knp)
-    assert sum(len(clause.discourse_relations) for clause in document_all.clauses) == 2
+@pytest.mark.parametrize("case", CASES)
+def test_cut_paste(case: dict[str, str]) -> None:
+    doc = Document.from_knp(case["knp"])
 
-    sentences = document_all.sentences
+    # Split a document into sub-documents with a single sentence
+    sub_docs = list(map(Document.from_sentences, [[sent] for sent in doc.sentences]))
+    for sub_doc in sub_docs:
+        assert len(sub_doc.sentences) == 1
+        assert sub_doc.need_knp is False
 
-    document_0 = Document.from_sentences([sentences[0]])
-    assert len(document_0.sentences) == 1
-    assert document_0.text == "風が吹いたら桶屋が儲かる。"
-    assert document_0.need_knp is False
-    assert document_0.phrases[0].parent == document_0.phrases[1]
-    assert document_0.phrases[1].parent == document_0.phrases[3]
-    assert document_0.phrases[2].parent == document_0.phrases[3]
-    assert document_0.phrases[3].parent is None
-    assert sum(len(clause.discourse_relations) for clause in document_0.clauses) == 1
-
-    document_1 = Document.from_sentences([sentences[1]])
-    assert len(document_1.sentences) == 1
-    assert document_1.text == "服屋も儲かる。"
-    assert document_1.need_knp is False
-    assert document_1.phrases[0].parent == document_1.phrases[1]
-    assert document_1.phrases[1].parent is None
-    assert sum(len(clause.discourse_relations) for clause in document_1.clauses) == 0
-
-    for sentence in document_all.sentences:
-        assert sentence.document == document_all
-    for sentence in document_0.sentences:
-        assert sentence.document == document_0
-    for sentence in document_1.sentences:
-        assert sentence.document == document_1
+    # Merge the sub-documents into a new document
+    new_doc = Document.from_sentences([sent for sub_doc in sub_docs for sent in sub_doc.sentences])
+    assert len(new_doc.sentences) == len(doc.sentences)
+    assert new_doc.need_knp is False
 
 
-def test_paste_0():
-    knp = textwrap.dedent(
-        """\
-        # S-ID:1 KNP:5.0-2ad4f6df
-        * 1D <BGH:風/かぜ><文頭><ガ><助詞><体言><一文字漢字><係:ガ格><区切:0-0><格要素><連用要素><正規化代表表記:風/かぜ><主辞代表表記:風/かぜ>
-        + 1D <BGH:風/かぜ><文頭><ガ><助詞><体言><一文字漢字><係:ガ格><区切:0-0><格要素><連用要素><名詞項候補><先行詞候補><正規化代表表記:風/かぜ><主辞代表表記:風/かぜ><解析格:ガ>
-        風 かぜ 風 名詞 6 普通名詞 1 * 0 * 0 "代表表記:風/かぜ カテゴリ:抽象物 漢字読み:訓" <代表表記:風/かぜ><カテゴリ:抽象物><漢字読み:訓><正規化代表表記:風/かぜ><漢字><かな漢字><名詞相当語><文頭><自立><内容語><タグ単位始><文節始><文節主辞>
-        が が が 助詞 9 格助詞 1 * 0 * 0 NIL <かな漢字><ひらがな><付属>
-        * 3D <BGH:吹く/ふく><補文ト><用言:動><係:連用><レベル:B><区切:3-5><ID:〜たら><連用要素><連用節><動態述語><正規化代表表記:吹く/ふく><主辞代表表記:吹く/ふく>
-        + 4D <BGH:吹く/ふく><補文ト><用言:動><係:連用><レベル:B><区切:3-5><ID:〜たら><連用要素><連用節><動態述語><正規化代表表記:吹く/ふく><主辞代表表記:吹く/ふく><用言代表表記:吹く/ふく><節-区切><節-主辞><節-機能-条件><格関係0:ガ:風><格解析結果:吹く/ふく:動1:ガ/C/風/0/0/1;ニ/U/-/-/-/-;ト/U/-/-/-/-;デ/U/-/-/-/-;カラ/U/-/-/-/-;時間/U/-/-/-/-><標準用言代表表記:吹く/ふく><談話関係:1/4/条件;2/1/条件>
-        吹いたら ふいたら 吹く 動詞 2 * 0 子音動詞カ行 2 タ系条件形 13 "代表表記:吹く/ふく 補文ト" <代表表記:吹く/ふく><補文ト><正規化代表表記:吹く/ふく><かな漢字><活用語><自立><内容語><タグ単位始><文節始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
-        * 3D <SM-主体><SM-人><BGH:屋/や><ガ><助詞><体言><係:ガ格><区切:0-0><格要素><連用要素><正規化代表表記:桶/おけ+屋/や><主辞代表表記:屋/や><主辞’代表表記:桶/おけ+屋/や>
-        + 3D <BGH:桶/おけ><文節内><係:文節内><体言><一文字漢字><名詞項候補><先行詞候補><正規化代表表記:桶/おけ>
-        桶 おけ 桶 名詞 6 普通名詞 1 * 0 * 0 "代表表記:桶/おけ ドメイン:家庭・暮らし カテゴリ:人工物-その他" <代表表記:桶/おけ><ドメイン:家庭・暮らし><カテゴリ:人工物-その他><正規化代表表記:桶/おけ><漢字><かな漢字><名詞相当語><自立><内容語><タグ単位始><文節始>
-        + 4D <SM-主体><SM-人><BGH:屋/や><ガ><助詞><体言><係:ガ格><区切:0-0><格要素><連用要素><一文字漢字><名詞項候補><先行詞候補><正規化代表表記:屋/や><主辞代表表記:屋/や><主辞’代表表記:桶/おけ+屋/や><解析格:ガ>
-        屋 や 屋 名詞 6 普通名詞 1 * 0 * 0 "代表表記:屋/や カテゴリ:場所-施設 漢字読み:訓" <代表表記:屋/や><カテゴリ:場所-施設><漢字読み:訓><正規化代表表記:屋/や><漢字><かな漢字><名詞相当語><自立><複合←><内容語><タグ単位始><文節主辞>
-        が が が 助詞 9 格助詞 1 * 0 * 0 NIL <かな漢字><ひらがな><付属>
-        * -1D <BGH:儲かる/もうかる><文末><句点><用言:動><レベル:C><区切:5-5><ID:（文末）><係:文末><提題受:30><主節><格要素><連用要素><動態述語><正規化代表表記:儲かる/もうかる><主辞代表表記:儲かる/もうかる>
-        + -1D <BGH:儲かる/もうかる><文末><句点><用言:動><レベル:C><区切:5-5><ID:（文末）><係:文末><提題受:30><主節><格要素><連用要素><動態述語><正規化代表表記:儲かる/もうかる><主辞代表表記:儲かる/もうかる><用言代表表記:儲かる/もうかる><節-区切><節-主辞><時制:非過去><主題格:一人称優位><格関係3:ガ:屋><格解析結果:儲かる/もうかる:動2:ガ/C/屋/3/0/1><標準用言代表表記:儲かる/もうかる>
-        儲かる もうかる 儲かる 動詞 2 * 0 子音動詞ラ行 10 基本形 2 "代表表記:儲かる/もうかる ドメイン:ビジネス 自他動詞:他:儲ける/もうける" <代表表記:儲かる/もうかる><ドメイン:ビジネス><自他動詞:他:儲ける/もうける><正規化代表表記:儲かる/もうかる><かな漢字><活用語><表現文末><自立><内容語><タグ単位始><文節始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
-        。 。 。 特殊 1 句点 1 * 0 * 0 NIL <英記号><記号><文末><付属>
-        EOS
-        # S-ID:2 KNP:5.0-2ad4f6df
-        * 1D <文頭><モ><助詞><体言><係:未格><並キ:名:&ST:2.5&&モ><区切:1-4><並列タイプ:AND><格要素><連用要素><正規化代表表記:服屋/服屋><主辞代表表記:服屋/服屋><並列類似度:-100.000>
-        + 1D <文頭><モ><助詞><体言><係:未格><並キ:名:&ST:2.5&&モ><区切:1-4><並列タイプ:AND><格要素><連用要素><名詞項候補><先行詞候補><正規化代表表記:服屋/服屋><主辞代表表記:服屋/服屋><解析格:ガ>
-        服屋 服屋 服屋 名詞 6 普通名詞 1 * 0 * 0 "自動獲得:Wikipedia Wikipediaページ内一覧:ドラゴンボールの登場人物 読み不明 疑似代表表記 代表表記:服屋/服屋" <自動獲得:Wikipedia><Wikipediaページ内一覧:ドラゴンボールの登場人物><読み不明><疑似代表表記><代表表記:服屋/服屋><正規化代表表記:服屋/服屋><漢字><かな漢字><名詞相当語><文頭><自立><内容語><タグ単位始><文節始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
-        も も も 助詞 9 副助詞 2 * 0 * 0 NIL <かな漢字><ひらがな><付属>
-        * -1D <BGH:儲かる/もうかる><文末><モ〜><句点><用言:動><レベル:C><区切:5-5><ID:（文末）><係:文末><提題受:30><主節><格要素><連用要素><動態述語><正規化代表表記:儲かる/もうかる><主辞代表表記:儲かる/もうかる>
-        + -1D <BGH:儲かる/もうかる><文末><モ〜><句点><用言:動><レベル:C><区切:5-5><ID:（文末）><係:文末><提題受:30><主節><格要素><連用要素><動態述語><正規化代表表記:儲かる/もうかる><主辞代表表記:儲かる/もうかる><用言代表表記:儲かる/もうかる><節-区切><節-主辞><時制:非過去><主題格:一人称優位><格関係0:ガ:服屋><格解析結果:儲かる/もうかる:動11:ガ/N/服屋/0/0/2;ニ/U/-/-/-/-;デ/U/-/-/-/-><標準用言代表表記:儲かる/もうかる>
-        儲かる もうかる 儲かる 動詞 2 * 0 子音動詞ラ行 10 基本形 2 "代表表記:儲かる/もうかる ドメイン:ビジネス 自他動詞:他:儲ける/もうける" <代表表記:儲かる/もうかる><ドメイン:ビジネス><自他動詞:他:儲ける/もうける><正規化代表表記:儲かる/もうかる><かな漢字><活用語><表現文末><自立><内容語><タグ単位始><文節始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
-        。 。 。 特殊 1 句点 1 * 0 * 0 NIL <英記号><記号><文末><付属>
-        EOS
-        """
-    )
-    document_all = Document.from_knp(knp)
-    sentences = document_all.sentences
-    document_0 = Document.from_sentences([sentences[0]])
-    assert sum(len(clause.discourse_relations) for clause in document_0.clauses) == 1
-    document_1 = Document.from_sentences([sentences[1]])
-    assert sum(len(clause.discourse_relations) for clause in document_1.clauses) == 0
-    document_rec = Document.from_sentences(document_0.sentences + document_1.sentences)
-    assert len(document_rec.sentences) == 2
-    assert document_rec.text == "風が吹いたら桶屋が儲かる。服屋も儲かる。"
-    assert document_rec.need_knp is False
-    assert sum(len(clause.discourse_relations) for clause in document_rec.clauses) == 2
-    assert document_rec.phrases[0].parent == document_rec.phrases[1]
-    assert document_rec.phrases[1].parent == document_rec.phrases[3]
-    assert document_rec.phrases[2].parent == document_rec.phrases[3]
-    assert document_rec.phrases[3].parent is None
-    assert document_rec.phrases[4].parent == document_rec.phrases[5]
-    assert document_rec.phrases[5].parent is None
+def test_to_knp_kwdlc() -> None:
+    doc_id = "w201106-0000060050"
+    knp = Path(f"tests/data/{doc_id}.knp").read_text()
+    doc = Document.from_knp(knp)
+    assert doc.to_knp() == knp
+
+
+def test_to_knp_wac() -> None:
+    doc_id = "wiki00100176"
+    knp = Path(f"tests/data/{doc_id}.knp").read_text()
+    doc = Document.from_knp(knp)
+    assert doc.to_knp() == knp
+
+
+def test_id_kwdlc() -> None:
+    doc_id = "w201106-0000060050"
+    doc = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text())
+    assert doc.doc_id == doc_id
+
+
+def test_id_wac() -> None:
+    doc_id = "wiki00100176"
+    doc = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text())
+    assert doc.doc_id == doc_id
+
+
+def test_reparse_rel() -> None:
+    doc_id = "w201106-0000060050"
+    knp = Path(f"tests/data/{doc_id}.knp").read_text()
+    doc = Document.from_knp(knp)
+    doc.reparse_rel()
+    assert doc.to_knp() == knp
