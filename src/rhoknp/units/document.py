@@ -138,11 +138,7 @@ class Document(Unit):
     @property
     def need_clause_tag(self) -> bool:
         """KNP による節-主辞・節-区切のタグ付与がまだなら True．"""
-        try:
-            _ = self.clauses
-            return False
-        except AttributeError:
-            return True
+        return self.need_senter or any(sentence.need_clause_tag for sentence in self.sentences)
 
     def pas_list(self) -> list[Pas]:
         """述語項構造のリストを返却．"""
@@ -218,8 +214,14 @@ class Document(Unit):
         sentences_ = []
         for sentence in sentences:
             if isinstance(sentence, Sentence):
-                sentence = sentence.text
-            sentences_.append(Sentence.from_raw_text(sentence))
+                if sentence.need_jumanpp:
+                    sentences_.append(Sentence.from_raw_text(sentence.text))
+                elif sentence.need_knp:
+                    sentences_.append(Sentence.from_jumanpp(sentence.to_jumanpp()))
+                else:
+                    sentences_.append(Sentence.from_knp(sentence.to_knp()))
+            else:
+                sentences_.append(Sentence.from_raw_text(sentence))
         document.sentences = sentences_
         if sentences_:
             document.doc_id = sentences_[0].doc_id
