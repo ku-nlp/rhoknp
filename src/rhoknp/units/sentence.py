@@ -243,6 +243,8 @@ class Sentence(Unit):
         sentence = cls()
         text_lines = []
         for line in text.split("\n"):
+            if line.strip() == "":
+                continue
             if is_comment_line(line):
                 sentence.comment = line
             else:
