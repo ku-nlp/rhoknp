@@ -214,7 +214,12 @@ class Sentence(Unit):
     @property
     def need_knp(self) -> bool:
         """KNP による構文解析がまだなら True．"""
-        return self.need_jumanpp or self._phrases is None and self._clauses is None
+        return self._phrases is None and self._clauses is None
+
+    @property
+    def need_clause_tag(self) -> bool:
+        """KNP による節-主辞・節-区切のタグ付与がまだなら True．"""
+        return self._clauses is None
 
     @classmethod
     def from_raw_text(cls, text: str) -> "Sentence":

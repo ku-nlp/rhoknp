@@ -38,6 +38,25 @@ cases = [
             EOS
             """
         ),
+        "knp_no_clause_tag": textwrap.dedent(
+            """\
+            # S-ID:1 KNP:5.0-2ad4f6df DATE:2021/08/05 SCORE:-10.73865
+            * 1D
+            + 1D
+            天気 てんき 天気 名詞 6 普通名詞 1 * 0 * 0 "代表表記:天気/てんき カテゴリ:抽象物"
+            が が が 助詞 9 格助詞 1 * 0 * 0 NIL
+            * 2D
+            + 2D
+            いい いい いい 形容詞 3 * 0 イ形容詞イ段 19 基本形 2 "代表表記:良い/よい 反義:形容詞:悪い/わるい"
+            ので ので のだ 助動詞 5 * 0 ナ形容詞 21 ダ列タ系連用テ形 12 NIL
+            * -1D
+            + -1D
+            散歩 さんぽ 散歩 名詞 6 サ変名詞 2 * 0 * 0 "代表表記:散歩/さんぽ ドメイン:レクリエーション カテゴリ:抽象物"
+            した した する 動詞 2 * 0 サ変動詞 16 タ形 10 "代表表記:する/する 自他動詞:自:成る/なる 付属動詞候補（基本）"
+            。 。 。 特殊 1 句点 1 * 0 * 0 NIL
+            EOS
+            """
+        ),
     },
     {
         "text": r"EOSは特殊記号です。",
@@ -230,6 +249,9 @@ def test_sentence_need_jumanpp() -> None:
     jumanpp = cases[0]["jumanpp"]
     sent = Sentence.from_jumanpp(jumanpp)
     assert sent.need_jumanpp is False
+    knp = cases[0]["knp_no_clause_tag"]
+    sent = Sentence.from_knp(knp)
+    assert sent.need_jumanpp is False
 
 
 def test_sentence_need_knp() -> None:
@@ -239,6 +261,21 @@ def test_sentence_need_knp() -> None:
     knp = cases[0]["knp"]
     sent = Sentence.from_knp(knp)
     assert sent.need_knp is False
+    knp = cases[0]["knp_no_clause_tag"]
+    sent = Sentence.from_knp(knp)
+    assert sent.need_knp is False
+
+
+def test_sentence_need_clause_tag() -> None:
+    jumanpp = cases[0]["jumanpp"]
+    sent = Sentence.from_jumanpp(jumanpp)
+    assert sent.need_clause_tag is True
+    knp = cases[0]["knp"]
+    sent = Sentence.from_knp(knp)
+    assert sent.need_clause_tag is False
+    knp = cases[0]["knp_no_clause_tag"]
+    sent = Sentence.from_knp(knp)
+    assert sent.need_clause_tag is True
 
 
 @pytest.mark.parametrize("knp", [case["knp"] for case in cases])
