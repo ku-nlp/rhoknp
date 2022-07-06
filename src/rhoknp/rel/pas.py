@@ -74,7 +74,10 @@ class Pas:
                 if sdist == 0:
                     sentence = base_phrase.sentence
                 else:
-                    sentence = base_phrase.document.sentences[base_phrase.sentence.index - sdist]
+                    if (sentence_index := base_phrase.sentence.index - sdist) < 0:
+                        logger.warning(f"sentence index out of range: {sentence_index} in {base_phrase.sentence.sid}")
+                        continue
+                    sentence = base_phrase.document.sentences[sentence_index]
                 assert sentence.sid == sid
                 arg_base_phrase = sentence.base_phrases[tid]
                 assert surf in arg_base_phrase.text
@@ -88,7 +91,12 @@ class Pas:
                     if sdist == 0:
                         sentence = base_phrase.sentence
                     else:
-                        sentence = base_phrase.document.sentences[base_phrase.sentence.index - sdist]
+                        if (sentence_index := base_phrase.sentence.index - sdist) < 0:
+                            logger.warning(
+                                f"sentence index out of range: {sentence_index} in {base_phrase.sentence.sid}"
+                            )
+                            continue
+                        sentence = base_phrase.document.sentences[sentence_index]
                     arg_base_phrase = sentence.base_phrases[tid]
                     assert surf in arg_base_phrase.text
                     pas.add_argument(case, arg_base_phrase)
