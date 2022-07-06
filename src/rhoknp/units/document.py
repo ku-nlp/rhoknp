@@ -138,11 +138,7 @@ class Document(Unit):
     @property
     def need_clause_tag(self) -> bool:
         """KNP による節-主辞・節-区切のタグ付与がまだなら True．"""
-        try:
-            _ = self.clauses
-            return False
-        except AttributeError:
-            return True
+        return self.need_senter or any(sentence.need_clause_tag for sentence in self.sentences)
 
     def pas_list(self) -> list[Pas]:
         """述語項構造のリストを返却．"""
