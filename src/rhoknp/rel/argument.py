@@ -65,7 +65,7 @@ class BaseArgument(ABC):
 class Argument(BaseArgument):
     def __init__(self, base_phrase: "BasePhrase", arg_type: ArgumentType):
         super().__init__(arg_type)
-        self.base_phrase: "BasePhrase" = base_phrase
+        self.base_phrase: "BasePhrase" = weakref.proxy(base_phrase)
 
     @property
     def unit(self) -> "BasePhrase":
@@ -88,7 +88,7 @@ class Argument(BaseArgument):
         return self.base_phrase.phrase
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(base_phrase={repr(self.base_phrase)}, arg_type={repr(self.type)})"
+        return f"{self.__class__.__name__}(base_phrase={self.base_phrase.__repr__()}, arg_type={repr(self.type)})"
 
     def __str__(self) -> str:
         return self.base_phrase.text
