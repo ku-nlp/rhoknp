@@ -30,4 +30,4 @@ class Processor(ABC):
         return self.apply_to_sentence(sentence)
 
     def batch_apply(self, sentences: Sequence[Union[Sentence, str]], processes: int = 0) -> list[Sentence]:
-        return self.batch_apply_to_sentences(sentences)
+        return self.batch_apply_to_sentences(sentences, processes)
