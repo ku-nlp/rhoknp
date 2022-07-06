@@ -1,3 +1,4 @@
+import multiprocessing
 import textwrap
 from pathlib import Path
 
@@ -65,6 +66,30 @@ def test_document_need_foo_3():
     assert doc.need_senter is False
     assert doc.need_jumanpp is False
     assert doc.need_knp is False
+
+
+def test_from_jumanpp_parallel():
+    jumanpp_texts = [
+        textwrap.dedent(
+            """\
+            天気 てんき 天気 名詞 6 普通名詞 1 * 0 * 0 "代表表記:天気/てんき カテゴリ:抽象物"
+            が が が 助詞 9 格助詞 1 * 0 * 0 NIL
+            いい いい いい 形容詞 3 * 0 イ形容詞イ段 19 基本形 2 "代表表記:良い/よい 反義:形容詞:悪い/わるい"
+            ので ので のだ 助動詞 5 * 0 ナ形容詞 21 ダ列タ系連用テ形 12 NIL
+            散歩 さんぽ 散歩 名詞 6 サ変名詞 2 * 0 * 0 "代表表記:散歩/さんぽ ドメイン:レクリエーション カテゴリ:抽象物"
+            した した する 動詞 2 * 0 サ変動詞 16 タ形 10 "代表表記:する/する 自他動詞:自:成る/なる 付属動詞候補（基本）"
+            。 。 。 特殊 1 句点 1 * 0 * 0 NIL
+            EOS
+            """
+        )
+    ]
+    jumanpp_texts *= 4
+
+    with multiprocessing.Pool(processes=2) as pool:
+        docs = pool.map(Document.from_jumanpp, jumanpp_texts)
+
+    for doc, jumanpp_text in zip(docs, jumanpp_texts):
+        assert doc.to_jumanpp() == jumanpp_text
 
 
 def test_from_jumanpp_ignore_error_0():
@@ -217,10 +242,52 @@ def test_document_from_knp(text: str, knp: str) -> None:
     assert str(doc) == text
 
 
+def test_from_knp_parallel():
+    knp_texts = [
+        textwrap.dedent(
+            """\
+            # S-ID:1 KNP:5.0-2ad4f6df DATE:2021/08/05 SCORE:-10.73865
+            * 1D <BGH:天気/てんき><文頭><ガ><助詞><体言><係:ガ格><区切:0-0><格要素><連用要素><正規化代表表記:天気/てんき><主辞代表表記:天気/てんき>
+            + 1D <BGH:天気/てんき><文頭><ガ><助詞><体言><係:ガ格><区切:0-0><格要素><連用要素><名詞項候補><先行詞候補><正規化代表表記:天気/てんき><主辞代表表記:天気/てんき><解析格:ガ>
+            天気 てんき 天気 名詞 6 普通名詞 1 * 0 * 0 "代表表記:天気/てんき カテゴリ:抽象物" <代表表記:天気/てんき><カテゴリ:抽象物><正規化代表表記:天気/てんき><漢字><かな漢字><名詞相当語><文頭><自立><内容語><タグ単位始><文節始><文節主辞>
+            が が が 助詞 9 格助詞 1 * 0 * 0 NIL <かな漢字><ひらがな><付属>
+            * 2D <BGH:良い/よい><用言:形><係:連用><レベル:B+><区切:3-5><ID:〜ので><提題受:20><連用要素><連用節><状態述語><正規化代表表記:良い/よい><主辞代表表記:良い/よい>
+            + 2D <BGH:良い/よい><用言:形><係:連用><レベル:B+><区切:3-5><ID:〜ので><提題受:20><連用要素><連用節><状態述語><節-機能-原因・理由:ので><正規化代表表記:良い/よい><主辞代表表記:良い/よい><用言代表表記:良い/よい><節-区切><節-主辞><時制:非過去><格関係0:ガ:天気><格解析結果:良い/よい:形5:ガ/C/天気/0/0/1;カラ/U/-/-/-/-;時間/U/-/-/-/-><標準用言代表表記:良い/よい>
+            いい いい いい 形容詞 3 * 0 イ形容詞イ段 19 基本形 2 "代表表記:良い/よい 反義:形容詞:悪い/わるい" <代表表記:良い/よい><反義:形容詞:悪い/わるい><正規化代表表記:良い/よい><かな漢字><ひらがな><活用語><自立><内容語><タグ単位始><文節始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
+            ので ので のだ 助動詞 5 * 0 ナ形容詞 21 ダ列タ系連用テ形 12 NIL <かな漢字><ひらがな><活用語><付属>
+            * -1D <BGH:散歩/さんぽ+する/する><文末><サ変><サ変動詞><時制:過去><句点><用言:動><レベル:C><区切:5-5><ID:（文末）><係:文末><提題受:30><主節><格要素><連用要素><動態述語><正規化代表表記:散歩/さんぽ><主辞代表表記:散歩/さんぽ>
+            + -1D <BGH:散歩/さんぽ+する/する><文末><サ変動詞><時制:過去><句点><用言:動><レベル:C><区切:5-5><ID:（文末）><係:文末><提題受:30><主節><格要素><連用要素><動態述語><サ変><正規化代表表記:散歩/さんぽ><主辞代表表記:散歩/さんぽ><用言代表表記:散歩/さんぽ><節-区切><節-主辞><主題格:一人称優位><格解析結果:散歩/さんぽ:動0:ガ/U/-/-/-/-;ヲ/U/-/-/-/-;ニ/U/-/-/-/-;ト/U/-/-/-/-;デ/U/-/-/-/-;カラ/U/-/-/-/-;マデ/U/-/-/-/-;時間/U/-/-/-/-><標準用言代表表記:散歩/さんぽ>
+            散歩 さんぽ 散歩 名詞 6 サ変名詞 2 * 0 * 0 "代表表記:散歩/さんぽ ドメイン:レクリエーション カテゴリ:抽象物" <代表表記:散歩/さんぽ><ドメイン:レクリエーション><カテゴリ:抽象物><正規化代表表記:散歩/さんぽ><漢字><かな漢字><名詞相当語><サ変><サ変動詞><自立><内容語><タグ単位始><文節始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
+            した した する 動詞 2 * 0 サ変動詞 16 タ形 10 "代表表記:する/する 自他動詞:自:成る/なる 付属動詞候補（基本）" <代表表記:する/する><自他動詞:自:成る/なる><付属動詞候補（基本）><正規化代表表記:する/する><かな漢字><ひらがな><活用語><表現文末><とタ系連用テ形複合辞><付属>
+            。 。 。 特殊 1 句点 1 * 0 * 0 NIL <英記号><記号><文末><付属>
+            EOS
+            """
+        )
+    ]
+    knp_texts *= 4
+
+    with multiprocessing.Pool(processes=2) as pool:
+        docs = pool.map(Document.from_knp, knp_texts)
+
+    for doc, knp_text in zip(docs, knp_texts):
+        assert doc.to_knp() == knp_text
+
+
 @pytest.mark.parametrize("sentence_string", ["天気がいいので散歩した。", "。"])
 def test_document_from_raw_text(sentence_string: str) -> None:
     doc_from_string = Document.from_raw_text(sentence_string)
     assert doc_from_string.text == sentence_string
+
+
+def test_document_from_raw_text_parallel() -> None:
+    raw_texts = ["天気がいいので散歩した。"]
+    raw_texts *= 4
+
+    with multiprocessing.Pool(processes=2) as pool:
+        docs = pool.map(Document.from_raw_text, raw_texts)
+
+    for doc, raw_text in zip(docs, raw_texts):
+        assert doc.text == raw_text
 
 
 @pytest.mark.parametrize("sentence_strings", [["天気がいいので散歩した。", "途中で先生に会った。"], ["。"]])
@@ -235,6 +302,17 @@ def test_document_from_sentences_1(sentence_strings: list[str]) -> None:
         [Sentence.from_raw_text(sentence_string) for sentence_string in sentence_strings]
     )
     assert doc_from_sentences.text == "".join(sentence_strings)
+
+
+def test_document_from_sentences_parallel() -> None:
+    sentences_list = [["天気がいいので散歩した。"]]
+    sentences_list *= 4
+
+    with multiprocessing.Pool(processes=2) as pool:
+        docs = pool.map(Document.from_sentences, sentences_list)
+
+    for doc, sentences in zip(docs, sentences_list):
+        assert [sentence.text for sentence in doc.sentences] == sentences
 
 
 @pytest.mark.parametrize(
