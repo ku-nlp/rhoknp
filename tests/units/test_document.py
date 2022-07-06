@@ -392,8 +392,9 @@ def test_to_jumanpp(case: dict[str, str]) -> None:
         assert doc.to_jumanpp() == case["jumanpp"]
     doc = Document.from_jumanpp(case["jumanpp"])
     assert doc.to_jumanpp() == case["jumanpp"]
-    doc = Document.from_knp(case["knp_with_no_clause_tag"])
-    assert doc.to_jumanpp() == case["jumanpp"]
+    # NOTE: may not match because KNP sometimes rewrites morpheme information
+    # doc = Document.from_knp(case["knp_with_no_clause_tag"])
+    # assert doc.to_jumanpp() == case["jumanpp"]
     # NOTE: does not match because KNP appends features to morphemes
     # doc = Document.from_knp(case["knp"])
     # assert doc.to_jumanpp() == case["jumanpp"]
