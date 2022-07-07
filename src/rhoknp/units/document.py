@@ -1,4 +1,3 @@
-import weakref
 from logging import getLogger
 from typing import Optional, Sequence, Union
 
@@ -81,7 +80,7 @@ class Document(Unit):
             sentences: 文のリスト．
         """
         for sentence in sentences:
-            sentence.document = weakref.proxy(self)
+            sentence.document = self
         self._sentences = sentences
 
     @property

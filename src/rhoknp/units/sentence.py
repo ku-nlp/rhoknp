@@ -1,5 +1,4 @@
 import re
-import weakref
 from typing import TYPE_CHECKING, Optional, Union
 
 from rhoknp.units.base_phrase import BasePhrase
@@ -123,7 +122,7 @@ class Sentence(Unit):
             clauses: 節のリスト．
         """
         for clause in clauses:
-            clause.sentence = weakref.proxy(self)
+            clause.sentence = self
         self._clauses = clauses
 
     @property
@@ -147,7 +146,7 @@ class Sentence(Unit):
             phrases: 文節のリスト．
         """
         for phrase in phrases:
-            phrase.sentence = weakref.proxy(self)
+            phrase.sentence = self
         self._phrases = phrases
 
     @property
@@ -182,7 +181,7 @@ class Sentence(Unit):
             morphemes: 形態素のリスト．
         """
         for morpheme in morphemes:
-            morpheme.sentence = weakref.proxy(self)
+            morpheme.sentence = self
         self._morphemes = morphemes
 
     @property

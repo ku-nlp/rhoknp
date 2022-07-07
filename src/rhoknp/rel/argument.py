@@ -1,4 +1,3 @@
-import weakref
 from abc import ABC, abstractmethod
 from enum import Enum
 from typing import TYPE_CHECKING, Any, Optional
@@ -47,7 +46,7 @@ class BaseArgument(ABC):
 
     @pas.setter
     def pas(self, pas: "Pas") -> None:
-        self._pas = weakref.proxy(pas)
+        self._pas = pas
 
     @abstractmethod
     def __str__(self) -> str:
@@ -65,7 +64,7 @@ class BaseArgument(ABC):
 class Argument(BaseArgument):
     def __init__(self, base_phrase: "BasePhrase", arg_type: ArgumentType):
         super().__init__(arg_type)
-        self.base_phrase: "BasePhrase" = weakref.proxy(base_phrase)
+        self.base_phrase: "BasePhrase" = base_phrase
 
     @property
     def unit(self) -> "BasePhrase":

@@ -1,5 +1,4 @@
 import re
-import weakref
 from functools import cached_property
 from logging import getLogger
 from typing import TYPE_CHECKING, Optional
@@ -130,7 +129,7 @@ class BasePhrase(Unit):
             morphemes: 形態素．
         """
         for morpheme in morphemes:
-            morpheme.base_phrase = weakref.proxy(self)
+            morpheme.base_phrase = self
         self._morphemes = morphemes
 
     @cached_property

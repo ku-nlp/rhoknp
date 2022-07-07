@@ -1,4 +1,3 @@
-import weakref
 from functools import cached_property
 from typing import TYPE_CHECKING, Optional
 
@@ -94,7 +93,7 @@ class Clause(Unit):
             phrases: 文節のリスト．
         """
         for phrase in phrases:
-            phrase.clause = weakref.proxy(self)
+            phrase.clause = self
         self._phrases = phrases
 
     @property
