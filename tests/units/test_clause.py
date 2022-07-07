@@ -189,6 +189,11 @@ def test_children_sentence(case: dict[str, str]) -> None:
 
 
 @pytest.mark.parametrize("case", KNP_SNIPPETS)
+def test_from_knp(case: dict[str, str]) -> None:
+    _ = Clause.from_knp(case["knp"])
+
+
+@pytest.mark.parametrize("case", KNP_SNIPPETS)
 def test_to_knp(case: dict[str, str]) -> None:
     clause = Clause.from_knp(case["knp"])
     assert clause.to_knp() == case["knp"]
