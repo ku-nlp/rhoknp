@@ -1,5 +1,5 @@
 import re
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, Any, Optional, Union
 
 from rhoknp.units.base_phrase import BasePhrase
 from rhoknp.units.clause import Clause
@@ -422,3 +422,8 @@ class Sentence(Unit):
         """KNP 解析結果における <述語項構造> タグおよび <格解析結果> タグをパース．"""
         for base_phrase in self.base_phrases:
             base_phrase.parse_knp_pas()
+
+    def __eq__(self, other: Any) -> bool:
+        if isinstance(other, Sentence) is False:
+            return False
+        return self.sid == other.sid and self.text == other.text
