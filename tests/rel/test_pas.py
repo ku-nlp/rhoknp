@@ -217,6 +217,7 @@ def test_pas_case_analysis4() -> None:
     doc = Document.from_knp(knp_text)
     # <格解析結果:焼く/やく:動1:ガ/U/-/-/-/-;ヲ/N/パン/3/0/1;ニ/U/-/-/-/-;デ/U/-/-/-/-;カラ/U/-/-/-/-;時間/C/今朝/0/0/1>
     pas = doc.base_phrases[1].pas
+    assert pas is not None
     predicate = pas.predicate
     assert pas is not None
 
