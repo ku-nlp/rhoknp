@@ -187,6 +187,8 @@ class Document(Unit):
         sentences = []
         sentence_lines: list[str] = []
         for line in text.split("\n"):
+            if line.strip() == "":
+                continue
             sentence_lines.append(line)
             if is_comment_line(line):
                 continue
