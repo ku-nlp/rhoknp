@@ -230,3 +230,15 @@ def test_base_phrase_num(case: dict[str, str]) -> None:
 def test_morpheme_num(case: dict[str, str]) -> None:
     clause = Clause.from_knp(case["knp"])
     assert len(clause.morphemes) == case["morpheme_num"]
+
+
+@pytest.mark.parametrize("case", KNP_SNIPPETS)
+def test_head_text(case: dict[str, str]) -> None:
+    clause = Clause.from_knp(case["knp"])
+    assert clause.head.text == case["head_text"]
+
+
+@pytest.mark.parametrize("case", KNP_SNIPPETS)
+def test_end_text(case: dict[str, str]) -> None:
+    clause = Clause.from_knp(case["knp"])
+    assert clause.end.text == case["end_text"]
