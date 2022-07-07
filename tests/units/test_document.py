@@ -697,3 +697,17 @@ def test_reparse_rel() -> None:
     doc = Document.from_knp(knp)
     doc.reparse_rel()
     assert doc.to_knp() == knp
+
+
+def test_eq_knp() -> None:
+    doc_id = "w201106-0000060050"
+    knp = Path(f"tests/data/{doc_id}.knp").read_text()
+    doc1 = Document.from_knp(knp)
+    doc2 = Document.from_knp(knp)
+    assert doc1 == doc2
+
+
+def test_eq_raw_text() -> None:
+    doc1 = Document.from_raw_text("天気がいいので散歩した。")
+    doc2 = Document.from_raw_text("天気がいいので散歩した。")
+    assert doc1 == doc2

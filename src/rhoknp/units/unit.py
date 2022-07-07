@@ -15,11 +15,11 @@ class Unit(ABC):
         return f"{self.__class__.__name__}(index={repr(self.index)}, text={repr(self.text)})"
 
     def __eq__(self, other: Any) -> bool:
-        if isinstance(other, type(self)):
-            if self.parent_unit != other.parent_unit:
-                return False
-            return self.index == other.index
-        return False
+        if isinstance(other, type(self)) is False:
+            return False
+        if self.parent_unit != other.parent_unit:
+            return False
+        return self.index == other.index
 
     @property
     def parent_unit(self) -> Optional["Unit"]:

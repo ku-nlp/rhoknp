@@ -1,5 +1,5 @@
 from logging import getLogger
-from typing import Optional, Sequence, Union
+from typing import Any, Optional, Sequence, Union
 
 from rhoknp.rel.coreference import EntityManager
 from rhoknp.rel.pas import Pas
@@ -382,3 +382,8 @@ class Document(Unit):
         """<談話関係> タグをパース．"""
         for clause in self.clauses:
             clause.parse_discourse_relation()
+
+    def __eq__(self, other: Any) -> bool:
+        if isinstance(other, Document) is False:
+            return False
+        return self.doc_id == other.doc_id and self.text == other.text
