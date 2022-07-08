@@ -6,5 +6,5 @@ rhoknp package
 
    rhoknp.processors
    rhoknp.units
-   rhoknp.pas
+   rhoknp.rel
    rhoknp.utils

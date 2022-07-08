@@ -1,6 +1,6 @@
 rhoknp.pas.pas module
 =====================
 
-.. automodule:: rhoknp.pas.pas
+.. automodule:: rhoknp.rel.pas
 
 .. toctree::

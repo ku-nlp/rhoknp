@@ -1,6 +1,6 @@
 rhoknp.pas.predicate module
 ===========================
 
-.. automodule:: rhoknp.pas.predicate
+.. automodule:: rhoknp.rel.predicate
 
 .. toctree::
