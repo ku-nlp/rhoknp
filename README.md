@@ -79,7 +79,7 @@ with open("result.knp", "wt") as f:
     f.write(sentence.to_knp())
 ```
 
-and recovered from the result of language analysis in the Juman/KNP format.
+and recovered from Juman/KNP-format text.
 
 ```python
 # Load language analysis by Juman++
