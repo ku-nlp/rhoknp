@@ -1,4 +1,4 @@
-rhoknp.pas.argument module
+rhoknp.rel.argument module
 ==========================
 
 .. automodule:: rhoknp.rel.argument

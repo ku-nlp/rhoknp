@@ -1,4 +1,4 @@
-rhoknp.pas.argument module
+rhoknp.rel.exophora module
 ==========================
 
 .. automodule:: rhoknp.rel.exophora
