@@ -20,6 +20,23 @@ rhoknp: Yet another Python binding for Juman++/KNP
 
 **rhoknp** is a Python binding for `Juman++ <https://github.com/ku-nlp/jumanpp>`_ and `KNP <https://github.com/ku-nlp/knp>`_.
 
+.. code-block:: python3
+
+   import rhoknp
+
+   # Perform language analysis by Juman++
+   jumanpp = rhoknp.Jumanpp()
+   sentence = jumanpp.apply("電気抵抗率は電気の通しにくさを表す物性値である。")
+
+   # Dump language analysis by Juman++
+   with open("result.jumanpp", "wt") as f:
+       f.write(sentence.to_jumanpp())
+
+   # Load language analysis by Juman++
+   with open("result.jumanpp", "rt") as f:
+       sentence = rhoknp.Sentence.from_jumanpp(f.read())
+
+
 .. toctree::
    :maxdepth: 2
 
