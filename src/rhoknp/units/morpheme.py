@@ -54,11 +54,9 @@ class Morpheme(Unit):
     """形態素クラス．"""
 
     JUMANPP_PAT: ClassVar[re.Pattern[str]] = re.compile(
-        (
-            rf"^({MorphemeAttributes.JUMANPP_PAT.pattern})"
-            + rf"(\s{Semantics.PAT.pattern})?"
-            + rf"(\s{Features.PAT.pattern})?$"
-        )
+        rf"^({MorphemeAttributes.JUMANPP_PAT.pattern})"
+        + rf"(\s{Semantics.PAT.pattern})?"
+        + rf"(\s{Features.PAT.pattern})?$"
     )
 
     count = 0
