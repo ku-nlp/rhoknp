@@ -1,4 +1,4 @@
-from logging import getLogger
+import logging
 from subprocess import PIPE, Popen, run
 from typing import Optional, Union
 
@@ -7,7 +7,7 @@ from rhoknp.processors.processor import Processor
 from rhoknp.processors.senter import RegexSenter
 from rhoknp.units import Document, Sentence
 
-logger = getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class KNP(Processor):

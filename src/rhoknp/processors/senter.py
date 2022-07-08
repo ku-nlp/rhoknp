@@ -1,11 +1,11 @@
+import logging
 import re
-from logging import getLogger
 from typing import Union
 
 from rhoknp.processors.processor import Processor
 from rhoknp.units import Document, Sentence
 
-logger = getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class RegexSenter(Processor):

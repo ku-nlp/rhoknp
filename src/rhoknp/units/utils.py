@@ -1,14 +1,14 @@
+import logging
 import re
 from dataclasses import dataclass
 from enum import Enum
-from logging import getLogger
 from typing import TYPE_CHECKING, ClassVar, Optional, Union
 
 if TYPE_CHECKING:
     from rhoknp.units.clause import Clause
     from rhoknp.units.sentence import Sentence
 
-logger = getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def is_comment_line(line: str) -> bool:

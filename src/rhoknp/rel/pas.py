@@ -1,8 +1,8 @@
 import copy
+import logging
 import re
 from collections import defaultdict
 from enum import Enum, auto
-from logging import getLogger
 from typing import TYPE_CHECKING, Optional, Union
 
 from rhoknp.rel.argument import Argument, ArgumentType, BaseArgument, SpecialArgument
@@ -13,7 +13,7 @@ from rhoknp.units.utils import RelMode
 if TYPE_CHECKING:
     from rhoknp.units.base_phrase import BasePhrase
 
-logger = getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class CaseInfoFormat(Enum):

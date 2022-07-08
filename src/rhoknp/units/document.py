@@ -1,4 +1,4 @@
-from logging import getLogger
+import logging
 from typing import Any, Optional, Sequence, Union
 
 from rhoknp.rel.coreference import EntityManager
@@ -11,7 +11,7 @@ from rhoknp.units.sentence import Sentence
 from rhoknp.units.unit import Unit
 from rhoknp.units.utils import is_comment_line
 
-logger = getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class Document(Unit):
