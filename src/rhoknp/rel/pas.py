@@ -109,7 +109,7 @@ class Pas:
         include_nonidentical: bool = False,
         include_optional: bool = False,
     ) -> list[BaseArgument]:
-        """Return all the arguments that the given predicate has.
+        """述語項構造に属する項を返す．
 
         Args:
             case: 格．
@@ -128,7 +128,29 @@ class Pas:
         if include_optional is False:
             args = [arg for arg in args if arg.optional is False]
         pas = copy.copy(self)
+        pas._arguments = copy.copy(self._arguments)
         pas._arguments[case] = copy.copy(args)
+
+        # Propagate arguments for coreferring predicates
+        # C.f. 格・省略・共参照タグ付けの基準 5.3 例 (380)
+        if all(len(args) == 0 for args in pas._arguments.values()):
+            num_arguments = len(pas.arguments[case])
+            for coreferent in self.predicate.base_phrase.get_coreferents():
+                if coreferent.pas is None:
+                    continue
+                propagated_args = coreferent.pas.arguments[case]
+                if include_nonidentical is True:
+                    propagated_args += coreferent.pas.arguments[case + "≒"]
+                if include_optional is False:
+                    propagated_args = [arg for arg in propagated_args if arg.optional is False]
+                for arg in propagated_args:
+                    if isinstance(arg, Argument):
+                        pas.add_argument(case, arg.base_phrase)
+                    else:
+                        assert isinstance(arg, SpecialArgument)
+                        pas.add_special_argument(case, arg.exophora_referent, arg.eid)
+            if len(pas.arguments[case]) > num_arguments:
+                logger.warning(f"arguments propageted in {pas.sid}")
 
         sentence = self.predicate.base_phrase.sentence
         if relax is True and sentence.parent_unit is not None:
