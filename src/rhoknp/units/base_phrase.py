@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from rhoknp.units.phrase import Phrase
     from rhoknp.units.sentence import Sentence
 
-logger = getLogger(__file__)
+logger = getLogger(__name__)
 
 
 class BasePhrase(Unit):

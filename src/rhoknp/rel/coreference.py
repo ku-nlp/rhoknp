@@ -7,7 +7,7 @@ from rhoknp.rel.exophora import ExophoraReferent
 if TYPE_CHECKING:
     from rhoknp.units.base_phrase import BasePhrase
 
-logger = logging.getLogger(__file__)
+logger = logging.getLogger(__name__)
 
 
 class Entity:

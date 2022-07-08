@@ -5,7 +5,7 @@ from typing import Union
 from rhoknp.processors.processor import Processor
 from rhoknp.units import Document, Sentence
 
-logger = getLogger(__file__)
+logger = getLogger(__name__)
 
 
 class RegexSenter(Processor):

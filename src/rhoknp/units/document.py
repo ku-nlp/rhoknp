@@ -11,7 +11,7 @@ from rhoknp.units.sentence import Sentence
 from rhoknp.units.unit import Unit
 from rhoknp.units.utils import is_comment_line
 
-logger = getLogger(__file__)
+logger = getLogger(__name__)
 
 
 class Document(Unit):

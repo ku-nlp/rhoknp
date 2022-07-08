@@ -8,7 +8,7 @@ if TYPE_CHECKING:
     from rhoknp.units.clause import Clause
     from rhoknp.units.sentence import Sentence
 
-logger = getLogger(__file__)
+logger = getLogger(__name__)
 
 
 def is_comment_line(line: str) -> bool:

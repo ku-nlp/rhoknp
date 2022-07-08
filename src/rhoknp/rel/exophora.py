@@ -3,7 +3,7 @@ from enum import Enum
 from logging import getLogger
 from typing import Any, ClassVar, Optional
 
-logger = getLogger(__file__)
+logger = getLogger(__name__)
 
 
 class ExophoraReferentType(Enum):

@@ -13,7 +13,7 @@ from rhoknp.units.utils import RelMode
 if TYPE_CHECKING:
     from rhoknp.units.base_phrase import BasePhrase
 
-logger = getLogger(__file__)
+logger = getLogger(__name__)
 
 
 class CaseInfoFormat(Enum):

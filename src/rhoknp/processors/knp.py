@@ -7,7 +7,7 @@ from rhoknp.processors.processor import Processor
 from rhoknp.processors.senter import RegexSenter
 from rhoknp.units import Document, Sentence
 
-logger = getLogger(__file__)
+logger = getLogger(__name__)
 
 
 class KNP(Processor):
