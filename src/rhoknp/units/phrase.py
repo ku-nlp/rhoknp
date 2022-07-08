@@ -1,5 +1,4 @@
 import re
-import weakref
 from functools import cached_property
 from typing import TYPE_CHECKING, Optional, Union
 
@@ -121,7 +120,7 @@ class Phrase(Unit):
             base_phrases: 基本句．
         """
         for base_phrase in base_phrases:
-            base_phrase.phrase = weakref.proxy(self)
+            base_phrase.phrase = self
         self._base_phrases = base_phrases
 
     @property

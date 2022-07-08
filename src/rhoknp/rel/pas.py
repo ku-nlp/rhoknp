@@ -1,6 +1,5 @@
 import copy
 import re
-import sys
 from collections import defaultdict
 from enum import Enum, auto
 from logging import getLogger
@@ -44,7 +43,7 @@ class Pas:
         return self._predicate.sid
 
     @classmethod
-    def _from_pas_string(cls, base_phrase: "BasePhrase", fstring: str, format_: CaseInfoFormat) -> "Pas":
+    def from_pas_string(cls, base_phrase: "BasePhrase", fstring: str, format_: CaseInfoFormat) -> "Pas":
         # language=RegExp
         cfid_pat = r"(.*?):([^:/]+?)"  # 食べる/たべる:動1
         match = re.match(
@@ -53,7 +52,7 @@ class Pas:
         )
 
         if match is None:
-            print(f"invalid tag format: '{fstring}' is ignored", file=sys.stderr)
+            logger.warning(f"invalid tag format: '{fstring}' is ignored")
             return cls(Predicate(base_phrase))
 
         cfid = match.group(1) + ":" + match.group(2)
@@ -72,8 +71,15 @@ class Pas:
             if format_ == CaseInfoFormat.CASE:
                 tid, sdist, sid = int(fields[0]), int(fields[1]), fields[2]
                 assert arg_type != ArgumentType.EXOPHORA
-                assert base_phrase.document.sentences[base_phrase.sentence.index - sdist].sid == sid
-                arg_base_phrase = base_phrase.document.sentences[base_phrase.sentence.index - sdist].base_phrases[tid]
+                if sdist == 0:
+                    sentence = base_phrase.sentence
+                else:
+                    if (sentence_index := base_phrase.sentence.index - sdist) < 0:
+                        logger.warning(f"sentence index out of range: {sentence_index} in {base_phrase.sentence.sid}")
+                        continue
+                    sentence = base_phrase.document.sentences[sentence_index]
+                assert sentence.sid == sid
+                arg_base_phrase = sentence.base_phrases[tid]
                 assert surf in arg_base_phrase.text
                 pas.add_argument(case, arg_base_phrase, arg_type=arg_type)
             else:
@@ -82,26 +88,18 @@ class Pas:
                 if arg_type == ArgumentType.EXOPHORA:
                     pas.add_special_argument(case, surf, eid)
                 else:
-                    arg_base_phrase = base_phrase.document.sentences[base_phrase.sentence.index - sdist].base_phrases[
-                        tid
-                    ]
+                    if sdist == 0:
+                        sentence = base_phrase.sentence
+                    else:
+                        if (sentence_index := base_phrase.sentence.index - sdist) < 0:
+                            logger.warning(
+                                f"sentence index out of range: {sentence_index} in {base_phrase.sentence.sid}"
+                            )
+                            continue
+                        sentence = base_phrase.document.sentences[sentence_index]
+                    arg_base_phrase = sentence.base_phrases[tid]
                     assert surf in arg_base_phrase.text
                     pas.add_argument(case, arg_base_phrase)
-        return pas
-
-    @classmethod
-    def from_base_phrase(cls, base_phrase: "BasePhrase") -> "Pas":
-        if "述語項構造" in base_phrase.features:
-            pas_string = base_phrase.features["述語項構造"]
-            assert isinstance(pas_string, str)
-            pas = cls._from_pas_string(base_phrase, pas_string, format_=CaseInfoFormat.PAS)
-        elif "格解析結果" in base_phrase.features:
-            pas_string = base_phrase.features["格解析結果"]
-            assert isinstance(pas_string, str)
-            pas = cls._from_pas_string(base_phrase, pas_string, format_=CaseInfoFormat.CASE)
-        else:
-            pas = cls(Predicate(base_phrase))
-        base_phrase.pas = pas
         return pas
 
     def get_arguments(

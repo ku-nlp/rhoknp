@@ -193,3 +193,10 @@ def test_coreferents_nonidentical() -> None:
     assert (coreferents[0].text, coreferents[0].global_index) == ("ドクターを", 7)
     assert (coreferents[1].text, coreferents[1].global_index) == ("ドクターの", 16)
     assert (coreferents[2].text, coreferents[2].global_index) == ("皆様", 17)
+
+
+@pytest.mark.parametrize("doc_id", ["w201106-0000060560", "w201106-0000060560", "w201106-0000060877"])
+def test_reset_entities(doc_id: str) -> None:
+    document = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text())
+    document.entity_manager.reset()
+    assert len(document.entity_manager.entities) == 0

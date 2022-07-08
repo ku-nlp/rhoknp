@@ -2,13 +2,20 @@ import textwrap
 
 import pytest
 
-from rhoknp import Phrase, Sentence
+from rhoknp import Sentence
 
-cases = [
+CASES = [
     {
-        "text": r"天気がいいので散歩した。",
+        "raw_text": r"天気がいいので散歩した。",
+        "line_by_line_text": textwrap.dedent(
+            """\
+            # S-ID:1
+            天気がいいので散歩した。
+            """
+        ),
         "jumanpp": textwrap.dedent(
             """\
+            # S-ID:1
             天気 てんき 天気 名詞 6 普通名詞 1 * 0 * 0 "代表表記:天気/てんき カテゴリ:抽象物"
             が が が 助詞 9 格助詞 1 * 0 * 0 NIL
             いい いい いい 形容詞 3 * 0 イ形容詞イ段 19 基本形 2 "代表表記:良い/よい 反義:形容詞:悪い/わるい"
@@ -21,13 +28,13 @@ cases = [
         ),
         "knp": textwrap.dedent(
             """\
-            # S-ID:1 KNP:5.0-2ad4f6df DATE:2021/08/05 SCORE:-10.73865
+            # S-ID:1
             * 1D <BGH:天気/てんき><文頭><ガ><助詞><体言><係:ガ格><区切:0-0><格要素><連用要素><正規化代表表記:天気/てんき><主辞代表表記:天気/てんき>
             + 1D <BGH:天気/てんき><文頭><ガ><助詞><体言><係:ガ格><区切:0-0><格要素><連用要素><名詞項候補><先行詞候補><正規化代表表記:天気/てんき><主辞代表表記:天気/てんき><解析格:ガ>
             天気 てんき 天気 名詞 6 普通名詞 1 * 0 * 0 "代表表記:天気/てんき カテゴリ:抽象物" <代表表記:天気/てんき><カテゴリ:抽象物><正規化代表表記:天気/てんき><漢字><かな漢字><名詞相当語><文頭><自立><内容語><タグ単位始><文節始><文節主辞>
             が が が 助詞 9 格助詞 1 * 0 * 0 NIL <かな漢字><ひらがな><付属>
             * 2D <BGH:良い/よい><用言:形><係:連用><レベル:B+><区切:3-5><ID:〜ので><提題受:20><連用要素><連用節><状態述語><正規化代表表記:良い/よい><主辞代表表記:良い/よい>
-            + 2D <BGH:良い/よい><用言:形><係:連用><レベル:B+><区切:3-5><ID:〜ので><提題受:20><連用要素><連用節><状態述語><節-機能-原因・理由:ので><正規化代表表記:良い/よい><主辞代表表記:良い/よい><用言代表表記:良い/よい><節-区切><節-主辞><時制:非過去><格関係0:ガ:天気><格解析結果:良い/よい:形5:ガ/C/天気/0/0/2;カラ/U/-/-/-/-;時間/U/-/-/-/-><標準用言代表表記:良い/よい>
+            + 2D <BGH:良い/よい><用言:形><係:連用><レベル:B+><区切:3-5><ID:〜ので><提題受:20><連用要素><連用節><状態述語><節-機能-原因・理由:ので><正規化代表表記:良い/よい><主辞代表表記:良い/よい><用言代表表記:良い/よい><節-区切><節-主辞><時制:非過去><格関係0:ガ:天気><格解析結果:良い/よい:形5:ガ/C/天気/0/0/1;カラ/U/-/-/-/-;時間/U/-/-/-/-><標準用言代表表記:良い/よい>
             いい いい いい 形容詞 3 * 0 イ形容詞イ段 19 基本形 2 "代表表記:良い/よい 反義:形容詞:悪い/わるい" <代表表記:良い/よい><反義:形容詞:悪い/わるい><正規化代表表記:良い/よい><かな漢字><ひらがな><活用語><自立><内容語><タグ単位始><文節始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
             ので ので のだ 助動詞 5 * 0 ナ形容詞 21 ダ列タ系連用テ形 12 NIL <かな漢字><ひらがな><活用語><付属>
             * -1D <BGH:散歩/さんぽ+する/する><文末><サ変><サ変動詞><時制:過去><句点><用言:動><レベル:C><区切:5-5><ID:（文末）><係:文末><提題受:30><主節><格要素><連用要素><動態述語><正規化代表表記:散歩/さんぽ><主辞代表表記:散歩/さんぽ>
@@ -38,11 +45,38 @@ cases = [
             EOS
             """
         ),
+        "knp_with_no_clause_tag": textwrap.dedent(
+            """\
+            # S-ID:1
+            * 1D
+            + 1D
+            天気 てんき 天気 名詞 6 普通名詞 1 * 0 * 0 "代表表記:天気/てんき カテゴリ:抽象物"
+            が が が 助詞 9 格助詞 1 * 0 * 0 NIL
+            * 2D
+            + 2D
+            いい いい いい 形容詞 3 * 0 イ形容詞イ段 19 基本形 2 "代表表記:良い/よい 反義:形容詞:悪い/わるい"
+            ので ので のだ 助動詞 5 * 0 ナ形容詞 21 ダ列タ系連用テ形 12 NIL
+            * -1D
+            + -1D
+            散歩 さんぽ 散歩 名詞 6 サ変名詞 2 * 0 * 0 "代表表記:散歩/さんぽ ドメイン:レクリエーション カテゴリ:抽象物"
+            した した する 動詞 2 * 0 サ変動詞 16 タ形 10 "代表表記:する/する 自他動詞:自:成る/なる 付属動詞候補（基本）"
+            。 。 。 特殊 1 句点 1 * 0 * 0 NIL
+            EOS
+            """
+        ),
+        "sid": "1",
     },
     {
-        "text": r"EOSは特殊記号です。",
+        "raw_text": r"EOSは特殊記号です。",
+        "line_by_line_text": textwrap.dedent(
+            """\
+            # S-ID:1
+            EOSは特殊記号です。
+            """
+        ),
         "jumanpp": textwrap.dedent(
             """\
+            # S-ID:1
             EOS EOS EOS 未定義語 15 アルファベット 3 * 0 * 0 "未知語:ローマ字 品詞推定:名詞"
             は は は 助詞 9 副助詞 2 * 0 * 0 NIL
             特殊 とくしゅ 特殊だ 形容詞 3 * 0 ナノ形容詞 22 語幹 1 "代表表記:特殊だ/とくしゅだ 反義:名詞-普通名詞:一般/いっぱん;名詞-普通名詞:普遍/ふへん"
@@ -54,7 +88,7 @@ cases = [
         ),
         "knp": textwrap.dedent(
             """\
-            # S-ID:1 KNP:5.0-2ad4f6df DATE:2021/09/21 SCORE:-17.80638
+            # S-ID:1
             * 1D <文頭><組織名疑><ハ><助詞><体言><係:未格><提題><区切:3-5><主題表現><格要素><連用要素><正規化代表表記:EOS/EOS><主辞代表表記:EOS/EOS>
             + 2D <文頭><組織名疑><ハ><助詞><体言><係:未格><提題><区切:3-5><主題表現><格要素><連用要素><名詞項候補><先行詞候補><正規化代表表記:EOS/EOS><主辞代表表記:EOS/EOS><解析格:ガ>
             EOS EOS EOS 名詞 6 組織名 6 * 0 * 0 "未知語:ローマ字 品詞推定:名詞 疑似代表表記 代表表記:EOS/EOS 品詞変更:EOS-EOS-EOS-15-3-0-0" <未知語><品詞推定:名詞><疑似代表表記><代表表記:EOS/EOS><正規化代表表記:EOS/EOS><品詞変更:EOS-EOS-EOS-15-3-0-0-"未知語:ローマ字 品詞推定:名詞 疑似代表表記 代表表記:EOS/EOS"><品曖><品曖-アルファベット><品曖-組織名><記英数カ><英記号><記号><名詞相当語><文頭><自立><内容語><タグ単位始><文節始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
@@ -69,29 +103,71 @@ cases = [
             EOS
             """
         ),
+        "knp_with_no_clause_tag": textwrap.dedent(
+            """\
+            # S-ID:1
+            * 1D
+            + 2D
+            EOS EOS EOS 名詞 6 組織名 6 * 0 * 0 "未知語:ローマ字 品詞推定:名詞 疑似代表表記 代表表記:EOS/EOS 品詞変更:EOS-EOS-EOS-15-3-0-0"
+            は は は 助詞 9 副助詞 2 * 0 * 0 NIL
+            * -1D
+            + 2D
+            特殊 とくしゅ 特殊だ 形容詞 3 * 0 ナノ形容詞 22 語幹 1 "代表表記:特殊/とくしゅa 代表表記変更:特殊だ/とくしゅだ 反義:名詞-普通名詞:一般/いっぱん;名詞-普通名詞:普遍/ふへん"
+            + -1D
+            記号 きごう 記号 名詞 6 普通名詞 1 * 0 * 0 "代表表記:記号/きごう カテゴリ:抽象物"
+            です です だ 判定詞 4 * 0 判定詞 25 デス列基本形 27 NIL
+            。 。 。 特殊 1 句点 1 * 0 * 0 NIL
+            EOS
+            """
+        ),
+        "sid": "1",
     },
     {
-        "text": r"。",
+        "raw_text": r"。",
+        "line_by_line_text": textwrap.dedent(
+            """\
+            # S-ID:1
+            。
+            """
+        ),
         "jumanpp": textwrap.dedent(
             """\
+            # S-ID:1
             。 。 。 特殊 1 句点 1 * 0 * 0 NIL
             EOS
             """
         ),
         "knp": textwrap.dedent(
             """\
-            # S-ID:1 KNP:5.0-825c01b7 DATE:2021/10/24 SCORE:0.00000
+            # S-ID:1
             * -1D <文頭><文末><句点><受けNONE><用言:判><体言止><レベル:C><区切:5-5><ID:（文末）><係:文末><提題受:30><主節><格要素><連用要素><状態述語>
             + -1D <文頭><文末><句点><受けNONE><用言:判><体言止><レベル:C><区切:5-5><ID:（文末）><係:文末><提題受:30><主節><格要素><連用要素><状態述語><判定詞句><用言代表表記:。/。><節-区切><節-主辞><時制:非過去>
             。 。 。 特殊 1 句点 1 * 0 * 0 NIL <英記号><記号><文頭><文末><付属><タグ単位始><文節始><用言表記先頭><用言表記末尾><用言意味表記末尾>
             EOS
             """
         ),
+        "knp_with_no_clause_tag": textwrap.dedent(
+            """\
+            # S-ID:1
+            * -1D
+            + -1D
+            。 。 。 特殊 1 句点 1 * 0 * 0 NIL
+            EOS
+            """
+        ),
+        "sid": "1",
     },
     {
-        "text": r"顔面を打ちつけ負傷した。",
+        "raw_text": r"顔面を打ちつけ負傷した。",
+        "line_by_line_text": textwrap.dedent(
+            """\
+            # S-ID:1
+            顔面を打ちつけ負傷した。
+            """
+        ),
         "jumanpp": textwrap.dedent(
             """\
+            # S-ID:1
             顔面 がんめん 顔面 名詞 6 普通名詞 1 * 0 * 0 "代表表記:顔面/がんめん カテゴリ:場所-その他"
             を を を 助詞 9 格助詞 1 * 0 * 0 NIL
             打ち うち 打つ 動詞 2 * 0 子音動詞タ行 6 基本連用形 8 "代表表記:打つ/うつ ドメイン:スポーツ"
@@ -113,7 +189,7 @@ cases = [
         ),
         "knp": textwrap.dedent(
             """\
-            # S-ID:1 KNP:5.0-825c01b7 DATE:2021/10/24 SCORE:-14.81311
+            # S-ID:1
             * 1D <BGH:顔面/がんめん><文頭><ヲ><助詞><体言><係:ヲ格><区切:0-0><格要素><連用要素><正規化代表表記:顔面/がんめん><主辞代表表記:顔面/がんめん>
             + 1D <BGH:顔面/がんめん><文頭><ヲ><助詞><体言><係:ヲ格><区切:0-0><格要素><連用要素><名詞項候補><先行詞候補><正規化代表表記:顔面/がんめん><主辞代表表記:顔面/がんめん><解析格:ヲ>
             顔面 がんめん 顔面 名詞 6 普通名詞 1 * 0 * 0 "代表表記:顔面/がんめん カテゴリ:場所-その他" <代表表記:顔面/がんめん><カテゴリ:場所-その他><正規化代表表記:顔面/がんめん><漢字><かな漢字><名詞相当語><文頭><自立><内容語><タグ単位始><文節始><文節主辞>
@@ -130,181 +206,44 @@ cases = [
             EOS
             """
         ),
+        "knp_with_no_clause_tag": textwrap.dedent(
+            """\
+            # S-ID:1
+            * 1D
+            + 1D
+            顔面 がんめん 顔面 名詞 6 普通名詞 1 * 0 * 0 "代表表記:顔面/がんめん カテゴリ:場所-その他"
+            を を を 助詞 9 格助詞 1 * 0 * 0 NIL
+            * 2P
+            + 2P
+            打ち うち 打つ 動詞 2 * 0 子音動詞タ行 6 基本連用形 8 "代表表記:打つ/うつ ドメイン:スポーツ"
+            つけ つけ つける 動詞 2 * 0 母音動詞 1 基本連用形 8 "代表表記:付ける/つける 可能動詞:付く/つく 補文ト 付属動詞候補（基本）"
+            * -1D
+            + -1D
+            負傷 ふしょう 負傷 名詞 6 サ変名詞 2 * 0 * 0 "代表表記:負傷/ふしょう ドメイン:健康・医学 カテゴリ:抽象物"
+            した した する 動詞 2 * 0 サ変動詞 16 タ形 10 "代表表記:する/する 自他動詞:自:成る/なる 付属動詞候補（基本）"
+            。 。 。 特殊 1 句点 1 * 0 * 0 NIL <英記号><記号><文末><付属>
+            EOS
+            """
+        ),
+        "sid": "1",
     },
 ]
 
 
-@pytest.mark.parametrize("text", [case["text"] for case in cases])
-def test_sentence_from_raw_text_0(text: str) -> None:
-    sentence = Sentence.from_raw_text(text)
-    assert sentence.text == text
+@pytest.mark.parametrize("case", CASES)
+def test_init(case: dict[str, str]) -> None:
+    _ = Sentence(case["raw_text"])
 
 
-@pytest.mark.parametrize("text", [case["text"] for case in cases])
-def test_sentence_from_raw_text(text: str) -> None:
-    sentence = Sentence(text)
-    assert sentence.text == text
+@pytest.mark.parametrize("case", CASES)
+def test_from_raw_text(case: dict[str, str]) -> None:
+    _ = Sentence.from_raw_text(case["raw_text"])
+    _ = Sentence.from_raw_text(case["line_by_line_text"])
 
 
-@pytest.mark.parametrize("jumanpp, text", [(case["jumanpp"], case["text"]) for case in cases])
-def test_sentence_from_jumanpp(jumanpp: str, text: str) -> None:
-    sentence = Sentence.from_jumanpp(jumanpp)
-    assert str(sentence) == text
-
-
-def test_sentence_clauses() -> None:
-    knp = cases[0]["knp"]
-    sent = Sentence.from_knp(knp)
-    assert len(sent.clauses) == 2
-
-
-def test_sentence_clauses_error() -> None:
-    text = cases[0]["text"]
-    doc = Sentence.from_raw_text(text)
-    with pytest.raises(AttributeError):
-        _ = doc.clauses
-
-
-def test_sentence_phrases() -> None:
-    knp = cases[0]["knp"]
-    sent = Sentence.from_knp(knp)
-    assert len(sent.phrases) == 3
-
-
-def test_sentence_phrases_error() -> None:
-    text = cases[0]["text"]
-    sent = Sentence.from_raw_text(text)
-    with pytest.raises(AttributeError):
-        _ = sent.phrases
-
-
-def test_sentence_base_phrases() -> None:
-    knp = cases[0]["knp"]
-    sent = Sentence.from_knp(knp)
-    assert len(sent.base_phrases) == 3
-
-
-def test_sentence_base_phrases_error() -> None:
-    text = cases[0]["text"]
-    sent = Sentence.from_raw_text(text)
-    with pytest.raises(AttributeError):
-        _ = sent.base_phrases
-
-
-def test_sentence_morphemes() -> None:
-    knp = cases[0]["knp"]
-    sent = Sentence.from_knp(knp)
-    assert len(sent.morphemes) == 7
-
-
-def test_sentence_morphemes_error() -> None:
-    text = cases[0]["text"]
-    sent = Sentence.from_raw_text(text)
-    with pytest.raises(AttributeError):
-        _ = sent.morphemes
-
-
-@pytest.mark.parametrize("jumanpp", [case["jumanpp"] for case in cases])
-def test_sentence_to_jumanpp(jumanpp: str) -> None:
-    sentence = Sentence.from_jumanpp(jumanpp)
-    assert sentence.to_jumanpp() == jumanpp
-
-
-@pytest.mark.parametrize("knp, text", [(case["knp"], case["text"]) for case in cases])
-def test_sentence_from_knp(knp: str, text: str) -> None:
-    sentence = Sentence.from_knp(knp)
-    assert str(sentence) == text
-
-
-# TODO: support <ALT> tag
-@pytest.mark.parametrize("knp", [case["knp"] for case in cases[:3]])
-def test_sentence_to_knp(knp: str) -> None:
-    sentence = Sentence.from_knp(knp)
-    assert sentence.to_knp() == knp
-
-
-def test_sentence_need_jumanpp() -> None:
-    text = cases[0]["text"]
-    sent = Sentence.from_raw_text(text)
-    assert sent.need_jumanpp is True
-    jumanpp = cases[0]["jumanpp"]
-    sent = Sentence.from_jumanpp(jumanpp)
-    assert sent.need_jumanpp is False
-
-
-def test_sentence_need_knp() -> None:
-    jumanpp = cases[0]["jumanpp"]
-    sent = Sentence.from_jumanpp(jumanpp)
-    assert sent.need_knp is True
-    knp = cases[0]["knp"]
-    sent = Sentence.from_knp(knp)
-    assert sent.need_knp is False
-
-
-@pytest.mark.parametrize("knp", [case["knp"] for case in cases])
-def test_sentence_sid(knp: str) -> None:
-    sentence = Sentence.from_knp(knp)
-    assert sentence.sid == "1"
-
-
-def test_child_units_kwdlc():
-    sent = Sentence.from_knp(
-        textwrap.dedent(
-            """\
-            # S-ID:w201106-0000060050-1 JUMAN:6.1-20101108 KNP:3.1-20101107 DATE:2011/06/21 SCORE:-44.94406 MOD:2017/10/15 MEMO:
-            * 2D
-            + 1D
-            コイン こいん コイン 名詞 6 普通名詞 1 * 0 * 0
-            + 3D <rel type="ガ" target="不特定:人"/><rel type="ヲ" target="コイン" sid="w201106-0000060050-1" id="0"/>
-            トス とす トス 名詞 6 サ変名詞 2 * 0 * 0
-            を を を 助詞 9 格助詞 1 * 0 * 0
-            * 2D
-            + 3D
-            ３ さん ３ 名詞 6 数詞 7 * 0 * 0
-            回 かい 回 接尾辞 14 名詞性名詞助数辞 3 * 0 * 0
-            * -1D
-            + -1D <rel type="ガ" target="不特定:人"/><rel type="ガ" mode="？" target="読者"/><rel type="ガ" mode="？" target="著者"/><rel type="ヲ" target="トス" sid="w201106-0000060050-1" id="1"/>
-            行う おこなう 行う 動詞 2 * 0 子音動詞ワ行 12 基本形 2
-            。 。 。 特殊 1 句点 1 * 0 * 0
-            EOS
-            """
-        )
-    )
-    for child_unit in sent.child_units:
-        assert isinstance(child_unit, Phrase)
-
-
-def test_id_kwdlc():
-    sent = Sentence.from_knp(
-        textwrap.dedent(
-            """\
-            # S-ID:w201106-0000060050-1 JUMAN:6.1-20101108 KNP:3.1-20101107 DATE:2011/06/21 SCORE:-44.94406 MOD:2017/10/15 MEMO:
-            * 2D
-            + 1D
-            コイン こいん コイン 名詞 6 普通名詞 1 * 0 * 0
-            + 3D <rel type="ガ" target="不特定:人"/><rel type="ヲ" target="コイン" sid="w201106-0000060050-1" id="0"/>
-            トス とす トス 名詞 6 サ変名詞 2 * 0 * 0
-            を を を 助詞 9 格助詞 1 * 0 * 0
-            * 2D
-            + 3D
-            ３ さん ３ 名詞 6 数詞 7 * 0 * 0
-            回 かい 回 接尾辞 14 名詞性名詞助数辞 3 * 0 * 0
-            * -1D
-            + -1D <rel type="ガ" target="不特定:人"/><rel type="ガ" mode="？" target="読者"/><rel type="ガ" mode="？" target="著者"/><rel type="ヲ" target="トス" sid="w201106-0000060050-1" id="1"/>
-            行う おこなう 行う 動詞 2 * 0 子音動詞ワ行 12 基本形 2
-            。 。 。 特殊 1 句点 1 * 0 * 0
-            EOS
-            """
-        )
-    )
-    assert sent.sid == "w201106-0000060050-1"
-    assert sent.doc_id == "w201106-0000060050"
-
-
-def test_document():
-    sent = Sentence("コイントスを３回行う。")
-    with pytest.raises(AttributeError):
-        _ = sent.document
+@pytest.mark.parametrize("case", CASES)
+def test_from_jumanpp(case: dict[str, str]) -> None:
+    _ = Sentence.from_jumanpp(case["jumanpp"])
 
 
 def test_from_jumanpp_empty_line():
@@ -313,7 +252,7 @@ def test_from_jumanpp_empty_line():
             """\
 
 
-            # S-ID:w201106-0000060050-1 JUMAN:6.1-20101108 KNP:3.1-20101107 DATE:2011/06/21 SCORE:-44.94406 MOD:2017/10/15 MEMO:
+            # S-ID:w201106-0000060050-1
             コイン こいん コイン 名詞 6 普通名詞 1 * 0 * 0
             トス とす トス 名詞 6 サ変名詞 2 * 0 * 0
             を を を 助詞 9 格助詞 1 * 0 * 0
@@ -327,13 +266,23 @@ def test_from_jumanpp_empty_line():
     )
 
 
+@pytest.mark.parametrize("case", CASES)
+def test_from_knp_with_no_clause_tag(case: dict[str, str]) -> None:
+    _ = Sentence.from_knp(case["knp_with_no_clause_tag"])
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_from_knp(case: dict[str, str]) -> None:
+    _ = Sentence.from_knp(case["knp"])
+
+
 def test_from_knp_empty_line():
     _ = Sentence.from_knp(
         textwrap.dedent(
             """\
 
 
-            # S-ID:w201106-0000060050-1 JUMAN:6.1-20101108 KNP:3.1-20101107 DATE:2011/06/21 SCORE:-44.94406 MOD:2017/10/15 MEMO:
+            # S-ID:w201106-0000060050-1
             * 2D
             + 1D
             コイン こいん コイン 名詞 6 普通名詞 1 * 0 * 0
@@ -364,3 +313,242 @@ def test_from_knp_invalid_input():
                 """
             )
         )
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_need_jumanpp(case: dict[str, str]) -> None:
+    sent = Sentence.from_raw_text(case["raw_text"])
+    assert sent.need_jumanpp is True
+    sent = Sentence.from_raw_text(case["line_by_line_text"])
+    assert sent.need_jumanpp is True
+    sent = Sentence.from_jumanpp(case["jumanpp"])
+    assert sent.need_jumanpp is False
+    sent = Sentence.from_knp(case["knp_with_no_clause_tag"])
+    assert sent.need_jumanpp is False
+    sent = Sentence.from_knp(case["knp"])
+    assert sent.need_jumanpp is False
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_need_knp(case: dict[str, str]) -> None:
+    sent = Sentence.from_raw_text(case["raw_text"])
+    assert sent.need_knp is True
+    sent = Sentence.from_raw_text(case["line_by_line_text"])
+    assert sent.need_knp is True
+    sent = Sentence.from_jumanpp(case["jumanpp"])
+    assert sent.need_knp is True
+    sent = Sentence.from_knp(case["knp_with_no_clause_tag"])
+    assert sent.need_knp is False
+    sent = Sentence.from_knp(case["knp"])
+    assert sent.need_knp is False
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_need_clause_tag(case: dict[str, str]) -> None:
+    sent = Sentence.from_raw_text(case["raw_text"])
+    assert sent.need_clause_tag is True
+    sent = Sentence.from_raw_text(case["line_by_line_text"])
+    assert sent.need_clause_tag is True
+    sent = Sentence.from_jumanpp(case["jumanpp"])
+    assert sent.need_clause_tag is True
+    sent = Sentence.from_knp(case["knp_with_no_clause_tag"])
+    assert sent.need_clause_tag is True
+    sent = Sentence.from_knp(case["knp"])
+    assert sent.need_clause_tag is False
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_text(case: dict[str, str]) -> None:
+    sent = Sentence.from_raw_text(case["raw_text"])
+    assert sent.text == case["raw_text"]
+    sent = Sentence.from_raw_text(case["line_by_line_text"])
+    assert sent.text == case["raw_text"]
+    sent = Sentence.from_jumanpp(case["jumanpp"])
+    assert sent.text == case["raw_text"]
+    sent = Sentence.from_knp(case["knp_with_no_clause_tag"])
+    assert sent.text == case["raw_text"]
+    sent = Sentence.from_knp(case["knp"])
+    assert sent.text == case["raw_text"]
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_to_plain(case: dict[str, str]) -> None:
+    sent = Sentence.from_raw_text(case["raw_text"])
+    assert sent.to_plain() == case["raw_text"] + "\n"
+    sent = Sentence.from_raw_text(case["line_by_line_text"])
+    assert sent.to_plain() == case["line_by_line_text"]
+    sent = Sentence.from_jumanpp(case["jumanpp"])
+    assert sent.to_plain() == case["line_by_line_text"]
+    sent = Sentence.from_knp(case["knp_with_no_clause_tag"])
+    assert sent.to_plain() == case["line_by_line_text"]
+    sent = Sentence.from_knp(case["knp"])
+    assert sent.to_plain() == case["line_by_line_text"]
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_to_jumanpp(case: dict[str, str]) -> None:
+    sent = Sentence.from_raw_text(case["raw_text"])
+    with pytest.raises(AttributeError):
+        assert sent.to_jumanpp() == case["jumanpp"]
+    sent = Sentence.from_raw_text(case["line_by_line_text"])
+    with pytest.raises(AttributeError):
+        assert sent.to_jumanpp() == case["jumanpp"]
+    sent = Sentence.from_jumanpp(case["jumanpp"])
+    assert sent.to_jumanpp() == case["jumanpp"]
+    # NOTE: may not match because KNP sometimes rewrites morpheme information
+    # sent = Sentence.from_knp(case["knp_with_no_clause_tag"])
+    # assert sent.to_jumanpp() == case["jumanpp"]
+    # NOTE: does not match because KNP appends features to morphemes
+    # sent = Sentence.from_knp(case["knp"])
+    # assert sent.to_jumanpp() == case["jumanpp"]
+
+
+@pytest.mark.parametrize("case", CASES[:3])  # TODO: support <ALT> tag
+def test_to_knp(case: dict[str, str]) -> None:
+    sent = Sentence.from_raw_text(case["raw_text"])
+    with pytest.raises(AttributeError):
+        assert sent.to_knp() == case["knp"]
+    sent = Sentence.from_raw_text(case["line_by_line_text"])
+    with pytest.raises(AttributeError):
+        assert sent.to_knp() == case["knp"]
+    sent = Sentence.from_jumanpp(case["jumanpp"])
+    with pytest.raises(AttributeError):
+        assert sent.to_knp() == case["knp"]
+    sent = Sentence.from_knp(case["knp_with_no_clause_tag"])
+    assert sent.to_knp() == case["knp_with_no_clause_tag"]
+    sent = Sentence.from_knp(case["knp"])
+    assert sent.to_knp() == case["knp"]
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_document(case: dict[str, str]) -> None:
+    sent = Sentence.from_raw_text(case["raw_text"])
+    with pytest.raises(AttributeError):
+        _ = sent.document
+    sent = Sentence.from_raw_text(case["line_by_line_text"])
+    with pytest.raises(AttributeError):
+        _ = sent.document
+    sent = Sentence.from_jumanpp(case["jumanpp"])
+    with pytest.raises(AttributeError):
+        _ = sent.document
+    sent = Sentence.from_knp(case["knp_with_no_clause_tag"])
+    with pytest.raises(AttributeError):
+        _ = sent.document
+    sent = Sentence.from_knp(case["knp"])
+    with pytest.raises(AttributeError):
+        _ = sent.document
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_clauses(case: dict[str, str]) -> None:
+    sent = Sentence.from_raw_text(case["raw_text"])
+    with pytest.raises(AttributeError):
+        _ = sent.clauses
+    sent = Sentence.from_raw_text(case["line_by_line_text"])
+    with pytest.raises(AttributeError):
+        _ = sent.clauses
+    sent = Sentence.from_jumanpp(case["jumanpp"])
+    with pytest.raises(AttributeError):
+        _ = sent.clauses
+    sent = Sentence.from_knp(case["knp_with_no_clause_tag"])
+    with pytest.raises(AttributeError):
+        _ = sent.clauses
+    sent = Sentence.from_knp(case["knp"])
+    _ = sent.clauses
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_phrases(case: dict[str, str]) -> None:
+    sent = Sentence.from_raw_text(case["raw_text"])
+    with pytest.raises(AttributeError):
+        _ = sent.phrases
+    sent = Sentence.from_raw_text(case["line_by_line_text"])
+    with pytest.raises(AttributeError):
+        _ = sent.phrases
+    sent = Sentence.from_jumanpp(case["jumanpp"])
+    with pytest.raises(AttributeError):
+        _ = sent.phrases
+    sent = Sentence.from_knp(case["knp_with_no_clause_tag"])
+    _ = sent.phrases
+    sent = Sentence.from_knp(case["knp"])
+    _ = sent.phrases
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_base_phrases(case: dict[str, str]) -> None:
+    sent = Sentence.from_raw_text(case["raw_text"])
+    with pytest.raises(AttributeError):
+        _ = sent.base_phrases
+    sent = Sentence.from_raw_text(case["line_by_line_text"])
+    with pytest.raises(AttributeError):
+        _ = sent.base_phrases
+    sent = Sentence.from_jumanpp(case["jumanpp"])
+    with pytest.raises(AttributeError):
+        _ = sent.base_phrases
+    sent = Sentence.from_knp(case["knp_with_no_clause_tag"])
+    _ = sent.base_phrases
+    sent = Sentence.from_knp(case["knp"])
+    _ = sent.base_phrases
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_morphemes(case: dict[str, str]) -> None:
+    sent = Sentence.from_raw_text(case["raw_text"])
+    with pytest.raises(AttributeError):
+        _ = sent.morphemes
+    sent = Sentence.from_raw_text(case["line_by_line_text"])
+    with pytest.raises(AttributeError):
+        _ = sent.morphemes
+    sent = Sentence.from_jumanpp(case["jumanpp"])
+    _ = sent.morphemes
+    sent = Sentence.from_knp(case["knp_with_no_clause_tag"])
+    _ = sent.morphemes
+    sent = Sentence.from_knp(case["knp"])
+    _ = sent.morphemes
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_sid(case: dict[str, str]) -> None:
+    sent = Sentence.from_knp(case["knp"])
+    assert sent.sid == case["sid"]
+
+
+def test_id_kwdlc():
+    sent = Sentence.from_knp(
+        textwrap.dedent(
+            """\
+            # S-ID:w201106-0000060050-1 JUMAN:6.1-20101108 KNP:3.1-20101107 DATE:2011/06/21 SCORE:-44.94406 MOD:2017/10/15 MEMO:
+            * 2D
+            + 1D
+            コイン こいん コイン 名詞 6 普通名詞 1 * 0 * 0
+            + 3D <rel type="ガ" target="不特定:人"/><rel type="ヲ" target="コイン" sid="w201106-0000060050-1" id="0"/>
+            トス とす トス 名詞 6 サ変名詞 2 * 0 * 0
+            を を を 助詞 9 格助詞 1 * 0 * 0
+            * 2D
+            + 3D
+            ３ さん ３ 名詞 6 数詞 7 * 0 * 0
+            回 かい 回 接尾辞 14 名詞性名詞助数辞 3 * 0 * 0
+            * -1D
+            + -1D <rel type="ガ" target="不特定:人"/><rel type="ガ" mode="？" target="読者"/><rel type="ガ" mode="？" target="著者"/><rel type="ヲ" target="トス" sid="w201106-0000060050-1" id="1"/>
+            行う おこなう 行う 動詞 2 * 0 子音動詞ワ行 12 基本形 2
+            。 。 。 特殊 1 句点 1 * 0 * 0
+            EOS
+            """
+        )
+    )
+    assert sent.sid == "w201106-0000060050-1"
+    assert sent.doc_id == "w201106-0000060050"
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_eq_knp(case: dict[str, str]) -> None:
+    sent1 = Sentence.from_knp(case["knp"])
+    sent2 = Sentence.from_knp(case["knp"])
+    assert sent1 == sent2
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_eq_raw_text(case: dict[str, str]) -> None:
+    sent1 = Sentence.from_raw_text(case["raw_text"])
+    sent2 = Sentence.from_raw_text(case["raw_text"])
+    assert sent1 == sent2

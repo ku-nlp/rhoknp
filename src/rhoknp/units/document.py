@@ -1,6 +1,5 @@
-import weakref
 from logging import getLogger
-from typing import Optional, Sequence, Union
+from typing import Any, Optional, Sequence, Union
 
 from rhoknp.rel.coreference import EntityManager
 from rhoknp.rel.pas import Pas
@@ -81,7 +80,7 @@ class Document(Unit):
             sentences: 文のリスト．
         """
         for sentence in sentences:
-            sentence.document = weakref.proxy(self)
+            sentence.document = self
         self._sentences = sentences
 
     @property
@@ -138,11 +137,7 @@ class Document(Unit):
     @property
     def need_clause_tag(self) -> bool:
         """KNP による節-主辞・節-区切のタグ付与がまだなら True．"""
-        try:
-            _ = self.clauses
-            return False
-        except AttributeError:
-            return True
+        return self.need_senter or any(sentence.need_clause_tag for sentence in self.sentences)
 
     def pas_list(self) -> list[Pas]:
         """述語項構造のリストを返却．"""
@@ -191,6 +186,8 @@ class Document(Unit):
         sentences = []
         sentence_lines: list[str] = []
         for line in text.split("\n"):
+            if line.strip() == "":
+                continue
             sentence_lines.append(line)
             if is_comment_line(line):
                 continue
@@ -218,8 +215,14 @@ class Document(Unit):
         sentences_ = []
         for sentence in sentences:
             if isinstance(sentence, Sentence):
-                sentence = sentence.text
-            sentences_.append(Sentence.from_raw_text(sentence))
+                if sentence.need_jumanpp:
+                    sentences_.append(Sentence.from_raw_text(sentence.text))
+                elif sentence.need_knp:
+                    sentences_.append(Sentence.from_jumanpp(sentence.to_jumanpp()))
+                else:
+                    sentences_.append(Sentence.from_knp(sentence.to_knp()))
+            else:
+                sentences_.append(Sentence.from_raw_text(sentence))
         document.sentences = sentences_
         if sentences_:
             document.doc_id = sentences_[0].doc_id
@@ -368,7 +371,19 @@ class Document(Unit):
         for base_phrase in self.base_phrases:
             base_phrase.parse_rel()
 
+    def reparse_rel(self) -> None:
+        """base_phrases の持つ rel に基づき PAS と共参照関係を再構築．"""
+        for base_phrase in self.base_phrases:
+            base_phrase.reset_rels()
+        self.entity_manager.reset()
+        self._parse_rel()
+
     def _parse_discourse_relation(self) -> None:
         """<談話関係> タグをパース．"""
         for clause in self.clauses:
             clause.parse_discourse_relation()
+
+    def __eq__(self, other: Any) -> bool:
+        if isinstance(other, Document) is False:
+            return False
+        return self.doc_id == other.doc_id and self.text == other.text

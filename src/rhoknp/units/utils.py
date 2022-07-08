@@ -68,11 +68,12 @@ class Features(dict[str, Union[str, bool]]):
     """
 
     PAT = re.compile(r"(?P<feats>(<[^>]+>)*)")
-    TAG_PAT = re.compile(r"<(?P<key>[^:]+?)(:(?P<value>.+?))?>")
+    IGNORE_TAG_PREFIXES = {"rel "}
+    FEATURE_PAT = re.compile(rf"<(?!({'|'.join(IGNORE_TAG_PREFIXES)}))(?P<key>[^:]+?)(:(?P<value>.+?))?>")
 
     def __init__(self, fstring: str):
         super().__init__()
-        for match in self.TAG_PAT.finditer(fstring):
+        for match in self.FEATURE_PAT.finditer(fstring):
             self[match.group("key")] = match.group("value") or True
 
     @classmethod
@@ -125,6 +126,42 @@ class Rel:
     sid: Optional[str]
     base_phrase_index: Optional[int]
     mode: Optional[RelMode]
+
+    def to_fstring(self) -> str:
+        ret = f'<rel type="{self.type}"'
+        if self.mode is not None:
+            ret += f' mode="{self.mode.value}"'
+        ret += f' target="{self.target}"'
+        if self.sid is not None:
+            assert self.base_phrase_index is not None
+            ret += f' sid="{self.sid}" id="{self.base_phrase_index}"'
+        ret += "/>"
+        return ret
+
+
+class Rels(list[Rel]):
+    def __init__(self, fstring: str):
+        super().__init__()
+        for match in Rel.PAT.finditer(fstring):
+            self.append(
+                Rel(
+                    type=match["type"],
+                    target=match["target"],
+                    sid=match["sid"],
+                    base_phrase_index=int(match["id"]) if match["id"] else None,
+                    mode=RelMode(match["mode"]) if match["mode"] else None,
+                )
+            )
+
+    @classmethod
+    def from_fstring(cls, fstring: str) -> "Rels":
+        return cls(fstring)
+
+    def to_fstring(self) -> str:
+        return "".join(rel.to_fstring() for rel in self)
+
+    def __str__(self) -> str:
+        return self.to_fstring()
 
 
 @dataclass

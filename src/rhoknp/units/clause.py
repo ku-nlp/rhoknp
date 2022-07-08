@@ -1,4 +1,3 @@
-import weakref
 from functools import cached_property
 from typing import TYPE_CHECKING, Optional
 
@@ -94,7 +93,7 @@ class Clause(Unit):
             phrases: 文節のリスト．
         """
         for phrase in phrases:
-            phrase.clause = weakref.proxy(self)
+            phrase.clause = self
         self._phrases = phrases
 
     @property
@@ -123,13 +122,10 @@ class Clause(Unit):
                 return base_phrase
         raise AssertionError
 
-    @cached_property
+    @property
     def end(self) -> BasePhrase:
         """節区切の基本句．"""
-        for base_phrase in self.base_phrases:
-            if base_phrase.features and "節-区切" in base_phrase.features:
-                return base_phrase
-        raise AssertionError
+        return self.base_phrases[-1]
 
     @cached_property
     def parent(self) -> Optional["Clause"]:

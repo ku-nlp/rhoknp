@@ -1,6 +1,5 @@
 import re
-import weakref
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, Any, Optional, Union
 
 from rhoknp.units.base_phrase import BasePhrase
 from rhoknp.units.clause import Clause
@@ -50,6 +49,11 @@ class Sentence(Unit):
 
         self.index = self.count
         Sentence.count += 1
+
+    def _post_init(self) -> None:
+        """インスタンス作成後の追加処理を行う．"""
+        if self.need_knp is False:
+            self._parse_knp_pas()
 
     @property
     def global_index(self) -> int:
@@ -118,7 +122,7 @@ class Sentence(Unit):
             clauses: 節のリスト．
         """
         for clause in clauses:
-            clause.sentence = weakref.proxy(self)
+            clause.sentence = self
         self._clauses = clauses
 
     @property
@@ -142,7 +146,7 @@ class Sentence(Unit):
             phrases: 文節のリスト．
         """
         for phrase in phrases:
-            phrase.sentence = weakref.proxy(self)
+            phrase.sentence = self
         self._phrases = phrases
 
     @property
@@ -177,7 +181,7 @@ class Sentence(Unit):
             morphemes: 形態素のリスト．
         """
         for morpheme in morphemes:
-            morpheme.sentence = weakref.proxy(self)
+            morpheme.sentence = self
         self._morphemes = morphemes
 
     @property
@@ -214,7 +218,12 @@ class Sentence(Unit):
     @property
     def need_knp(self) -> bool:
         """KNP による構文解析がまだなら True．"""
-        return self.need_jumanpp or self._phrases is None and self._clauses is None
+        return self._phrases is None and self._clauses is None
+
+    @property
+    def need_clause_tag(self) -> bool:
+        """KNP による節-主辞・節-区切のタグ付与がまだなら True．"""
+        return self._clauses is None
 
     @classmethod
     def from_raw_text(cls, text: str) -> "Sentence":
@@ -233,11 +242,14 @@ class Sentence(Unit):
         sentence = cls()
         text_lines = []
         for line in text.split("\n"):
+            if line.strip() == "":
+                continue
             if is_comment_line(line):
                 sentence.comment = line
             else:
                 text_lines.append(line)
         sentence.text = "\n".join(text_lines)
+        sentence._post_init()
         return sentence
 
     @classmethod
@@ -281,6 +293,7 @@ class Sentence(Unit):
             if line.strip() == cls.EOS:
                 break
         sentence.morphemes = morphemes
+        sentence._post_init()
         return sentence
 
     @classmethod
@@ -348,6 +361,7 @@ class Sentence(Unit):
             sentence.clauses = clauses
         else:
             sentence.phrases = phrases
+        sentence._post_init()
         return sentence
 
     @staticmethod
@@ -403,3 +417,13 @@ class Sentence(Unit):
         ret += "".join(child.to_knp() for child in self._clauses or self.phrases)
         ret += self.EOS + "\n"
         return ret
+
+    def _parse_knp_pas(self) -> None:
+        """KNP 解析結果における <述語項構造> タグおよび <格解析結果> タグをパース．"""
+        for base_phrase in self.base_phrases:
+            base_phrase.parse_knp_pas()
+
+    def __eq__(self, other: Any) -> bool:
+        if isinstance(other, Sentence) is False:
+            return False
+        return self.sid == other.sid and self.text == other.text

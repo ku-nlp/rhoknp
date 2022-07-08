@@ -1,7 +1,7 @@
 import textwrap
 from pathlib import Path
 
-from rhoknp.rel import Argument, ArgumentType, ExophoraReferent, Pas, SpecialArgument
+from rhoknp.rel import Argument, ArgumentType, ExophoraReferent, SpecialArgument
 from rhoknp.units import Document
 
 
@@ -34,9 +34,8 @@ def test_pas_case_analysis() -> None:
     )
     doc = Document.from_knp(knp_text)
     # <格解析結果:行く/いく:動12:ガ/N/彼/0/0/1;ニ/U/-/-/-/-;デ/U/-/-/-/-;ヘ/C/大学/3/0/1;時間/U/-/-/-/->
-    predicate_base_phrase = doc.base_phrases[4]
-    pas = Pas.from_base_phrase(predicate_base_phrase)
-    assert predicate_base_phrase.pas == pas
+    pas = doc.base_phrases[4].pas
+    assert pas is not None
     assert pas.predicate.cfid == "行く/いく:動12"
     assert pas.sid == "1"
 
@@ -92,8 +91,8 @@ def test_pas_pas() -> None:
     )
     doc = Document.from_knp(knp_text)
     # <EID:9><述語項構造:行く/いく:動12:ガ/N/彼/0/0/5;ニ/E/著者/2/-1/0;ト/-/-/-/-/-;デ/-/-/-/-/-;カラ/-/-/-/-/-;ヨリ/-/-/-/-/-;マデ/-/-/-/-/-;ヘ/C/大学/0/3/8;時間/-/-/-/-/-;外の関係/-/-/-/-/-;修飾/-/-/-/-/-;ノ/-/-/-/-/->
-    predicate_base_phrase = doc.base_phrases[4]
-    pas = Pas.from_base_phrase(predicate_base_phrase)
+    pas = doc.base_phrases[4].pas
+    assert pas is not None
     assert pas.predicate.cfid == "行く/いく:動12"
     assert pas.sid == "1"
 
@@ -132,8 +131,8 @@ def test_pas_pas2() -> None:
     )
     doc = Document.from_knp(knp_text)
     # <格解析結果::/::判0>
-    predicate_base_phrase = doc.base_phrases[1]
-    pas = Pas.from_base_phrase(predicate_base_phrase)
+    pas = doc.base_phrases[1].pas
+    assert pas is not None
     assert pas.predicate.cfid == ":/::判0"
 
 
@@ -153,8 +152,8 @@ def test_pas_case_analysis2() -> None:
     )
     doc = Document.from_knp(knp_text)
     # <格解析結果:表示/ひょうじ:動1:ガ/N/;/1/0/1;ヲ/U/-/-/-/-;ニ/U/-/-/-/-;デ/U/-/-/-/->
-    predicate_base_phrase = doc.base_phrases[0]
-    pas = Pas.from_base_phrase(predicate_base_phrase)
+    pas = doc.base_phrases[0].pas
+    assert pas is not None
     assert pas.predicate.cfid == "表示/ひょうじ:動1"
 
     # ; ガ 表示する
@@ -189,10 +188,60 @@ def test_pas_case_analysis3() -> None:
     )
     doc = Document.from_knp(knp_text)
     # <格解析結果:束の間/つかのま:判0>
-    predicate_phrase = doc.base_phrases[0]
-    pas = Pas.from_base_phrase(predicate_phrase)
+    pas = doc.base_phrases[0].pas
+    assert pas is not None
     assert pas.predicate.cfid == "束の間/つかのま:判0"
     assert len(pas.arguments) == 0
+
+
+def test_pas_case_analysis4() -> None:
+    knp_text = textwrap.dedent(
+        """\
+        # S-ID:1 KNP:5.0-25425d33 DATE:2022/07/06 SCORE:-17.49479
+        * 1D <BGH:今朝/けさ><文頭><時間><強時間><体言><係:無格><区切:0-0><格要素><連用要素><正規化代表表記:今朝/けさ><主辞代表表記:今朝/けさ>
+        + 1D <BGH:今朝/けさ><文頭><時間><強時間><体言><係:無格><区切:0-0><格要素><連用要素><名詞項候補><正規化代表表記:今朝/けさ><主辞代表表記:今朝/けさ><解析格:時間>
+        今朝 けさ 今朝 名詞 6 時相名詞 10 * 0 * 0 "代表表記:今朝/けさ カテゴリ:時間" <代表表記:今朝/けさ><カテゴリ:時間><正規化代表表記:今朝/けさ><漢字><かな漢字><名詞相当語><文頭><自立><内容語><タグ単位始><文節始><文節主辞>
+        * 3D <BGH:焼く/やく><時制:過去><連体修飾><用言:動><係:連格><レベル:B><区切:0-5><ID:（動詞連体）><連体節><動態述語><正規化代表表記:焼く/やく><主辞代表表記:焼く/やく>
+        + 3D <BGH:焼く/やく><時制:過去><連体修飾><用言:動><係:連格><レベル:B><区切:0-5><ID:（動詞連体）><連体節><動態述語><正規化代表表記:焼く/やく><主辞代表表記:焼く/やく><用言代表表記:焼く/やく><節-区切:連体修飾><節-主辞><格関係0:時間:今朝><格関係3:ヲ:パン><格解析結果:焼く/やく:動1:ガ/U/-/-/-/-;ヲ/N/パン/3/0/1;ニ/U/-/-/-/-;デ/U/-/-/-/-;カラ/U/-/-/-/-;時間/C/今朝/0/0/1><標準用言代表表記:焼く/やく>
+        焼いた やいた 焼く 動詞 2 * 0 子音動詞カ行 2 タ形 10 "代表表記:焼く/やく ドメイン:健康・医学 自他動詞:自:焼ける/やける" <代表表記:焼く/やく><ドメイン:健康・医学><自他動詞:自:焼ける/やける><正規化代表表記:焼く/やく><かな漢字><活用語><自立><内容語><タグ単位始><文節始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
+        * 3D <BGH:熱々/あつあつ><助詞><連体修飾><体言><係:ノ格><区切:0-4><正規化代表表記:熱々/あつあつ><主辞代表表記:熱々/あつあつ>
+        + 3D <BGH:熱々/あつあつ><助詞><連体修飾><体言><係:ノ格><区切:0-4><名詞項候補><先行詞候補><係チ:非用言格解析||用言&&文節内:Ｔ解析格-ヲ><正規化代表表記:熱々/あつあつ><主辞代表表記:熱々/あつあつ>
+        あつあつ あつあつ あつあつ 名詞 6 普通名詞 1 * 0 * 0 "代表表記:熱々/あつあつ カテゴリ:抽象物" <代表表記:熱々/あつあつ><カテゴリ:抽象物><正規化代表表記:熱々/あつあつ><かな漢字><ひらがな><名詞相当語><自立><内容語><タグ単位始><文節始><文節主辞>
+        の の の 助詞 9 接続助詞 3 * 0 * 0 NIL <かな漢字><ひらがな><付属>
+        * -1D <BGH:パン/ぱん><文末><体言><用言:判><体言止><レベル:C><区切:5-5><ID:（文末）><裸名詞><提題受:30><主節><状態述語><正規化代表表記:パン/ぱん><主辞代表表記:パン/ぱん>
+        + -1D <BGH:パン/ぱん><文末><体言><用言:判><体言止><レベル:C><区切:5-5><ID:（文末）><裸名詞><提題受:30><主節><状態述語><判定詞句><名詞項候補><先行詞候補><正規化代表表記:パン/ぱん><主辞代表表記:パン/ぱん><用言代表表記:パン/ぱん><節-区切><節-主辞><時制:非過去><解析連格:ヲ><格解析結果:パン/ぱん:判0:ガ/U/-/-/-/-;ニ/U/-/-/-/-;デ/U/-/-/-/-;カラ/U/-/-/-/-;時間/U/-/-/-/-;ノ/U/-/-/-/-><標準用言代表表記:パン/ぱん>
+        パン ぱん パン 名詞 6 普通名詞 1 * 0 * 0 "代表表記:パン/ぱん ドメイン:料理・食事 カテゴリ:人工物-食べ物" <代表表記:パン/ぱん><ドメイン:料理・食事><カテゴリ:人工物-食べ物><正規化代表表記:パン/ぱん><記英数カ><カタカナ><名詞相当語><文末><表現文末><自立><内容語><タグ単位始><文節始><固有キー><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
+        EOS
+        """
+    )
+    doc = Document.from_knp(knp_text)
+    # <格解析結果:焼く/やく:動1:ガ/U/-/-/-/-;ヲ/N/パン/3/0/1;ニ/U/-/-/-/-;デ/U/-/-/-/-;カラ/U/-/-/-/-;時間/C/今朝/0/0/1>
+    pas = doc.base_phrases[1].pas
+    assert pas is not None
+    predicate = pas.predicate
+    assert pas is not None
+
+    assert predicate.cfid == "焼く/やく:動1"
+    assert predicate.pas == pas
+    assert predicate.base_phrase == doc.base_phrases[1]
+
+    assert len(pas.arguments) == 2
+
+    # パン ヲ 焼いた
+    assert len(pas.arguments["ヲ"]) == 1
+    argument = pas.arguments["ヲ"][0]
+    assert isinstance(argument, Argument)
+    assert argument.type == ArgumentType("N")
+    assert argument.pas == pas
+    assert argument.base_phrase == doc.base_phrases[3]  # パン
+
+    # 今朝 時間 焼いた
+    assert len(pas.arguments["時間"]) == 1
+    argument = pas.arguments["時間"][0]
+    assert isinstance(argument, Argument)
+    assert argument.type == ArgumentType("C")
+    assert argument.pas == pas
+    assert argument.base_phrase == doc.base_phrases[0]  # 今朝
 
 
 def test_pas_rel() -> None:

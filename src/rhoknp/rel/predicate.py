@@ -1,4 +1,3 @@
-import weakref
 from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
@@ -8,8 +7,8 @@ if TYPE_CHECKING:
 
 class Predicate:
     def __init__(self, unit: "BasePhrase", cfid: Optional[str] = None):
-        self.unit: "BasePhrase" = weakref.proxy(unit)
-        self.cfid = cfid
+        self.unit: "BasePhrase" = unit
+        self.cfid: Optional[str] = cfid
         self._pas: Optional["Pas"] = None
 
     @property
@@ -36,7 +35,7 @@ class Predicate:
 
     @pas.setter
     def pas(self, pas: "Pas") -> None:
-        self._pas = weakref.proxy(pas)
+        self._pas = pas
 
     def __str__(self) -> str:
         return self.text

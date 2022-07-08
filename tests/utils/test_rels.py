@@ -1,20 +1,10 @@
-from rhoknp.units.utils import Rel, RelMode
+from rhoknp.units.utils import RelMode, Rels
 
 fstring = """<rel type="=≒" target="オフェンス" sid="w201106-0001519365-1" id="3"/><rel type="=≒" mode="AND" target="ディフェンス" sid="w201106-0001519365-1" id="4"/><rel type="ノ？" target="著者"/>"""
 
 
 def test_rels_from_fstring() -> None:
-    rels = []
-    for match in Rel.PAT.finditer(fstring):
-        rels.append(
-            Rel(
-                type=match["type"],
-                target=match["target"],
-                sid=match["sid"],
-                base_phrase_index=int(match["id"]) if match["id"] else None,
-                mode=RelMode(match["mode"]) if match["mode"] else None,
-            )
-        )
+    rels = Rels.from_fstring(fstring)
     assert len(rels) == 3
 
     rel = rels[0]
@@ -37,3 +27,8 @@ def test_rels_from_fstring() -> None:
     assert rel.sid is None
     assert rel.base_phrase_index is None
     assert rel.mode is None
+
+
+def test_rels_to_fstring() -> None:
+    rels = Rels.from_fstring(fstring)
+    assert rels.to_fstring() == fstring
