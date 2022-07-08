@@ -8,12 +8,28 @@
 ![PyPI](https://img.shields.io/pypi/v/rhoknp)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-`rhoknp` is a Python binding for [Juman++](https://github.com/ku-nlp/jumanpp) and [KNP](https://github.com/ku-nlp/knp).
+*rhoknp* is a Python binding for [Juman++](https://github.com/ku-nlp/jumanpp) and [KNP](https://github.com/ku-nlp/knp).
+
+```python
+import rhoknp
+
+# Perform language analysis by Juman++
+jumanpp = rhoknp.Jumanpp()
+sentence = jumanpp.apply("電気抵抗率は電気の通しにくさを表す物性値である。")
+
+# Dump language analysis by Juman++
+with open("result.jumanpp", "wt") as f:
+    f.write(sentence.to_jumanpp())
+
+# Load language analysis by Juman++
+with open("result.jumanpp", "rt") as f:
+    sentence = rhoknp.Sentence.from_jumanpp(f.read())
+```
 
 ## Requirements
 
-- Juman++ v2.0.0-rc3+
-- KNP 5.0+
+- [Juman++](https://github.com/ku-nlp/jumanpp) v2.0.0-rc3+
+- [KNP](https://github.com/ku-nlp/knp) 5.0+
 
 ## Installation
 
@@ -33,7 +49,7 @@ Explore the [examples](./examples) directory.
 
 - Provide APIs for document-level text processing
 - Employ consistent class names
-- Strictly type-aware, which provides high readability and usability
+- Strictly type-aware
 - Drop a support for Python2 and supports Python3.9+
 
 ## Reference
