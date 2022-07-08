@@ -157,6 +157,7 @@ For more information, explore the [examples](./examples) and [documentation](htt
 
 - **Support document-level language analysis**: *rhoknp* can load and instantiate the result of document-level language analysis: i.e., cohesion analysis and discourse relation analysis.
 - **Strictly type-aware**: *rhoknp* is thoroughly annotated with type annotations. Efficient development is possible with the help of an IDE.
+- **Extensive test suit**: *rhoknp* is tested with an extensive test suit. See the code coverage at [Codecov](https://app.codecov.io/gh/ku-nlp/rhoknp).
 - **Support Python3.9+ only**
 
 ## Reference
