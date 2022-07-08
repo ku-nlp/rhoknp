@@ -1,6 +1,6 @@
 rhoknp.pas.argument module
 ==========================
 
-.. automodule:: rhoknp.pas.argument
+.. automodule:: rhoknp.rel.exophora
 
 .. toctree::
