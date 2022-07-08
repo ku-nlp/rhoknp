@@ -28,6 +28,11 @@ def test_discourse_relation_list_init(fstring: str) -> None:
     _ = DiscourseRelationList(fstring)
 
 
+@pytest.mark.parametrize("fstring", ["w-1111/2/逆接(逆方向)", "w-1111/2/逆接(逆方向);w-1111/3/対比"])
+def test_discourse_relation_list_from_fstring(fstring: str) -> None:
+    _ = DiscourseRelationList.from_fstring(fstring)
+
+
 @pytest.mark.parametrize(
     "fstring, expected",
     [
@@ -44,6 +49,12 @@ def test_discourse_relation_list_len(fstring: str, expected: int) -> None:
 def test_discourse_relation_list_to_fstring(fstring: str) -> None:
     discourse_relations = DiscourseRelationList(fstring)
     assert discourse_relations.to_fstring() == fstring
+
+
+@pytest.mark.parametrize("fstring", ["w-1111/2/逆接(逆方向)", "w-1111/2/逆接(逆方向);w-1111/3/対比"])
+def test_discourse_relation_list_str(fstring: str) -> None:
+    discourse_relations = DiscourseRelationList(fstring)
+    assert str(discourse_relations) == fstring
 
 
 def test_document():
@@ -105,7 +116,7 @@ def test_document_out_of_range():
         風 かぜ 風 名詞 6 普通名詞 1 * 0 * 0 "代表表記:風/かぜ カテゴリ:抽象物 漢字読み:訓" <代表表記:風/かぜ><カテゴリ:抽象物><漢字読み:訓><正規化代表表記:風/かぜ><漢字><かな漢字><名詞相当語><文頭><自立><内容語><タグ単位始><文節始><文節主辞>
         が が が 助詞 9 格助詞 1 * 0 * 0 NIL <かな漢字><ひらがな><付属>
         * 3D <BGH:吹く/ふく><補文ト><用言:動><係:連用><レベル:B><区切:3-5><ID:〜たら><連用要素><連用節><動態述語><正規化代表表記:吹く/ふく><主辞代表表記:吹く/ふく>
-        + 4D <BGH:吹く/ふく><補文ト><用言:動><係:連用><レベル:B><区切:3-5><ID:〜たら><連用要素><連用節><動態述語><正規化代表表記:吹く/ふく><主辞代表表記:吹く/ふく><用言代表表記:吹く/ふく><節-区切><節-主辞><節-機能-条件><格関係0:ガ:風><格解析結果:吹く/ふく:動1:ガ/C/風/0/0/1;ニ/U/-/-/-/-;ト/U/-/-/-/-;デ/U/-/-/-/-;カラ/U/-/-/-/-;時間/U/-/-/-/-><標準用言代表表記:吹く/ふく><談話関係:1/4/条件;2/1/条件>
+        + 4D <BGH:吹く/ふく><補文ト><用言:動><係:連用><レベル:B><区切:3-5><ID:〜たら><連用要素><連用節><動態述語><正規化代表表記:吹く/ふく><主辞代表表記:吹く/ふく><用言代表表記:吹く/ふく><節-区切><節-主辞><節-機能-条件><格関係0:ガ:風><格解析結果:吹く/ふく:動1:ガ/C/風/0/0/1;ニ/U/-/-/-/-;ト/U/-/-/-/-;デ/U/-/-/-/-;カラ/U/-/-/-/-;時間/U/-/-/-/-><標準用言代表表記:吹く/ふく><談話関係:1/3/条件;1/5/条件;2/1/条件>
         吹いたら ふいたら 吹く 動詞 2 * 0 子音動詞カ行 2 タ系条件形 13 "代表表記:吹く/ふく 補文ト" <代表表記:吹く/ふく><補文ト><正規化代表表記:吹く/ふく><かな漢字><活用語><自立><内容語><タグ単位始><文節始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
         * 3D <SM-主体><SM-人><BGH:屋/や><ガ><助詞><体言><係:ガ格><区切:0-0><格要素><連用要素><正規化代表表記:桶/おけ+屋/や><主辞代表表記:屋/や><主辞’代表表記:桶/おけ+屋/や>
         + 3D <BGH:桶/おけ><文節内><係:文節内><体言><一文字漢字><名詞項候補><先行詞候補><正規化代表表記:桶/おけ>
@@ -121,10 +132,4 @@ def test_document_out_of_range():
         """
     )
     document = Document.from_knp(knp_text)
-    assert len(document.clauses[0].discourse_relations) == 1
-    discourse_relation_0 = document.clauses[0].discourse_relations[0]
-    assert discourse_relation_0.sid == "1"
-    assert discourse_relation_0.base_phrase_index == 4
-    assert discourse_relation_0.label == "条件"
-    assert discourse_relation_0.modifier == document.clauses[0]
-    assert discourse_relation_0.head == document.clauses[1]
+    assert len(document.clauses[0].discourse_relations) == 0
