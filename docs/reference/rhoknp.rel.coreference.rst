@@ -1,5 +1,5 @@
-rhoknp.pas.argument module
-==========================
+rhoknp.rel.coreference module
+=============================
 
 .. automodule:: rhoknp.rel.coreference
 

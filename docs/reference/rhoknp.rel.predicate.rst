@@ -1,4 +1,4 @@
-rhoknp.pas.predicate module
+rhoknp.rel.predicate module
 ===========================
 
 .. automodule:: rhoknp.rel.predicate

@@ -1,4 +1,4 @@
-rhoknp.pas package
+rhoknp.rel package
 ==================
 
 .. toctree::

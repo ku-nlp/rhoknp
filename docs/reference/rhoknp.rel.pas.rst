@@ -1,4 +1,4 @@
-rhoknp.pas.pas module
+rhoknp.rel.pas module
 =====================
 
 .. automodule:: rhoknp.rel.pas
