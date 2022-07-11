@@ -42,7 +42,7 @@ def test_pas_case_analysis() -> None:
 
     # 彼 ガ 行った
     argument_base_phrase = doc.base_phrases[0]  # 彼は
-    argument = pas.arguments["ガ"][0]
+    argument = pas.get_arguments("ガ", relax=False)[0]
     assert isinstance(argument, Argument)
     assert argument.type == ArgumentType("N")
     assert argument.base_phrase == argument_base_phrase
@@ -53,7 +53,7 @@ def test_pas_case_analysis() -> None:
 
     # 大学 ヘ 行った
     argument_base_phrase = doc.base_phrases[3]  # 大学へ
-    argument = pas.arguments["ヘ"][0]
+    argument = pas.get_arguments("ヘ", relax=False)[0]
     assert isinstance(argument, Argument)
     assert argument.type == ArgumentType("C")
     assert argument.base_phrase == argument_base_phrase
@@ -100,7 +100,7 @@ def test_pas_pas() -> None:
 
     # 彼 ガ 行った
     argument_phrase = doc.base_phrases[0]  # 彼は
-    argument = pas.arguments["ガ"][0]
+    argument = pas.get_arguments("ガ", relax=False)[0]
     assert isinstance(argument, Argument)
     assert argument.type == ArgumentType("N")
     assert argument.base_phrase == argument_phrase
@@ -110,7 +110,7 @@ def test_pas_pas() -> None:
     assert argument.document == argument_phrase.document
 
     # 著者 ニ 行く
-    argument = pas.arguments["ニ"][0]
+    argument = pas.get_arguments("ニ", relax=False)[0]
     assert isinstance(argument, SpecialArgument)
     assert argument.type == ArgumentType("E")
     assert argument.exophora_referent == ExophoraReferent("著者")
@@ -161,7 +161,7 @@ def test_pas_case_analysis2() -> None:
 
     # ; ガ 表示する
     argument_base_phrase = doc.base_phrases[1]  # ;
-    argument = pas.arguments["ガ"][0]
+    argument = pas.get_arguments("ガ", relax=False)[0]
     assert isinstance(argument, Argument)
     assert argument.type == ArgumentType("N")
     assert argument.base_phrase == argument_base_phrase
@@ -194,7 +194,7 @@ def test_pas_case_analysis3() -> None:
     pas = doc.base_phrases[0].pas
     assert pas is not None
     assert pas.predicate.cfid == "束の間/つかのま:判0"
-    assert len(pas.arguments) == 0
+    assert len(pas._arguments) == 0
 
 
 def test_pas_case_analysis4() -> None:
@@ -228,19 +228,19 @@ def test_pas_case_analysis4() -> None:
     assert predicate.pas == pas
     assert predicate.base_phrase == doc.base_phrases[1]
 
-    assert len(pas.arguments) == 2
+    assert len(pas._arguments) == 2
 
     # パン ヲ 焼いた
-    assert len(pas.arguments["ヲ"]) == 1
-    argument = pas.arguments["ヲ"][0]
+    assert len(pas.get_arguments("ヲ", relax=False)) == 1
+    argument = pas.get_arguments("ヲ", relax=False)[0]
     assert isinstance(argument, Argument)
     assert argument.type == ArgumentType("N")
     assert argument.pas == pas
     assert argument.base_phrase == doc.base_phrases[3]  # パン
 
     # 今朝 時間 焼いた
-    assert len(pas.arguments["時間"]) == 1
-    argument = pas.arguments["時間"][0]
+    assert len(pas.get_arguments("時間", relax=False)) == 1
+    argument = pas.get_arguments("時間", relax=False)[0]
     assert isinstance(argument, Argument)
     assert argument.type == ArgumentType("C")
     assert argument.pas == pas

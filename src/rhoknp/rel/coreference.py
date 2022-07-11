@@ -188,7 +188,7 @@ class EntityManager:
             se.add_mention(tm, nonidentical=tm.is_nonidentical_to(te))
         # argument も eid を持っているので eid が変わった場合はこちらも更新
         pas_list = source_mention.document.pas_list()
-        for arg in [arg for pas in pas_list for args in pas.arguments.values() for arg in args]:
+        for arg in [arg for pas in pas_list for case in pas.cases for arg in pas.get_arguments(case, relax=False)]:
             if isinstance(arg, SpecialArgument) and arg.eid == te.eid:
                 arg.eid = se.eid
         self.delete_entity(te)  # delete target entity

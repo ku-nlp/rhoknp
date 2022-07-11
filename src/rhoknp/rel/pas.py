@@ -35,10 +35,6 @@ class Pas:
         return self._predicate
 
     @property
-    def arguments(self) -> dict[str, list[BaseArgument]]:
-        return self._arguments
-
-    @property
     def cases(self) -> list[str]:
         return [case for case, args in self._arguments.items() if args]
 
@@ -126,9 +122,9 @@ class Pas:
 
         Returns: 項のリスト
         """
-        args = self.arguments[case]
+        args = self._arguments[case]
         if include_nonidentical is True:
-            args += self.arguments[case + "≒"]
+            args += self._arguments[case + "≒"]
         if include_optional is False:
             args = [arg for arg in args if arg.optional is False]
         pas = copy.copy(self)
@@ -150,7 +146,7 @@ class Pas:
                         if isinstance(arg, Argument) and mention == arg.base_phrase:
                             continue
                         pas.add_argument(case, mention)
-        return pas.arguments[case]
+        return pas._arguments[case]
 
     def add_argument(
         self,
@@ -166,8 +162,8 @@ class Pas:
         argument.pas = self
         if mode is not None:
             self.modes[case] = mode
-        if argument not in self.arguments[case]:
-            self.arguments[case].append(argument)
+        if argument not in self._arguments[case]:
+            self._arguments[case].append(argument)
 
     def add_special_argument(
         self, case: str, exophora_referent: Union[ExophoraReferent, str], eid: int, mode: Optional[RelMode] = None
@@ -178,14 +174,14 @@ class Pas:
         special_argument.pas = self
         if mode is not None:
             self.modes[case] = mode
-        if special_argument not in self.arguments[case]:
-            self.arguments[case].append(special_argument)
+        if special_argument not in self._arguments[case]:
+            self._arguments[case].append(special_argument)
 
     def set_arguments_optional(self, case: str) -> None:
-        if not self.arguments[case]:
+        if not self._arguments[case]:
             logger.info(f"no preceding argument found in {self.sid}. 'なし' is ignored")
             return
-        for arg in self.arguments[case]:
+        for arg in self._arguments[case]:
             arg.optional = True
             logger.info(f"marked {arg} as optional in {self.sid}")
 
@@ -205,4 +201,4 @@ class Pas:
             return ArgumentType.OMISSION
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(predicate={repr(self.predicate)}, arguments={repr(dict(self.arguments))})"
+        return f"{self.__class__.__name__}(predicate={repr(self.predicate)}, arguments={repr(dict(self._arguments))})"
