@@ -109,7 +109,7 @@ class Pas:
         include_nonidentical: bool = False,
         include_optional: bool = False,
     ) -> list[BaseArgument]:
-        """Return all the arguments that the given predicate has.
+        """与えられた格の全ての項を返す．
 
         Args:
             case: 格．
@@ -120,7 +120,7 @@ class Pas:
         References:
             格・省略・共参照タグ付けの基準 3.2.1 修飾的表現
 
-        Returns: 項のリスト
+        Returns: 項のリスト．
         """
         args = self._arguments[case]
         if include_nonidentical is True:
@@ -147,6 +147,31 @@ class Pas:
                             continue
                         pas.add_argument(case, mention)
         return pas._arguments[case]
+
+    def get_all_arguments(
+        self,
+        relax: bool = True,
+        include_nonidentical: bool = False,
+        include_optional: bool = False,
+    ) -> dict[str, list[BaseArgument]]:
+        """この述語項構造が持つ全ての項を格を key とする辞書形式で返す．
+
+        Args:
+            relax: True なら 共参照関係で結ばれた項も含めて出力する．
+            include_nonidentical: True なら nonidentical な項も含めて出力する．
+            include_optional: True なら修飾的表現（「すぐに」など）も含めて出力する．
+
+        Returns: 格を key とする項の辞書．
+        """
+        all_arguments: dict[str, list[BaseArgument]] = {}
+        for case in self.cases:
+            all_arguments[case] = self.get_arguments(
+                case,
+                relax=relax,
+                include_nonidentical=include_nonidentical,
+                include_optional=include_optional,
+            )
+        return all_arguments
 
     def add_argument(
         self,

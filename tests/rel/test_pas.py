@@ -295,3 +295,13 @@ def test_pas_relax() -> None:
     arg = args[1]
     assert isinstance(arg, Argument)
     assert (arg.base_phrase.text, arg.base_phrase.global_index, arg.type) == ("コーナーを", 14, ArgumentType.OMISSION)
+
+
+def test_get_all_arguments() -> None:
+    doc_id = "w201106-0000060050"
+    doc = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text())
+    pas = doc.pas_list()[3]
+    all_arguments = pas.get_all_arguments()
+    assert set(all_arguments.keys()) == {"ガ", "ヲ"}
+    assert {str(arg) for arg in all_arguments["ガ"]} == {"不特定:人", "著者", "読者"}
+    assert {str(arg) for arg in all_arguments["ヲ"]} == {"トスを"}
