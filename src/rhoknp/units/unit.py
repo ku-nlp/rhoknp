@@ -41,9 +41,10 @@ class Unit(ABC):
 
     @property
     def text(self) -> str:
-        if self.child_units is not None:
-            return "".join(str(child_unit) for child_unit in self.child_units)
-        elif self._text is not None:
+        if self._text is not None:
+            return self._text
+        elif self.child_units is not None:
+            self._text = "".join(str(child_unit) for child_unit in self.child_units)
             return self._text
         raise AssertionError
 
