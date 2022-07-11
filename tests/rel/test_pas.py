@@ -38,6 +38,7 @@ def test_pas_case_analysis() -> None:
     assert pas is not None
     assert pas.predicate.cfid == "行く/いく:動12"
     assert pas.sid == "1"
+    assert pas.cases == ["ガ", "ヘ"]
 
     # 彼 ガ 行った
     argument_base_phrase = doc.base_phrases[0]  # 彼は
@@ -95,6 +96,7 @@ def test_pas_pas() -> None:
     assert pas is not None
     assert pas.predicate.cfid == "行く/いく:動12"
     assert pas.sid == "1"
+    assert pas.cases == ["ガ", "ニ", "ヘ"]
 
     # 彼 ガ 行った
     argument_phrase = doc.base_phrases[0]  # 彼は
@@ -134,6 +136,7 @@ def test_pas_pas2() -> None:
     pas = doc.base_phrases[1].pas
     assert pas is not None
     assert pas.predicate.cfid == ":/::判0"
+    assert pas.cases == []
 
 
 def test_pas_case_analysis2() -> None:

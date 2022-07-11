@@ -39,6 +39,10 @@ class Pas:
         return self._arguments
 
     @property
+    def cases(self) -> list[str]:
+        return [case for case, args in self._arguments.items() if args]
+
+    @property
     def sid(self) -> str:
         return self._predicate.sid
 
