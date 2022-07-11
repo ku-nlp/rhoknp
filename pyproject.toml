@@ -4,6 +4,8 @@ version = "0.2.0"
 description = "Yet another Python binding for Juman++/KNP"
 authors = ["Hirokazu Kiyomaru <h.kiyomaru@gmail.com>", "Nobuhiro Ueda <ueda@nlp.ist.i.kyoto-u.ac.jp>"]
 repository = "https://github.com/ku-nlp/rhoknp"
+readme = "README.md"
+documentation = "https://rhoknp.readthedocs.io/en/latest"
 license = "MIT"
 
 [tool.poetry.dependencies]
