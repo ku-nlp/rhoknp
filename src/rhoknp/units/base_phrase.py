@@ -1,6 +1,6 @@
+import logging
 import re
 from functools import cached_property
-from logging import getLogger
 from typing import TYPE_CHECKING, Optional
 
 from rhoknp.rel.coreference import Entity, EntityManager
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
     from rhoknp.units.phrase import Phrase
     from rhoknp.units.sentence import Sentence
 
-logger = getLogger(__file__)
+logger = logging.getLogger(__name__)
 
 
 class BasePhrase(Unit):

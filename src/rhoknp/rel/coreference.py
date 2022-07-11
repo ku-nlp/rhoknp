@@ -7,7 +7,7 @@ from rhoknp.rel.exophora import ExophoraReferent
 if TYPE_CHECKING:
     from rhoknp.units.base_phrase import BasePhrase
 
-logger = logging.getLogger(__file__)
+logger = logging.getLogger(__name__)
 
 
 class Entity:
@@ -188,7 +188,7 @@ class EntityManager:
             se.add_mention(tm, nonidentical=tm.is_nonidentical_to(te))
         # argument も eid を持っているので eid が変わった場合はこちらも更新
         pas_list = source_mention.document.pas_list()
-        for arg in [arg for pas in pas_list for args in pas.arguments.values() for arg in args]:
+        for arg in [arg for pas in pas_list for args in pas.get_all_arguments(relax=False).values() for arg in args]:
             if isinstance(arg, SpecialArgument) and arg.eid == te.eid:
                 arg.eid = se.eid
         self.delete_entity(te)  # delete target entity

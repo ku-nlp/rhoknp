@@ -1,8 +1,8 @@
 import copy
+import logging
 import re
 from collections import defaultdict
 from enum import Enum, auto
-from logging import getLogger
 from typing import TYPE_CHECKING, Optional, Union
 
 from rhoknp.rel.argument import Argument, ArgumentType, BaseArgument, SpecialArgument
@@ -13,7 +13,7 @@ from rhoknp.units.utils import RelMode
 if TYPE_CHECKING:
     from rhoknp.units.base_phrase import BasePhrase
 
-logger = getLogger(__file__)
+logger = logging.getLogger(__name__)
 
 
 class CaseInfoFormat(Enum):
@@ -35,8 +35,8 @@ class Pas:
         return self._predicate
 
     @property
-    def arguments(self) -> dict[str, list[BaseArgument]]:
-        return self._arguments
+    def cases(self) -> list[str]:
+        return [case for case, args in self._arguments.items() if args]
 
     @property
     def sid(self) -> str:
@@ -109,7 +109,7 @@ class Pas:
         include_nonidentical: bool = False,
         include_optional: bool = False,
     ) -> list[BaseArgument]:
-        """Return all the arguments that the given predicate has.
+        """与えられた格の全ての項を返す．
 
         Args:
             case: 格．
@@ -120,11 +120,11 @@ class Pas:
         References:
             格・省略・共参照タグ付けの基準 3.2.1 修飾的表現
 
-        Returns: 項のリスト
+        Returns: 項のリスト．
         """
-        args = self.arguments[case]
+        args = self._arguments[case]
         if include_nonidentical is True:
-            args += self.arguments[case + "≒"]
+            args += self._arguments[case + "≒"]
         if include_optional is False:
             args = [arg for arg in args if arg.optional is False]
         pas = copy.copy(self)
@@ -146,7 +146,32 @@ class Pas:
                         if isinstance(arg, Argument) and mention == arg.base_phrase:
                             continue
                         pas.add_argument(case, mention)
-        return pas.arguments[case]
+        return pas._arguments[case]
+
+    def get_all_arguments(
+        self,
+        relax: bool = True,
+        include_nonidentical: bool = False,
+        include_optional: bool = False,
+    ) -> dict[str, list[BaseArgument]]:
+        """この述語項構造が持つ全ての項を格を key とする辞書形式で返す．
+
+        Args:
+            relax: True なら 共参照関係で結ばれた項も含めて出力する．
+            include_nonidentical: True なら nonidentical な項も含めて出力する．
+            include_optional: True なら修飾的表現（「すぐに」など）も含めて出力する．
+
+        Returns: 格を key とする項の辞書．
+        """
+        all_arguments: dict[str, list[BaseArgument]] = {}
+        for case in self.cases:
+            all_arguments[case] = self.get_arguments(
+                case,
+                relax=relax,
+                include_nonidentical=include_nonidentical,
+                include_optional=include_optional,
+            )
+        return all_arguments
 
     def add_argument(
         self,
@@ -162,8 +187,8 @@ class Pas:
         argument.pas = self
         if mode is not None:
             self.modes[case] = mode
-        if argument not in self.arguments[case]:
-            self.arguments[case].append(argument)
+        if argument not in self._arguments[case]:
+            self._arguments[case].append(argument)
 
     def add_special_argument(
         self, case: str, exophora_referent: Union[ExophoraReferent, str], eid: int, mode: Optional[RelMode] = None
@@ -174,14 +199,14 @@ class Pas:
         special_argument.pas = self
         if mode is not None:
             self.modes[case] = mode
-        if special_argument not in self.arguments[case]:
-            self.arguments[case].append(special_argument)
+        if special_argument not in self._arguments[case]:
+            self._arguments[case].append(special_argument)
 
     def set_arguments_optional(self, case: str) -> None:
-        if not self.arguments[case]:
+        if not self._arguments[case]:
             logger.info(f"no preceding argument found in {self.sid}. 'なし' is ignored")
             return
-        for arg in self.arguments[case]:
+        for arg in self._arguments[case]:
             arg.optional = True
             logger.info(f"marked {arg} as optional in {self.sid}")
 
@@ -201,4 +226,4 @@ class Pas:
             return ArgumentType.OMISSION
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(predicate={repr(self.predicate)}, arguments={repr(dict(self.arguments))})"
+        return f"{self.__class__.__name__}(predicate={repr(self.predicate)}, arguments={repr(dict(self._arguments))})"

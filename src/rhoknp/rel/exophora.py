@@ -1,9 +1,9 @@
+import logging
 import re
 from enum import Enum
-from logging import getLogger
 from typing import Any, ClassVar, Optional
 
-logger = getLogger(__file__)
+logger = logging.getLogger(__name__)
 
 
 class ExophoraReferentType(Enum):
