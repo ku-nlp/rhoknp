@@ -73,7 +73,7 @@ class Entity:
         elif self.mentions_nonidentical:
             return list(self.mentions_nonidentical)[0].__str__()
         else:
-            return str(None)
+            return ""
 
     def __repr__(self) -> str:
         ret = f"{self.__class__.__name__}(eid={repr(self.eid)}"
