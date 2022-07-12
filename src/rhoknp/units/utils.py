@@ -24,19 +24,21 @@ class DepType(Enum):
 
 class Semantics(dict[str, Union[str, bool]]):
     NIL = "NIL"
-    PAT = re.compile(r'(?P<sems>("([^"]|\\")+?")|NIL)')
+    PAT = re.compile(rf'(?P<sems>("([^"]|\\")+?")|{NIL})')
     SEM_PAT = re.compile(r"(?P<key>[^:]+)(:(?P<value>\S+))?\s?")
 
-    def __init__(self, sstring: str):
-        super().__init__()
-        self.is_nil = sstring == self.NIL
-        if not self.is_nil:
-            for match in self.SEM_PAT.finditer(sstring.strip('"')):
-                self[match.group("key")] = match.group("value") or True
+    def __init__(self, semantics: dict[str, Union[str, bool]], is_nil: bool = False):
+        super().__init__(semantics)
+        self.is_nil: bool = is_nil
 
     @classmethod
     def from_sstring(cls, sstring: str) -> "Semantics":
-        return cls(sstring)
+        is_nil = sstring == cls.NIL
+        semantics = {}
+        if not is_nil:
+            for match in cls.SEM_PAT.finditer(sstring.strip('"')):
+                semantics[match.group("key")] = match.group("value") or True
+        return cls(semantics, is_nil)
 
     def to_sstring(self) -> str:
         if self.is_nil:
