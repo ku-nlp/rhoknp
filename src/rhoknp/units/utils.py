@@ -140,10 +140,11 @@ class Rel:
 
 
 class Rels(list[Rel]):
-    def __init__(self, fstring: str):
-        super().__init__()
+    @classmethod
+    def from_fstring(cls, fstring: str) -> "Rels":
+        rels = []
         for match in Rel.PAT.finditer(fstring):
-            self.append(
+            rels.append(
                 Rel(
                     type=match["type"],
                     target=match["target"],
@@ -152,10 +153,7 @@ class Rels(list[Rel]):
                     mode=RelMode(match["mode"]) if match["mode"] else None,
                 )
             )
-
-    @classmethod
-    def from_fstring(cls, fstring: str) -> "Rels":
-        return cls(fstring)
+        return cls(rels)
 
     def to_fstring(self) -> str:
         return "".join(rel.to_fstring() for rel in self)
