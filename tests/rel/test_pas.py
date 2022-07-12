@@ -1,3 +1,4 @@
+import logging
 import textwrap
 from pathlib import Path
 
@@ -285,6 +286,64 @@ def test_get_arguments_idempotency() -> None:
         assert argument_list_before == argument_list_after
         assert each_argument_before == each_argument_after
         assert modes_before == modes_after
+
+
+def test_optional_case() -> None:
+    original_log_level = logging.getLogger("rhoknp").level
+    logging.getLogger("rhoknp").setLevel(logging.ERROR)
+    knp_text = textwrap.dedent(
+        """\
+        # S-ID:w201106-0000085526-2 JUMAN:6.1-20101108 KNP:3.1-20101107 DATE:2011/06/21 SCORE:-98.90310 MOD:2018/02/18 MEMO:
+        * 7D
+        + 8D <NE:DATE:今日>
+        今日 きょう 今日 名詞 6 時相名詞 10 * 0 * 0
+        は は は 助詞 9 副助詞 2 * 0 * 0
+        、 、 、 特殊 1 読点 2 * 0 * 0
+        * 2D
+        + 2D <rel type="ノ？" target="劇" sid="w201106-0000085526-1" id="8"/>
+        役 やく 役 名詞 6 普通名詞 1 * 0 * 0
+        を を を 助詞 9 格助詞 1 * 0 * 0
+        * 4D
+        + 4D <rel type="ヲ" target="役" sid="w201106-0000085526-2" id="1"/><rel type="時間" target="今日" sid="w201106-0000085526-2" id="0"/><rel type="ガ" target="私たち" sid="w201106-0000085526-1" id="0"/>
+        決めて きめて 決める 動詞 2 * 0 母音動詞 1 タ系連用テ形 14
+        * 4D
+        + 4D <rel type="ノ" target="劇" sid="w201106-0000085526-1" id="8"/>
+        場面 ばめん 場面 名詞 6 普通名詞 1 * 0 * 0
+        ごと ごと ごと 接尾辞 14 名詞性名詞接尾辞 2 * 0 * 0
+        に に に 助詞 9 格助詞 1 * 0 * 0
+        * 7P
+        + 8P <rel type="時間" target="今日" sid="w201106-0000085526-2" id="0"/><rel type="ガ" target="私たち" sid="w201106-0000085526-1" id="0"/><rel type="ニ" target="場面ごと" sid="w201106-0000085526-2" id="3"/>
+        分かれ わかれ 分かれる 動詞 2 * 0 母音動詞 1 基本連用形 8
+        、 、 、 特殊 1 読点 2 * 0 * 0
+        * 7D
+        + 6D <rel type="ノ？" target="劇" sid="w201106-0000085526-1" id="8"/>
+        セリフ せりふ セリフ 名詞 6 普通名詞 1 * 0 * 0
+        + 8D <rel type="ヲ" target="セリフ" sid="w201106-0000085526-2" id="5"/><rel type="時間" target="今日" sid="w201106-0000085526-2" id="0"/><rel type="ガ" target="私たち" sid="w201106-0000085526-1" id="0"/>
+        覚え おぼえ 覚え 名詞 6 普通名詞 1 * 0 * 0 "品詞変更:覚え-おぼえ-覚える-2-0-1-8"
+        と と と 助詞 9 格助詞 1 * 0 * 0
+        * 7D
+        + 8D <rel type="=" target="私たち" sid="w201106-0000085526-1" id="0"/>
+        みんな みんな みんな 副詞 8 * 0 * 0 * 0
+        で で で 助詞 9 格助詞 1 * 0 * 0
+        * -1D
+        + -1D <rel type="時間" target="今日" sid="w201106-0000085526-2" id="0"/><rel type="ガ" target="私たち" sid="w201106-0000085526-1" id="0"/><rel type="デ" target="みんな" sid="w201106-0000085526-2" id="7"/><rel type="デ" mode="？" target="なし"/><rel type="ヲ" target="セリフ" sid="w201106-0000085526-2" id="5"/><rel type="ヲ" mode="？" target="場面" sid="w201106-0000085526-2" id="3"/>
+        合わせたり あわせたり 合わせる 動詞 2 * 0 母音動詞 1 タ系連用タリ形 15
+        し し する 接尾辞 14 動詞性接尾辞 7 サ変動詞 16 基本連用形 8
+        ました ました ます 接尾辞 14 動詞性接尾辞 7 動詞性接尾辞ます型 31 タ形 7
+        。 。 。 特殊 1 句点 1 * 0 * 0
+        EOS
+        """
+    )
+    doc = Document.from_knp(knp_text)
+    pas = doc.base_phrases[8].pas
+    assert pas is not None
+    assert len(pas.get_arguments("デ")) == 0
+    arguments = pas.get_arguments("デ", relax=False, include_optional=True)
+    assert {str(arg) for arg in arguments} == {"みんなで"}
+    assert arguments[0].optional is True
+    arguments_relaxed = pas.get_arguments("デ", relax=True, include_optional=True)
+    assert {str(arg) for arg in arguments_relaxed} == {"みんなで"}
+    logging.getLogger("rhoknp").setLevel(original_log_level)
 
 
 def test_pas_relax() -> None:

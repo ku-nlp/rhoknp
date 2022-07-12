@@ -322,14 +322,18 @@ class BasePhrase(Unit):
                 entity_manager.merge_entities(self, None, source_entity, target_entity, nonidentical)
 
     def _get_target_base_phrase(self, rel: Rel) -> Optional["BasePhrase"]:
-        sentence = next(sent for sent in self.document.sentences if sent.sid == rel.sid)
+        sentences = [sent for sent in self.document.sentences if sent.sid == rel.sid]
+        if not sentences:
+            logger.warning(f"{self.sentence.sid}: relation with unknown sid found: {rel.sid}")
+            return None
+        sentence = sentences[0]
         assert rel.base_phrase_index is not None
         if rel.base_phrase_index >= len(sentence.base_phrases):
-            logger.warning(f"index out of range in {self.sentence.sid}")
+            logger.warning(f"{self.sentence.sid}: index out of range")
             return None
         target_base_phrase = sentence.base_phrases[rel.base_phrase_index]
         if not (set(rel.target) <= set(target_base_phrase.text)):
-            logger.info(f"rel target mismatch; '{rel.target}' is not '{target_base_phrase.text}'")
+            logger.info(f"{self.sentence.sid}: rel target mismatch; '{rel.target}' vs '{target_base_phrase.text}'")
         return target_base_phrase
 
     def __hash__(self) -> int:
