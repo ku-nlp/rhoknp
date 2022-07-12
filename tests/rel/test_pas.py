@@ -262,6 +262,31 @@ def test_pas_rel() -> None:
     )
 
 
+def test_get_arguments_idempotency() -> None:
+    doc_id = "w201106-0000060050"
+    doc = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text())
+    for pas in doc.pas_list():
+        pas_before = id(pas)
+        predicate_before = id(pas.predicate)
+        arguments_before = id(pas._arguments)
+        argument_list_before = [id(args) for args in pas._arguments.values()]
+        each_argument_before = [id(arg) for args in pas._arguments.values() for arg in args]
+        modes_before = id(pas.modes)
+        _ = pas.get_all_arguments()
+        pas_after = id(pas)
+        predicate_after = id(pas.predicate)
+        arguments_after = id(pas._arguments)
+        argument_list_after = [id(args) for args in pas._arguments.values()]
+        each_argument_after = [id(arg) for args in pas._arguments.values() for arg in args]
+        modes_after = id(pas.modes)
+        assert pas_before == pas_after
+        assert predicate_before == predicate_after
+        assert arguments_before == arguments_after
+        assert argument_list_before == argument_list_after
+        assert each_argument_before == each_argument_after
+        assert modes_before == modes_after
+
+
 def test_pas_relax() -> None:
     doc_id = "w201106-0000060560"
     doc = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text())

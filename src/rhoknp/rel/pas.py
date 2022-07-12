@@ -128,6 +128,7 @@ class Pas:
         if include_optional is False:
             args = [arg for arg in args if arg.optional is False]
         pas = copy.copy(self)
+        pas._arguments = copy.copy(self._arguments)
         pas._arguments[case] = copy.copy(args)
 
         sentence = self.predicate.base_phrase.sentence
