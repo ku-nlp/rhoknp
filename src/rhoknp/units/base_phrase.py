@@ -179,7 +179,7 @@ class BasePhrase(Unit):
             raise ValueError(f"malformed line: {first_line}")
         parent_index = int(match.group("pid"))
         dep_type = DepType(match.group("dtype"))
-        features = Features(match.group("tags") or "")
+        features = Features.from_fstring(match.group("tags") or "")
         rels = Rels.from_fstring(match.group("tags") or "")
         base_phrase = cls(parent_index, dep_type, features, rels)
 

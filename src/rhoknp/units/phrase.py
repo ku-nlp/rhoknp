@@ -157,7 +157,7 @@ class Phrase(Unit):
             raise ValueError(f"malformed line: {first_line}")
         parent_index = int(match.group("pid"))
         dep_type = DepType(match.group("dtype"))
-        features = Features(match.group("feats") or "")
+        features = Features.from_fstring(match.group("feats") or "")
         phrase = cls(parent_index, dep_type, features)
 
         base_phrases: list[BasePhrase] = []

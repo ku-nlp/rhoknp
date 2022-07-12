@@ -71,14 +71,12 @@ class Features(dict[str, Union[str, bool]]):
     IGNORE_TAG_PREFIXES = {"rel "}
     FEATURE_PAT = re.compile(rf"<(?!({'|'.join(IGNORE_TAG_PREFIXES)}))(?P<key>[^:]+?)(:(?P<value>.+?))?>")
 
-    def __init__(self, fstring: str):
-        super().__init__()
-        for match in self.FEATURE_PAT.finditer(fstring):
-            self[match.group("key")] = match.group("value") or True
-
     @classmethod
     def from_fstring(cls, fstring: str) -> "Features":
-        return cls(fstring)
+        features = {}
+        for match in cls.FEATURE_PAT.finditer(fstring):
+            features[match.group("key")] = match.group("value") or True
+        return cls(features)
 
     def to_fstring(self) -> str:
         return "".join(self._item2tag_string(k, v) for k, v in self.items())
