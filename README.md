@@ -1,12 +1,11 @@
 # rhoknp: Yet another Python binding for Juman++/KNP
 
-[![Test](https://github.com/ku-nlp/rhoknp/actions/workflows/test.yml/badge.svg)](https://github.com/ku-nlp/rhoknp/actions/workflows/test.yml)
-[![Codecov](https://codecov.io/gh/ku-nlp/rhoknp/branch/main/graph/badge.svg?token=29S0XMLTRG)](https://codecov.io/gh/ku-nlp/rhoknp)
-![License](http://img.shields.io/badge/license-MIT-blue.svg)
-[![Documentation](https://readthedocs.org/projects/rhoknp/badge/?version=latest)](https://rhoknp.readthedocs.io/en/latest/?badge=latest)
-![PyPI - Python Version](https://img.shields.io/pypi/pyversions/rhoknp)
-![PyPI](https://img.shields.io/pypi/v/rhoknp)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Test](https://img.shields.io/github/workflow/status/ku-nlp/rhoknp/test?logo=github&label=test&style=flat-square)](https://github.com/ku-nlp/rhoknp/actions/workflows/test.yml)
+[![Codecov](https://img.shields.io/codecov/c/github/ku-nlp/rhoknp?logo=codecov&style=flat-square)](https://codecov.io/gh/ku-nlp/rhoknp)
+[![PyPI](https://img.shields.io/pypi/v/rhoknp?style=flat-square)](https://pypi.org/project/rhoknp/)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/rhoknp?style=flat-square)
+[![Documentation](https://img.shields.io/readthedocs/rhoknp?style=flat-square)](https://rhoknp.readthedocs.io/en/latest/?badge=latest)
+[![Code style - black](https://img.shields.io/badge/code%20style-black-222222?style=flat-square)](https://github.com/psf/black)
 
 *rhoknp* is a Python binding for [Juman++](https://github.com/ku-nlp/jumanpp) and [KNP](https://github.com/ku-nlp/knp).
 
