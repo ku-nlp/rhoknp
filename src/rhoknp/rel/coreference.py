@@ -138,60 +138,60 @@ class EntityManager:
         self,
         source_mention: "BasePhrase",
         target_mention: Optional["BasePhrase"],
-        se: Entity,
-        te: Entity,
+        source_entity: Entity,
+        target_entity: Entity,
         nonidentical: bool,
     ) -> None:
         """2つのエンティティをマージ．
 
         source_mention と se, target_mention と te の間には mention が張られているが、
         source と target 間には張られていないので、add_mention する．
-        se と te が同一のエンティティであり、exophor も同じか片方が None ならば te の方を削除する．
+        source_entity と target_entity が同一のエンティティであり、exophor も同じか片方が None ならば target_entity の方を削除する．
 
         Args:
             source_mention: ソース側メンション．
             target_mention: ターゲット側メンション．メンションが存在しない場合は None．
-            se: ソース側エンティティ．
-            te: ターゲット側エンティティ．
+            source_entity: ソース側エンティティ．
+            target_entity: ターゲット側エンティティ．
             nonidentical: ソース側メンションとターゲット側メンションの関係が nonidentical なら True．
         """
-        nonidentical_tgt = (target_mention is not None) and target_mention.is_nonidentical_to(te)
-        if se not in source_mention.entities_all:
+        nonidentical_tgt = (target_mention is not None) and target_mention.is_nonidentical_to(target_entity)
+        if source_entity not in source_mention.entities_all:
             return
-        nonidentical_src = source_mention.is_nonidentical_to(se)
-        if se is te:
+        nonidentical_src = source_mention.is_nonidentical_to(source_entity)
+        if source_entity is target_entity:
             if not nonidentical:
-                # se (te), source_mention, target_mention の三角形のうち2辺が identical ならもう1辺も identical
+                # source_entity (target_entity), source_mention, target_mention の三角形のうち2辺が identical ならもう1辺も identical
                 if (not nonidentical_src) and nonidentical_tgt:
                     assert target_mention is not None
-                    se.add_mention(target_mention, nonidentical=False)
+                    source_entity.add_mention(target_mention, nonidentical=False)
                 if nonidentical_src and (not nonidentical_tgt):
-                    se.add_mention(source_mention, nonidentical=False)
+                    source_entity.add_mention(source_mention, nonidentical=False)
             return
         if target_mention is not None:
-            se.add_mention(target_mention, nonidentical=(nonidentical or nonidentical_src))
-        te.add_mention(source_mention, nonidentical=(nonidentical or nonidentical_tgt))
-        # se と te が同一でない可能性が捨てきれない場合、te は削除しない
+            source_entity.add_mention(target_mention, nonidentical=(nonidentical or nonidentical_src))
+        target_entity.add_mention(source_mention, nonidentical=(nonidentical or nonidentical_tgt))
+        # source_entity と target_entity が同一でない可能性が捨てきれない場合、target_entity は削除しない
         if nonidentical_src or nonidentical or nonidentical_tgt:
             return
-        # se と te が同一でも exophor が異なれば te は削除しない
+        # source_entity と target_entity が同一でも exophor が異なれば target_entity は削除しない
         if (
-            se.exophora_referent is not None
-            and te.exophora_referent is not None
-            and se.exophora_referent != te.exophora_referent
+            source_entity.exophora_referent is not None
+            and target_entity.exophora_referent is not None
+            and source_entity.exophora_referent != target_entity.exophora_referent
         ):
             return
-        # 以下 te を削除する準備
-        if se.exophora_referent is None:
-            se.exophora_referent = te.exophora_referent
-        for tm in te.mentions_all:
-            se.add_mention(tm, nonidentical=tm.is_nonidentical_to(te))
+        # 以下 target_entity を削除する準備
+        if source_entity.exophora_referent is None:
+            source_entity.exophora_referent = target_entity.exophora_referent
+        for tm in target_entity.mentions_all:
+            source_entity.add_mention(tm, nonidentical=tm.is_nonidentical_to(target_entity))
         # argument も eid を持っているので eid が変わった場合はこちらも更新
         pas_list = source_mention.document.pas_list()
         for arg in [arg for pas in pas_list for args in pas.get_all_arguments(relax=False).values() for arg in args]:
-            if isinstance(arg, SpecialArgument) and arg.eid == te.eid:
-                arg.eid = se.eid
-        self.delete_entity(te)  # delete target entity
+            if isinstance(arg, SpecialArgument) and arg.eid == target_entity.eid:
+                arg.eid = source_entity.eid
+        self.delete_entity(target_entity)  # delete target entity
 
     def delete_entity(self, entity: Entity) -> None:
         """エンティティを削除．
