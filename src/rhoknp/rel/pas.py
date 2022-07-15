@@ -22,7 +22,13 @@ class CaseInfoFormat(Enum):
 
 
 class Pas:
-    ARGUMENT_PAT = re.compile(r"([^/;]+/[CNODEU-]/[^/]+/(-?\d*)/(-?\d*)/[^/;]+)")  # ガ/N/彼/0/0/5
+    """述語項構造クラス．
+
+    Args:
+        predicate: 述語．
+    """
+
+    ARGUMENT_PAT = re.compile(r"([^/;]+/[CNODEU-]/[^/]+/(-?\d*)/(-?\d*)/[^/;]+)")  # matches for "ガ/N/彼/0/0/5"
 
     def __init__(self, predicate: Predicate):
         self._predicate = predicate
@@ -32,18 +38,30 @@ class Pas:
 
     @property
     def predicate(self) -> Predicate:
+        """述語．"""
         return self._predicate
 
     @property
     def cases(self) -> list[str]:
+        """属する全ての項の持つ格を集めたリスト．"""
         return [case for case, args in self._arguments.items() if args]
 
     @property
     def sid(self) -> str:
+        """文 ID．"""
         return self._predicate.sid
 
     @classmethod
     def from_pas_string(cls, base_phrase: "BasePhrase", fstring: str, format_: CaseInfoFormat) -> "Pas":
+        """PAS 文字列から述語項構造を生成する．
+
+        Args:
+            base_phrase: 述語となる基本句．
+            fstring: 述語項構造を表す素性文字列（e.g., "食べる/たべる:動2:ガ/C/太郎/0/0/1;ヲ/C/パン/1/0/1;ニ/U/-/-/-/-;デ/U/-/-/-/-;カラ/U/-/-/-/-;時間/U/-/-/-/-"）
+            format_: fstring における述語項構造のフォーマット．
+
+        Returns: 述語項構造オブジェクト．
+        """
         # language=RegExp
         cfid_pat = r"(.*?):([^:/]+?)"  # 食べる/たべる:動1
         match = re.match(
@@ -181,6 +199,14 @@ class Pas:
         mode: Optional[RelMode] = None,
         arg_type: Optional[ArgumentType] = None,
     ) -> None:
+        """述語項構造に項を追加．
+
+        Args:
+            case: 項が持つ格．
+            base_phrase: 項となる基本句．
+            mode: 関係のモード．
+            arg_type: 述語と項の関係タイプ．
+        """
         argument = Argument(
             base_phrase,
             arg_type or self._get_arg_type(self.predicate, base_phrase, case),
@@ -194,6 +220,14 @@ class Pas:
     def add_special_argument(
         self, case: str, exophora_referent: Union[ExophoraReferent, str], eid: int, mode: Optional[RelMode] = None
     ) -> None:
+        """述語項構造に外界照応に対応する項を追加．
+
+        Args:
+            case: 項が持つ格．
+            exophora_referent: 外界照応における照応先．．
+            eid: エンティティ ID．
+            mode: 関係のモード．
+        """
         if isinstance(exophora_referent, str):
             exophora_referent = ExophoraReferent(exophora_referent)
         special_argument = SpecialArgument(exophora_referent, eid)
@@ -204,6 +238,11 @@ class Pas:
             self._arguments[case].append(special_argument)
 
     def set_arguments_optional(self, case: str) -> None:
+        """与えられた格に属する項をすべて修飾的表現として登録．
+
+        Args:
+            case: 対象の格．
+        """
         if not self._arguments[case]:
             logger.info(f"no preceding argument found in {self.sid}. 'なし' is ignored")
             return
