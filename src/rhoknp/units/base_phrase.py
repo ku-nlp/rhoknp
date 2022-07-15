@@ -322,6 +322,7 @@ class BasePhrase(Unit):
                 entity_manager.merge_entities(self, None, source_entity, target_entity, nonidentical)
 
     def _get_target_base_phrase(self, rel: Rel) -> Optional["BasePhrase"]:
+        """rel が指す基本句を取得．"""
         sentences = [sent for sent in self.document.sentences if sent.sid == rel.sid]
         if not sentences:
             logger.warning(f"{self.sentence.sid}: relation with unknown sid found: {rel.sid}")
