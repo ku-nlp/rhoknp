@@ -50,7 +50,7 @@ class Sentence(Unit):
         self.index = self.count
         Sentence.count += 1
 
-    def _post_init(self) -> None:
+    def post_init(self) -> None:
         """インスタンス作成後の追加処理を行う．"""
         if self.need_knp is False:
             self._parse_knp_pas()
@@ -226,11 +226,12 @@ class Sentence(Unit):
         return self._clauses is None
 
     @classmethod
-    def from_raw_text(cls, text: str) -> "Sentence":
+    def from_raw_text(cls, text: str, post_init: bool = True) -> "Sentence":
         """文クラスのインスタンスを文の文字列から初期化．
 
         Args:
             text: 文の文字列．
+            post_init: インスタンス作成後の追加処理を行うなら True．
 
         Example::
 
@@ -249,15 +250,17 @@ class Sentence(Unit):
             else:
                 text_lines.append(line)
         sentence.text = "\n".join(text_lines)
-        sentence._post_init()
+        if post_init is True:
+            sentence.post_init()
         return sentence
 
     @classmethod
-    def from_jumanpp(cls, jumanpp_text: str) -> "Sentence":
+    def from_jumanpp(cls, jumanpp_text: str, post_init: bool = True) -> "Sentence":
         """文クラスのインスタンスを Juman++ の解析結果から初期化．
 
         Args:
             jumanpp_text: Juman++ の解析結果．
+            post_init: インスタンス作成後の追加処理を行うなら True．
 
         Example::
 
@@ -295,15 +298,17 @@ class Sentence(Unit):
             if line.strip() == cls.EOS:
                 break
         sentence.morphemes = morphemes
-        sentence._post_init()
+        if post_init is True:
+            sentence.post_init()
         return sentence
 
     @classmethod
-    def from_knp(cls, knp_text: str) -> "Sentence":
+    def from_knp(cls, knp_text: str, post_init: bool = True) -> "Sentence":
         """文クラスのインスタンスを KNP の解析結果から初期化．
 
         Args:
             knp_text: KNP の解析結果．
+            post_init: インスタンス作成後の追加処理を行うなら True．
 
         Example::
 
@@ -364,7 +369,8 @@ class Sentence(Unit):
             sentence.clauses = clauses
         else:
             sentence.phrases = phrases
-        sentence._post_init()
+        if post_init is True:
+            sentence.post_init()
         return sentence
 
     @staticmethod

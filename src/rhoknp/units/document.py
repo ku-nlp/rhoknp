@@ -46,6 +46,9 @@ class Document(Unit):
 
     def _post_init(self) -> None:
         """インスタンス作成後の追加処理を行う．"""
+        if self._sentences:
+            for sentence in self._sentences:
+                sentence.post_init()
         if self.need_knp is False:
             self._parse_rel()
         if self.need_clause_tag is False:
@@ -192,7 +195,7 @@ class Document(Unit):
             sentence_lines.append(line)
             if is_comment_line(line):
                 continue
-            sentences.append(Sentence.from_raw_text("\n".join(sentence_lines)))
+            sentences.append(Sentence.from_raw_text("\n".join(sentence_lines), post_init=False))
             sentence_lines = []
         document.sentences = sentences
         document._post_init()
@@ -217,13 +220,13 @@ class Document(Unit):
         for sentence in sentences:
             if isinstance(sentence, Sentence):
                 if sentence.need_jumanpp:
-                    sentences_.append(Sentence.from_raw_text(sentence.text))
+                    sentences_.append(Sentence.from_raw_text(sentence.text, post_init=False))
                 elif sentence.need_knp:
-                    sentences_.append(Sentence.from_jumanpp(sentence.to_jumanpp()))
+                    sentences_.append(Sentence.from_jumanpp(sentence.to_jumanpp(), post_init=False))
                 else:
-                    sentences_.append(Sentence.from_knp(sentence.to_knp()))
+                    sentences_.append(Sentence.from_knp(sentence.to_knp(), post_init=False))
             else:
-                sentences_.append(Sentence.from_raw_text(sentence))
+                sentences_.append(Sentence.from_raw_text(sentence, post_init=False))
         document.sentences = sentences_
         if sentences_:
             document.doc_id = sentences_[0].doc_id
@@ -274,7 +277,7 @@ class Document(Unit):
             sentence_lines.append(line)
             if line.strip() == Sentence.EOS:
                 try:
-                    sentences.append(Sentence.from_jumanpp("\n".join(sentence_lines) + "\n"))
+                    sentences.append(Sentence.from_jumanpp("\n".join(sentence_lines) + "\n", post_init=False))
                 except Exception as e:
                     document.has_error = True
                     if not ignore_errors:
@@ -344,7 +347,7 @@ class Document(Unit):
             sentence_lines.append(line)
             if line.strip() == Sentence.EOS:
                 try:
-                    sentences.append(Sentence.from_knp("\n".join(sentence_lines) + "\n"))
+                    sentences.append(Sentence.from_knp("\n".join(sentence_lines) + "\n", post_init=False))
                 except Exception as e:
                     document.has_error = True
                     if not ignore_errors:
