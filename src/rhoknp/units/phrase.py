@@ -16,10 +16,10 @@ if TYPE_CHECKING:
 class Phrase(Unit):
     """文節クラス．"""
 
-    KNP_PAT = re.compile(rf"^\* (?P<pid>-1|\d+)(?P<dtype>[DPAI])( {Features.PAT.pattern})?$")
+    KNP_PAT = re.compile(rf"^\*( (?P<pid>-1|\d+)(?P<dtype>[DPAI]))?( {Features.PAT.pattern})?$")
     count = 0
 
-    def __init__(self, parent_index: int, dep_type: DepType, features: Features):
+    def __init__(self, parent_index: Optional[int], dep_type: Optional[DepType], features: Features):
         super().__init__()
 
         # parent unit
@@ -29,8 +29,8 @@ class Phrase(Unit):
         # child units
         self._base_phrases: Optional[list[BasePhrase]] = None
 
-        self.parent_index: int = parent_index  #: 係り先の文節の文内におけるインデックス．
-        self.dep_type: DepType = dep_type  #: 係り受けの種類．
+        self.parent_index: Optional[int] = parent_index  #: 係り先の文節の文内におけるインデックス．
+        self.dep_type: Optional[DepType] = dep_type  #: 係り受けの種類．
         self.features: Features = features  #: 素性．
 
         self.index = self.count
@@ -134,14 +134,24 @@ class Phrase(Unit):
 
     @property
     def parent(self) -> Optional["Phrase"]:
-        """係り先の文節．ないなら None．"""
+        """係り先の文節．ないなら None．
+
+        Raises:
+            AttributeError: 解析結果にアクセスできない場合．
+        """
+        if self.parent_index is None:
+            raise AttributeError("parent_index has not been set")
         if self.parent_index == -1:
             return None
         return self.sentence.phrases[self.parent_index]
 
     @cached_property
     def children(self) -> list["Phrase"]:
-        """この文節に係っている文節のリスト．"""
+        """この文節に係っている文節のリスト．
+
+        Raises:
+            AttributeError: 解析結果にアクセスできない場合．
+        """
         return [phrase for phrase in self.sentence.phrases if phrase.parent == self]
 
     @classmethod
@@ -155,8 +165,8 @@ class Phrase(Unit):
         match = cls.KNP_PAT.match(first_line)
         if match is None:
             raise ValueError(f"malformed line: {first_line}")
-        parent_index = int(match.group("pid"))
-        dep_type = DepType(match.group("dtype"))
+        parent_index = int(match.group("pid")) if match.group("pid") is not None else None
+        dep_type = DepType(match.group("dtype")) if match.group("dtype") is not None else None
         features = Features.from_fstring(match.group("feats") or "")
         phrase = cls(parent_index, dep_type, features)
 
@@ -176,7 +186,10 @@ class Phrase(Unit):
 
     def to_knp(self) -> str:
         """KNP フォーマットに変換．"""
-        ret = f"* {self.parent_index}{self.dep_type.value}"
+        ret = "*"
+        if self.parent_index is not None:
+            assert self.dep_type is not None
+            ret += f" {self.parent_index}{self.dep_type.value}"
         if self.features:
             ret += f" {self.features}"
         ret += "\n"

@@ -25,11 +25,11 @@ class BasePhrase(Unit):
     """基本句クラス．"""
 
     KNP_PAT = re.compile(
-        rf"^\+ (?P<pid>-1|\d+)(?P<dtype>[{''.join(e.value for e in DepType)}])( (?P<tags>(<[^>]+>)*))?$"
+        rf"^\+( (?P<pid>-1|\d+)(?P<dtype>[{''.join(e.value for e in DepType)}]))?( (?P<tags>(<[^>]+>)*))?$"
     )
     count = 0
 
-    def __init__(self, parent_index: int, dep_type: DepType, features: Features, rels: Rels):
+    def __init__(self, parent_index: Optional[int], dep_type: Optional[DepType], features: Features, rels: Rels):
         super().__init__()
 
         # parent unit
@@ -38,8 +38,8 @@ class BasePhrase(Unit):
         # child units
         self._morphemes: Optional[list[Morpheme]] = None
 
-        self.parent_index: int = parent_index  #: 係り先の基本句の文内におけるインデックス．
-        self.dep_type: DepType = dep_type  #: 係り受けの種類．
+        self.parent_index: Optional[int] = parent_index  #: 係り先の文節の文内におけるインデックス．
+        self.dep_type: Optional[DepType] = dep_type  #: 係り受けの種類．
         self.features: Features = features  #: 素性．
         self.rels: Rels = rels  #: 基本句間関係．
         self.pas: Optional["Pas"] = None  #: 述語項構造．
@@ -151,14 +151,24 @@ class BasePhrase(Unit):
 
     @property
     def parent(self) -> Optional["BasePhrase"]:
-        """係り先の基本句．ないなら None．"""
+        """係り先の基本句．ないなら None．
+
+        Raises:
+            AttributeError: 解析結果にアクセスできない場合．
+        """
+        if self.parent_index is None:
+            raise AttributeError("parent_index has not been set")
         if self.parent_index == -1:
             return None
         return self.sentence.base_phrases[self.parent_index]
 
     @cached_property
     def children(self) -> list["BasePhrase"]:
-        """この基本句に係っている基本句のリスト．"""
+        """この基本句に係っている基本句のリスト．
+
+        Raises:
+            AttributeError: 解析結果にアクセスできない場合．
+        """
         return [base_phrase for base_phrase in self.sentence.base_phrases if base_phrase.parent == self]
 
     @property
@@ -177,8 +187,8 @@ class BasePhrase(Unit):
         match = cls.KNP_PAT.match(first_line)
         if match is None:
             raise ValueError(f"malformed line: {first_line}")
-        parent_index = int(match.group("pid"))
-        dep_type = DepType(match.group("dtype"))
+        parent_index = int(match.group("pid")) if match.group("pid") is not None else None
+        dep_type = DepType(match.group("dtype")) if match.group("dtype") is not None else None
         features = Features.from_fstring(match.group("tags") or "")
         rels = Rels.from_fstring(match.group("tags") or "")
         base_phrase = cls(parent_index, dep_type, features, rels)
@@ -193,7 +203,10 @@ class BasePhrase(Unit):
 
     def to_knp(self) -> str:
         """KNP フォーマットに変換．"""
-        ret = f"+ {self.parent_index}{self.dep_type.value}"
+        ret = "+"
+        if self.parent_index is not None:
+            assert self.dep_type is not None
+            ret += f" {self.parent_index}{self.dep_type.value}"
         if self.rels or self.features:
             ret += f" {self.rels.to_fstring()}{self.features.to_fstring()}"
         ret += "\n"
