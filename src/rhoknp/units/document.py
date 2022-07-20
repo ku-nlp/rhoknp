@@ -290,7 +290,10 @@ class Document(Unit):
 
         Args:
             knp_text: KNP の解析結果．
-            ignore_errors: 解析結果中にエラーが発生してもその文を捨てて処理を続行する．
+            ignore_errors: 解析結果読み込み中にエラーが発生してもその文を捨てて処理を続行する．
+
+        Raises:
+            Exception: ignore_errors=False かつ解析結果読み込み中にエラーが発生した場合．
 
         Example::
 
