@@ -144,7 +144,7 @@ class EntityManager:
     ) -> None:
         """2つのエンティティをマージ．
 
-        source_mention と se, target_mention と te の間には mention が張られているが、
+        source_mention と source_entity, target_mention と target_entity の間には mention が張られているが、
         source と target 間には張られていないので、add_mention する．
         source_entity と target_entity が同一のエンティティであり、exophor も同じか片方が None ならば target_entity の方を削除する．
 
