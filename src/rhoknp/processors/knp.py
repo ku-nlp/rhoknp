@@ -83,7 +83,7 @@ class KNP(Processor):
             document = self.jumanpp.apply_to_document(document)
 
         with Popen(self.run_command, stdout=PIPE, stdin=PIPE, encoding="utf-8") as p:
-            knp_text, _ = p.communicate(input=document.to_jumanpp())
+            knp_text, _ = p.communicate(input=document.to_jumanpp() if document.need_knp else document.to_knp())
         return Document.from_knp(knp_text)
 
     def apply_to_sentence(self, sentence: Union[Sentence, str]) -> Sentence:
@@ -107,7 +107,7 @@ class KNP(Processor):
             sentence = self.jumanpp.apply_to_sentence(sentence)
 
         with Popen(self.run_command, stdout=PIPE, stdin=PIPE, encoding="utf-8") as p:
-            knp_text, _ = p.communicate(input=sentence.to_jumanpp())
+            knp_text, _ = p.communicate(input=sentence.to_jumanpp() if sentence.need_knp else sentence.to_knp())
         return Sentence.from_knp(knp_text)
 
     def is_available(self) -> bool:
