@@ -38,7 +38,7 @@ class BasePhrase(Unit):
         # child units
         self._morphemes: Optional[list[Morpheme]] = None
 
-        self.parent_index: Optional[int] = parent_index  #: 係り先の文節の文内におけるインデックス．
+        self.parent_index: Optional[int] = parent_index  #: 係り先の基本句の文内におけるインデックス．
         self.dep_type: Optional[DepType] = dep_type  #: 係り受けの種類．
         self.features: Features = features  #: 素性．
         self.rels: Rels = rels  #: 基本句間関係．
