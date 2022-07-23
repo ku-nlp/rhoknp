@@ -132,22 +132,20 @@ class BasePhrase(Unit):
             morpheme.base_phrase = self
         self._morphemes = morphemes
 
-    @cached_property
+    @property
     def head(self) -> Morpheme:
         """主辞の形態素．"""
-        head = None
+        feature_to_priority = {"内容語": 0, "準内容語": 1, "基本句-主辞": 2}
+        head = self.morphemes[0]
+        current_priority = -1
         for morpheme in self.morphemes:
-            if morpheme.features is None:
+            if not morpheme.features:
                 continue
-            if "内容語" in morpheme.features and head is None:
-                # Consider the first content word as the head
-                head = morpheme
-            if "準内容語" in morpheme.features:
-                # Sub-content words overwrite the head
-                head = morpheme
-        if head:
-            return head
-        return self.morphemes[0]
+            for feature, priority in feature_to_priority.items():
+                if feature in morpheme.features and priority > current_priority:
+                    head = morpheme
+                    current_priority = priority
+        return head
 
     @property
     def parent(self) -> Optional["BasePhrase"]:
