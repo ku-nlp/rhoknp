@@ -32,7 +32,9 @@ class Semantics(dict[str, Union[str, bool]]):
     PAT = re.compile(rf'(?P<sems>("([^"]|\\")+?")|{NIL})')
     SEM_PAT = re.compile(r"(?P<key>[^:]+)(:(?P<value>\S+))?\s?")
 
-    def __init__(self, semantics: dict[str, Union[str, bool]], is_nil: bool = False):
+    def __init__(self, semantics: dict[str, Union[str, bool]] = None, is_nil: bool = False):
+        if semantics is None:
+            semantics = {}
         super().__init__(semantics)
         self.is_nil: bool = is_nil
 
