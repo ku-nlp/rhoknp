@@ -253,9 +253,8 @@ class BasePhrase(Unit):
 
     def parse_rel(self) -> None:
         """関係タグ付きコーパスにおける <rel> タグをパース．"""
-        if not self.rels:
-            return
-        self.pas = Pas(Predicate(self))
+        if self.pas is None:
+            self.pas = Pas(Predicate(self))
         for rel in self.rels:
             if rel.sid == "":
                 logger.warning(f"empty sid found in {self.sentence.sid}; assume to be self")
