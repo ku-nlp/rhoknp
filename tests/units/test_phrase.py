@@ -22,7 +22,8 @@ CASES = [
             散歩 さんぽ 散歩 名詞 6 サ変名詞 2 * 0 * 0 "代表表記:散歩/さんぽ ドメイン:レクリエーション カテゴリ:抽象物" <代表表記:散歩/さんぽ><ドメイン:レクリエーション><カテゴリ:抽象物><正規化代表表記:散歩/さんぽ><漢字><かな漢字><名詞相当語><サ変><サ変動詞><自立><内容語><タグ単位始><文節始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
             した した する 動詞 2 * 0 サ変動詞 16 タ形 10 "代表表記:する/する 自他動詞:自:成る/なる 付属動詞候補（基本）" <代表表記:する/する><自他動詞:自:成る/なる><付属動詞候補（基本）><正規化代表表記:する/する><かな漢字><ひらがな><活用語><表現文末><とタ系連用テ形複合辞><付属>
             。 。 。 特殊 1 句点 1 * 0 * 0 NIL <英記号><記号><文末><付属>
-            EOS"""
+            EOS
+            """
         ),
         "num": 3,
         "parent_ids": [1, 2, -1],
@@ -51,6 +52,30 @@ CASES = [
         "num": 2,
         "parent_ids": [1, -1],
         "children_ids": [[], [0]],
+    },
+    {
+        "knp": textwrap.dedent(
+            """\
+            # S-ID:1
+            *
+            +
+            天気 てんき 天気 名詞 6 普通名詞 1 * 0 * 0 "代表表記:天気/てんき カテゴリ:抽象物"
+            が が が 助詞 9 格助詞 1 * 0 * 0 NIL
+            *
+            +
+            いい いい いい 形容詞 3 * 0 イ形容詞イ段 19 基本形 2 "代表表記:良い/よい 反義:形容詞:悪い/わるい"
+            ので ので のだ 助動詞 5 * 0 ナ形容詞 21 ダ列タ系連用テ形 12 NIL
+            *
+            +
+            散歩 さんぽ 散歩 名詞 6 サ変名詞 2 * 0 * 0 "代表表記:散歩/さんぽ ドメイン:レクリエーション カテゴリ:抽象物"
+            した した する 動詞 2 * 0 サ変動詞 16 タ形 10 "代表表記:する/する 自他動詞:自:成る/なる 付属動詞候補（基本）"
+            。 。 。 特殊 1 句点 1 * 0 * 0 NIL
+            EOS
+            """
+        ),
+        "num": 3,
+        "parent_ids": None,
+        "children_ids": None,
     },
 ]
 
@@ -169,25 +194,41 @@ def test_num_sentence(case: dict[str, str]) -> None:
 @pytest.mark.parametrize("case", CASES)
 def test_parent_document(case: dict[str, str]) -> None:
     doc = Document.from_knp(case["knp"])
-    assert [phrase.parent.index if phrase.parent else -1 for phrase in doc.phrases] == case["parent_ids"]
+    if case["parent_ids"] is not None:
+        assert [phrase.parent.index if phrase.parent else -1 for phrase in doc.phrases] == case["parent_ids"]
+    else:
+        with pytest.raises(AttributeError):
+            _ = [phrase.parent for phrase in doc.phrases]
 
 
 @pytest.mark.parametrize("case", CASES)
 def test_parent_sentence(case: dict[str, str]) -> None:
     sent = Sentence.from_knp(case["knp"])
-    assert [phrase.parent.index if phrase.parent else -1 for phrase in sent.phrases] == case["parent_ids"]
+    if case["parent_ids"] is not None:
+        assert [phrase.parent.index if phrase.parent else -1 for phrase in sent.phrases] == case["parent_ids"]
+    else:
+        with pytest.raises(AttributeError):
+            _ = [phrase.parent for phrase in sent.phrases]
 
 
 @pytest.mark.parametrize("case", CASES)
 def test_children_document(case: dict[str, str]) -> None:
     doc = Document.from_knp(case["knp"])
-    assert [[child.index for child in phrase.children] for phrase in doc.phrases] == case["children_ids"]
+    if case["children_ids"] is not None:
+        assert [[child.index for child in phrase.children] for phrase in doc.phrases] == case["children_ids"]
+    else:
+        with pytest.raises(AttributeError):
+            _ = [phrase.children for phrase in doc.phrases]
 
 
 @pytest.mark.parametrize("case", CASES)
 def test_children_sentence(case: dict[str, str]) -> None:
     sent = Sentence.from_knp(case["knp"])
-    assert [[child.index for child in phrase.children] for phrase in sent.phrases] == case["children_ids"]
+    if case["children_ids"] is not None:
+        assert [[child.index for child in phrase.children] for phrase in sent.phrases] == case["children_ids"]
+    else:
+        with pytest.raises(AttributeError):
+            _ = [phrase.children for phrase in sent.phrases]
 
 
 @pytest.mark.parametrize("case", KNP_SNIPPETS)

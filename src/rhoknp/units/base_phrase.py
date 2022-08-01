@@ -25,11 +25,11 @@ class BasePhrase(Unit):
     """基本句クラス．"""
 
     KNP_PAT = re.compile(
-        rf"^\+ (?P<pid>-1|\d+)(?P<dtype>[{''.join(e.value for e in DepType)}])( (?P<tags>(<[^>]+>)*))?$"
+        rf"^\+( (?P<pid>-1|\d+)(?P<dtype>[{''.join(e.value for e in DepType)}]))?( (?P<tags>(<[^>]+>)*))?$"
     )
     count = 0
 
-    def __init__(self, parent_index: int, dep_type: DepType, features: Features, rels: Rels):
+    def __init__(self, parent_index: Optional[int], dep_type: Optional[DepType], features: Features, rels: Rels):
         super().__init__()
 
         # parent unit
@@ -38,8 +38,8 @@ class BasePhrase(Unit):
         # child units
         self._morphemes: Optional[list[Morpheme]] = None
 
-        self.parent_index: int = parent_index  #: 係り先の基本句の文内におけるインデックス．
-        self.dep_type: DepType = dep_type  #: 係り受けの種類．
+        self.parent_index: Optional[int] = parent_index  #: 係り先の基本句の文内におけるインデックス．
+        self.dep_type: Optional[DepType] = dep_type  #: 係り受けの種類．
         self.features: Features = features  #: 素性．
         self.rels: Rels = rels  #: 基本句間関係．
         self.pas: Optional["Pas"] = None  #: 述語項構造．
@@ -132,33 +132,41 @@ class BasePhrase(Unit):
             morpheme.base_phrase = self
         self._morphemes = morphemes
 
-    @cached_property
+    @property
     def head(self) -> Morpheme:
         """主辞の形態素．"""
-        head = None
+        feature_to_priority = {"内容語": 0, "準内容語": 1, "基本句-主辞": 2}
+        head = self.morphemes[0]
+        current_priority = -1
         for morpheme in self.morphemes:
-            if morpheme.features is None:
+            if not morpheme.features:
                 continue
-            if "内容語" in morpheme.features and head is None:
-                # Consider the first content word as the head
-                head = morpheme
-            if "準内容語" in morpheme.features:
-                # Sub-content words overwrite the head
-                head = morpheme
-        if head:
-            return head
-        return self.morphemes[0]
+            for feature, priority in feature_to_priority.items():
+                if feature in morpheme.features and priority > current_priority:
+                    head = morpheme
+                    current_priority = priority
+        return head
 
     @property
     def parent(self) -> Optional["BasePhrase"]:
-        """係り先の基本句．ないなら None．"""
+        """係り先の基本句．ないなら None．
+
+        Raises:
+            AttributeError: 解析結果にアクセスできない場合．
+        """
+        if self.parent_index is None:
+            raise AttributeError("parent_index has not been set")
         if self.parent_index == -1:
             return None
         return self.sentence.base_phrases[self.parent_index]
 
     @cached_property
     def children(self) -> list["BasePhrase"]:
-        """この基本句に係っている基本句のリスト．"""
+        """この基本句に係っている基本句のリスト．
+
+        Raises:
+            AttributeError: 解析結果にアクセスできない場合．
+        """
         return [base_phrase for base_phrase in self.sentence.base_phrases if base_phrase.parent == self]
 
     @property
@@ -177,9 +185,9 @@ class BasePhrase(Unit):
         match = cls.KNP_PAT.match(first_line)
         if match is None:
             raise ValueError(f"malformed line: {first_line}")
-        parent_index = int(match.group("pid"))
-        dep_type = DepType(match.group("dtype"))
-        features = Features(match.group("tags") or "")
+        parent_index = int(match.group("pid")) if match.group("pid") is not None else None
+        dep_type = DepType(match.group("dtype")) if match.group("dtype") is not None else None
+        features = Features.from_fstring(match.group("tags") or "")
         rels = Rels.from_fstring(match.group("tags") or "")
         base_phrase = cls(parent_index, dep_type, features, rels)
 
@@ -193,7 +201,10 @@ class BasePhrase(Unit):
 
     def to_knp(self) -> str:
         """KNP フォーマットに変換．"""
-        ret = f"+ {self.parent_index}{self.dep_type.value}"
+        ret = "+"
+        if self.parent_index is not None:
+            assert self.dep_type is not None
+            ret += f" {self.parent_index}{self.dep_type.value}"
         if self.rels or self.features:
             ret += f" {self.rels.to_fstring()}{self.features.to_fstring()}"
         ret += "\n"
@@ -242,9 +253,8 @@ class BasePhrase(Unit):
 
     def parse_rel(self) -> None:
         """関係タグ付きコーパスにおける <rel> タグをパース．"""
-        if not self.rels:
-            return
-        self.pas = Pas(Predicate(self))
+        if self.pas is None:
+            self.pas = Pas(Predicate(self))
         for rel in self.rels:
             if rel.sid == "":
                 logger.warning(f"empty sid found in {self.sentence.sid}; assume to be self")
@@ -322,14 +332,19 @@ class BasePhrase(Unit):
                 entity_manager.merge_entities(self, None, source_entity, target_entity, nonidentical)
 
     def _get_target_base_phrase(self, rel: Rel) -> Optional["BasePhrase"]:
-        sentence = next(sent for sent in self.document.sentences if sent.sid == rel.sid)
+        """rel が指す基本句を取得．"""
+        sentences = [sent for sent in self.document.sentences if sent.sid == rel.sid]
+        if not sentences:
+            logger.warning(f"{self.sentence.sid}: relation with unknown sid found: {rel.sid}")
+            return None
+        sentence = sentences[0]
         assert rel.base_phrase_index is not None
         if rel.base_phrase_index >= len(sentence.base_phrases):
-            logger.warning(f"index out of range in {self.sentence.sid}")
+            logger.warning(f"{self.sentence.sid}: index out of range")
             return None
         target_base_phrase = sentence.base_phrases[rel.base_phrase_index]
         if not (set(rel.target) <= set(target_base_phrase.text)):
-            logger.info(f"rel target mismatch; '{rel.target}' is not '{target_base_phrase.text}'")
+            logger.info(f"{self.sentence.sid}: rel target mismatch; '{rel.target}' vs '{target_base_phrase.text}'")
         return target_base_phrase
 
     def __hash__(self) -> int:

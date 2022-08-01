@@ -43,26 +43,29 @@ def draw_tree(
 def sprint_tree(leaves: Sequence[Union["Phrase", "BasePhrase"]], show_pos: bool = True) -> str:
     """構文木を文字列で返す．"""
     limit = len(leaves)
-    item = [[""] * limit for _ in range(limit)]
+    item = [[""] * limit for _ in leaves]
     active_column = [0] * limit
     limit -= 1
 
     for i in range(limit):
+        parent_index = leaves[i].parent_index
+        dep_type = leaves[i].dep_type
+        assert parent_index is not None, "parent_index has not been set"
         para_row = leaves[i].dep_type == DepType.PARALLEL
         for j in range(i + 1, limit + 1):
-            if j < leaves[i].parent_index:
+            if j < parent_index:
                 if active_column[j] == 2:
                     item[i][j] = "╋" if para_row else "╂"
                 elif active_column[j] == 1:
                     item[i][j] = "┿" if para_row else "┼"
                 else:
                     item[i][j] = "━" if para_row else "─"
-            elif j == leaves[i].parent_index:
-                if leaves[i].dep_type == DepType.PARALLEL:
+            elif j == parent_index:
+                if dep_type == DepType.PARALLEL:
                     item[i][j] = "Ｐ"
-                elif leaves[i].dep_type == DepType.IMPERFECT_PARALLEL:
+                elif dep_type == DepType.IMPERFECT_PARALLEL:
                     item[i][j] = "Ｉ"
-                elif leaves[i].dep_type == DepType.APPOSITION:
+                elif dep_type == DepType.APPOSITION:
                     item[i][j] = "Ａ"
                 else:
                     if active_column[j] == 2:
