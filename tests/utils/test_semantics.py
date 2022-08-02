@@ -14,7 +14,7 @@ def test_false():
 
 
 def test_empty_dict():
-    semantics = SemanticsDict({})
+    semantics = SemanticsDict()
     assert semantics.to_sstring() == ""
 
 
