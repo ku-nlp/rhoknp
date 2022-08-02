@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any, Optional, Union
 
 from rhoknp.cohesion.exophora import ExophoraReferent
 
@@ -117,3 +117,6 @@ class ExophoraArgument(BaseArgument):
 
     def __eq__(self, other: Any) -> bool:
         return isinstance(other, ExophoraArgument) and self.exophora_referent == other.exophora_referent
+
+
+Argument = Union[EndophoraArgument, ExophoraArgument]

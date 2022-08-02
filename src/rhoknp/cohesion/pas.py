@@ -5,7 +5,7 @@ from collections import defaultdict
 from enum import Enum, auto
 from typing import TYPE_CHECKING, Optional, Union
 
-from rhoknp.cohesion.argument import ArgumentType, BaseArgument, EndophoraArgument, ExophoraArgument
+from rhoknp.cohesion.argument import Argument, ArgumentType, EndophoraArgument, ExophoraArgument
 from rhoknp.cohesion.exophora import ExophoraReferent
 from rhoknp.cohesion.predicate import Predicate
 from rhoknp.cohesion.rel import RelMode
@@ -33,7 +33,7 @@ class Pas:
     def __init__(self, predicate: Predicate):
         self._predicate = predicate
         predicate.pas = self
-        self._arguments: dict[str, list[BaseArgument]] = defaultdict(list)
+        self._arguments: dict[str, list[Argument]] = defaultdict(list)
         self.modes: dict[str, RelMode] = {}
 
     @property
@@ -85,7 +85,7 @@ class Pas:
             if case_flag in ("U", "-"):
                 continue
             arg_type = ArgumentType(case_flag)
-            arg: BaseArgument
+            arg: Argument
             if format_ == CaseInfoFormat.CASE:
                 tid, sdist, sid = int(fields[0]), int(fields[1]), fields[2]
                 assert arg_type != ArgumentType.EXOPHORA
@@ -126,7 +126,7 @@ class Pas:
         relax: bool = True,
         include_nonidentical: bool = False,
         include_optional: bool = False,
-    ) -> list[BaseArgument]:
+    ) -> list[Argument]:
         """与えられた格の全ての項を返す．
 
         Args:
@@ -172,7 +172,7 @@ class Pas:
         relax: bool = True,
         include_nonidentical: bool = False,
         include_optional: bool = False,
-    ) -> dict[str, list[BaseArgument]]:
+    ) -> dict[str, list[Argument]]:
         """この述語項構造が持つ全ての項を格を key とする辞書形式で返す．
 
         Args:
@@ -182,7 +182,7 @@ class Pas:
 
         Returns: 格を key とする項の辞書．
         """
-        all_arguments: dict[str, list[BaseArgument]] = {}
+        all_arguments: dict[str, list[Argument]] = {}
         for case in self.cases:
             all_arguments[case] = self.get_arguments(
                 case,
