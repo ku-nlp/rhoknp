@@ -1,6 +1,6 @@
 import pytest
 
-from rhoknp.units.utils import Semantics
+from rhoknp.props.semantics import Semantics
 
 
 @pytest.mark.parametrize("sstring", ['"代表表記:天気/てんき カテゴリ:抽象物"', "NIL"])

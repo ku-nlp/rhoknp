@@ -9,7 +9,7 @@ from rhoknp.units.morpheme import Morpheme
 from rhoknp.units.phrase import Phrase
 from rhoknp.units.sentence import Sentence
 from rhoknp.units.unit import Unit
-from rhoknp.units.utils import is_comment_line
+from rhoknp.utils.utils import is_comment_line
 
 logger = logging.getLogger(__name__)
 

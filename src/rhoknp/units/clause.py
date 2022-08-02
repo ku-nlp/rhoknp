@@ -1,11 +1,11 @@
 from functools import cached_property
 from typing import TYPE_CHECKING, Optional
 
+from rhoknp.rel.discourse import DiscourseRelationList
 from rhoknp.units.base_phrase import BasePhrase
 from rhoknp.units.morpheme import Morpheme
 from rhoknp.units.phrase import Phrase
 from rhoknp.units.unit import Unit
-from rhoknp.units.utils import DiscourseRelationList
 
 if TYPE_CHECKING:
     from rhoknp.units.document import Document

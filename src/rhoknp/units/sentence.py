@@ -6,7 +6,7 @@ from rhoknp.units.clause import Clause
 from rhoknp.units.morpheme import Morpheme
 from rhoknp.units.phrase import Phrase
 from rhoknp.units.unit import Unit
-from rhoknp.units.utils import is_comment_line
+from rhoknp.utils.utils import is_comment_line
 
 if TYPE_CHECKING:
     from rhoknp.units.document import Document

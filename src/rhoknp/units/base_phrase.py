@@ -3,13 +3,15 @@ import re
 from functools import cached_property
 from typing import TYPE_CHECKING, Optional
 
+from rhoknp.props.dependency import DepType
+from rhoknp.props.feature import Features
 from rhoknp.rel.coreference import Entity, EntityManager
 from rhoknp.rel.exophora import ExophoraReferent
 from rhoknp.rel.pas import CaseInfoFormat, Pas
 from rhoknp.rel.predicate import Predicate
+from rhoknp.rel.rel import Rel, RelList, RelMode
 from rhoknp.units.morpheme import Morpheme
 from rhoknp.units.unit import Unit
-from rhoknp.units.utils import DepType, Features, Rel, RelList, RelMode
 from rhoknp.utils.constants import ALL_CASES, ALL_COREFS
 
 if TYPE_CHECKING:

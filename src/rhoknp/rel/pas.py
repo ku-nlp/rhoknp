@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Optional, Union
 from rhoknp.rel.argument import Argument, ArgumentType, BaseArgument, SpecialArgument
 from rhoknp.rel.exophora import ExophoraReferent
 from rhoknp.rel.predicate import Predicate
-from rhoknp.units.utils import RelMode
+from rhoknp.rel.rel import RelMode
 
 if TYPE_CHECKING:
     from rhoknp.units.base_phrase import BasePhrase

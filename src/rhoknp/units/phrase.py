@@ -2,10 +2,11 @@ import re
 from functools import cached_property
 from typing import TYPE_CHECKING, Optional, Union
 
+from rhoknp.props.dependency import DepType
+from rhoknp.props.feature import Features
 from rhoknp.units.base_phrase import BasePhrase
 from rhoknp.units.morpheme import Morpheme
 from rhoknp.units.unit import Unit
-from rhoknp.units.utils import DepType, Features
 
 if TYPE_CHECKING:
     from rhoknp.units.clause import Clause
