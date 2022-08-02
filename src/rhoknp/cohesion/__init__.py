@@ -1,8 +1,8 @@
-from rhoknp.cohesion.argument import Argument, ArgumentType, SpecialArgument
-from rhoknp.cohesion.coreference import Entity
-from rhoknp.cohesion.exophora import ExophoraReferent, ExophoraReferentType
-from rhoknp.cohesion.pas import Pas
-from rhoknp.cohesion.predicate import Predicate
+from .argument import Argument, ArgumentType, SpecialArgument
+from .coreference import Entity
+from .exophora import ExophoraReferent, ExophoraReferentType
+from .pas import Pas
+from .predicate import Predicate
 
 __all__ = [
     "Predicate",
