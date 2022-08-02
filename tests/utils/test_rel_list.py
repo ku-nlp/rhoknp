@@ -1,4 +1,4 @@
-from rhoknp.rel.rel import RelList, RelMode
+from rhoknp.cohesion.rel import RelList, RelMode
 
 fstring = """<rel type="=≒" target="オフェンス" sid="w201106-0001519365-1" id="3"/><rel type="=≒" mode="AND" target="ディフェンス" sid="w201106-0001519365-1" id="4"/><rel type="ノ？" target="著者"/>"""
 

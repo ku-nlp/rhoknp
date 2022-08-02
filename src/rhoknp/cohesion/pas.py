@@ -5,10 +5,10 @@ from collections import defaultdict
 from enum import Enum, auto
 from typing import TYPE_CHECKING, Optional, Union
 
-from rhoknp.rel.argument import Argument, ArgumentType, BaseArgument, SpecialArgument
-from rhoknp.rel.exophora import ExophoraReferent
-from rhoknp.rel.predicate import Predicate
-from rhoknp.rel.rel import RelMode
+from rhoknp.cohesion.argument import Argument, ArgumentType, BaseArgument, SpecialArgument
+from rhoknp.cohesion.exophora import ExophoraReferent
+from rhoknp.cohesion.predicate import Predicate
+from rhoknp.cohesion.rel import RelMode
 
 if TYPE_CHECKING:
     from rhoknp.units.base_phrase import BasePhrase

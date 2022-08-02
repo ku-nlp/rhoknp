@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from rhoknp.rel import Entity, ExophoraReferent
+from rhoknp.cohesion import Entity, ExophoraReferent
 from rhoknp.units import BasePhrase, Document
 
 

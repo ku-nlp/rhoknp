@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
-    from rhoknp.rel.pas import Pas
+    from rhoknp.cohesion.pas import Pas
     from rhoknp.units.base_phrase import BasePhrase
 
 

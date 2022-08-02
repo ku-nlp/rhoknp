@@ -1,8 +1,8 @@
 import logging
 from typing import TYPE_CHECKING, Optional
 
-from rhoknp.rel.argument import SpecialArgument
-from rhoknp.rel.exophora import ExophoraReferent
+from rhoknp.cohesion.argument import SpecialArgument
+from rhoknp.cohesion.exophora import ExophoraReferent
 
 if TYPE_CHECKING:
     from rhoknp.units.base_phrase import BasePhrase

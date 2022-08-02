@@ -1,6 +1,6 @@
 import pytest
 
-from rhoknp.rel import Predicate
+from rhoknp.cohesion import Predicate
 from rhoknp.units import BasePhrase
 
 

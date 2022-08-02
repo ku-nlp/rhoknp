@@ -1,6 +1,6 @@
 import pytest
 
-from rhoknp.rel import Argument, ArgumentType, ExophoraReferent, SpecialArgument
+from rhoknp.cohesion import Argument, ArgumentType, ExophoraReferent, SpecialArgument
 from rhoknp.units import BasePhrase
 
 

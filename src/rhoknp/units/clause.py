@@ -1,7 +1,7 @@
 from functools import cached_property
 from typing import TYPE_CHECKING, Optional
 
-from rhoknp.rel.discourse import DiscourseRelationList
+from rhoknp.cohesion.discourse import DiscourseRelationList
 from rhoknp.units.base_phrase import BasePhrase
 from rhoknp.units.morpheme import Morpheme
 from rhoknp.units.phrase import Phrase

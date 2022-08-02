@@ -4,7 +4,7 @@ import textwrap
 import pytest
 
 from rhoknp import Document, Sentence
-from rhoknp.rel.discourse import DiscourseRelation, DiscourseRelationList
+from rhoknp.cohesion.discourse import DiscourseRelation, DiscourseRelationList
 
 
 def test_discourse_relation_init() -> None:

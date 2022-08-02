@@ -2,7 +2,7 @@ import logging
 import textwrap
 from pathlib import Path
 
-from rhoknp.rel import Argument, ArgumentType, ExophoraReferent, SpecialArgument
+from rhoknp.cohesion import Argument, ArgumentType, ExophoraReferent, SpecialArgument
 from rhoknp.units import Document
 
 
