@@ -54,6 +54,8 @@ class Sentence(Unit):
         """インスタンス作成後の追加処理を行う．"""
         if self.need_knp is False:
             self._parse_knp_pas()
+        if self.need_clause_tag is False:
+            self._parse_discourse_relation()
 
     @property
     def global_index(self) -> int:
@@ -209,6 +211,11 @@ class Sentence(Unit):
         if doc_id is not None:
             self.doc_id = doc_id
         self.misc_comment = rest
+
+    @property
+    def has_document(self) -> bool:
+        """文書が設定されていたら True．"""
+        return self._document is not None
 
     @property
     def need_jumanpp(self) -> bool:
@@ -431,6 +438,11 @@ class Sentence(Unit):
         """KNP 解析結果における <述語項構造> タグおよび <格解析結果> タグをパース．"""
         for base_phrase in self.base_phrases:
             base_phrase.parse_knp_pas()
+
+    def _parse_discourse_relation(self) -> None:
+        """<談話関係> タグをパース．"""
+        for clause in self.clauses:
+            clause.parse_discourse_relation()
 
     def __eq__(self, other: Any) -> bool:
         if isinstance(other, Sentence) is False:

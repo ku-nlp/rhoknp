@@ -46,13 +46,11 @@ class Document(Unit):
 
     def _post_init(self) -> None:
         """インスタンス作成後の追加処理を行う．"""
-        if self._sentences:
-            for sentence in self._sentences:
+        if self.need_senter is False:
+            for sentence in self.sentences:
                 sentence.post_init()
         if self.need_knp is False:
             self._parse_rel()
-        if self.need_clause_tag is False:
-            self._parse_discourse_relation()
 
     @property
     def parent_unit(self) -> None:
@@ -388,11 +386,6 @@ class Document(Unit):
             base_phrase.reset_rels()
         self.entity_manager.reset()
         self._parse_rel()
-
-    def _parse_discourse_relation(self) -> None:
-        """<談話関係> タグをパース．"""
-        for clause in self.clauses:
-            clause.parse_discourse_relation()
 
     def __eq__(self, other: Any) -> bool:
         if isinstance(other, Document) is False:

@@ -221,7 +221,11 @@ class DiscourseRelationList(list[DiscourseRelation]):
             if clause:
                 modifier = clause
                 head_sentence: Optional["Sentence"] = None
-                for sentence in clause.document.sentences:
+                if clause.sentence.has_document:
+                    sentences = clause.document.sentences
+                else:
+                    sentences = [clause.sentence]
+                for sentence in sentences:
                     if sentence.sid == sid:
                         head_sentence = sentence
                         break
