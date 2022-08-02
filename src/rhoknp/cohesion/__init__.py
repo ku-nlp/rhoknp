@@ -1,4 +1,4 @@
-from .argument import Argument, ArgumentType, SpecialArgument
+from .argument import Argument, ArgumentType, ExophoraArgument
 from .coreference import Entity, EntityManager
 from .discourse import DiscourseRelation, DiscourseRelationList
 from .exophora import ExophoraReferent, ExophoraReferentType
@@ -11,7 +11,7 @@ __all__ = [
     "Predicate",
     "ArgumentType",
     "Argument",
-    "SpecialArgument",
+    "ExophoraArgument",
     "ExophoraReferent",
     "ExophoraReferentType",
     "Entity",

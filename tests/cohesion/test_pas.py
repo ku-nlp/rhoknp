@@ -2,7 +2,7 @@ import logging
 import textwrap
 from pathlib import Path
 
-from rhoknp.cohesion import Argument, ArgumentType, ExophoraReferent, SpecialArgument
+from rhoknp.cohesion import Argument, ArgumentType, ExophoraArgument, ExophoraReferent
 from rhoknp.units import Document
 
 
@@ -112,7 +112,7 @@ def test_pas_pas() -> None:
 
     # 著者 ニ 行く
     argument = pas.get_arguments("ニ", relax=False)[0]
-    assert isinstance(argument, SpecialArgument)
+    assert isinstance(argument, ExophoraArgument)
     assert argument.type == ArgumentType("E")
     assert argument.exophora_referent == ExophoraReferent("著者")
     assert argument.eid == 0
@@ -168,7 +168,7 @@ def test_pas_inter_sentential() -> None:
 
     # 著者 ニ 行く
     argument = pas.get_arguments("ニ", relax=False)[0]
-    assert isinstance(argument, SpecialArgument)
+    assert isinstance(argument, ExophoraArgument)
     assert argument.type == ArgumentType("E")
     assert argument.exophora_referent == ExophoraReferent("著者")
     assert argument.eid == 2
@@ -313,7 +313,7 @@ def test_pas_rel() -> None:
     pas = pas_list[1]
     assert (
         repr(pas) == "Pas(predicate=Predicate(text='トスを'), "
-        "arguments={'ガ': [SpecialArgument(exophora_referent=ExophoraReferent(text='不特定:人'), eid=0)], "
+        "arguments={'ガ': [ExophoraArgument(exophora_referent=ExophoraReferent(text='不特定:人'), eid=0)], "
         "'ヲ': [Argument(base_phrase=BasePhrase(index=0, text='コイン'), "
         "arg_type=<ArgumentType.CASE_HIDDEN: 'N'>)]})"
     )
@@ -430,7 +430,7 @@ def test_pas_relax() -> None:
     case = "ニ"
     args = pas.get_arguments(case, relax=True, include_nonidentical=True)
     arg = args[0]
-    assert isinstance(arg, SpecialArgument)
+    assert isinstance(arg, ExophoraArgument)
     assert (arg.exophora_referent.text, arg.eid, arg.type) == ("著者", 5, ArgumentType.EXOPHORA)
     arg = args[1]
     assert isinstance(arg, Argument)

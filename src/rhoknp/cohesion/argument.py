@@ -96,7 +96,7 @@ class Argument(BaseArgument):
         return isinstance(other, Argument) and self.base_phrase == other.base_phrase
 
 
-class SpecialArgument(BaseArgument):
+class ExophoraArgument(BaseArgument):
     """外界を指す項を表すクラス．
 
     Args:
@@ -116,4 +116,4 @@ class SpecialArgument(BaseArgument):
         return str(self.exophora_referent)
 
     def __eq__(self, other: Any) -> bool:
-        return isinstance(other, SpecialArgument) and self.exophora_referent == other.exophora_referent
+        return isinstance(other, ExophoraArgument) and self.exophora_referent == other.exophora_referent

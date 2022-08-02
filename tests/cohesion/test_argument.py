@@ -1,6 +1,6 @@
 import pytest
 
-from rhoknp.cohesion import Argument, ArgumentType, ExophoraReferent, SpecialArgument
+from rhoknp.cohesion import Argument, ArgumentType, ExophoraArgument, ExophoraReferent
 from rhoknp.units import BasePhrase
 
 
@@ -24,14 +24,14 @@ def test_argument() -> None:
         _ = argument.pas
 
 
-def test_special_argument() -> None:
+def test_exophora_argument() -> None:
     exophora_referent = ExophoraReferent("不特定:人")
-    argument = SpecialArgument(exophora_referent, eid=3)
+    argument = ExophoraArgument(exophora_referent, eid=3)
     assert argument.exophora_referent == exophora_referent
     assert argument.eid == 3
-    assert repr(argument) == "SpecialArgument(exophora_referent=ExophoraReferent(text='不特定:人'), eid=3)"
+    assert repr(argument) == "ExophoraArgument(exophora_referent=ExophoraReferent(text='不特定:人'), eid=3)"
     assert str(argument) == "不特定:人"
     assert argument != "test"
-    assert argument == SpecialArgument(exophora_referent, eid=1)  # TODO: consider whether this is expected
+    assert argument == ExophoraArgument(exophora_referent, eid=1)  # TODO: consider whether this is expected
     with pytest.raises(AttributeError):
         _ = argument.pas

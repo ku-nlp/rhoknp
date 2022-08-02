@@ -5,7 +5,7 @@ from collections import defaultdict
 from enum import Enum, auto
 from typing import TYPE_CHECKING, Optional, Union
 
-from rhoknp.cohesion.argument import Argument, ArgumentType, BaseArgument, SpecialArgument
+from rhoknp.cohesion.argument import Argument, ArgumentType, BaseArgument, ExophoraArgument
 from rhoknp.cohesion.exophora import ExophoraReferent
 from rhoknp.cohesion.predicate import Predicate
 from rhoknp.cohesion.rel import RelMode
@@ -153,7 +153,7 @@ class Pas:
         if relax is True and sentence.parent_unit is not None:
             entity_manager = sentence.document.entity_manager
             for arg in args:
-                if isinstance(arg, SpecialArgument):
+                if isinstance(arg, ExophoraArgument):
                     entities = {entity_manager[arg.eid]}
                 else:
                     assert isinstance(arg, Argument)
@@ -230,7 +230,7 @@ class Pas:
         """
         if isinstance(exophora_referent, str):
             exophora_referent = ExophoraReferent(exophora_referent)
-        special_argument = SpecialArgument(exophora_referent, eid)
+        special_argument = ExophoraArgument(exophora_referent, eid)
         special_argument.pas = self
         if mode is not None:
             self.modes[case] = mode
