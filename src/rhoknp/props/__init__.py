@@ -1,5 +1,5 @@
 from .dependency import DepType
-from .feature import Features
+from .feature import FeatureDict
 from .semantics import Semantics
 
-__all__ = ["DepType", "Features", "Semantics"]
+__all__ = ["DepType", "FeatureDict", "Semantics"]

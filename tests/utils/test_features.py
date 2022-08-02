@@ -3,7 +3,7 @@ from typing import Union
 
 import pytest
 
-from rhoknp.props import Features
+from rhoknp.props import FeatureDict
 
 
 @dataclass(frozen=True)
@@ -33,7 +33,7 @@ cases = [
 
 @pytest.mark.parametrize("fstring,features,length", [astuple(case) for case in cases])
 def test_from_fstring(fstring: str, features: dict[str, Union[str, bool]], length: int) -> None:
-    fs = Features.from_fstring(fstring)
+    fs = FeatureDict.from_fstring(fstring)
     assert len(fs) == length
     assert dict(fs) == features
     assert fs.get("dummy") is None
@@ -41,9 +41,9 @@ def test_from_fstring(fstring: str, features: dict[str, Union[str, bool]], lengt
 
 @pytest.mark.parametrize("fstring,features,length", [astuple(case) for case in cases])
 def test_to_fstring(fstring: str, features: dict[str, Union[str, bool]], length: int) -> None:
-    fs = Features.from_fstring(fstring)
+    fs = FeatureDict.from_fstring(fstring)
     assert fs.to_fstring() == fstring
 
 
 def test_false():
-    assert Features._item2tag_string("sem", False) == ""
+    assert FeatureDict._item2tag_string("sem", False) == ""

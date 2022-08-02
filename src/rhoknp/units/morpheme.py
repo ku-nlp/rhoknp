@@ -3,7 +3,7 @@ from dataclasses import astuple, dataclass, fields
 from functools import cached_property
 from typing import TYPE_CHECKING, ClassVar, Optional, Union
 
-from rhoknp.props import Features, Semantics
+from rhoknp.props import FeatureDict, Semantics
 from rhoknp.units.unit import Unit
 
 if TYPE_CHECKING:
@@ -56,7 +56,7 @@ class Morpheme(Unit):
     JUMANPP_PAT: ClassVar[re.Pattern[str]] = re.compile(
         rf"^({MorphemeAttributes.JUMANPP_PAT.pattern})"
         + rf"(\s{Semantics.PAT.pattern})?"
-        + rf"(\s{Features.PAT.pattern})?$"
+        + rf"(\s{FeatureDict.PAT.pattern})?$"
     )
 
     count = 0
@@ -65,7 +65,7 @@ class Morpheme(Unit):
         self,
         attributes: MorphemeAttributes,
         semantics: Semantics,
-        features: Features,
+        features: FeatureDict,
         homograph: bool = False,
     ):
         super().__init__()
@@ -290,7 +290,7 @@ class Morpheme(Unit):
             raise ValueError(f"malformed line: {jumanpp_line}")
         attributes = MorphemeAttributes.from_jumanpp(match.group("attrs"))
         semantics = Semantics.from_sstring(match.group("sems") or "")
-        features = Features.from_fstring(match.group("feats") or "")
+        features = FeatureDict.from_fstring(match.group("feats") or "")
         return cls(attributes, semantics, features, homograph=homograph)
 
     def to_jumanpp(self) -> str:

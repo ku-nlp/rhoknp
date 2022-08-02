@@ -8,7 +8,7 @@ from rhoknp.cohesion.exophora import ExophoraReferent
 from rhoknp.cohesion.pas import CaseInfoFormat, Pas
 from rhoknp.cohesion.predicate import Predicate
 from rhoknp.cohesion.rel import Rel, RelList, RelMode
-from rhoknp.props import DepType, Features
+from rhoknp.props import DepType, FeatureDict
 from rhoknp.units.morpheme import Morpheme
 from rhoknp.units.unit import Unit
 from rhoknp.utils.constants import ALL_CASES, ALL_COREFS
@@ -30,7 +30,7 @@ class BasePhrase(Unit):
     )
     count = 0
 
-    def __init__(self, parent_index: Optional[int], dep_type: Optional[DepType], features: Features, rels: RelList):
+    def __init__(self, parent_index: Optional[int], dep_type: Optional[DepType], features: FeatureDict, rels: RelList):
         super().__init__()
 
         # parent unit
@@ -41,7 +41,7 @@ class BasePhrase(Unit):
 
         self.parent_index: Optional[int] = parent_index  #: 係り先の基本句の文内におけるインデックス．
         self.dep_type: Optional[DepType] = dep_type  #: 係り受けの種類．
-        self.features: Features = features  #: 素性．
+        self.features: FeatureDict = features  #: 素性．
         self.rels: RelList = rels  #: 基本句間関係．
         self.pas: Optional["Pas"] = None  #: 述語項構造．
         self.entities: set[Entity] = set()  #: 参照しているエンティティ．
@@ -188,7 +188,7 @@ class BasePhrase(Unit):
             raise ValueError(f"malformed line: {first_line}")
         parent_index = int(match.group("pid")) if match.group("pid") is not None else None
         dep_type = DepType(match.group("dtype")) if match.group("dtype") is not None else None
-        features = Features.from_fstring(match.group("tags") or "")
+        features = FeatureDict.from_fstring(match.group("tags") or "")
         rels = RelList.from_fstring(match.group("tags") or "")
         base_phrase = cls(parent_index, dep_type, features, rels)
 
