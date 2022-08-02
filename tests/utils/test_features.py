@@ -3,7 +3,7 @@ from typing import Union
 
 import pytest
 
-from rhoknp.props.feature import Features
+from rhoknp.props import Features
 
 
 @dataclass(frozen=True)

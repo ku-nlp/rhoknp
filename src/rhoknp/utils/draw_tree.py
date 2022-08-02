@@ -2,7 +2,7 @@ import re
 import sys
 from typing import TYPE_CHECKING, Sequence, TextIO, Union
 
-from rhoknp.props.dependency import DepType
+from rhoknp.props import DepType
 
 if TYPE_CHECKING:
     from rhoknp.units.base_phrase import BasePhrase
