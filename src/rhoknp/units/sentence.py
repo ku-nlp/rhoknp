@@ -452,7 +452,7 @@ class Sentence(Unit):
         candidate_morphemes = []
         for base_phrase in self.base_phrases:
             candidate_morphemes += base_phrase.morphemes
-            if ne_feature := base_phrase.features.get("NE"):
+            if (ne_feature := base_phrase.features.get("NE")) is None:
                 continue
             assert isinstance(ne_feature, str), f"empty NE tag found in {self.sid}"
             category, name = ne_feature.split(":", maxsplit=1)
