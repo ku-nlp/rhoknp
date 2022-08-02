@@ -1,15 +1,20 @@
+import logging
 import re
 from typing import TYPE_CHECKING, Any, Optional, Union
 
+from rhoknp.props import NamedEntity
 from rhoknp.units.base_phrase import BasePhrase
 from rhoknp.units.clause import Clause
 from rhoknp.units.morpheme import Morpheme
 from rhoknp.units.phrase import Phrase
 from rhoknp.units.unit import Unit
+from rhoknp.utils.constants import NE_CATEGORIES
 from rhoknp.utils.utils import is_comment_line
 
 if TYPE_CHECKING:
     from rhoknp.units.document import Document
+
+logger = logging.getLogger(__name__)
 
 
 class Sentence(Unit):
@@ -47,6 +52,8 @@ class Sentence(Unit):
         self.doc_id: Optional[str] = None
         self.misc_comment: str = ""
 
+        self.named_entities: list[NamedEntity] = []
+
         self.index = self.count
         Sentence.count += 1
 
@@ -54,6 +61,7 @@ class Sentence(Unit):
         """インスタンス作成後の追加処理を行う．"""
         if self.need_knp is False:
             self._parse_knp_pas()
+            self._parse_named_entity()
         if self.need_clause_tag is False:
             self._parse_discourse_relation()
 
@@ -438,6 +446,40 @@ class Sentence(Unit):
         """KNP 解析結果における <述語項構造> タグおよび <格解析結果> タグをパース．"""
         for base_phrase in self.base_phrases:
             base_phrase.parse_knp_pas()
+
+    def _parse_named_entity(self) -> None:
+        """<NE> タグをパースし，固有表現オブジェクトを作成．"""
+        candidate_morphemes = []
+        for base_phrase in self.base_phrases:
+            candidate_morphemes += base_phrase.morphemes
+            if ne_feature := base_phrase.features.get("NE"):
+                continue
+            assert isinstance(ne_feature, str), f"empty NE tag found in {self.sid}"
+            category, name = ne_feature.split(":", maxsplit=1)
+            if category not in NE_CATEGORIES:
+                logger.warning(f"{self.sid}: unknown NE category: {category}")
+                continue
+            morpheme_range = self._find_morpheme_span(name, candidate_morphemes)
+            if morpheme_range is None:
+                logger.warning(f"{self.sid}: morpheme span of '{name}' not found")
+                continue
+            self.named_entities.append(
+                NamedEntity(category, candidate_morphemes[morpheme_range.start : morpheme_range.stop])  # noqa: E203
+            )
+
+    @staticmethod
+    def _find_morpheme_span(name: str, candidates: list[Morpheme]) -> Optional[range]:
+        """name にマッチする形態素の範囲を返す．"""
+        tail_idx = len(candidates)
+        while tail_idx > 0:
+            for head_idx in reversed(range(tail_idx)):
+                if "".join(m.text for m in candidates[head_idx:tail_idx]) == name:
+                    return range(head_idx, tail_idx)
+            tail_idx -= 1
+        import ipdb
+
+        ipdb.set_trace()
+        return None
 
     def _parse_discourse_relation(self) -> None:
         """<談話関係> タグをパース．"""

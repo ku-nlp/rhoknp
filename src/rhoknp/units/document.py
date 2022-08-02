@@ -3,6 +3,7 @@ from typing import Any, Optional, Sequence, Union
 
 from rhoknp.cohesion.coreference import EntityManager
 from rhoknp.cohesion.pas import Pas
+from rhoknp.props import NamedEntity
 from rhoknp.units.base_phrase import BasePhrase
 from rhoknp.units.clause import Clause
 from rhoknp.units.morpheme import Morpheme
@@ -119,6 +120,11 @@ class Document(Unit):
             AttributeError: 解析結果にアクセスできない場合．
         """
         return [morpheme for sentence in self.sentences for morpheme in sentence.morphemes]
+
+    @property
+    def named_entities(self) -> list[NamedEntity]:
+        """固有表現のリスト．"""
+        return [ne for sentence in self.sentences for ne in sentence.named_entities]
 
     @property
     def need_senter(self) -> bool:
