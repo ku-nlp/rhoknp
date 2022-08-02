@@ -2,7 +2,7 @@ import re
 from typing import Union
 
 
-class Semantics(dict[str, Union[str, bool]]):
+class SemanticsDict(dict[str, Union[str, bool]]):
     """形態素の意味情報を表すクラス．"""
 
     NIL = "NIL"
@@ -16,7 +16,7 @@ class Semantics(dict[str, Union[str, bool]]):
         self.is_nil: bool = is_nil
 
     @classmethod
-    def from_sstring(cls, sstring: str) -> "Semantics":
+    def from_sstring(cls, sstring: str) -> "SemanticsDict":
         """意味情報文字列をパースして辞書型に変換する．
         e.g., "\"代表表記:日本/にほん 地名:国\"" -> {"代表表記": "日本/にほん", "地名": "国"}
 
