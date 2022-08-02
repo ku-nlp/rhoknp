@@ -184,4 +184,5 @@ class Clause(Unit):
     def parse_discourse_relation(self) -> None:
         fstring = self.end.features.get("談話関係", "")
         assert isinstance(fstring, str)
-        self._discourse_relations = DiscourseRelationList(fstring, self)
+        self._discourse_relations = DiscourseRelationList.from_fstring(fstring)
+        self._discourse_relations.tie_units(self)
