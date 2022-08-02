@@ -5,7 +5,7 @@ from collections import defaultdict
 from enum import Enum, auto
 from typing import TYPE_CHECKING, Optional, Union
 
-from rhoknp.cohesion.argument import Argument, ArgumentType, BaseArgument, ExophoraArgument
+from rhoknp.cohesion.argument import ArgumentType, BaseArgument, EndophoraArgument, ExophoraArgument
 from rhoknp.cohesion.exophora import ExophoraReferent
 from rhoknp.cohesion.predicate import Predicate
 from rhoknp.cohesion.rel import RelMode
@@ -156,13 +156,13 @@ class Pas:
                 if isinstance(arg, ExophoraArgument):
                     entities = {entity_manager[arg.eid]}
                 else:
-                    assert isinstance(arg, Argument)
+                    assert isinstance(arg, EndophoraArgument)
                     entities = arg.base_phrase.entities_all if include_nonidentical else arg.base_phrase.entities
                 for entity in entities:
                     if entity.exophora_referent is not None:
                         pas.add_special_argument(case, entity.exophora_referent, entity.eid)
                     for mention in entity.mentions:
-                        if isinstance(arg, Argument) and mention == arg.base_phrase:
+                        if isinstance(arg, EndophoraArgument) and mention == arg.base_phrase:
                             continue
                         pas.add_argument(case, mention)
         return pas._arguments[case]
@@ -207,7 +207,7 @@ class Pas:
             mode: 関係のモード．
             arg_type: 述語と項の関係タイプ．
         """
-        argument = Argument(
+        argument = EndophoraArgument(
             base_phrase,
             arg_type or self._get_arg_type(self.predicate, base_phrase, case),
         )

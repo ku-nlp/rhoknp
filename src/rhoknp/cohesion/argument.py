@@ -61,7 +61,7 @@ class BaseArgument(ABC):
         raise NotImplementedError
 
 
-class Argument(BaseArgument):
+class EndophoraArgument(BaseArgument):
     def __init__(self, base_phrase: "BasePhrase", arg_type: ArgumentType):
         super().__init__(arg_type)
         self.base_phrase: "BasePhrase" = base_phrase
@@ -93,7 +93,7 @@ class Argument(BaseArgument):
         return self.base_phrase.text
 
     def __eq__(self, other: Any) -> bool:
-        return isinstance(other, Argument) and self.base_phrase == other.base_phrase
+        return isinstance(other, EndophoraArgument) and self.base_phrase == other.base_phrase
 
 
 class ExophoraArgument(BaseArgument):

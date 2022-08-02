@@ -2,7 +2,7 @@ import logging
 import textwrap
 from pathlib import Path
 
-from rhoknp.cohesion import Argument, ArgumentType, ExophoraArgument, ExophoraReferent
+from rhoknp.cohesion import ArgumentType, EndophoraArgument, ExophoraArgument, ExophoraReferent
 from rhoknp.units import Document
 
 
@@ -44,7 +44,7 @@ def test_pas_case_analysis() -> None:
     # 彼 ガ 行った
     argument_base_phrase = doc.base_phrases[0]  # 彼は
     argument = pas.get_arguments("ガ", relax=False)[0]
-    assert isinstance(argument, Argument)
+    assert isinstance(argument, EndophoraArgument)
     assert argument.type == ArgumentType("N")
     assert argument.base_phrase == argument_base_phrase
     assert argument.phrase == argument_base_phrase.phrase
@@ -55,7 +55,7 @@ def test_pas_case_analysis() -> None:
     # 大学 ヘ 行った
     argument_base_phrase = doc.base_phrases[3]  # 大学へ
     argument = pas.get_arguments("ヘ", relax=False)[0]
-    assert isinstance(argument, Argument)
+    assert isinstance(argument, EndophoraArgument)
     assert argument.type == ArgumentType("C")
     assert argument.base_phrase == argument_base_phrase
     assert argument.phrase == argument_base_phrase.phrase
@@ -102,7 +102,7 @@ def test_pas_pas() -> None:
     # 彼 ガ 行った
     argument_phrase = doc.base_phrases[0]  # 彼は
     argument = pas.get_arguments("ガ", relax=False)[0]
-    assert isinstance(argument, Argument)
+    assert isinstance(argument, EndophoraArgument)
     assert argument.type == ArgumentType("N")
     assert argument.base_phrase == argument_phrase
     assert argument.phrase == argument_phrase.phrase
@@ -158,7 +158,7 @@ def test_pas_inter_sentential() -> None:
     # 彼 ガ 行った
     argument_phrase = doc.base_phrases[0]  # 彼は
     argument = pas.get_arguments("ガ", relax=False)[0]
-    assert isinstance(argument, Argument)
+    assert isinstance(argument, EndophoraArgument)
     assert argument.type == ArgumentType("O")
     assert argument.base_phrase == argument_phrase
     assert argument.phrase == argument_phrase.phrase
@@ -219,7 +219,7 @@ def test_pas_case_analysis2() -> None:
     # ; ガ 表示する
     argument_base_phrase = doc.base_phrases[1]  # ;
     argument = pas.get_arguments("ガ", relax=False)[0]
-    assert isinstance(argument, Argument)
+    assert isinstance(argument, EndophoraArgument)
     assert argument.type == ArgumentType("N")
     assert argument.base_phrase == argument_base_phrase
     assert argument.phrase == argument_base_phrase.phrase
@@ -290,7 +290,7 @@ def test_pas_case_analysis4() -> None:
     # パン ヲ 焼いた
     assert len(pas.get_arguments("ヲ", relax=False)) == 1
     argument = pas.get_arguments("ヲ", relax=False)[0]
-    assert isinstance(argument, Argument)
+    assert isinstance(argument, EndophoraArgument)
     assert argument.type == ArgumentType("N")
     assert argument.pas == pas
     assert argument.base_phrase == doc.base_phrases[3]  # パン
@@ -298,7 +298,7 @@ def test_pas_case_analysis4() -> None:
     # 今朝 時間 焼いた
     assert len(pas.get_arguments("時間", relax=False)) == 1
     argument = pas.get_arguments("時間", relax=False)[0]
-    assert isinstance(argument, Argument)
+    assert isinstance(argument, EndophoraArgument)
     assert argument.type == ArgumentType("C")
     assert argument.pas == pas
     assert argument.base_phrase == doc.base_phrases[0]  # 今朝
@@ -314,7 +314,7 @@ def test_pas_rel() -> None:
     assert (
         repr(pas) == "Pas(predicate=Predicate(text='トスを'), "
         "arguments={'ガ': [ExophoraArgument(exophora_referent=ExophoraReferent(text='不特定:人'), eid=0)], "
-        "'ヲ': [Argument(base_phrase=BasePhrase(index=0, text='コイン'), "
+        "'ヲ': [EndophoraArgument(base_phrase=BasePhrase(index=0, text='コイン'), "
         "arg_type=<ArgumentType.CASE_HIDDEN: 'N'>)]})"
     )
 
@@ -411,20 +411,20 @@ def test_pas_relax() -> None:
     case = "ガ"
     args = sorted(
         pas.get_arguments(case, relax=True, include_nonidentical=True),
-        key=lambda a: a.base_phrase.global_index if isinstance(a, Argument) else 100,
+        key=lambda a: a.base_phrase.global_index if isinstance(a, EndophoraArgument) else 100,
     )
     assert len(args) == 4
     arg = args[0]
-    assert isinstance(arg, Argument)
+    assert isinstance(arg, EndophoraArgument)
     assert (arg.base_phrase.text, arg.base_phrase.global_index, arg.type) == ("ドクターを", 7, ArgumentType.OMISSION)
     arg = args[1]
-    assert isinstance(arg, Argument)
+    assert isinstance(arg, EndophoraArgument)
     assert (arg.base_phrase.text, arg.base_phrase.global_index, arg.type) == ("ドクターを", 11, ArgumentType.OMISSION)
     arg = args[2]
-    assert isinstance(arg, Argument)
+    assert isinstance(arg, EndophoraArgument)
     assert (arg.base_phrase.text, arg.base_phrase.global_index, arg.type) == ("ドクターの", 16, ArgumentType.OMISSION)
     arg = args[3]
-    assert isinstance(arg, Argument)
+    assert isinstance(arg, EndophoraArgument)
     assert (arg.base_phrase.text, arg.base_phrase.global_index, arg.type) == ("皆様", 17, ArgumentType.OMISSION)
 
     case = "ニ"
@@ -433,7 +433,7 @@ def test_pas_relax() -> None:
     assert isinstance(arg, ExophoraArgument)
     assert (arg.exophora_referent.text, arg.eid, arg.type) == ("著者", 5, ArgumentType.EXOPHORA)
     arg = args[1]
-    assert isinstance(arg, Argument)
+    assert isinstance(arg, EndophoraArgument)
     assert (arg.base_phrase.text, arg.base_phrase.global_index, arg.type) == ("コーナーを", 14, ArgumentType.OMISSION)
 
 

@@ -1,6 +1,6 @@
 import pytest
 
-from rhoknp.cohesion import Argument, ArgumentType, ExophoraArgument, ExophoraReferent
+from rhoknp.cohesion import ArgumentType, EndophoraArgument, ExophoraArgument, ExophoraReferent
 from rhoknp.units import BasePhrase
 
 
@@ -10,16 +10,20 @@ def test_argument() -> None:
 は は は 助詞 9 副助詞 2 * 0 * 0 NIL <かな漢字><ひらがな><付属>
 """
     base_phrase = BasePhrase.from_knp(knp)
-    argument = Argument(base_phrase, arg_type=ArgumentType.OMISSION)
+    argument = EndophoraArgument(base_phrase, arg_type=ArgumentType.OMISSION)
     assert argument.unit == base_phrase
     # assert argument.document == base_phrase.document
     # assert argument.sentence == base_phrase.sentence
     # assert argument.clause == base_phrase.clause
     # assert argument.phrase == base_phrase.phrase
-    assert repr(argument) == f"Argument(base_phrase={repr(base_phrase)}, arg_type={repr(ArgumentType.OMISSION)})"
+    assert (
+        repr(argument) == f"EndophoraArgument(base_phrase={repr(base_phrase)}, arg_type={repr(ArgumentType.OMISSION)})"
+    )
     assert str(argument) == base_phrase.text
     assert argument != "test"
-    assert argument == Argument(base_phrase, arg_type=ArgumentType.EXOPHORA)  # TODO: consider whether this is expected
+    assert argument == EndophoraArgument(
+        base_phrase, arg_type=ArgumentType.EXOPHORA
+    )  # TODO: consider whether this is expected
     with pytest.raises(AttributeError):
         _ = argument.pas
 
