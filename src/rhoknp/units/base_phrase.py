@@ -9,7 +9,7 @@ from rhoknp.rel.pas import CaseInfoFormat, Pas
 from rhoknp.rel.predicate import Predicate
 from rhoknp.units.morpheme import Morpheme
 from rhoknp.units.unit import Unit
-from rhoknp.units.utils import DepType, Features, Rel, RelMode, Rels
+from rhoknp.units.utils import DepType, Features, Rel, RelList, RelMode
 from rhoknp.utils.constants import ALL_CASES, ALL_COREFS
 
 if TYPE_CHECKING:
@@ -29,7 +29,7 @@ class BasePhrase(Unit):
     )
     count = 0
 
-    def __init__(self, parent_index: Optional[int], dep_type: Optional[DepType], features: Features, rels: Rels):
+    def __init__(self, parent_index: Optional[int], dep_type: Optional[DepType], features: Features, rels: RelList):
         super().__init__()
 
         # parent unit
@@ -41,7 +41,7 @@ class BasePhrase(Unit):
         self.parent_index: Optional[int] = parent_index  #: 係り先の基本句の文内におけるインデックス．
         self.dep_type: Optional[DepType] = dep_type  #: 係り受けの種類．
         self.features: Features = features  #: 素性．
-        self.rels: Rels = rels  #: 基本句間関係．
+        self.rels: RelList = rels  #: 基本句間関係．
         self.pas: Optional["Pas"] = None  #: 述語項構造．
         self.entities: set[Entity] = set()  #: 参照しているエンティティ．
         self.entities_nonidentical: set[Entity] = set()  #: ≒で参照しているエンティティ．
@@ -188,7 +188,7 @@ class BasePhrase(Unit):
         parent_index = int(match.group("pid")) if match.group("pid") is not None else None
         dep_type = DepType(match.group("dtype")) if match.group("dtype") is not None else None
         features = Features.from_fstring(match.group("tags") or "")
-        rels = Rels.from_fstring(match.group("tags") or "")
+        rels = RelList.from_fstring(match.group("tags") or "")
         base_phrase = cls(parent_index, dep_type, features, rels)
 
         morphemes: list[Morpheme] = []

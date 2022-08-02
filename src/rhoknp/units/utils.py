@@ -165,11 +165,11 @@ class Rel:
         return ret
 
 
-class Rels(list[Rel]):
+class RelList(list[Rel]):
     """関係タグ付きコーパスにおける <rel> タグの列を表すクラス．"""
 
     @classmethod
-    def from_fstring(cls, fstring: str) -> "Rels":
+    def from_fstring(cls, fstring: str) -> "RelList":
         """KNP における素性文字列からオブジェクトを作成．"""
         rels = []
         for match in Rel.PAT.finditer(fstring):
