@@ -465,8 +465,7 @@ class Sentence(Unit):
                 continue
             self.named_entities.append(
                 NamedEntity(
-                    NamedEntityCategory(category),
-                    candidate_morphemes[morpheme_range.start : morpheme_range.stop],  # noqa: E203
+                    NamedEntityCategory(category), candidate_morphemes[morpheme_range.start : morpheme_range.stop]
                 )
             )
 
