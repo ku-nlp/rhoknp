@@ -46,4 +46,4 @@ def test_to_fstring(fstring: str, features: dict[str, Union[str, bool]], length:
 
 
 def test_false():
-    assert FeatureDict._item2tag_string("sem", False) == ""
+    assert FeatureDict._item_to_fstring("sem", False) == ""

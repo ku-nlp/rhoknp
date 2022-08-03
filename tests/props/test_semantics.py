@@ -10,7 +10,7 @@ def test_from_fstring(sstring: str) -> None:
 
 
 def test_false():
-    assert SemanticsDict._item2sem_string("sem", False) == ""
+    assert SemanticsDict._item_to_sstring("sem", False) == ""
 
 
 def test_empty_dict():

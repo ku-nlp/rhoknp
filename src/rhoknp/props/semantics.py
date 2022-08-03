@@ -39,10 +39,10 @@ class SemanticsDict(dict[str, Union[str, bool]]):
             return self.NIL
         if len(self) == 0:
             return ""
-        return f'"{" ".join(self._item2sem_string(k, v) for k, v in self.items())}"'
+        return f'"{" ".join(self._item_to_sstring(k, v) for k, v in self.items())}"'
 
     @staticmethod
-    def _item2sem_string(key: str, value: Union[str, bool]) -> str:
+    def _item_to_sstring(key: str, value: Union[str, bool]) -> str:
         if value is False:
             return ""
         if value is True:

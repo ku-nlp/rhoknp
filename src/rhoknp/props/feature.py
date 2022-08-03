@@ -27,10 +27,10 @@ class FeatureDict(dict[str, Union[str, bool]]):
 
     def to_fstring(self) -> str:
         """素性文字列に変換．"""
-        return "".join(self._item2tag_string(k, v) for k, v in self.items())
+        return "".join(self._item_to_fstring(k, v) for k, v in self.items())
 
     @staticmethod
-    def _item2tag_string(key: str, value: Union[str, bool]) -> str:
+    def _item_to_fstring(key: str, value: Union[str, bool]) -> str:
         if value is False:
             return ""
         if value is True:
