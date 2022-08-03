@@ -464,7 +464,7 @@ class Sentence(Unit):
                 logger.warning(f"{self.sid}: morpheme span of '{name}' not found")
                 continue
             self.named_entities.append(
-                NamedEntity(category, candidate_morphemes[morpheme_range.start : morpheme_range.stop])  # noqa: E203
+                NamedEntity(category, candidate_morphemes[morpheme_range.start : morpheme_range.stop])
             )
 
     @staticmethod
