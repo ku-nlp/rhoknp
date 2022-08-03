@@ -296,7 +296,7 @@ class Morpheme(Unit):
     def to_jumanpp(self) -> str:
         """Juman++ フォーマットに変換．"""
         ret = self._attributes.to_jumanpp()
-        if self.semantics:
+        if self.semantics or self.semantics.is_nil is True:
             ret += f" {self.semantics}"
         if self.features:
             ret += f" {self.features}"
