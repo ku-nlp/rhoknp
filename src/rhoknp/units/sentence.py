@@ -479,9 +479,6 @@ class Sentence(Unit):
                 if "".join(m.text for m in candidates[head_idx:tail_idx]) == name:
                     return range(head_idx, tail_idx)
             tail_idx -= 1
-        import ipdb
-
-        ipdb.set_trace()
         return None
 
     def _parse_discourse_relation(self) -> None:
