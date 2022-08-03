@@ -40,6 +40,15 @@ cases_with_ignored_tag = [
         },
         length=3,
     ),
+    FeaturesTestCase(
+        fstring="""<NE:DATE:平成２３年度><BGH:年度/ねんど><解析済><カウンタ:年度>""",
+        features={
+            "BGH": "年度/ねんど",
+            "解析済": True,
+            "カウンタ": "年度",
+        },
+        length=3,
+    ),
 ]
 
 

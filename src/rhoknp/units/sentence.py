@@ -3,6 +3,7 @@ import re
 from typing import TYPE_CHECKING, Any, Optional, Union
 
 from rhoknp.props import NamedEntity, NamedEntityCategory
+from rhoknp.props.named_entity import NamedEntityList
 from rhoknp.units.base_phrase import BasePhrase
 from rhoknp.units.clause import Clause
 from rhoknp.units.morpheme import Morpheme
@@ -51,7 +52,7 @@ class Sentence(Unit):
         self.doc_id: Optional[str] = None
         self.misc_comment: str = ""
 
-        self.named_entities: list[NamedEntity] = []
+        self.named_entities = NamedEntityList()
 
         self.index = self.count
         Sentence.count += 1
@@ -60,7 +61,7 @@ class Sentence(Unit):
         """インスタンス作成後の追加処理を行う．"""
         if self.need_knp is False:
             self._parse_knp_pas()
-            self._parse_named_entity()
+            self.parse_named_entity()
         if self.need_clause_tag is False:
             self._parse_discourse_relation()
 
@@ -446,28 +447,28 @@ class Sentence(Unit):
         for base_phrase in self.base_phrases:
             base_phrase.parse_knp_pas()
 
-    def _parse_named_entity(self) -> None:
+    def parse_named_entity(self) -> None:
         """<NE> タグをパースし，固有表現オブジェクトを作成．"""
+        named_entities = []
         all_categories = [c.value for c in NamedEntityCategory]
         candidate_morphemes = []
         for base_phrase in self.base_phrases:
             candidate_morphemes += base_phrase.morphemes
-            if (ne_feature := base_phrase.features.get("NE")) is None:
-                continue
-            assert isinstance(ne_feature, str), f"empty NE tag found in {self.sid}"
-            category, name = ne_feature.split(":", maxsplit=1)
-            if category not in all_categories:
-                logger.warning(f"{self.sid}: unknown NE category: {category}")
-                continue
-            morpheme_range = self._find_morpheme_span(name, candidate_morphemes)
-            if morpheme_range is None:
-                logger.warning(f"{self.sid}: morpheme span of '{name}' not found")
-                continue
-            self.named_entities.append(
-                NamedEntity(
-                    NamedEntityCategory(category), candidate_morphemes[morpheme_range.start : morpheme_range.stop]
+            for ne_tag in base_phrase.ne_tags:
+                if ne_tag.category not in all_categories:
+                    logger.warning(f"{self.sid}: unknown NE category: {ne_tag.category}")
+                    continue
+                morpheme_range = self._find_morpheme_span(ne_tag.name, candidate_morphemes)
+                if morpheme_range is None:
+                    logger.warning(f"{self.sid}: morpheme span of '{ne_tag.name}' not found")
+                    continue
+                named_entities.append(
+                    NamedEntity(
+                        NamedEntityCategory(ne_tag.category),
+                        candidate_morphemes[morpheme_range.start : morpheme_range.stop],
+                    )
                 )
-            )
+        self.named_entities = NamedEntityList(named_entities)
 
     @staticmethod
     def _find_morpheme_span(name: str, candidates: list[Morpheme]) -> Optional[range]:

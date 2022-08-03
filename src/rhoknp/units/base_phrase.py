@@ -9,6 +9,7 @@ from rhoknp.cohesion.pas import CaseInfoFormat, Pas
 from rhoknp.cohesion.predicate import Predicate
 from rhoknp.cohesion.rel import Rel, RelList, RelMode
 from rhoknp.props import DepType, FeatureDict
+from rhoknp.props.named_entity import NETagList
 from rhoknp.units.morpheme import Morpheme
 from rhoknp.units.unit import Unit
 from rhoknp.utils.constants import ALL_CASES, ALL_COREFS
@@ -30,7 +31,14 @@ class BasePhrase(Unit):
     )
     count = 0
 
-    def __init__(self, parent_index: Optional[int], dep_type: Optional[DepType], features: FeatureDict, rels: RelList):
+    def __init__(
+        self,
+        parent_index: Optional[int],
+        dep_type: Optional[DepType],
+        features: FeatureDict,
+        rels: RelList,
+        ne_tags: NETagList,
+    ):
         super().__init__()
 
         # parent unit
@@ -43,6 +51,7 @@ class BasePhrase(Unit):
         self.dep_type: Optional[DepType] = dep_type  #: 係り受けの種類．
         self.features: FeatureDict = features  #: 素性．
         self.rels: RelList = rels  #: 基本句間関係．
+        self.ne_tags: NETagList = ne_tags  #: 固有表現タグ．
         self.pas: Optional["Pas"] = None  #: 述語項構造．
         self.entities: set[Entity] = set()  #: 参照しているエンティティ．
         self.entities_nonidentical: set[Entity] = set()  #: ≒で参照しているエンティティ．
@@ -190,7 +199,8 @@ class BasePhrase(Unit):
         dep_type = DepType(match.group("dtype")) if match.group("dtype") is not None else None
         features = FeatureDict.from_fstring(match.group("tags") or "")
         rels = RelList.from_fstring(match.group("tags") or "")
-        base_phrase = cls(parent_index, dep_type, features, rels)
+        ne_tags = NETagList.from_fstring(match.group("tags") or "")
+        base_phrase = cls(parent_index, dep_type, features, rels, ne_tags)
 
         morphemes: list[Morpheme] = []
         for line in lines:
@@ -206,8 +216,8 @@ class BasePhrase(Unit):
         if self.parent_index is not None:
             assert self.dep_type is not None
             ret += f" {self.parent_index}{self.dep_type.value}"
-        if self.rels or self.features:
-            ret += f" {self.rels.to_fstring()}{self.features.to_fstring()}"
+        if self.rels or self.ne_tags or self.features:
+            ret += f" {self.rels.to_fstring()}{self.ne_tags.to_fstring()}{self.features.to_fstring()}"
         ret += "\n"
         ret += "".join(morpheme.to_jumanpp() for morpheme in self.morphemes)
         return ret
