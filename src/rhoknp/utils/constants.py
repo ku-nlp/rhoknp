@@ -59,15 +59,3 @@ ALL_CASES += [case + "≒" for case in ALL_CASES]
 
 ALL_COREFS = ["=", "=構", "=役"]
 ALL_COREFS += [coref + "≒" for coref in ALL_COREFS]
-
-NE_CATEGORIES = [
-    "ORGANIZATION",
-    "PERSON",
-    "LOCATION",
-    "ARTIFACT",
-    "DATE",
-    "TIME",
-    "MONEY",
-    "PERCENT",
-    "OPTIONAL",
-]

@@ -2,13 +2,12 @@ import logging
 import re
 from typing import TYPE_CHECKING, Any, Optional, Union
 
-from rhoknp.props import NamedEntity
+from rhoknp.props import NamedEntity, NamedEntityCategory
 from rhoknp.units.base_phrase import BasePhrase
 from rhoknp.units.clause import Clause
 from rhoknp.units.morpheme import Morpheme
 from rhoknp.units.phrase import Phrase
 from rhoknp.units.unit import Unit
-from rhoknp.utils.constants import NE_CATEGORIES
 from rhoknp.utils.utils import is_comment_line
 
 if TYPE_CHECKING:
@@ -449,6 +448,7 @@ class Sentence(Unit):
 
     def _parse_named_entity(self) -> None:
         """<NE> タグをパースし，固有表現オブジェクトを作成．"""
+        all_categories = [c.value for c in NamedEntityCategory]
         candidate_morphemes = []
         for base_phrase in self.base_phrases:
             candidate_morphemes += base_phrase.morphemes
@@ -456,7 +456,7 @@ class Sentence(Unit):
                 continue
             assert isinstance(ne_feature, str), f"empty NE tag found in {self.sid}"
             category, name = ne_feature.split(":", maxsplit=1)
-            if category not in NE_CATEGORIES:
+            if category not in all_categories:
                 logger.warning(f"{self.sid}: unknown NE category: {category}")
                 continue
             morpheme_range = self._find_morpheme_span(name, candidate_morphemes)
@@ -464,7 +464,10 @@ class Sentence(Unit):
                 logger.warning(f"{self.sid}: morpheme span of '{name}' not found")
                 continue
             self.named_entities.append(
-                NamedEntity(category, candidate_morphemes[morpheme_range.start : morpheme_range.stop])  # noqa: E203
+                NamedEntity(
+                    NamedEntityCategory(category),
+                    candidate_morphemes[morpheme_range.start : morpheme_range.stop],  # noqa: E203
+                )
             )
 
     @staticmethod
