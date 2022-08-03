@@ -1,6 +1,6 @@
 from .argument import Argument, ArgumentType, EndophoraArgument, ExophoraArgument
 from .coreference import Entity, EntityManager
-from .discourse import DiscourseRelation, DiscourseRelationList
+from .discourse_relation import DiscourseRelation, DiscourseRelationList
 from .exophora import ExophoraReferent, ExophoraReferentType
 from .pas import Pas
 from .predicate import Predicate
