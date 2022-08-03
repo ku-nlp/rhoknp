@@ -51,6 +51,3 @@ class SemanticsDict(dict[str, Union[str, bool]]):
 
     def __str__(self) -> str:
         return self.to_sstring()
-
-    def __bool__(self) -> bool:
-        return bool(self) or self.is_nil

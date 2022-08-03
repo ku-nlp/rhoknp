@@ -8,10 +8,8 @@ def test_ne1() -> None:
     doc = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text())
     nes = doc.named_entities
     assert len(nes) == 2
-    ne = nes[0]
-    assert (ne.category, ne.text) == ("ORGANIZATION", "柏市ひまわり園")
-    ne = nes[1]
-    assert (ne.category, ne.text) == ("DATE", "平成２３年度")
+    assert (nes[0].category, nes[0].text) == ("ORGANIZATION", "柏市ひまわり園")
+    assert (nes[1].category, nes[1].text) == ("DATE", "平成２３年度")
 
 
 def test_ne2() -> None:
@@ -19,9 +17,6 @@ def test_ne2() -> None:
     doc = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text())
     nes = doc.named_entities
     assert len(nes) == 3
-    ne = nes[0]
-    assert (ne.category, ne.text) == ("LOCATION", "ダーマ神殿")
-    ne = nes[1]
-    assert (ne.category, ne.text) == ("ARTIFACT", "天の箱舟")
-    ne = nes[2]
-    assert (ne.category, ne.text) == ("LOCATION", "ナザム村")
+    assert (nes[0].category, nes[0].text) == ("LOCATION", "ダーマ神殿")
+    assert (nes[1].category, nes[1].text) == ("ARTIFACT", "天の箱舟")
+    assert (nes[2].category, nes[2].text) == ("LOCATION", "ナザム村")
