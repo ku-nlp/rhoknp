@@ -23,7 +23,7 @@ class SemanticsDict(dict[str, Union[str, bool]]):
         Args:
             sstring: KNP 形式における意味情報文字列．
 
-        Returns: Features オブジェクト．
+        Returns: SemanticsDict オブジェクト．
 
         """
         is_nil = sstring == cls.NIL
@@ -53,4 +53,4 @@ class SemanticsDict(dict[str, Union[str, bool]]):
         return self.to_sstring()
 
     def __bool__(self) -> bool:
-        return bool(dict(self)) or self.is_nil
+        return bool(self) or self.is_nil

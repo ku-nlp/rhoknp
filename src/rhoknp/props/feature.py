@@ -17,7 +17,7 @@ class FeatureDict(dict[str, Union[str, bool]]):
         Args:
             fstring: KNP 形式における素性文字列．
 
-        Returns: Features オブジェクト．
+        Returns: FeatureDict オブジェクト．
 
         """
         features = {}
