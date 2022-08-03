@@ -1,5 +1,8 @@
+import logging
 import re
 from typing import Union
+
+logger = logging.getLogger(__name__)
 
 
 class FeatureDict(dict[str, Union[str, bool]]):
@@ -28,6 +31,15 @@ class FeatureDict(dict[str, Union[str, bool]]):
     def to_fstring(self) -> str:
         """素性文字列に変換．"""
         return "".join(self._item_to_fstring(k, v) for k, v in self.items())
+
+    def __setitem__(self, key, value) -> None:
+        if key == "rel":
+            logger.warning(
+                f"Adding rel to {self.__class__.__name__} is not supported and was ignored. Instead, add a rel object "
+                f"to BasePhrase.rels and call Document.reparse_rel()."
+            )
+            return
+        super().__setitem__(key, value)
 
     @staticmethod
     def _item_to_fstring(key: str, value: Union[str, bool]) -> str:

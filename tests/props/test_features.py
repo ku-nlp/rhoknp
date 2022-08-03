@@ -27,11 +27,23 @@ cases = [
             "正規化代表表記": "構文/こうぶん",
         },
         length=8,
-    )
+    ),
+]
+
+cases_with_ignored_tag = [
+    FeaturesTestCase(
+        fstring="""<rel type="ノ" target="ユーザー" sid="w201106-0000060560-1" id="1"/><BGH:関心/かんしん><解析済><体言>""",
+        features={
+            "BGH": "関心/かんしん",
+            "解析済": True,
+            "体言": True,
+        },
+        length=3,
+    ),
 ]
 
 
-@pytest.mark.parametrize("fstring,features,length", [astuple(case) for case in cases])
+@pytest.mark.parametrize("fstring,features,length", [astuple(case) for case in cases + cases_with_ignored_tag])
 def test_from_fstring(fstring: str, features: dict[str, Union[str, bool]], length: int) -> None:
     fs = FeatureDict.from_fstring(fstring)
     assert len(fs) == length
@@ -47,3 +59,9 @@ def test_to_fstring(fstring: str, features: dict[str, Union[str, bool]], length:
 
 def test_false():
     assert FeatureDict._item_to_fstring("sem", False) == ""
+
+
+def test_ignore_tag_prefix():
+    features = FeatureDict()
+    features["rel"] = 'type="ノ" target="ユーザー" sid="w201106-0000060560-1" id="1"'
+    assert len(features) == 0
