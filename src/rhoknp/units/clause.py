@@ -31,13 +31,16 @@ class Clause(Unit):
         self.index = self.count
         Clause.count += 1
 
-    @property
+    @cached_property
     def global_index(self) -> int:
         """文書全体におけるインデックス．"""
-        offset = 0
-        for prev_sentence in self.document.sentences[: self.sentence.index]:
-            offset += len(prev_sentence.clauses)
-        return self.index + offset
+        if self.index > 0:
+            return self.sentence.clauses[self.index - 1].global_index + 1
+        else:
+            if self.sentence.index == 0:
+                return self.index
+            else:
+                return self.document.sentences[self.sentence.index - 1].clauses[-1].global_index + 1
 
     @property
     def parent_unit(self) -> Optional["Sentence"]:
