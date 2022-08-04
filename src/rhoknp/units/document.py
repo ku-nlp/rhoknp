@@ -43,8 +43,6 @@ class Document(Unit):
 
         self.entity_manager = EntityManager()
 
-        self.has_error = False
-
     def _post_init(self) -> None:
         """インスタンス作成後の追加処理を行う．"""
         if self.need_senter is False:
@@ -283,7 +281,6 @@ class Document(Unit):
                 try:
                     sentences.append(Sentence.from_jumanpp("\n".join(sentence_lines) + "\n", post_init=False))
                 except Exception as e:
-                    document.has_error = True
                     if not ignore_errors:
                         raise e
                 sentence_lines = []
@@ -353,7 +350,6 @@ class Document(Unit):
                 try:
                     sentences.append(Sentence.from_knp("\n".join(sentence_lines) + "\n", post_init=False))
                 except Exception as e:
-                    document.has_error = True
                     if not ignore_errors:
                         raise e
                 sentence_lines = []
