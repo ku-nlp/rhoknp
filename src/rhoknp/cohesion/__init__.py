@@ -4,7 +4,7 @@ from .discourse_relation import DiscourseRelation, DiscourseRelationList
 from .exophora import ExophoraReferent, ExophoraReferentType
 from .pas import Pas
 from .predicate import Predicate
-from .rel import Rel, RelList, RelMode
+from .rel import RelMode, RelTag, RelTagList
 
 __all__ = [
     "Pas",
@@ -17,8 +17,8 @@ __all__ = [
     "ExophoraReferentType",
     "Entity",
     "EntityManager",
-    "Rel",
-    "RelList",
+    "RelTag",
+    "RelTagList",
     "RelMode",
     "DiscourseRelation",
     "DiscourseRelationList",

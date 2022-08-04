@@ -25,7 +25,7 @@ class RelMode(Enum):
 
 
 @dataclass
-class Rel:
+class RelTag:
     """関係タグ付きコーパスにおける <rel> タグを表すクラス．"""
 
     PAT: ClassVar[re.Pattern[str]] = re.compile(
@@ -51,16 +51,16 @@ class Rel:
         return ret
 
 
-class RelList(list[Rel]):
+class RelTagList(list[RelTag]):
     """関係タグ付きコーパスにおける <rel> タグの列を表すクラス．"""
 
     @classmethod
-    def from_fstring(cls, fstring: str) -> "RelList":
+    def from_fstring(cls, fstring: str) -> "RelTagList":
         """KNP における素性文字列からオブジェクトを作成．"""
         rels = []
-        for match in Rel.PAT.finditer(fstring):
+        for match in RelTag.PAT.finditer(fstring):
             rels.append(
-                Rel(
+                RelTag(
                     type=match["type"],
                     target=match["target"],
                     sid=match["sid"],

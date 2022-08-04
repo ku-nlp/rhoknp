@@ -7,7 +7,7 @@ from rhoknp.cohesion.coreference import Entity, EntityManager
 from rhoknp.cohesion.exophora import ExophoraReferent
 from rhoknp.cohesion.pas import CaseInfoFormat, Pas
 from rhoknp.cohesion.predicate import Predicate
-from rhoknp.cohesion.rel import Rel, RelList, RelMode
+from rhoknp.cohesion.rel import RelMode, RelTag, RelTagList
 from rhoknp.props import DepType, FeatureDict
 from rhoknp.props.named_entity import NETagList
 from rhoknp.units.morpheme import Morpheme
@@ -36,7 +36,7 @@ class BasePhrase(Unit):
         parent_index: Optional[int],
         dep_type: Optional[DepType],
         features: FeatureDict,
-        rels: RelList,
+        rels: RelTagList,
         ne_tags: NETagList,
     ):
         super().__init__()
@@ -50,7 +50,7 @@ class BasePhrase(Unit):
         self.parent_index: Optional[int] = parent_index  #: 係り先の基本句の文内におけるインデックス．
         self.dep_type: Optional[DepType] = dep_type  #: 係り受けの種類．
         self.features: FeatureDict = features  #: 素性．
-        self.rels: RelList = rels  #: 基本句間関係．
+        self.rels: RelTagList = rels  #: 基本句間関係．
         self.ne_tags: NETagList = ne_tags  #: 固有表現タグ．
         self.pas: Optional["Pas"] = None  #: 述語項構造．
         self.entities: set[Entity] = set()  #: 参照しているエンティティ．
@@ -201,7 +201,7 @@ class BasePhrase(Unit):
         parent_index = int(match.group("pid")) if match.group("pid") is not None else None
         dep_type = DepType(match.group("dtype")) if match.group("dtype") is not None else None
         features = FeatureDict.from_fstring(match.group("tags") or "")
-        rels = RelList.from_fstring(match.group("tags") or "")
+        rels = RelTagList.from_fstring(match.group("tags") or "")
         ne_tags = NETagList.from_fstring(match.group("tags") or "")
         base_phrase = cls(parent_index, dep_type, features, rels, ne_tags)
 
@@ -301,7 +301,7 @@ class BasePhrase(Unit):
         for entity in self.entities_all:
             entity.remove_mention(self)
 
-    def _add_pas(self, rel: Rel) -> None:
+    def _add_pas(self, rel: RelTag) -> None:
         """述語項構造を追加．"""
         entity_manager: EntityManager = self.document.entity_manager
         assert self.pas is not None
@@ -319,7 +319,7 @@ class BasePhrase(Unit):
             entity = entity_manager.get_or_create_entity(ExophoraReferent(rel.target))
             self.pas.add_special_argument(rel.type, rel.target, eid=entity.eid, mode=rel.mode)
 
-    def _add_coreference(self, rel: Rel) -> None:
+    def _add_coreference(self, rel: RelTag) -> None:
         """共参照関係を追加．"""
         entity_manager: EntityManager = self.document.entity_manager
         # create source entity
@@ -345,7 +345,7 @@ class BasePhrase(Unit):
                 target_entity = entity_manager.get_or_create_entity(exophora_referent=ExophoraReferent(rel.target))
                 entity_manager.merge_entities(self, None, source_entity, target_entity, nonidentical)
 
-    def _get_target_base_phrase(self, rel: Rel) -> Optional["BasePhrase"]:
+    def _get_target_base_phrase(self, rel: RelTag) -> Optional["BasePhrase"]:
         """rel が指す基本句を取得．"""
         sentences = [sent for sent in self.document.sentences if sent.sid == rel.sid]
         if not sentences:
