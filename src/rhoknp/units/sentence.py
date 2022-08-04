@@ -2,7 +2,7 @@ import logging
 import re
 from typing import TYPE_CHECKING, Any, Optional, Union
 
-from rhoknp.props.named_entity import NamedEntity, NamedEntityCategory, NamedEntityList
+from rhoknp.props.named_entity import NamedEntity, NamedEntityList
 from rhoknp.units.base_phrase import BasePhrase
 from rhoknp.units.clause import Clause
 from rhoknp.units.morpheme import Morpheme
@@ -60,7 +60,7 @@ class Sentence(Unit):
         """インスタンス作成後の追加処理を行う．"""
         if self.need_knp is False:
             self._parse_knp_pas()
-            self.parse_named_entity()
+            self.parse_ne_tags()
         if self.need_clause_tag is False:
             self._parse_discourse_relation()
 
@@ -444,25 +444,15 @@ class Sentence(Unit):
         for base_phrase in self.base_phrases:
             base_phrase.parse_knp_pas()
 
-    def parse_named_entity(self) -> None:
+    def parse_ne_tags(self) -> None:
         """<NE> タグをパースし，固有表現オブジェクトを作成．"""
         named_entities = []
         candidate_morphemes = []
         for base_phrase in self.base_phrases:
             candidate_morphemes += base_phrase.morphemes
             for ne_tag in base_phrase.ne_tags:
-                if not NamedEntityCategory.has_value(ne_tag.category):
-                    logger.warning(f"{self.sid}: unknown NE category: {ne_tag.category}")
-                    continue
-                if (morpheme_range := NamedEntity.find_morpheme_span(ne_tag.name, candidate_morphemes)) is None:
-                    logger.warning(f"{self.sid}: morpheme span of '{ne_tag.name}' not found")
-                    continue
-                named_entities.append(
-                    NamedEntity(
-                        NamedEntityCategory(ne_tag.category),
-                        candidate_morphemes[morpheme_range.start : morpheme_range.stop],
-                    )
-                )
+                if named_entity := NamedEntity.from_ne_tag(ne_tag, candidate_morphemes):
+                    named_entities.append(named_entity)
         self.named_entities = NamedEntityList(named_entities)
 
     def _parse_discourse_relation(self) -> None:

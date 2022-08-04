@@ -1,3 +1,4 @@
+import logging
 import re
 from collections.abc import MutableSequence
 from dataclasses import dataclass
@@ -5,7 +6,9 @@ from enum import Enum
 from typing import TYPE_CHECKING, ClassVar, Optional
 
 if TYPE_CHECKING:
-    from rhoknp import Morpheme
+    from rhoknp.units.morpheme import Morpheme
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -71,16 +74,31 @@ class NamedEntity:
     def __str__(self) -> str:
         return self.text
 
-    def to_fstring(self) -> str:
-        """素性文字列に変換．"""
-        return f"<NE:{self.category.value}:{self.text}>"
+    @classmethod
+    def from_ne_tag(cls, ne_tag: NETag, candidate_morphemes: list["Morpheme"]) -> Optional["NamedEntity"]:
+        """NETag オブジェクトから初期化．"""
+        if not NamedEntityCategory.has_value(ne_tag.category):
+            logger.warning(f"{candidate_morphemes[0].sentence.sid}: unknown NE category: {ne_tag.category}")
+            return None
+        if (morpheme_range := cls._find_morpheme_span(ne_tag.name, candidate_morphemes)) is None:
+            logger.warning(f"{candidate_morphemes[0].sentence.sid}: morpheme span of '{ne_tag.name}' not found")
+            return None
+        return NamedEntity(
+            NamedEntityCategory(ne_tag.category),
+            candidate_morphemes[morpheme_range.start : morpheme_range.stop],
+        )
 
     def to_ne_tag(self) -> NETag:
         """NETag オブジェクトに変換．"""
+        assert isinstance(self.category.value, str)
         return NETag(category=self.category.value, name=self.text)
 
+    def to_fstring(self) -> str:
+        """素性文字列に変換．"""
+        return self.to_ne_tag().to_fstring()
+
     @staticmethod
-    def find_morpheme_span(name: str, candidates: list["Morpheme"]) -> Optional[range]:
+    def _find_morpheme_span(name: str, candidates: list["Morpheme"]) -> Optional[range]:
         """name にマッチする形態素の範囲を返す．
 
         Args:
