@@ -2,7 +2,7 @@ import re
 from collections.abc import MutableSequence
 from dataclasses import dataclass
 from enum import Enum
-from typing import TYPE_CHECKING, ClassVar
+from typing import TYPE_CHECKING, ClassVar, Optional
 
 if TYPE_CHECKING:
     from rhoknp import Morpheme
@@ -48,6 +48,10 @@ class NamedEntityCategory(Enum):
     PERCENT = "PERCENT"
     OPTIONAL = "OPTIONAL"
 
+    @classmethod
+    def has_value(cls, value: str) -> bool:
+        return any(value == item.value for item in cls)
+
 
 @dataclass
 class NamedEntity:
@@ -68,6 +72,17 @@ class NamedEntity:
 
     def to_ne_tag(self) -> NETag:
         return NETag(category=self.category.value, name=self.text)
+
+    @staticmethod
+    def find_morpheme_span(name: str, candidates: list["Morpheme"]) -> Optional[range]:
+        """name にマッチする形態素の範囲を返す．"""
+        stop = len(candidates)
+        while stop > 0:
+            for start in reversed(range(stop)):
+                if "".join(m.text for m in candidates[start:stop]) == name:
+                    return range(start, stop)
+            stop -= 1
+        return None
 
 
 class NamedEntityList(MutableSequence):

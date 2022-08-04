@@ -450,16 +450,14 @@ class Sentence(Unit):
     def parse_named_entity(self) -> None:
         """<NE> タグをパースし，固有表現オブジェクトを作成．"""
         named_entities = []
-        all_categories = [c.value for c in NamedEntityCategory]
         candidate_morphemes = []
         for base_phrase in self.base_phrases:
             candidate_morphemes += base_phrase.morphemes
             for ne_tag in base_phrase.ne_tags:
-                if ne_tag.category not in all_categories:
+                if not NamedEntityCategory.has_value(ne_tag.category):
                     logger.warning(f"{self.sid}: unknown NE category: {ne_tag.category}")
                     continue
-                morpheme_range = self._find_morpheme_span(ne_tag.name, candidate_morphemes)
-                if morpheme_range is None:
+                if (morpheme_range := NamedEntity.find_morpheme_span(ne_tag.name, candidate_morphemes)) is None:
                     logger.warning(f"{self.sid}: morpheme span of '{ne_tag.name}' not found")
                     continue
                 named_entities.append(
@@ -469,17 +467,6 @@ class Sentence(Unit):
                     )
                 )
         self.named_entities = NamedEntityList(named_entities)
-
-    @staticmethod
-    def _find_morpheme_span(name: str, candidates: list[Morpheme]) -> Optional[range]:
-        """name にマッチする形態素の範囲を返す．"""
-        tail_idx = len(candidates)
-        while tail_idx > 0:
-            for head_idx in reversed(range(tail_idx)):
-                if "".join(m.text for m in candidates[head_idx:tail_idx]) == name:
-                    return range(head_idx, tail_idx)
-            tail_idx -= 1
-        return None
 
     def _parse_discourse_relation(self) -> None:
         """<談話関係> タグをパース．"""
