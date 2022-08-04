@@ -73,4 +73,5 @@ def test_false():
 def test_ignore_tag_prefix():
     features = FeatureDict()
     features["rel"] = 'type="ノ" target="ユーザー" sid="w201106-0000060560-1" id="1"'
+    features["NE"] = "MONEY:100円"
     assert len(features) == 0
