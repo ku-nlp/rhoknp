@@ -10,6 +10,8 @@ if TYPE_CHECKING:
 
 @dataclass
 class NETag:
+    """関係タグ付きコーパスにおける <NE> タグを表すクラス．"""
+
     PAT: ClassVar[re.Pattern[str]] = re.compile(r"<NE:(?P<cat>\w+):(?P<name>[^>]+)>")
     category: str
     name: str
@@ -19,6 +21,8 @@ class NETag:
 
 
 class NETagList(list[NETag]):
+    """関係タグ付きコーパスにおける <NE> タグの列を表すクラス．"""
+
     @classmethod
     def from_fstring(cls, fstring: str) -> "NETagList":
         """KNP における素性文字列からオブジェクトを作成．"""
@@ -68,14 +72,21 @@ class NamedEntity:
         return self.text
 
     def to_fstring(self) -> str:
+        """素性文字列に変換．"""
         return f"<NE:{self.category.value}:{self.text}>"
 
     def to_ne_tag(self) -> NETag:
+        """NETag オブジェクトに変換．"""
         return NETag(category=self.category.value, name=self.text)
 
     @staticmethod
     def find_morpheme_span(name: str, candidates: list["Morpheme"]) -> Optional[range]:
-        """name にマッチする形態素の範囲を返す．"""
+        """name にマッチする形態素の範囲を返す．
+
+        Args:
+            name: 固有表現の文字列
+            candidates: 固有表現を構成する候補形態素のリスト
+        """
         stop = len(candidates)
         while stop > 0:
             for start in reversed(range(stop)):
