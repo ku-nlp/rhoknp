@@ -8,7 +8,8 @@ from rhoknp.cohesion.exophora import ExophoraReferent
 from rhoknp.cohesion.pas import CaseInfoFormat, Pas
 from rhoknp.cohesion.predicate import Predicate
 from rhoknp.cohesion.rel import RelMode, RelTag, RelTagList
-from rhoknp.props import DepType, FeatureDict
+from rhoknp.props.dependency import DepType
+from rhoknp.props.feature import FeatureDict
 from rhoknp.props.named_entity import NETagList
 from rhoknp.units.morpheme import Morpheme
 from rhoknp.units.unit import Unit

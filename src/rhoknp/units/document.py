@@ -3,7 +3,7 @@ from typing import Any, Optional, Sequence, Union
 
 from rhoknp.cohesion.coreference import EntityManager
 from rhoknp.cohesion.pas import Pas
-from rhoknp.props import NamedEntity
+from rhoknp.props.named_entity import NamedEntity
 from rhoknp.units.base_phrase import BasePhrase
 from rhoknp.units.clause import Clause
 from rhoknp.units.morpheme import Morpheme

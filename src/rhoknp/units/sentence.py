@@ -2,8 +2,7 @@ import logging
 import re
 from typing import TYPE_CHECKING, Any, Optional, Union
 
-from rhoknp.props import NamedEntity, NamedEntityCategory
-from rhoknp.props.named_entity import NamedEntityList
+from rhoknp.props.named_entity import NamedEntity, NamedEntityCategory, NamedEntityList
 from rhoknp.units.base_phrase import BasePhrase
 from rhoknp.units.clause import Clause
 from rhoknp.units.morpheme import Morpheme

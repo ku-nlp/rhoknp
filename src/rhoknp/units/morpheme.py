@@ -3,7 +3,8 @@ from dataclasses import astuple, dataclass, fields
 from functools import cached_property
 from typing import TYPE_CHECKING, ClassVar, Optional, Union
 
-from rhoknp.props import FeatureDict, SemanticsDict
+from rhoknp.props.feature import FeatureDict
+from rhoknp.props.semantics import SemanticsDict
 from rhoknp.units.unit import Unit
 
 if TYPE_CHECKING:
