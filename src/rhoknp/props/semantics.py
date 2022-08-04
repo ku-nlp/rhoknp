@@ -22,9 +22,6 @@ class SemanticsDict(dict[str, Union[str, bool]]):
 
         Args:
             sstring: KNP 形式における意味情報文字列．
-
-        Returns: SemanticsDict オブジェクト．
-
         """
         is_nil = sstring == cls.NIL
         semantics = {}

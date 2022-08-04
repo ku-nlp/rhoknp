@@ -76,9 +76,7 @@ class Sentence(Unit):
         return self._document
 
     @property
-    def child_units(
-        self,
-    ) -> Optional[Union[list[Clause], list[Phrase], list[Morpheme]]]:
+    def child_units(self) -> Optional[Union[list[Clause], list[Phrase], list[Morpheme]]]:
         """下位の言語単位（節もしくは形態素）のリスト．解析結果にアクセスできないなら None．
 
         .. note::

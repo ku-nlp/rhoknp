@@ -19,9 +19,6 @@ class FeatureDict(dict[str, Union[str, bool]]):
 
         Args:
             fstring: KNP 形式における素性文字列．
-
-        Returns: FeatureDict オブジェクト．
-
         """
         features = {}
         for match in cls.FEATURE_PAT.finditer(fstring):
