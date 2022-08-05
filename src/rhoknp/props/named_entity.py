@@ -3,7 +3,7 @@ import re
 from collections.abc import MutableSequence
 from dataclasses import dataclass
 from enum import Enum
-from typing import TYPE_CHECKING, ClassVar, Optional
+from typing import TYPE_CHECKING, ClassVar, Iterable, Optional, Union, overload
 
 if TYPE_CHECKING:
     from rhoknp.units.morpheme import Morpheme
@@ -114,37 +114,70 @@ class NamedEntity:
         return None
 
 
-class NamedEntityList(MutableSequence):
+class NamedEntityList(MutableSequence[NamedEntity]):
     def __init__(self, items: list[NamedEntity] = None) -> None:
         if items is None:
             items = []
         self._items: list[NamedEntity] = items
 
-    def __len__(self) -> int:
-        return len(self._items)
+    def insert(self, index: int, value: NamedEntity) -> None:
+        current_ne_tags = value.morphemes[-1].base_phrase.ne_tags
+        ne_tag = value.to_ne_tag()
+        if ne_tag not in current_ne_tags:
+            current_ne_tags.append(ne_tag)
+        self._items.insert(index, value)
 
-    def __getitem__(self, i):
-        return self._items[i]
+    @overload
+    def __getitem__(self, index: int) -> NamedEntity:
+        ...
 
-    def __delitem__(self, i) -> None:
-        self._items[i].morphemes[-1].base_phrase.ne_tags.remove(self._items[i].to_ne_tag())
-        del self._items[i]
+    @overload
+    def __getitem__(self, index: slice) -> list[NamedEntity]:
+        ...
 
-    def __setitem__(self, i, v) -> None:
-        if isinstance(v, NamedEntity):
-            current_ne_tags = v.morphemes[-1].base_phrase.ne_tags
-            ne_tag = v.to_ne_tag()
-            if ne_tag not in current_ne_tags:
-                current_ne_tags.append(ne_tag)
-        self._items[i] = v
+    def __getitem__(self, index: Union[int, slice]) -> Union[NamedEntity, list[NamedEntity]]:
+        return self._items[index]
 
-    def insert(self, i, v) -> None:
-        if isinstance(v, NamedEntity):
-            current_ne_tags = v.morphemes[-1].base_phrase.ne_tags
-            ne_tag = v.to_ne_tag()
-            if ne_tag not in current_ne_tags:
-                current_ne_tags.append(ne_tag)
-        self._items.insert(i, v)
+    @overload
+    def __setitem__(self, index: int, value: NamedEntity) -> None:
+        ...
+
+    @overload
+    def __setitem__(self, index: slice, value: Iterable[NamedEntity]) -> None:
+        ...
+
+    def __setitem__(self, index: Union[int, slice], value: Union[NamedEntity, Iterable[NamedEntity]]) -> None:
+        if isinstance(index, int) and isinstance(value, NamedEntity):
+            self._items[index] = value
+            named_entities = [value]
+        elif isinstance(index, slice) and isinstance(value, Iterable):
+            value = list(value)
+            self._items[index] = value
+            named_entities = value
+        else:
+            raise TypeError(f"cannot assign {value} at {index}")
+        for named_entity in named_entities:
+            if isinstance(named_entity, NamedEntity):
+                current_ne_tags = named_entity.morphemes[-1].base_phrase.ne_tags
+                ne_tag = named_entity.to_ne_tag()
+                if ne_tag not in current_ne_tags:
+                    current_ne_tags.append(ne_tag)
+
+    @overload
+    def __delitem__(self, index: int) -> None:
+        ...
+
+    @overload
+    def __delitem__(self, index: slice) -> None:
+        ...
+
+    def __delitem__(self, index: Union[int, slice]) -> None:
+        for item in self._items[index] if isinstance(index, slice) else [self._items[index]]:
+            item.morphemes[-1].base_phrase.ne_tags.remove(item.to_ne_tag())
+        del self._items[index]
 
     def __str__(self) -> str:
         return str(self._items)
+
+    def __len__(self) -> int:
+        return len(self._items)
