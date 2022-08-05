@@ -2,10 +2,11 @@ import re
 from functools import cached_property
 from typing import TYPE_CHECKING, Optional, Union
 
+from rhoknp.props.dependency import DepType
+from rhoknp.props.feature import FeatureDict
 from rhoknp.units.base_phrase import BasePhrase
 from rhoknp.units.morpheme import Morpheme
 from rhoknp.units.unit import Unit
-from rhoknp.units.utils import DepType, Features
 
 if TYPE_CHECKING:
     from rhoknp.units.clause import Clause
@@ -16,10 +17,10 @@ if TYPE_CHECKING:
 class Phrase(Unit):
     """文節クラス．"""
 
-    KNP_PAT = re.compile(rf"^\*( (?P<pid>-1|\d+)(?P<dtype>[DPAI]))?( {Features.PAT.pattern})?$")
+    KNP_PAT = re.compile(rf"^\*( (?P<pid>-1|\d+)(?P<dtype>[DPAI]))?( {FeatureDict.PAT.pattern})?$")
     count = 0
 
-    def __init__(self, parent_index: Optional[int], dep_type: Optional[DepType], features: Features):
+    def __init__(self, parent_index: Optional[int], dep_type: Optional[DepType], features: FeatureDict):
         super().__init__()
 
         # parent unit
@@ -31,7 +32,7 @@ class Phrase(Unit):
 
         self.parent_index: Optional[int] = parent_index  #: 係り先の文節の文内におけるインデックス．
         self.dep_type: Optional[DepType] = dep_type  #: 係り受けの種類．
-        self.features: Features = features  #: 素性．
+        self.features: FeatureDict = features  #: 素性．
 
         self.index = self.count
         Phrase.count += 1
@@ -39,10 +40,13 @@ class Phrase(Unit):
     @property
     def global_index(self) -> int:
         """文書全体におけるインデックス．"""
-        offset = 0
-        for prev_sentence in self.document.sentences[: self.sentence.index]:
-            offset += len(prev_sentence.phrases)
-        return self.index + offset
+        if self.index > 0:
+            return self.sentence.phrases[self.index - 1].global_index + 1
+        else:
+            if self.sentence.index == 0:
+                return self.index
+            else:
+                return self.document.sentences[self.sentence.index - 1].phrases[-1].global_index + 1
 
     @property
     def parent_unit(self) -> Optional[Union["Clause", "Sentence"]]:
@@ -167,7 +171,7 @@ class Phrase(Unit):
             raise ValueError(f"malformed line: {first_line}")
         parent_index = int(match.group("pid")) if match.group("pid") is not None else None
         dep_type = DepType(match.group("dtype")) if match.group("dtype") is not None else None
-        features = Features.from_fstring(match.group("feats") or "")
+        features = FeatureDict.from_fstring(match.group("feats") or "")
         phrase = cls(parent_index, dep_type, features)
 
         base_phrases: list[BasePhrase] = []

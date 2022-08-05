@@ -1,4 +1,4 @@
-from rhoknp.rel.exophora import ExophoraReferent, ExophoraReferentType
+from rhoknp.cohesion.exophora import ExophoraReferent, ExophoraReferentType
 
 
 def test_exophora():

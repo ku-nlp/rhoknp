@@ -1,11 +1,11 @@
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any, Optional, Union
 
-from rhoknp.rel.exophora import ExophoraReferent
+from rhoknp.cohesion.exophora import ExophoraReferent
 
 if TYPE_CHECKING:
-    from rhoknp.rel.pas import Pas
+    from rhoknp.cohesion.pas import Pas
     from rhoknp.units.base_phrase import BasePhrase
     from rhoknp.units.clause import Clause
     from rhoknp.units.document import Document
@@ -61,7 +61,7 @@ class BaseArgument(ABC):
         raise NotImplementedError
 
 
-class Argument(BaseArgument):
+class EndophoraArgument(BaseArgument):
     def __init__(self, base_phrase: "BasePhrase", arg_type: ArgumentType):
         super().__init__(arg_type)
         self.base_phrase: "BasePhrase" = base_phrase
@@ -93,10 +93,10 @@ class Argument(BaseArgument):
         return self.base_phrase.text
 
     def __eq__(self, other: Any) -> bool:
-        return isinstance(other, Argument) and self.base_phrase == other.base_phrase
+        return isinstance(other, EndophoraArgument) and self.base_phrase == other.base_phrase
 
 
-class SpecialArgument(BaseArgument):
+class ExophoraArgument(BaseArgument):
     """外界を指す項を表すクラス．
 
     Args:
@@ -116,4 +116,7 @@ class SpecialArgument(BaseArgument):
         return str(self.exophora_referent)
 
     def __eq__(self, other: Any) -> bool:
-        return isinstance(other, SpecialArgument) and self.exophora_referent == other.exophora_referent
+        return isinstance(other, ExophoraArgument) and self.exophora_referent == other.exophora_referent
+
+
+Argument = Union[EndophoraArgument, ExophoraArgument]

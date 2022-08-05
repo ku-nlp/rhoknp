@@ -3,8 +3,9 @@ from dataclasses import astuple, dataclass, fields
 from functools import cached_property
 from typing import TYPE_CHECKING, ClassVar, Optional, Union
 
+from rhoknp.props.feature import FeatureDict
+from rhoknp.props.semantics import SemanticsDict
 from rhoknp.units.unit import Unit
-from rhoknp.units.utils import Features, Semantics
 
 if TYPE_CHECKING:
     from rhoknp.units.base_phrase import BasePhrase
@@ -55,8 +56,8 @@ class Morpheme(Unit):
 
     JUMANPP_PAT: ClassVar[re.Pattern[str]] = re.compile(
         rf"^({MorphemeAttributes.JUMANPP_PAT.pattern})"
-        + rf"(\s{Semantics.PAT.pattern})?"
-        + rf"(\s{Features.PAT.pattern})?$"
+        + rf"(\s{SemanticsDict.PAT.pattern})?"
+        + rf"(\s{FeatureDict.PAT.pattern})?$"
     )
 
     count = 0
@@ -64,8 +65,8 @@ class Morpheme(Unit):
     def __init__(
         self,
         attributes: MorphemeAttributes,
-        semantics: Semantics,
-        features: Features,
+        semantics: SemanticsDict,
+        features: FeatureDict,
         homograph: bool = False,
     ):
         super().__init__()
@@ -88,10 +89,13 @@ class Morpheme(Unit):
     @property
     def global_index(self) -> int:
         """文書全体におけるインデックス．"""
-        offset = 0
-        for prev_sentence in self.document.sentences[: self.sentence.index]:
-            offset += len(prev_sentence.morphemes)
-        return self.index + offset
+        if self.index > 0:
+            return self.sentence.morphemes[self.index - 1].global_index + 1
+        else:
+            if self.sentence.index == 0:
+                return self.index
+            else:
+                return self.document.sentences[self.sentence.index - 1].morphemes[-1].global_index + 1
 
     @property
     def parent_unit(self) -> Optional[Union["BasePhrase", "Sentence"]]:
@@ -289,14 +293,14 @@ class Morpheme(Unit):
         if match is None:
             raise ValueError(f"malformed line: {jumanpp_line}")
         attributes = MorphemeAttributes.from_jumanpp(match.group("attrs"))
-        semantics = Semantics.from_sstring(match.group("sems") or "")
-        features = Features.from_fstring(match.group("feats") or "")
+        semantics = SemanticsDict.from_sstring(match.group("sems") or "")
+        features = FeatureDict.from_fstring(match.group("feats") or "")
         return cls(attributes, semantics, features, homograph=homograph)
 
     def to_jumanpp(self) -> str:
         """Juman++ フォーマットに変換．"""
         ret = self._attributes.to_jumanpp()
-        if self.semantics:
+        if self.semantics or self.semantics.is_nil is True:
             ret += f" {self.semantics}"
         if self.features:
             ret += f" {self.features}"

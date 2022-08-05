@@ -1,11 +1,11 @@
 from functools import cached_property
 from typing import TYPE_CHECKING, Optional
 
+from rhoknp.cohesion.discourse_relation import DiscourseRelationList
 from rhoknp.units.base_phrase import BasePhrase
 from rhoknp.units.morpheme import Morpheme
 from rhoknp.units.phrase import Phrase
 from rhoknp.units.unit import Unit
-from rhoknp.units.utils import DiscourseRelationList
 
 if TYPE_CHECKING:
     from rhoknp.units.document import Document
@@ -31,13 +31,16 @@ class Clause(Unit):
         self.index = self.count
         Clause.count += 1
 
-    @property
+    @cached_property
     def global_index(self) -> int:
         """文書全体におけるインデックス．"""
-        offset = 0
-        for prev_sentence in self.document.sentences[: self.sentence.index]:
-            offset += len(prev_sentence.clauses)
-        return self.index + offset
+        if self.index > 0:
+            return self.sentence.clauses[self.index - 1].global_index + 1
+        else:
+            if self.sentence.index == 0:
+                return self.index
+            else:
+                return self.document.sentences[self.sentence.index - 1].clauses[-1].global_index + 1
 
     @property
     def parent_unit(self) -> Optional["Sentence"]:
@@ -184,4 +187,5 @@ class Clause(Unit):
     def parse_discourse_relation(self) -> None:
         fstring = self.end.features.get("談話関係", "")
         assert isinstance(fstring, str)
-        self._discourse_relations = DiscourseRelationList(fstring, self)
+        self._discourse_relations = DiscourseRelationList.from_fstring(fstring)
+        self._discourse_relations.tie_units(self)

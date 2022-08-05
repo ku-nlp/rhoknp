@@ -1,8 +1,8 @@
 import logging
 from typing import TYPE_CHECKING, Optional
 
-from rhoknp.rel.argument import SpecialArgument
-from rhoknp.rel.exophora import ExophoraReferent
+from rhoknp.cohesion.argument import ExophoraArgument
+from rhoknp.cohesion.exophora import ExophoraReferent
 
 if TYPE_CHECKING:
     from rhoknp.units.base_phrase import BasePhrase
@@ -189,7 +189,7 @@ class EntityManager:
         # argument も eid を持っているので eid が変わった場合はこちらも更新
         pas_list = source_mention.document.pas_list()
         for arg in [arg for pas in pas_list for args in pas.get_all_arguments(relax=False).values() for arg in args]:
-            if isinstance(arg, SpecialArgument) and arg.eid == target_entity.eid:
+            if isinstance(arg, ExophoraArgument) and arg.eid == target_entity.eid:
                 arg.eid = source_entity.eid
         self.delete_entity(target_entity)  # delete target entity
 

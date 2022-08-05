@@ -3,7 +3,7 @@ from typing import Union
 
 import pytest
 
-from rhoknp.units.utils import Features
+from rhoknp.props import FeatureDict
 
 
 @dataclass(frozen=True)
@@ -27,13 +27,34 @@ cases = [
             "正規化代表表記": "構文/こうぶん",
         },
         length=8,
-    )
+    ),
+]
+
+cases_with_ignored_tag = [
+    FeaturesTestCase(
+        fstring="""<rel type="ノ" target="ユーザー" sid="w201106-0000060560-1" id="1"/><BGH:関心/かんしん><解析済><体言>""",
+        features={
+            "BGH": "関心/かんしん",
+            "解析済": True,
+            "体言": True,
+        },
+        length=3,
+    ),
+    FeaturesTestCase(
+        fstring="""<NE:DATE:平成２３年度><BGH:年度/ねんど><解析済><カウンタ:年度>""",
+        features={
+            "BGH": "年度/ねんど",
+            "解析済": True,
+            "カウンタ": "年度",
+        },
+        length=3,
+    ),
 ]
 
 
-@pytest.mark.parametrize("fstring,features,length", [astuple(case) for case in cases])
+@pytest.mark.parametrize("fstring,features,length", [astuple(case) for case in cases + cases_with_ignored_tag])
 def test_from_fstring(fstring: str, features: dict[str, Union[str, bool]], length: int) -> None:
-    fs = Features.from_fstring(fstring)
+    fs = FeatureDict.from_fstring(fstring)
     assert len(fs) == length
     assert dict(fs) == features
     assert fs.get("dummy") is None
@@ -41,9 +62,16 @@ def test_from_fstring(fstring: str, features: dict[str, Union[str, bool]], lengt
 
 @pytest.mark.parametrize("fstring,features,length", [astuple(case) for case in cases])
 def test_to_fstring(fstring: str, features: dict[str, Union[str, bool]], length: int) -> None:
-    fs = Features.from_fstring(fstring)
+    fs = FeatureDict.from_fstring(fstring)
     assert fs.to_fstring() == fstring
 
 
 def test_false():
-    assert Features._item2tag_string("sem", False) == ""
+    assert FeatureDict._item_to_fstring("sem", False) == ""
+
+
+def test_ignore_tag_prefix():
+    features = FeatureDict()
+    features["rel"] = 'type="ノ" target="ユーザー" sid="w201106-0000060560-1" id="1"'
+    features["NE"] = "MONEY:100円"
+    assert len(features) == 0

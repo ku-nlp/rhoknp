@@ -3,13 +3,16 @@ import re
 from functools import cached_property
 from typing import TYPE_CHECKING, Optional
 
-from rhoknp.rel.coreference import Entity, EntityManager
-from rhoknp.rel.exophora import ExophoraReferent
-from rhoknp.rel.pas import CaseInfoFormat, Pas
-from rhoknp.rel.predicate import Predicate
+from rhoknp.cohesion.coreference import Entity, EntityManager
+from rhoknp.cohesion.exophora import ExophoraReferent
+from rhoknp.cohesion.pas import CaseInfoFormat, Pas
+from rhoknp.cohesion.predicate import Predicate
+from rhoknp.cohesion.rel import RelMode, RelTag, RelTagList
+from rhoknp.props.dependency import DepType
+from rhoknp.props.feature import FeatureDict
+from rhoknp.props.named_entity import NETagList
 from rhoknp.units.morpheme import Morpheme
 from rhoknp.units.unit import Unit
-from rhoknp.units.utils import DepType, Features, Rel, RelMode, Rels
 from rhoknp.utils.constants import ALL_CASES, ALL_COREFS
 
 if TYPE_CHECKING:
@@ -29,7 +32,14 @@ class BasePhrase(Unit):
     )
     count = 0
 
-    def __init__(self, parent_index: Optional[int], dep_type: Optional[DepType], features: Features, rels: Rels):
+    def __init__(
+        self,
+        parent_index: Optional[int],
+        dep_type: Optional[DepType],
+        features: FeatureDict,
+        rels: RelTagList,
+        ne_tags: NETagList,
+    ):
         super().__init__()
 
         # parent unit
@@ -40,8 +50,9 @@ class BasePhrase(Unit):
 
         self.parent_index: Optional[int] = parent_index  #: 係り先の基本句の文内におけるインデックス．
         self.dep_type: Optional[DepType] = dep_type  #: 係り受けの種類．
-        self.features: Features = features  #: 素性．
-        self.rels: Rels = rels  #: 基本句間関係．
+        self.features: FeatureDict = features  #: 素性．
+        self.rels: RelTagList = rels  #: 基本句間関係．
+        self.ne_tags: NETagList = ne_tags  #: 固有表現タグ．
         self.pas: Optional["Pas"] = None  #: 述語項構造．
         self.entities: set[Entity] = set()  #: 参照しているエンティティ．
         self.entities_nonidentical: set[Entity] = set()  #: ≒で参照しているエンティティ．
@@ -49,13 +60,16 @@ class BasePhrase(Unit):
         self.index = self.count
         BasePhrase.count += 1
 
-    @property
+    @cached_property
     def global_index(self) -> int:
         """文書全体におけるインデックス．"""
-        offset = 0
-        for prev_sentence in self.document.sentences[: self.sentence.index]:
-            offset += len(prev_sentence.base_phrases)
-        return self.index + offset
+        if self.index > 0:
+            return self.sentence.base_phrases[self.index - 1].global_index + 1
+        else:
+            if self.sentence.index == 0:
+                return self.index
+            else:
+                return self.document.sentences[self.sentence.index - 1].base_phrases[-1].global_index + 1
 
     @property
     def parent_unit(self) -> Optional["Phrase"]:
@@ -187,9 +201,10 @@ class BasePhrase(Unit):
             raise ValueError(f"malformed line: {first_line}")
         parent_index = int(match.group("pid")) if match.group("pid") is not None else None
         dep_type = DepType(match.group("dtype")) if match.group("dtype") is not None else None
-        features = Features.from_fstring(match.group("tags") or "")
-        rels = Rels.from_fstring(match.group("tags") or "")
-        base_phrase = cls(parent_index, dep_type, features, rels)
+        features = FeatureDict.from_fstring(match.group("tags") or "")
+        rels = RelTagList.from_fstring(match.group("tags") or "")
+        ne_tags = NETagList.from_fstring(match.group("tags") or "")
+        base_phrase = cls(parent_index, dep_type, features, rels, ne_tags)
 
         morphemes: list[Morpheme] = []
         for line in lines:
@@ -205,8 +220,8 @@ class BasePhrase(Unit):
         if self.parent_index is not None:
             assert self.dep_type is not None
             ret += f" {self.parent_index}{self.dep_type.value}"
-        if self.rels or self.features:
-            ret += f" {self.rels.to_fstring()}{self.features.to_fstring()}"
+        if self.rels or self.ne_tags or self.features:
+            ret += f" {self.rels.to_fstring()}{self.ne_tags.to_fstring()}{self.features.to_fstring()}"
         ret += "\n"
         ret += "".join(morpheme.to_jumanpp() for morpheme in self.morphemes)
         return ret
@@ -287,7 +302,7 @@ class BasePhrase(Unit):
         for entity in self.entities_all:
             entity.remove_mention(self)
 
-    def _add_pas(self, rel: Rel) -> None:
+    def _add_pas(self, rel: RelTag) -> None:
         """述語項構造を追加．"""
         entity_manager: EntityManager = self.document.entity_manager
         assert self.pas is not None
@@ -305,7 +320,7 @@ class BasePhrase(Unit):
             entity = entity_manager.get_or_create_entity(ExophoraReferent(rel.target))
             self.pas.add_special_argument(rel.type, rel.target, eid=entity.eid, mode=rel.mode)
 
-    def _add_coreference(self, rel: Rel) -> None:
+    def _add_coreference(self, rel: RelTag) -> None:
         """共参照関係を追加．"""
         entity_manager: EntityManager = self.document.entity_manager
         # create source entity
@@ -331,7 +346,7 @@ class BasePhrase(Unit):
                 target_entity = entity_manager.get_or_create_entity(exophora_referent=ExophoraReferent(rel.target))
                 entity_manager.merge_entities(self, None, source_entity, target_entity, nonidentical)
 
-    def _get_target_base_phrase(self, rel: Rel) -> Optional["BasePhrase"]:
+    def _get_target_base_phrase(self, rel: RelTag) -> Optional["BasePhrase"]:
         """rel が指す基本句を取得．"""
         sentences = [sent for sent in self.document.sentences if sent.sid == rel.sid]
         if not sentences:

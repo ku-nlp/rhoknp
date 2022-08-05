@@ -11,4 +11,3 @@ rhoknp.units package
    rhoknp.units.base_phrase
    rhoknp.units.morpheme
    rhoknp.units.unit
-   rhoknp.units.utils

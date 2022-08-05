@@ -1,5 +1,5 @@
-from rhoknp.processors.jumanpp import Jumanpp
-from rhoknp.processors.knp import KNP
-from rhoknp.processors.senter import RegexSenter
+from .jumanpp import Jumanpp
+from .knp import KNP
+from .senter import RegexSenter
 
 __all__ = ["RegexSenter", "Jumanpp", "KNP"]

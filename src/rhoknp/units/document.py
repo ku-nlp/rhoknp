@@ -1,15 +1,16 @@
 import logging
 from typing import Any, Optional, Sequence, Union
 
-from rhoknp.rel.coreference import EntityManager
-from rhoknp.rel.pas import Pas
+from rhoknp.cohesion.coreference import EntityManager
+from rhoknp.cohesion.pas import Pas
+from rhoknp.props.named_entity import NamedEntity
 from rhoknp.units.base_phrase import BasePhrase
 from rhoknp.units.clause import Clause
 from rhoknp.units.morpheme import Morpheme
 from rhoknp.units.phrase import Phrase
 from rhoknp.units.sentence import Sentence
 from rhoknp.units.unit import Unit
-from rhoknp.units.utils import is_comment_line
+from rhoknp.utils.utils import is_comment_line
 
 logger = logging.getLogger(__name__)
 
@@ -42,17 +43,13 @@ class Document(Unit):
 
         self.entity_manager = EntityManager()
 
-        self.has_error = False
-
     def _post_init(self) -> None:
         """インスタンス作成後の追加処理を行う．"""
-        if self._sentences:
-            for sentence in self._sentences:
+        if self.need_senter is False:
+            for sentence in self.sentences:
                 sentence.post_init()
         if self.need_knp is False:
             self._parse_rel()
-        if self.need_clause_tag is False:
-            self._parse_discourse_relation()
 
     @property
     def parent_unit(self) -> None:
@@ -121,6 +118,11 @@ class Document(Unit):
             AttributeError: 解析結果にアクセスできない場合．
         """
         return [morpheme for sentence in self.sentences for morpheme in sentence.morphemes]
+
+    @property
+    def named_entities(self) -> list[NamedEntity]:
+        """固有表現のリスト．"""
+        return [ne for sentence in self.sentences for ne in sentence.named_entities]
 
     @property
     def need_senter(self) -> bool:
@@ -279,7 +281,6 @@ class Document(Unit):
                 try:
                     sentences.append(Sentence.from_jumanpp("\n".join(sentence_lines) + "\n", post_init=False))
                 except Exception as e:
-                    document.has_error = True
                     if not ignore_errors:
                         raise e
                 sentence_lines = []
@@ -349,7 +350,6 @@ class Document(Unit):
                 try:
                     sentences.append(Sentence.from_knp("\n".join(sentence_lines) + "\n", post_init=False))
                 except Exception as e:
-                    document.has_error = True
                     if not ignore_errors:
                         raise e
                 sentence_lines = []
@@ -388,11 +388,6 @@ class Document(Unit):
             base_phrase.reset_rels()
         self.entity_manager.reset()
         self._parse_rel()
-
-    def _parse_discourse_relation(self) -> None:
-        """<談話関係> タグをパース．"""
-        for clause in self.clauses:
-            clause.parse_discourse_relation()
 
     def __eq__(self, other: Any) -> bool:
         if isinstance(other, Document) is False:

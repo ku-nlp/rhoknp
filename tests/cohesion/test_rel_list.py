@@ -1,10 +1,10 @@
-from rhoknp.units.utils import RelMode, Rels
+from rhoknp.cohesion.rel import RelMode, RelTagList
 
 fstring = """<rel type="=≒" target="オフェンス" sid="w201106-0001519365-1" id="3"/><rel type="=≒" mode="AND" target="ディフェンス" sid="w201106-0001519365-1" id="4"/><rel type="ノ？" target="著者"/>"""
 
 
 def test_from_fstring() -> None:
-    rels = Rels.from_fstring(fstring)
+    rels = RelTagList.from_fstring(fstring)
     assert len(rels) == 3
 
     rel = rels[0]
@@ -30,10 +30,10 @@ def test_from_fstring() -> None:
 
 
 def test_to_fstring() -> None:
-    rels = Rels.from_fstring(fstring)
+    rels = RelTagList.from_fstring(fstring)
     assert rels.to_fstring() == fstring
 
 
 def test_str() -> None:
-    rels = Rels.from_fstring(fstring)
+    rels = RelTagList.from_fstring(fstring)
     assert str(rels) == fstring

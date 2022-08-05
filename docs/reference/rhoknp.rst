@@ -6,5 +6,6 @@ rhoknp package
 
    rhoknp.processors
    rhoknp.units
-   rhoknp.rel
+   rhoknp.props
+   rhoknp.cohesion
    rhoknp.utils

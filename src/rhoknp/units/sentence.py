@@ -1,15 +1,19 @@
+import logging
 import re
 from typing import TYPE_CHECKING, Any, Optional, Union
 
+from rhoknp.props.named_entity import NamedEntity, NamedEntityList
 from rhoknp.units.base_phrase import BasePhrase
 from rhoknp.units.clause import Clause
 from rhoknp.units.morpheme import Morpheme
 from rhoknp.units.phrase import Phrase
 from rhoknp.units.unit import Unit
-from rhoknp.units.utils import is_comment_line
+from rhoknp.utils.utils import is_comment_line
 
 if TYPE_CHECKING:
     from rhoknp.units.document import Document
+
+logger = logging.getLogger(__name__)
 
 
 class Sentence(Unit):
@@ -47,6 +51,8 @@ class Sentence(Unit):
         self.doc_id: Optional[str] = None
         self.misc_comment: str = ""
 
+        self.named_entities = NamedEntityList()
+
         self.index = self.count
         Sentence.count += 1
 
@@ -54,6 +60,9 @@ class Sentence(Unit):
         """インスタンス作成後の追加処理を行う．"""
         if self.need_knp is False:
             self._parse_knp_pas()
+            self.parse_ne_tags()
+        if self.need_clause_tag is False:
+            self._parse_discourse_relation()
 
     @property
     def global_index(self) -> int:
@@ -66,9 +75,7 @@ class Sentence(Unit):
         return self._document
 
     @property
-    def child_units(
-        self,
-    ) -> Optional[Union[list[Clause], list[Phrase], list[Morpheme]]]:
+    def child_units(self) -> Optional[Union[list[Clause], list[Phrase], list[Morpheme]]]:
         """下位の言語単位（節もしくは形態素）のリスト．解析結果にアクセスできないなら None．
 
         .. note::
@@ -209,6 +216,11 @@ class Sentence(Unit):
         if doc_id is not None:
             self.doc_id = doc_id
         self.misc_comment = rest
+
+    @property
+    def has_document(self) -> bool:
+        """文書が設定されていたら True．"""
+        return self._document is not None
 
     @property
     def need_jumanpp(self) -> bool:
@@ -431,6 +443,22 @@ class Sentence(Unit):
         """KNP 解析結果における <述語項構造> タグおよび <格解析結果> タグをパース．"""
         for base_phrase in self.base_phrases:
             base_phrase.parse_knp_pas()
+
+    def parse_ne_tags(self) -> None:
+        """<NE> タグをパースし，固有表現オブジェクトを作成．"""
+        named_entities = []
+        candidate_morphemes = []
+        for base_phrase in self.base_phrases:
+            candidate_morphemes += base_phrase.morphemes
+            for ne_tag in base_phrase.ne_tags:
+                if named_entity := NamedEntity.from_ne_tag(ne_tag, candidate_morphemes):
+                    named_entities.append(named_entity)
+        self.named_entities = NamedEntityList(named_entities)
+
+    def _parse_discourse_relation(self) -> None:
+        """<談話関係> タグをパース．"""
+        for clause in self.clauses:
+            clause.parse_discourse_relation()
 
     def __eq__(self, other: Any) -> bool:
         if isinstance(other, Sentence) is False:
