@@ -86,7 +86,7 @@ class Morpheme(Unit):
         if homograph is False:
             Morpheme.count += 1
 
-    @property
+    @cached_property
     def global_index(self) -> int:
         """文書全体におけるインデックス．"""
         if self.index > 0:
