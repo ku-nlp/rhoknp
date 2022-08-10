@@ -162,7 +162,7 @@ class Document(Unit):
             text = "天気が良かったので散歩した。途中で先生に会った。"
             doc = Document.from_raw_text(text)
         """
-        document = cls(text)
+        document = cls(text.strip())
         document._post_init()
         return document
 
@@ -228,7 +228,7 @@ class Document(Unit):
                 else:
                     sentences_.append(Sentence.from_knp(sentence.to_knp(), post_init=False))
             else:
-                sentences_.append(Sentence.from_raw_text(sentence, post_init=False))
+                sentences_.append(Sentence.from_raw_text(sentence.strip(), post_init=False))
         document.sentences = sentences_
         if sentences_:
             document.doc_id = sentences_[0].doc_id
@@ -358,6 +358,21 @@ class Document(Unit):
             document.doc_id = sentences[0].doc_id
         document._post_init()
         return document
+
+    def reparse(self) -> "Document":
+        """文書を再構築．
+
+        .. note::
+            解析結果に対する編集を有効にする際に実行する必要がある．
+        """
+        if self.need_knp is False:
+            return Document.from_knp(self.to_knp())
+        elif self.need_jumanpp is False:
+            return Document.from_jumanpp(self.to_jumanpp())
+        elif self.need_senter is False:
+            return Document.from_line_by_line_text(self.to_plain())
+        else:
+            return Document.from_raw_text(self.to_plain())
 
     def to_plain(self) -> str:
         """プレーンテキストフォーマットに変換．
