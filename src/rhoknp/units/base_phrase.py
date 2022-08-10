@@ -8,6 +8,7 @@ from rhoknp.cohesion.exophora import ExophoraReferent
 from rhoknp.cohesion.pas import CaseInfoFormat, Pas
 from rhoknp.cohesion.predicate import Predicate
 from rhoknp.cohesion.rel import RelMode, RelTag, RelTagList
+from rhoknp.props import DiscourseRelationTag
 from rhoknp.props.dependency import DepType
 from rhoknp.props.feature import FeatureDict
 from rhoknp.props.named_entity import NETagList
@@ -39,6 +40,7 @@ class BasePhrase(Unit):
         features: FeatureDict,
         rels: RelTagList,
         ne_tags: NETagList,
+        discourse_relation_tag: DiscourseRelationTag,
     ):
         super().__init__()
 
@@ -53,6 +55,7 @@ class BasePhrase(Unit):
         self.features: FeatureDict = features  #: 素性．
         self.rels: RelTagList = rels  #: 基本句間関係．
         self.ne_tags: NETagList = ne_tags  #: 固有表現タグ．
+        self.discourse_relation_tag: DiscourseRelationTag = discourse_relation_tag  #: 談話関係タグ．
         self.pas: Optional["Pas"] = None  #: 述語項構造．
         self.entities: set[Entity] = set()  #: 参照しているエンティティ．
         self.entities_nonidentical: set[Entity] = set()  #: ≒で参照しているエンティティ．
@@ -204,7 +207,8 @@ class BasePhrase(Unit):
         features = FeatureDict.from_fstring(match.group("tags") or "")
         rels = RelTagList.from_fstring(match.group("tags") or "")
         ne_tags = NETagList.from_fstring(match.group("tags") or "")
-        base_phrase = cls(parent_index, dep_type, features, rels, ne_tags)
+        discourse_relation_tag = DiscourseRelationTag.from_fstring(match.group("tags") or "")
+        base_phrase = cls(parent_index, dep_type, features, rels, ne_tags, discourse_relation_tag)
 
         morphemes: list[Morpheme] = []
         for line in lines:
