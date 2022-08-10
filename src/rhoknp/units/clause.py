@@ -1,7 +1,8 @@
+import logging
 from functools import cached_property
 from typing import TYPE_CHECKING, Optional
 
-from rhoknp.cohesion.discourse_relation import DiscourseRelationList
+from rhoknp.cohesion.discourse_relation import DiscourseRelation, DiscourseRelationList
 from rhoknp.units.base_phrase import BasePhrase
 from rhoknp.units.morpheme import Morpheme
 from rhoknp.units.phrase import Phrase
@@ -10,6 +11,8 @@ from rhoknp.units.unit import Unit
 if TYPE_CHECKING:
     from rhoknp.units.document import Document
     from rhoknp.units.sentence import Sentence
+
+logger = logging.getLogger(__name__)
 
 
 class Clause(Unit):
@@ -184,8 +187,31 @@ class Clause(Unit):
         """KNP フォーマットに変換．"""
         return "".join(phrase.to_knp() for phrase in self.phrases)
 
-    def parse_discourse_relation(self) -> None:
-        fstring = self.end.features.get("談話関係", "")
-        assert isinstance(fstring, str)
-        self._discourse_relations = DiscourseRelationList.from_fstring(fstring)
-        self._discourse_relations.tie_units(self)
+    def parse_discourse_relation_tag(self) -> None:
+        discourse_relations = []
+        for value in self.end.discourse_relation_tag.values:
+            modifier = self
+            head_sentence: Optional["Sentence"] = None
+            if self.sentence.has_document:
+                sentences = self.document.sentences
+            else:
+                sentences = [self.sentence]
+            for sentence in sentences:
+                if sentence.sid == value.sid:
+                    head_sentence = sentence
+                    break
+            if head_sentence is None:
+                logger.warning(f"{value.sid} not found")
+                continue
+            if value.base_phrase_index >= len(head_sentence.base_phrases):
+                logger.warning(f"index out of range in {value.sid}")
+                continue
+            head_base_phrase = head_sentence.base_phrases[value.base_phrase_index]
+            head = head_base_phrase.clause
+            if head.end != head_base_phrase:
+                logger.warning(f"invalid clause tag in {value.sid}")
+                continue
+            discourse_relations.append(
+                DiscourseRelation(value.sid, value.base_phrase_index, value.label, modifier, head)
+            )
+        self._discourse_relations = DiscourseRelationList(discourse_relations)

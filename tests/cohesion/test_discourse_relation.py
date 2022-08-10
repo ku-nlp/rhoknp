@@ -1,60 +1,38 @@
-import re
 import textwrap
 
 import pytest
 
 from rhoknp import Document, Sentence
-from rhoknp.cohesion.discourse_relation import DiscourseRelation, DiscourseRelationList
+from rhoknp.cohesion.discourse_relation import DiscourseRelationTag, DiscourseRelationTagValue
 
 
-def test_discourse_relation_init() -> None:
-    _ = DiscourseRelation("w-1111", 2, "逆接(逆方向)")
-
-
-@pytest.mark.parametrize(
-    "fstring, expected",
-    [
-        ("w-1111/2/逆接(逆方向)", 1),
-        ("w-1111/2/逆接(逆方向);w-1111/3/対比", 2),
-    ],
-)
-def test_discourse_relation_pat(fstring: str, expected: int) -> None:
-    matches = re.findall(DiscourseRelation.PAT, fstring)
-    assert len(matches) == expected
-
-
-@pytest.mark.parametrize("fstring", ["w-1111/2/逆接(逆方向)", "w-1111/2/逆接(逆方向);w-1111/3/対比"])
-def test_discourse_relation_list_init(fstring: str) -> None:
-    _ = DiscourseRelationList.from_fstring(fstring)
-
-
-@pytest.mark.parametrize("fstring", ["w-1111/2/逆接(逆方向)", "w-1111/2/逆接(逆方向);w-1111/3/対比"])
-def test_discourse_relation_list_from_fstring(fstring: str) -> None:
-    _ = DiscourseRelationList.from_fstring(fstring)
+@pytest.mark.parametrize("sid, base_phrase_index, label, fstring", [("1", 0, "原因・理由", "1/0/原因・理由")])
+def test_discourse_relation_tag_value(sid: str, base_phrase_index: int, label: str, fstring: str) -> None:
+    v = DiscourseRelationTagValue(sid, base_phrase_index, label)
+    assert v.sid == sid
+    assert v.base_phrase_index == base_phrase_index
+    assert v.label == label
+    assert v.to_fstring() == fstring
 
 
 @pytest.mark.parametrize(
-    "fstring, expected",
+    "fstring, values",
     [
-        ("w-1111/2/逆接(逆方向)", 1),
-        ("w-1111/2/逆接(逆方向);w-1111/3/対比", 2),
+        ("<談話関係:1/0/原因・理由>", [DiscourseRelationTagValue("1", 0, "原因・理由")]),
+        (
+            "<談話関係:1/0/原因・理由;2/1/原因・理由>",
+            [DiscourseRelationTagValue("1", 0, "原因・理由"), DiscourseRelationTagValue("2", 1, "原因・理由")],
+        ),
+        (
+            "<節-区切><談話関係:1/0/原因・理由;2/1/原因・理由>",
+            [DiscourseRelationTagValue("1", 0, "原因・理由"), DiscourseRelationTagValue("2", 1, "原因・理由")],
+        ),
+        ("<節-区切>", []),
     ],
 )
-def test_discourse_relation_list_len(fstring: str, expected: int) -> None:
-    discourse_relations = DiscourseRelationList.from_fstring(fstring)
-    assert len(discourse_relations) == expected
-
-
-@pytest.mark.parametrize("fstring", ["w-1111/2/逆接(逆方向)", "w-1111/2/逆接(逆方向);w-1111/3/対比"])
-def test_discourse_relation_list_to_fstring(fstring: str) -> None:
-    discourse_relations = DiscourseRelationList.from_fstring(fstring)
-    assert discourse_relations.to_fstring() == fstring
-
-
-@pytest.mark.parametrize("fstring", ["w-1111/2/逆接(逆方向)", "w-1111/2/逆接(逆方向);w-1111/3/対比"])
-def test_discourse_relation_list_str(fstring: str) -> None:
-    discourse_relations = DiscourseRelationList.from_fstring(fstring)
-    assert str(discourse_relations) == fstring
+def test_discourse_relation_tag(fstring: str, values: list[DiscourseRelationTagValue]) -> None:
+    discourse_relation_tag = DiscourseRelationTag.from_fstring(fstring)
+    assert discourse_relation_tag.values == values
 
 
 def test_document():

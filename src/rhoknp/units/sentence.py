@@ -458,7 +458,7 @@ class Sentence(Unit):
     def _parse_discourse_relation(self) -> None:
         """<談話関係> タグをパース．"""
         for clause in self.clauses:
-            clause.parse_discourse_relation()
+            clause.parse_discourse_relation_tag()
 
     def __eq__(self, other: Any) -> bool:
         if isinstance(other, Sentence) is False:

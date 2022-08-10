@@ -4,11 +4,11 @@ from functools import cached_property
 from typing import TYPE_CHECKING, Optional
 
 from rhoknp.cohesion.coreference import Entity, EntityManager
+from rhoknp.cohesion.discourse_relation import DiscourseRelationTag
 from rhoknp.cohesion.exophora import ExophoraReferent
 from rhoknp.cohesion.pas import CaseInfoFormat, Pas
 from rhoknp.cohesion.predicate import Predicate
 from rhoknp.cohesion.rel import RelMode, RelTag, RelTagList
-from rhoknp.props import DiscourseRelationTag
 from rhoknp.props.dependency import DepType
 from rhoknp.props.feature import FeatureDict
 from rhoknp.props.named_entity import NETagList
