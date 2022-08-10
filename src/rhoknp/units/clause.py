@@ -188,30 +188,7 @@ class Clause(Unit):
         return "".join(phrase.to_knp() for phrase in self.phrases)
 
     def parse_discourse_relation_tag(self) -> None:
-        discourse_relations = []
+        self._discourse_relations = DiscourseRelationList()
         for value in self.end.discourse_relation_tag.values:
-            modifier = self
-            head_sentence: Optional["Sentence"] = None
-            if self.sentence.has_document:
-                sentences = self.document.sentences
-            else:
-                sentences = [self.sentence]
-            for sentence in sentences:
-                if sentence.sid == value.sid:
-                    head_sentence = sentence
-                    break
-            if head_sentence is None:
-                logger.warning(f"{value.sid} not found")
-                continue
-            if value.base_phrase_index >= len(head_sentence.base_phrases):
-                logger.warning(f"index out of range in {value.sid}")
-                continue
-            head_base_phrase = head_sentence.base_phrases[value.base_phrase_index]
-            head = head_base_phrase.clause
-            if head.end != head_base_phrase:
-                logger.warning(f"invalid clause tag in {value.sid}")
-                continue
-            discourse_relations.append(
-                DiscourseRelation(value.sid, value.base_phrase_index, value.label, modifier, head)
-            )
-        self._discourse_relations = DiscourseRelationList(discourse_relations)
+            if discourse_relation := DiscourseRelation.from_discourse_relation_tag_value(value, modifier=self):
+                self._discourse_relations.append(discourse_relation)
