@@ -304,12 +304,6 @@ class BasePhrase(Unit):
             pas = Pas(Predicate(self))
         self.pas = pas
 
-    def reset_rels(self) -> None:
-        """PAS と共参照関係をリセット．"""
-        self.pas = None
-        for entity in self.entities_all:
-            entity.remove_mention(self)
-
     def _add_pas(self, rel: RelTag) -> None:
         """述語項構造を追加．"""
         entity_manager: EntityManager = self.document.entity_manager

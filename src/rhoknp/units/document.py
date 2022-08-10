@@ -49,7 +49,8 @@ class Document(Unit):
             for sentence in self.sentences:
                 sentence.post_init()
         if self.need_knp is False:
-            self._parse_rel()
+            for base_phrase in self.base_phrases:
+                base_phrase.parse_rel()
 
     @property
     def parent_unit(self) -> None:
@@ -391,18 +392,6 @@ class Document(Unit):
     def to_knp(self) -> str:
         """KNP フォーマットに変換．"""
         return "".join(sentence.to_knp() for sentence in self.sentences)
-
-    def _parse_rel(self) -> None:
-        """関係タグ付きコーパスにおける <rel> タグをパース．"""
-        for base_phrase in self.base_phrases:
-            base_phrase.parse_rel()
-
-    def reparse_rel(self) -> None:
-        """base_phrases の持つ rel に基づき PAS と共参照関係を再構築．"""
-        for base_phrase in self.base_phrases:
-            base_phrase.reset_rels()
-        self.entity_manager.reset()
-        self._parse_rel()
 
     def __eq__(self, other: Any) -> bool:
         if isinstance(other, Document) is False:

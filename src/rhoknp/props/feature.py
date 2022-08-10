@@ -33,7 +33,7 @@ class FeatureDict(dict[str, Union[str, bool]]):
         if key == "rel":
             logger.warning(
                 f"Adding 'rel' to {self.__class__.__name__} is not supported and was ignored. Instead, add a Rel "
-                f"object to BasePhrase.rels and call Document.reparse_rel()."
+                f"object to BasePhrase.rels and call Document.reparse()."
             )
             return
         if key == "NE":

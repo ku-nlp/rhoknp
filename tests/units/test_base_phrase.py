@@ -1,5 +1,4 @@
 import textwrap
-from pathlib import Path
 
 import pytest
 
@@ -314,20 +313,6 @@ def test_no_pas():
         )
     )
     assert base_phrase.pas is None
-
-
-def test_reset_rels():
-    doc_id = "w201106-0000060560"
-    doc = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text())
-    base_phrase_7 = doc.base_phrases[7]  # ドクターを
-    base_phrase_13 = doc.base_phrases[13]  # 紹介できる
-    assert len(base_phrase_7.entities_all) > 0
-    assert base_phrase_13.pas is not None
-
-    base_phrase_7.reset_rels()
-    base_phrase_13.reset_rels()
-    assert len(base_phrase_7.entities_all) == 0
-    assert base_phrase_13.pas is None
 
 
 def test_discourse_relation_tag():

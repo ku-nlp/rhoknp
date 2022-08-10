@@ -208,17 +208,6 @@ class EntityManager:
             entity.remove_mention(mention)
         self.entities.remove(entity)
 
-    def reset(self) -> None:
-        """管理する全てのエンティティを削除．"""
-        max_iteration = 100
-        cnt = 0
-        while self.entities:
-            for entity in self.entities:
-                self.delete_entity(entity)
-            cnt += 1
-            if cnt > max_iteration:
-                raise RuntimeError("MAX_ITERATION exceeded")
-
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(entities={repr(self.entities)})"
 

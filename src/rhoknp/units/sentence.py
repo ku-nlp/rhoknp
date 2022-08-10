@@ -60,7 +60,7 @@ class Sentence(Unit):
         """インスタンス作成後の追加処理を行う．"""
         if self.need_knp is False:
             self._parse_knp_pas()
-            self.parse_ne_tags()
+            self._parse_ne_tags()
         if self.need_clause_tag is False:
             self._parse_discourse_relation()
 
@@ -457,7 +457,7 @@ class Sentence(Unit):
         for base_phrase in self.base_phrases:
             base_phrase.parse_knp_pas()
 
-    def parse_ne_tags(self) -> None:
+    def _parse_ne_tags(self) -> None:
         """<NE> タグをパースし，固有表現オブジェクトを作成．"""
         named_entities = []
         candidate_morphemes = []

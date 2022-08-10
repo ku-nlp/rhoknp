@@ -712,14 +712,6 @@ def test_id_wac() -> None:
     assert doc.doc_id == doc_id
 
 
-def test_reparse_rel() -> None:
-    doc_id = "w201106-0000060050"
-    knp = Path(f"tests/data/{doc_id}.knp").read_text()
-    doc = Document.from_knp(knp)
-    doc.reparse_rel()
-    assert doc.to_knp() == knp
-
-
 def test_eq_knp() -> None:
     doc_id = "w201106-0000060050"
     knp = Path(f"tests/data/{doc_id}.knp").read_text()
