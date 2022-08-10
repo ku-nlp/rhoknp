@@ -62,6 +62,9 @@ class DiscourseRelationTag:
     def __str__(self) -> str:
         return self.to_fstring()
 
+    def __bool__(self) -> bool:
+        return len(self.values) > 0
+
     @classmethod
     def from_fstring(cls, fstring: str) -> "DiscourseRelationTag":
         """KNP における素性文字列からオブジェクトを作成．"""
