@@ -50,7 +50,7 @@ class Document(Unit):
                 sentence.post_init()
         if self.need_knp is False:
             for base_phrase in self.base_phrases:
-                base_phrase.parse_rel()
+                base_phrase.parse_rel_tag()
 
     @property
     def parent_unit(self) -> None:
@@ -269,7 +269,7 @@ class Document(Unit):
             doc = Document.from_jumanpp(jumanpp_text)
 
         .. note::
-            複数文の解析結果が含まれている場合，一つの文書として扱われる．．
+            複数文の解析結果が含まれている場合，一つの文書として扱われる．
         """
         document = cls()
         sentences = []
@@ -372,8 +372,7 @@ class Document(Unit):
             return Document.from_jumanpp(self.to_jumanpp())
         elif self.need_senter is False:
             return Document.from_line_by_line_text(self.to_plain())
-        else:
-            return Document.from_raw_text(self.to_plain())
+        return Document.from_raw_text(self.to_plain())
 
     def to_plain(self) -> str:
         """プレーンテキストフォーマットに変換．

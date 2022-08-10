@@ -68,11 +68,9 @@ class BasePhrase(Unit):
         """文書全体におけるインデックス．"""
         if self.index > 0:
             return self.sentence.base_phrases[self.index - 1].global_index + 1
-        else:
-            if self.sentence.index == 0:
-                return self.index
-            else:
-                return self.document.sentences[self.sentence.index - 1].base_phrases[-1].global_index + 1
+        if self.sentence.index == 0:
+            return self.index
+        return self.document.sentences[self.sentence.index - 1].base_phrases[-1].global_index + 1
 
     @property
     def parent_unit(self) -> Optional["Phrase"]:
@@ -133,17 +131,17 @@ class BasePhrase(Unit):
 
     @property
     def morphemes(self) -> list[Morpheme]:
-        """形態素．"""
+        """形態素のリスト．"""
         if self._morphemes is None:
             raise AssertionError
         return self._morphemes
 
     @morphemes.setter
     def morphemes(self, morphemes: list[Morpheme]) -> None:
-        """形態素．
+        """形態素のリスト．
 
         Args:
-            morphemes: 形態素．
+            morphemes: 形態素のリスト．
         """
         for morpheme in morphemes:
             morpheme.base_phrase = self
@@ -274,7 +272,7 @@ class BasePhrase(Unit):
             self.entities.add(entity)
         entity.add_mention(self, nonidentical=nonidentical)
 
-    def parse_rel(self) -> None:
+    def parse_rel_tag(self) -> None:
         """関係タグ付きコーパスにおける <rel> タグをパース．"""
         if self.pas is None:
             self.pas = Pas(Predicate(self))
@@ -290,7 +288,7 @@ class BasePhrase(Unit):
             else:
                 logger.warning(f"unknown rel type: {rel.type}")
 
-    def parse_knp_pas(self) -> None:
+    def parse_pas_tag(self) -> None:
         """KNP 解析結果における <述語項構造> タグおよび <格解析結果> タグをパース．"""
         if "述語項構造" in self.features:
             pas_string = self.features["述語項構造"]

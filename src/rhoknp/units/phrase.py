@@ -42,11 +42,9 @@ class Phrase(Unit):
         """文書全体におけるインデックス．"""
         if self.index > 0:
             return self.sentence.phrases[self.index - 1].global_index + 1
-        else:
-            if self.sentence.index == 0:
-                return self.index
-            else:
-                return self.document.sentences[self.sentence.index - 1].phrases[-1].global_index + 1
+        if self.sentence.index == 0:
+            return self.index
+        return self.document.sentences[self.sentence.index - 1].phrases[-1].global_index + 1
 
     @property
     def parent_unit(self) -> Optional[Union["Clause", "Sentence"]]:
@@ -118,10 +116,10 @@ class Phrase(Unit):
 
     @base_phrases.setter
     def base_phrases(self, base_phrases: list[BasePhrase]) -> None:
-        """基本句．
+        """基本句のリスト．
 
         Args:
-            base_phrases: 基本句．
+            base_phrases: 基本句のリスト．
         """
         for base_phrase in base_phrases:
             base_phrase.phrase = self
