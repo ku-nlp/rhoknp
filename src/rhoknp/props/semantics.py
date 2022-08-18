@@ -7,7 +7,7 @@ class SemanticsDict(dict[str, Union[str, bool]]):
 
     NIL = "NIL"
     PAT = re.compile(rf'(?P<sems>("([^"]|\\")+?")|{NIL})')
-    SEM_PAT = re.compile(r"(?P<key>[^:]+)(:(?P<value>\S+))?\s?")
+    SEM_PAT = re.compile(r"(?P<key>[^:\s]+)(:(?P<value>\S+))?(\s|$)")
 
     def __init__(self, semantics: dict[str, Union[str, bool]] = None, is_nil: bool = False):
         if semantics is None:
@@ -32,10 +32,8 @@ class SemanticsDict(dict[str, Union[str, bool]]):
 
     def to_sstring(self) -> str:
         """意味情報文字列に変換．"""
-        if self.is_nil:
-            return self.NIL
         if len(self) == 0:
-            return ""
+            return "" if self.is_nil is False else self.NIL
         return f'"{" ".join(self._item_to_sstring(k, v) for k, v in self.items())}"'
 
     @staticmethod
