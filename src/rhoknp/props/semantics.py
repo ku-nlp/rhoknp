@@ -32,10 +32,8 @@ class SemanticsDict(dict[str, Union[str, bool]]):
 
     def to_sstring(self) -> str:
         """意味情報文字列に変換．"""
-        if self.is_nil:
-            return self.NIL
         if len(self) == 0:
-            return ""
+            return "" if self.is_nil is False else self.NIL
         return f'"{" ".join(self._item_to_sstring(k, v) for k, v in self.items())}"'
 
     @staticmethod
