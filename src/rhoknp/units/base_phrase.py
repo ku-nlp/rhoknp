@@ -10,7 +10,6 @@ from rhoknp.cohesion.predicate import Predicate
 from rhoknp.cohesion.rel import RelMode, RelTag, RelTagList
 from rhoknp.props.dependency import DepType
 from rhoknp.props.feature import FeatureDict
-from rhoknp.props.named_entity import NETagList
 from rhoknp.units.morpheme import Morpheme
 from rhoknp.units.unit import Unit
 from rhoknp.utils.constants import ALL_CASES, ALL_COREFS
@@ -38,7 +37,6 @@ class BasePhrase(Unit):
         dep_type: Optional[DepType],
         features: FeatureDict,
         rels: RelTagList,
-        ne_tags: NETagList,
     ):
         super().__init__()
 
@@ -52,7 +50,6 @@ class BasePhrase(Unit):
         self.dep_type: Optional[DepType] = dep_type  #: 係り受けの種類．
         self.features: FeatureDict = features  #: 素性．
         self.rels: RelTagList = rels  #: 基本句間関係．
-        self.ne_tags: NETagList = ne_tags  #: 固有表現タグ．
         self.pas: Optional["Pas"] = None  #: 述語項構造．
         self.entities: Set[Entity] = set()  #: 参照しているエンティティ．
         self.entities_nonidentical: Set[Entity] = set()  #: ≒で参照しているエンティティ．
@@ -201,8 +198,7 @@ class BasePhrase(Unit):
         dep_type = DepType(match.group("dtype")) if match.group("dtype") is not None else None
         features = FeatureDict.from_fstring(match.group("tags") or "")
         rels = RelTagList.from_fstring(match.group("tags") or "")
-        ne_tags = NETagList.from_fstring(match.group("tags") or "")
-        base_phrase = cls(parent_index, dep_type, features, rels, ne_tags)
+        base_phrase = cls(parent_index, dep_type, features, rels)
 
         morphemes: List[Morpheme] = []
         for line in lines:

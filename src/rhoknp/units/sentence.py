@@ -2,7 +2,7 @@ import logging
 import re
 from typing import TYPE_CHECKING, Any, List, Optional, Tuple, Union
 
-from rhoknp.props.named_entity import NamedEntity, NamedEntityList
+from rhoknp.props.named_entity import NamedEntity
 from rhoknp.units.base_phrase import BasePhrase
 from rhoknp.units.clause import Clause
 from rhoknp.units.morpheme import Morpheme
@@ -51,7 +51,7 @@ class Sentence(Unit):
         self.doc_id: Optional[str] = None
         self.misc_comment: str = ""
 
-        self.named_entities = NamedEntityList()
+        self.named_entities: List[NamedEntity] = []
 
         self.index = self.count
         Sentence.count += 1
@@ -458,14 +458,13 @@ class Sentence(Unit):
 
     def _parse_ne_tags(self) -> None:
         """<NE> タグをパースし，固有表現オブジェクトを作成．"""
-        named_entities = []
-        candidate_morphemes = []
+        self.named_entities = []
         for base_phrase in self.base_phrases:
-            candidate_morphemes += base_phrase.morphemes
-            for ne_tag in base_phrase.ne_tags:
-                if named_entity := NamedEntity.from_ne_tag(ne_tag, candidate_morphemes):
-                    named_entities.append(named_entity)
-        self.named_entities = NamedEntityList(named_entities)
+            if fstring := base_phrase.features.get("NE", None):
+                assert isinstance(fstring, str)
+                candidate_morphemes = self.morphemes[: base_phrase.morphemes[-1].index + 1]
+                if named_entity := NamedEntity.from_fstring(fstring, candidate_morphemes):
+                    self.named_entities.append(named_entity)
 
     def _parse_discourse_relation(self) -> None:
         """<談話関係> タグをパース．"""
