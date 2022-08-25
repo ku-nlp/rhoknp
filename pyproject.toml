@@ -10,7 +10,7 @@ license = "MIT"
 keywords = ["NLP"]
 
 [tool.poetry.dependencies]
-python = ">=3.9,<3.11"
+python = ">=3.8,<3.11"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.1.2"
@@ -29,10 +29,10 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.black]
 line-length = 120
-target-version = ["py39", "py310"]
+target-version = ["py38", "py39", "py310"]
 
 [tool.isort]
 line_length = 120
 
 [tool.mypy]
-python_version = 3.9
+python_version = 3.8
