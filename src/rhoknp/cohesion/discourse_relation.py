@@ -1,8 +1,7 @@
 import logging
 import re
-from collections.abc import MutableSequence
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, ClassVar, Iterable, List, Optional, Union, overload
+from typing import TYPE_CHECKING, ClassVar, List, Optional
 
 if TYPE_CHECKING:
     from rhoknp import Clause, Sentence
@@ -104,72 +103,3 @@ class DiscourseRelation:
     def to_fstring(self) -> str:
         """素性文字列に変換．"""
         return self.to_discourse_relation_tag_value().to_fstring()
-
-
-class DiscourseRelationList(MutableSequence):
-    """談話関係リストクラス"""
-
-    def __init__(self, values: List[DiscourseRelation] = None) -> None:
-        self._items: List[DiscourseRelation] = values if values is not None else []
-
-    def insert(self, index: int, value: DiscourseRelation) -> None:
-        current_tag = value.modifier.end.discourse_relation_tag
-        if (tag_value := value.to_discourse_relation_tag_value()) not in current_tag.values:
-            current_tag.values.append(tag_value)
-        self._items.insert(index, value)
-
-    @overload
-    def __getitem__(self, index: int) -> DiscourseRelation:
-        ...
-
-    @overload
-    def __getitem__(self, index: slice) -> List[DiscourseRelation]:
-        ...
-
-    def __getitem__(self, index: Union[int, slice]) -> Union[DiscourseRelation, List[DiscourseRelation]]:
-        return self._items[index]
-
-    @overload
-    def __setitem__(self, index: int, value: DiscourseRelation) -> None:
-        ...
-
-    @overload
-    def __setitem__(self, index: slice, value: Iterable[DiscourseRelation]) -> None:
-        ...
-
-    def __setitem__(
-        self, index: Union[int, slice], value: Union[DiscourseRelation, Iterable[DiscourseRelation]]
-    ) -> None:
-        if isinstance(index, int) and isinstance(value, DiscourseRelation):
-            self._items[index] = value
-            discourse_relations = [value]
-        elif isinstance(index, slice) and isinstance(value, Iterable):
-            value = list(value)
-            self._items[index] = value
-            discourse_relations = value
-        else:
-            raise TypeError(f"cannot assign {value} at {index}")
-        for discourse_relation in discourse_relations:
-            if isinstance(discourse_relation, DiscourseRelation):
-                current_tag = discourse_relation.modifier.end.discourse_relation_tag
-                if (tag_value := discourse_relation.to_discourse_relation_tag_value()) not in current_tag.values:
-                    current_tag.values.append(tag_value)
-
-    @overload
-    def __delitem__(self, index: int) -> None:
-        ...
-
-    @overload
-    def __delitem__(self, index: slice) -> None:
-        ...
-
-    def __delitem__(self, index: Union[int, slice]) -> None:
-        for item in self._items[index] if isinstance(index, slice) else [self._items[index]]:
-            item.modifier.end.discourse_relation_tag.values.remove(item.to_discourse_relation_tag_value())
-        del self._items[index]
-
-    def __str__(self) -> str:
-        return str(self._items)
-
-    def __len__(self) -> int:
-        return len(self._items)

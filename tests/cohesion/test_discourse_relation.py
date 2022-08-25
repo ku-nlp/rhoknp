@@ -172,7 +172,4 @@ def test_modify_discourse_relations():
     r = DiscourseRelation("1", 4, "原因・理由", sentence.clauses[0], sentence.clauses[1])
     sentence.clauses[0].discourse_relations.append(r)
     assert len(sentence.clauses[0].discourse_relations) == 2
-    assert len(sentence.clauses[0].end.discourse_relation_tag) == 2
-    sentence.clauses[0].discourse_relations.remove(r)
-    assert len(sentence.clauses[0].discourse_relations) == 1
-    assert len(sentence.clauses[0].end.discourse_relation_tag) == 1
+    assert len(sentence.clauses[0].end.discourse_relation_tag) == 1  # not reflected

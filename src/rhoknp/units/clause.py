@@ -2,7 +2,7 @@ import logging
 from functools import cached_property
 from typing import TYPE_CHECKING, List, Optional
 
-from rhoknp.cohesion.discourse_relation import DiscourseRelation, DiscourseRelationList
+from rhoknp.cohesion.discourse_relation import DiscourseRelation
 from rhoknp.units.base_phrase import BasePhrase
 from rhoknp.units.morpheme import Morpheme
 from rhoknp.units.phrase import Phrase
@@ -29,7 +29,7 @@ class Clause(Unit):
         # child units
         self._phrases: Optional[List[Phrase]] = None
 
-        self.discourse_relations: DiscourseRelationList = DiscourseRelationList()
+        self.discourse_relations: List[DiscourseRelation] = []
 
         self.index = self.count
         Clause.count += 1
@@ -175,7 +175,7 @@ class Clause(Unit):
         return "".join(phrase.to_knp() for phrase in self.phrases)
 
     def parse_discourse_relation_tag(self) -> None:
-        self.discourse_relations = DiscourseRelationList()
+        self.discourse_relations = []
         for value in self.end.discourse_relation_tag.values:
             if discourse_relation := DiscourseRelation.from_discourse_relation_tag_value(value, modifier=self):
                 self.discourse_relations.append(discourse_relation)
