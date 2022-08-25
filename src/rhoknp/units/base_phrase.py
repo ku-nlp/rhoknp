@@ -7,7 +7,7 @@ from rhoknp.cohesion.coreference import Entity, EntityManager
 from rhoknp.cohesion.exophora import ExophoraReferent
 from rhoknp.cohesion.pas import CaseInfoFormat, Pas
 from rhoknp.cohesion.predicate import Predicate
-from rhoknp.cohesion.rel import RelMode, RelTag, RelTagList
+from rhoknp.cohesion.rel import RelMode
 from rhoknp.props.dependency import DepType
 from rhoknp.props.feature import FeatureDict
 from rhoknp.units.morpheme import Morpheme
@@ -36,7 +36,6 @@ class BasePhrase(Unit):
         parent_index: Optional[int],
         dep_type: Optional[DepType],
         features: FeatureDict,
-        rels: RelTagList,
     ):
         super().__init__()
 
@@ -49,7 +48,6 @@ class BasePhrase(Unit):
         self.parent_index: Optional[int] = parent_index  #: 係り先の基本句の文内におけるインデックス．
         self.dep_type: Optional[DepType] = dep_type  #: 係り受けの種類．
         self.features: FeatureDict = features  #: 素性．
-        self.rels: RelTagList = rels  #: 基本句間関係．
         self.pas: Optional["Pas"] = None  #: 述語項構造．
         self.entities: Set[Entity] = set()  #: 参照しているエンティティ．
         self.entities_nonidentical: Set[Entity] = set()  #: ≒で参照しているエンティティ．
@@ -197,8 +195,7 @@ class BasePhrase(Unit):
         parent_index = int(match.group("pid")) if match.group("pid") is not None else None
         dep_type = DepType(match.group("dtype")) if match.group("dtype") is not None else None
         features = FeatureDict.from_fstring(match.group("tags") or "")
-        rels = RelTagList.from_fstring(match.group("tags") or "")
-        base_phrase = cls(parent_index, dep_type, features, rels)
+        base_phrase = cls(parent_index, dep_type, features)
 
         morphemes: List[Morpheme] = []
         for line in lines:
@@ -264,17 +261,29 @@ class BasePhrase(Unit):
         """関係タグ付きコーパスにおける <rel> タグをパース．"""
         if self.pas is None:
             self.pas = Pas(Predicate(self))
-        for rel in self.rels:
-            if rel.sid == "":
+        pat: re.Pattern = re.compile(
+            r'rel type="(?P<type>\S+?)"( mode="(?P<mode>[^>]+?)")? target="(?P<target>.+?)"( sid="(?P<sid>.*?)" '
+            r'id="(?P<id>\d+?)")?/'
+        )
+        for key, value in self.features.items():
+            match = pat.match(key)
+            if match is None:
+                continue
+            type_: str = match["type"]
+            target: str = match["target"]
+            sid: Optional[str] = match["sid"]
+            base_phrase_index: Optional[int] = int(match["id"]) if match["id"] else None
+            mode: Optional[RelMode] = RelMode(match["mode"]) if match["mode"] else None
+            if sid == "":
                 logger.warning(f"empty sid found in {self.sentence.sid}; assume to be self")
-                rel.sid = self.sentence.sid
-            if rel.type in ALL_CASES:
-                self._add_pas(rel)
-            elif rel.type in ALL_COREFS:
-                if rel.mode in (None, RelMode.AND):  # ignore "OR" and "?"
-                    self._add_coreference(rel)
+                sid = self.sentence.sid
+            if type_ in ALL_CASES:
+                self._add_pas(type_, target, sid, base_phrase_index, mode)
+            elif type_ in ALL_COREFS:
+                if mode in (None, RelMode.AND):  # ignore "OR" and "?"
+                    self._add_coreference(type_, target, sid, base_phrase_index)
             else:
-                logger.warning(f"unknown rel type: {rel.type}")
+                logger.warning(f"unknown rel type: {type_}")
 
     def parse_pas_tag(self) -> None:
         """KNP 解析結果における <述語項構造> タグおよび <格解析結果> タグをパース．"""
@@ -290,34 +299,47 @@ class BasePhrase(Unit):
             pas = Pas(Predicate(self))
         self.pas = pas
 
-    def _add_pas(self, rel: RelTag) -> None:
+    def _add_pas(
+        self,
+        type_: str,
+        target: str,
+        sid: Optional[str],
+        base_phrase_index: Optional[int],
+        mode: Optional[RelMode],
+    ) -> None:
         """述語項構造を追加．"""
         entity_manager: EntityManager = self.document.entity_manager
         assert self.pas is not None
-        if rel.sid is not None:
-            if (arg_base_phrase := self._get_target_base_phrase(rel)) is None:
+        if sid is not None:
+            if (arg_base_phrase := self._get_target_base_phrase(target, sid, base_phrase_index)) is None:
                 return
             if not arg_base_phrase.entities:
                 arg_base_phrase.add_entity(entity_manager.get_or_create_entity())
-            self.pas.add_argument(rel.type, arg_base_phrase, mode=rel.mode)
+            self.pas.add_argument(type_, arg_base_phrase, mode=mode)
         else:
-            if rel.target == "なし":
-                self.pas.set_arguments_optional(rel.type)
+            if target == "なし":
+                self.pas.set_arguments_optional(type_)
                 return
             # exophora
-            entity = entity_manager.get_or_create_entity(ExophoraReferent(rel.target))
-            self.pas.add_special_argument(rel.type, rel.target, eid=entity.eid, mode=rel.mode)
+            entity = entity_manager.get_or_create_entity(ExophoraReferent(target))
+            self.pas.add_special_argument(type_, target, eid=entity.eid, mode=mode)
 
-    def _add_coreference(self, rel: RelTag) -> None:
+    def _add_coreference(
+        self,
+        type_: str,
+        target: str,
+        sid: Optional[str],
+        base_phrase_index: Optional[int],
+    ) -> None:
         """共参照関係を追加．"""
         entity_manager: EntityManager = self.document.entity_manager
         # create source entity
         if not self.entities:
             self.add_entity(entity_manager.get_or_create_entity())
 
-        nonidentical: bool = rel.type.endswith("≒")
-        if rel.sid is not None:
-            if (target_base_phrase := self._get_target_base_phrase(rel)) is None:
+        nonidentical: bool = type_.endswith("≒")
+        if sid is not None:
+            if (target_base_phrase := self._get_target_base_phrase(target, sid, base_phrase_index)) is None:
                 return
             if target_base_phrase == self:
                 logger.warning(f"{self.sentence.sid}: coreference with self found: {self}")
@@ -331,23 +353,28 @@ class BasePhrase(Unit):
         else:
             # exophora
             for source_entity in self.entities_all:
-                target_entity = entity_manager.get_or_create_entity(exophora_referent=ExophoraReferent(rel.target))
+                target_entity = entity_manager.get_or_create_entity(exophora_referent=ExophoraReferent(target))
                 entity_manager.merge_entities(self, None, source_entity, target_entity, nonidentical)
 
-    def _get_target_base_phrase(self, rel: RelTag) -> Optional["BasePhrase"]:
+    def _get_target_base_phrase(
+        self,
+        target: str,
+        sid: Optional[str],
+        base_phrase_index: Optional[int],
+    ) -> Optional["BasePhrase"]:
         """rel が指す基本句を取得．"""
-        sentences = [sent for sent in self.document.sentences if sent.sid == rel.sid]
+        sentences = [sent for sent in self.document.sentences if sent.sid == sid]
         if not sentences:
-            logger.warning(f"{self.sentence.sid}: relation with unknown sid found: {rel.sid}")
+            logger.warning(f"{self.sentence.sid}: relation with unknown sid found: {sid}")
             return None
         sentence = sentences[0]
-        assert rel.base_phrase_index is not None
-        if rel.base_phrase_index >= len(sentence.base_phrases):
+        assert base_phrase_index is not None
+        if base_phrase_index >= len(sentence.base_phrases):
             logger.warning(f"{self.sentence.sid}: index out of range")
             return None
-        target_base_phrase = sentence.base_phrases[rel.base_phrase_index]
-        if not (set(rel.target) <= set(target_base_phrase.text)):
-            logger.info(f"{self.sentence.sid}: rel target mismatch; '{rel.target}' vs '{target_base_phrase.text}'")
+        target_base_phrase = sentence.base_phrases[base_phrase_index]
+        if not (set(target) <= set(target_base_phrase.text)):
+            logger.info(f"{self.sentence.sid}: rel target mismatch; '{target}' vs '{target_base_phrase.text}'")
         return target_base_phrase
 
     def __hash__(self) -> int:
