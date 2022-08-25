@@ -13,10 +13,11 @@ keywords = ["NLP"]
 python = ">=3.8,<3.11"
 
 [tool.poetry.dev-dependencies]
+mypy = "^0.971"
 pytest = "^7.1.2"
 pytest-cov = "^3.0.0"
-flake8 = "^4.0.1"
 pytest-mypy = "^0.9.1"
+flake8 = "^4.0.1"
 Sphinx = "^4.2.0"
 furo = "^2022.4.7"
 sphinx-prompt = "^1.5.0"
