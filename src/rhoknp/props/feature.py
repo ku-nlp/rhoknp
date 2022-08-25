@@ -9,8 +9,7 @@ class FeatureDict(Dict[str, Union[str, bool]]):
     """文節，基本句，形態素の素性情報を表すクラス．"""
 
     PAT = re.compile(r"(?P<feats>(<[^>]+>)*)")
-    IGNORE_TAG_PREFIXES = {"rel "}
-    FEATURE_PAT = re.compile(rf"<(?!({'|'.join(IGNORE_TAG_PREFIXES)}))(?P<key>[^:]+?)(:(?P<value>.+?))?>")
+    FEATURE_PAT = re.compile(r"<(?P<key>[^:]+?)(:(?P<value>.+?))?>")
 
     @classmethod
     def from_fstring(cls, fstring: str) -> "FeatureDict":
@@ -28,15 +27,6 @@ class FeatureDict(Dict[str, Union[str, bool]]):
     def to_fstring(self) -> str:
         """素性文字列に変換．"""
         return "".join(self._item_to_fstring(k, v) for k, v in self.items())
-
-    def __setitem__(self, key, value) -> None:
-        if key == "rel":
-            logger.warning(
-                f"Adding 'rel' to {self.__class__.__name__} is not supported and was ignored. Instead, add a Rel "
-                f"object to BasePhrase.rels and call Document.reparse()."
-            )
-            return
-        super().__setitem__(key, value)
 
     @staticmethod
     def _item_to_fstring(key: str, value: Union[str, bool]) -> str:
