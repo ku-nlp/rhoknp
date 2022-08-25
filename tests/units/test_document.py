@@ -1,6 +1,7 @@
 import multiprocessing
 import textwrap
 from pathlib import Path
+from typing import Dict
 
 import pytest
 
@@ -170,25 +171,25 @@ CASES = [
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_from_raw_text(case: dict[str, str]) -> None:
+def test_from_raw_text(case: Dict[str, str]) -> None:
     _ = Document.from_raw_text(case["raw_text"])
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_from_raw_text_parallel(case: dict[str, str]) -> None:
+def test_from_raw_text_parallel(case: Dict[str, str]) -> None:
     with multiprocessing.Pool(processes=1) as pool:
         _ = pool.map(Document.from_raw_text, [case["raw_text"]])
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_from_sentences(case: dict[str, str]) -> None:
+def test_from_sentences(case: Dict[str, str]) -> None:
     _ = Document.from_sentences(case["sentences"])
     # from_sentences() allows Sentence objects as input.
     _ = Document.from_sentences(list(map(Sentence.from_raw_text, case["sentences"])))
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_from_sentences_parallel(case: dict[str, str]) -> None:
+def test_from_sentences_parallel(case: Dict[str, str]) -> None:
     with multiprocessing.Pool(processes=1) as pool:
         _ = pool.map(Document.from_sentences, [case["sentences"]])
         # from_sentences() allows Sentence objects as input.
@@ -196,23 +197,23 @@ def test_from_sentences_parallel(case: dict[str, str]) -> None:
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_from_line_by_line_text(case: dict[str, str]) -> None:
+def test_from_line_by_line_text(case: Dict[str, str]) -> None:
     _ = Document.from_line_by_line_text(case["line_by_line_text"])
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_from_line_by_line_text_parallel(case: dict[str, str]) -> None:
+def test_from_line_by_line_text_parallel(case: Dict[str, str]) -> None:
     with multiprocessing.Pool(processes=1) as pool:
         _ = pool.map(Document.from_line_by_line_text, [case["line_by_line_text"]])
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_from_jumanpp(case: dict[str, str]) -> None:
+def test_from_jumanpp(case: Dict[str, str]) -> None:
     _ = Document.from_jumanpp(case["jumanpp"])
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_from_jumanpp_parallel(case: dict[str, str]) -> None:
+def test_from_jumanpp_parallel(case: Dict[str, str]) -> None:
     with multiprocessing.Pool(processes=1) as pool:
         _ = pool.map(Document.from_jumanpp, [case["jumanpp"]])
 
@@ -237,23 +238,23 @@ def test_from_jumanpp_ignore_error():
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_from_knp_with_no_clause_tag(case: dict[str, str]) -> None:
+def test_from_knp_with_no_clause_tag(case: Dict[str, str]) -> None:
     _ = Document.from_knp(case["knp_with_no_clause_tag"])
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_from_knp_with_no_clause_tag_parallel(case: dict[str, str]) -> None:
+def test_from_knp_with_no_clause_tag_parallel(case: Dict[str, str]) -> None:
     with multiprocessing.Pool(processes=1) as pool:
         _ = pool.map(Document.from_knp, [case["knp_with_no_clause_tag"]])
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_from_knp(case: dict[str, str]) -> None:
+def test_from_knp(case: Dict[str, str]) -> None:
     _ = Document.from_knp(case["knp"])
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_from_knp_parallel(case: dict[str, str]) -> None:
+def test_from_knp_parallel(case: Dict[str, str]) -> None:
     with multiprocessing.Pool(processes=1) as pool:
         _ = pool.map(Document.from_knp, [case["knp"]])
 
@@ -284,7 +285,7 @@ def test_from_knp_ignore_error():
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_need_senter(case: dict[str, str]) -> None:
+def test_need_senter(case: Dict[str, str]) -> None:
     doc = Document.from_raw_text(case["raw_text"])
     assert doc.need_senter is True
     doc = Document.from_sentences(case["sentences"])
@@ -300,7 +301,7 @@ def test_need_senter(case: dict[str, str]) -> None:
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_need_jumanpp(case: dict[str, str]) -> None:
+def test_need_jumanpp(case: Dict[str, str]) -> None:
     doc = Document.from_raw_text(case["raw_text"])
     assert doc.need_jumanpp is True
     doc = Document.from_sentences(case["sentences"])
@@ -316,7 +317,7 @@ def test_need_jumanpp(case: dict[str, str]) -> None:
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_need_knp(case: dict[str, str]) -> None:
+def test_need_knp(case: Dict[str, str]) -> None:
     doc = Document.from_raw_text(case["raw_text"])
     assert doc.need_knp is True
     doc = Document.from_sentences(case["sentences"])
@@ -332,7 +333,7 @@ def test_need_knp(case: dict[str, str]) -> None:
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_need_clause_tag(case: dict[str, str]) -> None:
+def test_need_clause_tag(case: Dict[str, str]) -> None:
     doc = Document.from_raw_text(case["raw_text"])
     assert doc.need_clause_tag is True
     doc = Document.from_sentences(case["sentences"])
@@ -348,7 +349,7 @@ def test_need_clause_tag(case: dict[str, str]) -> None:
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_text(case: dict[str, str]) -> None:
+def test_text(case: Dict[str, str]) -> None:
     doc = Document.from_raw_text(case["raw_text"])
     assert doc.text == case["raw_text"]
     doc = Document.from_sentences(case["sentences"])
@@ -364,7 +365,7 @@ def test_text(case: dict[str, str]) -> None:
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_to_plain(case: dict[str, str]) -> None:
+def test_to_plain(case: Dict[str, str]) -> None:
     doc = Document.from_raw_text(case["raw_text"])
     assert doc.to_plain() == case["raw_text"] + "\n"
     doc = Document.from_sentences(case["sentences"])
@@ -380,7 +381,7 @@ def test_to_plain(case: dict[str, str]) -> None:
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_to_jumanpp(case: dict[str, str]) -> None:
+def test_to_jumanpp(case: Dict[str, str]) -> None:
     doc = Document.from_raw_text(case["raw_text"])
     with pytest.raises(AttributeError):
         assert doc.to_jumanpp() == case["jumanpp"]
@@ -401,7 +402,7 @@ def test_to_jumanpp(case: dict[str, str]) -> None:
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_to_knp(case: dict[str, str]) -> None:
+def test_to_knp(case: Dict[str, str]) -> None:
     doc = Document.from_raw_text(case["raw_text"])
     with pytest.raises(AttributeError):
         assert doc.to_knp() == case["knp"]
@@ -421,7 +422,7 @@ def test_to_knp(case: dict[str, str]) -> None:
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_sentences(case: dict[str, str]) -> None:
+def test_sentences(case: Dict[str, str]) -> None:
     doc = Document.from_raw_text(case["raw_text"])
     with pytest.raises(AttributeError):
         _ = doc.sentences
@@ -438,7 +439,7 @@ def test_sentences(case: dict[str, str]) -> None:
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_clauses(case: dict[str, str]) -> None:
+def test_clauses(case: Dict[str, str]) -> None:
     doc = Document.from_raw_text(case["raw_text"])
     with pytest.raises(AttributeError):
         _ = doc.clauses
@@ -459,7 +460,7 @@ def test_clauses(case: dict[str, str]) -> None:
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_phrases(case: dict[str, str]) -> None:
+def test_phrases(case: Dict[str, str]) -> None:
     doc = Document.from_raw_text(case["raw_text"])
     with pytest.raises(AttributeError):
         _ = doc.phrases
@@ -479,7 +480,7 @@ def test_phrases(case: dict[str, str]) -> None:
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_base_phrases(case: dict[str, str]) -> None:
+def test_base_phrases(case: Dict[str, str]) -> None:
     doc = Document.from_raw_text(case["raw_text"])
     with pytest.raises(AttributeError):
         _ = doc.base_phrases
@@ -499,7 +500,7 @@ def test_base_phrases(case: dict[str, str]) -> None:
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_morphemes(case: dict[str, str]) -> None:
+def test_morphemes(case: Dict[str, str]) -> None:
     doc = Document.from_raw_text(case["raw_text"])
     with pytest.raises(AttributeError):
         _ = doc.morphemes
@@ -518,7 +519,7 @@ def test_morphemes(case: dict[str, str]) -> None:
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_reference(case: dict[str, str]) -> None:
+def test_reference(case: Dict[str, str]) -> None:
     doc = Document.from_knp(case["knp"])
     for sentence in doc.sentences:
         assert sentence.document == doc
@@ -608,7 +609,7 @@ def test_reference_with_no_clause_tag(knp: str) -> None:
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_global_index(case: dict[str, str]) -> None:
+def test_global_index(case: Dict[str, str]) -> None:
     def _test_global_index(doc: Document, attr: str) -> None:
         next_index = 0
         for unit in getattr(doc, attr):
@@ -633,7 +634,7 @@ def test_global_index(case: dict[str, str]) -> None:
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_global_span(case: dict[str, str]) -> None:
+def test_global_span(case: Dict[str, str]) -> None:
     def _test_global_span(doc: Document) -> None:
         prev_end = 0
         for morpheme in doc.morphemes:
@@ -650,7 +651,7 @@ def test_global_span(case: dict[str, str]) -> None:
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_cut_paste(case: dict[str, str]) -> None:
+def test_cut_paste(case: Dict[str, str]) -> None:
     doc = Document.from_knp(case["knp"])
 
     # Split a document into sub-documents with a single sentence
@@ -670,7 +671,7 @@ def test_cut_paste(case: dict[str, str]) -> None:
     "key",
     ("raw_text", "sentences", "line_by_line_text", "jumanpp", "knp_with_no_clause_tag", "knp"),
 )
-def test_reparse(case: dict[str, str], key: str) -> None:
+def test_reparse(case: Dict[str, str], key: str) -> None:
     if key == "raw_text":
         doc = Document.from_raw_text(case[key])
     elif key == "sentences":

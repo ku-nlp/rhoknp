@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Optional, Sequence, Union
+from typing import Any, List, Optional, Sequence, Union
 
 from rhoknp.cohesion.coreference import EntityManager
 from rhoknp.cohesion.pas import Pas
@@ -31,7 +31,7 @@ class Document(Unit):
         Sentence.count = 0
 
         # child units
-        self._sentences: Optional[list[Sentence]] = None
+        self._sentences: Optional[List[Sentence]] = None
 
         if text is not None:
             self.text = text
@@ -58,12 +58,12 @@ class Document(Unit):
         return None
 
     @property
-    def child_units(self) -> Optional[list[Sentence]]:
+    def child_units(self) -> Optional[List[Sentence]]:
         """下位の言語単位（文）のリスト．解析結果にアクセスできないなら None．"""
         return self._sentences
 
     @property
-    def sentences(self) -> list[Sentence]:
+    def sentences(self) -> List[Sentence]:
         """文のリスト．
 
         Raises:
@@ -74,7 +74,7 @@ class Document(Unit):
         return self._sentences
 
     @sentences.setter
-    def sentences(self, sentences: list[Sentence]) -> None:
+    def sentences(self, sentences: List[Sentence]) -> None:
         """文のリスト．
 
         Args:
@@ -85,7 +85,7 @@ class Document(Unit):
         self._sentences = sentences
 
     @property
-    def clauses(self) -> list[Clause]:
+    def clauses(self) -> List[Clause]:
         """節のリスト．
 
         Raises:
@@ -94,7 +94,7 @@ class Document(Unit):
         return [clause for sentence in self.sentences for clause in sentence.clauses]
 
     @property
-    def phrases(self) -> list[Phrase]:
+    def phrases(self) -> List[Phrase]:
         """文節のリスト．
 
         Raises:
@@ -103,7 +103,7 @@ class Document(Unit):
         return [phrase for sentence in self.sentences for phrase in sentence.phrases]
 
     @property
-    def base_phrases(self) -> list[BasePhrase]:
+    def base_phrases(self) -> List[BasePhrase]:
         """基本句のリスト．
 
         Raises:
@@ -112,7 +112,7 @@ class Document(Unit):
         return [base_phrase for sentence in self.sentences for base_phrase in sentence.base_phrases]
 
     @property
-    def morphemes(self) -> list[Morpheme]:
+    def morphemes(self) -> List[Morpheme]:
         """形態素のリスト．
 
         Raises:
@@ -121,7 +121,7 @@ class Document(Unit):
         return [morpheme for sentence in self.sentences for morpheme in sentence.morphemes]
 
     @property
-    def named_entities(self) -> list[NamedEntity]:
+    def named_entities(self) -> List[NamedEntity]:
         """固有表現のリスト．"""
         return [ne for sentence in self.sentences for ne in sentence.named_entities]
 
@@ -145,7 +145,7 @@ class Document(Unit):
         """KNP による節-主辞・節-区切のタグ付与がまだなら True．"""
         return self.need_senter or any(sentence.need_clause_tag for sentence in self.sentences)
 
-    def pas_list(self) -> list[Pas]:
+    def pas_list(self) -> List[Pas]:
         """述語項構造のリストを返却．"""
         return [base_phrase.pas for base_phrase in self.base_phrases if base_phrase.pas is not None]
 
@@ -191,7 +191,7 @@ class Document(Unit):
         """
         document = cls()
         sentences = []
-        sentence_lines: list[str] = []
+        sentence_lines: List[str] = []
         for line in text.split("\n"):
             if line.strip() == "":
                 continue
@@ -273,7 +273,7 @@ class Document(Unit):
         """
         document = cls()
         sentences = []
-        sentence_lines: list[str] = []
+        sentence_lines: List[str] = []
         for line in jumanpp_text.split("\n"):
             if line.strip() == "":
                 continue
@@ -342,7 +342,7 @@ class Document(Unit):
         """
         document = cls()
         sentences = []
-        sentence_lines: list[str] = []
+        sentence_lines: List[str] = []
         for line in knp_text.split("\n"):
             if line.strip() == "":
                 continue

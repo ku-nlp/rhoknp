@@ -1,7 +1,7 @@
 import logging
 import textwrap
 from pathlib import Path
-from typing import Any
+from typing import Any, Dict
 
 import pytest
 
@@ -239,14 +239,14 @@ CASES = [
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_initialized(case: dict[str, Any]) -> None:
+def test_initialized(case: Dict[str, Any]) -> None:
     doc = Document.from_knp(case["knp"])
     pas = doc.base_phrases[case["base_phrase_index"]].pas
     assert pas is not None
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_attribute(case: dict[str, Any]) -> None:
+def test_attribute(case: Dict[str, Any]) -> None:
     doc = Document.from_knp(case["knp"])
     pas = doc.base_phrases[case["base_phrase_index"]].pas
     assert pas is not None
@@ -256,7 +256,7 @@ def test_attribute(case: dict[str, Any]) -> None:
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_get_arguments(case: dict[str, Any]) -> None:
+def test_get_arguments(case: Dict[str, Any]) -> None:
     doc = Document.from_knp(case["knp"])
     pas = doc.base_phrases[case["base_phrase_index"]].pas
     assert pas is not None

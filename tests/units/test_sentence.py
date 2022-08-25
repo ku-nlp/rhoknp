@@ -1,4 +1,5 @@
 import textwrap
+from typing import Dict
 
 import pytest
 
@@ -231,18 +232,18 @@ CASES = [
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_init(case: dict[str, str]) -> None:
+def test_init(case: Dict[str, str]) -> None:
     _ = Sentence(case["raw_text"])
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_from_raw_text(case: dict[str, str]) -> None:
+def test_from_raw_text(case: Dict[str, str]) -> None:
     _ = Sentence.from_raw_text(case["raw_text"])
     _ = Sentence.from_raw_text(case["line_by_line_text"])
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_from_jumanpp(case: dict[str, str]) -> None:
+def test_from_jumanpp(case: Dict[str, str]) -> None:
     _ = Sentence.from_jumanpp(case["jumanpp"])
 
 
@@ -267,12 +268,12 @@ def test_from_jumanpp_empty_line():
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_from_knp_with_no_clause_tag(case: dict[str, str]) -> None:
+def test_from_knp_with_no_clause_tag(case: Dict[str, str]) -> None:
     _ = Sentence.from_knp(case["knp_with_no_clause_tag"])
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_from_knp(case: dict[str, str]) -> None:
+def test_from_knp(case: Dict[str, str]) -> None:
     _ = Sentence.from_knp(case["knp"])
 
 
@@ -316,7 +317,7 @@ def test_from_knp_invalid_input():
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_need_jumanpp(case: dict[str, str]) -> None:
+def test_need_jumanpp(case: Dict[str, str]) -> None:
     sent = Sentence.from_raw_text(case["raw_text"])
     assert sent.need_jumanpp is True
     sent = Sentence.from_raw_text(case["line_by_line_text"])
@@ -330,7 +331,7 @@ def test_need_jumanpp(case: dict[str, str]) -> None:
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_need_knp(case: dict[str, str]) -> None:
+def test_need_knp(case: Dict[str, str]) -> None:
     sent = Sentence.from_raw_text(case["raw_text"])
     assert sent.need_knp is True
     sent = Sentence.from_raw_text(case["line_by_line_text"])
@@ -344,7 +345,7 @@ def test_need_knp(case: dict[str, str]) -> None:
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_need_clause_tag(case: dict[str, str]) -> None:
+def test_need_clause_tag(case: Dict[str, str]) -> None:
     sent = Sentence.from_raw_text(case["raw_text"])
     assert sent.need_clause_tag is True
     sent = Sentence.from_raw_text(case["line_by_line_text"])
@@ -358,7 +359,7 @@ def test_need_clause_tag(case: dict[str, str]) -> None:
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_text(case: dict[str, str]) -> None:
+def test_text(case: Dict[str, str]) -> None:
     sent = Sentence.from_raw_text(case["raw_text"])
     assert sent.text == case["raw_text"]
     sent = Sentence.from_raw_text(case["line_by_line_text"])
@@ -372,7 +373,7 @@ def test_text(case: dict[str, str]) -> None:
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_to_plain(case: dict[str, str]) -> None:
+def test_to_plain(case: Dict[str, str]) -> None:
     sent = Sentence.from_raw_text(case["raw_text"])
     assert sent.to_plain() == case["raw_text"] + "\n"
     sent = Sentence.from_raw_text(case["line_by_line_text"])
@@ -386,7 +387,7 @@ def test_to_plain(case: dict[str, str]) -> None:
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_to_jumanpp(case: dict[str, str]) -> None:
+def test_to_jumanpp(case: Dict[str, str]) -> None:
     sent = Sentence.from_raw_text(case["raw_text"])
     with pytest.raises(AttributeError):
         assert sent.to_jumanpp() == case["jumanpp"]
@@ -404,7 +405,7 @@ def test_to_jumanpp(case: dict[str, str]) -> None:
 
 
 @pytest.mark.parametrize("case", CASES[:3])  # TODO: support <ALT> tag
-def test_to_knp(case: dict[str, str]) -> None:
+def test_to_knp(case: Dict[str, str]) -> None:
     sent = Sentence.from_raw_text(case["raw_text"])
     with pytest.raises(AttributeError):
         assert sent.to_knp() == case["knp"]
@@ -421,7 +422,7 @@ def test_to_knp(case: dict[str, str]) -> None:
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_document(case: dict[str, str]) -> None:
+def test_document(case: Dict[str, str]) -> None:
     sent = Sentence.from_raw_text(case["raw_text"])
     with pytest.raises(AttributeError):
         _ = sent.document
@@ -440,7 +441,7 @@ def test_document(case: dict[str, str]) -> None:
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_clauses(case: dict[str, str]) -> None:
+def test_clauses(case: Dict[str, str]) -> None:
     sent = Sentence.from_raw_text(case["raw_text"])
     with pytest.raises(AttributeError):
         _ = sent.clauses
@@ -458,7 +459,7 @@ def test_clauses(case: dict[str, str]) -> None:
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_phrases(case: dict[str, str]) -> None:
+def test_phrases(case: Dict[str, str]) -> None:
     sent = Sentence.from_raw_text(case["raw_text"])
     with pytest.raises(AttributeError):
         _ = sent.phrases
@@ -475,7 +476,7 @@ def test_phrases(case: dict[str, str]) -> None:
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_base_phrases(case: dict[str, str]) -> None:
+def test_base_phrases(case: Dict[str, str]) -> None:
     sent = Sentence.from_raw_text(case["raw_text"])
     with pytest.raises(AttributeError):
         _ = sent.base_phrases
@@ -492,7 +493,7 @@ def test_base_phrases(case: dict[str, str]) -> None:
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_morphemes(case: dict[str, str]) -> None:
+def test_morphemes(case: Dict[str, str]) -> None:
     sent = Sentence.from_raw_text(case["raw_text"])
     with pytest.raises(AttributeError):
         _ = sent.morphemes
@@ -508,7 +509,7 @@ def test_morphemes(case: dict[str, str]) -> None:
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_sid(case: dict[str, str]) -> None:
+def test_sid(case: Dict[str, str]) -> None:
     sent = Sentence.from_knp(case["knp"])
     assert sent.sid == case["sid"]
 
@@ -518,7 +519,7 @@ def test_sid(case: dict[str, str]) -> None:
     "key",
     ("raw_text", "sentences", "line_by_line_text", "jumanpp", "knp_with_no_clause_tag", "knp"),
 )
-def test_reparse(case: dict[str, str], key: str) -> None:
+def test_reparse(case: Dict[str, str], key: str) -> None:
     if key == "raw_text":
         sent = Sentence.from_raw_text(case[key])
     elif key == "line_by_line_text":
@@ -560,14 +561,14 @@ def test_id_kwdlc():
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_eq_knp(case: dict[str, str]) -> None:
+def test_eq_knp(case: Dict[str, str]) -> None:
     sent1 = Sentence.from_knp(case["knp"])
     sent2 = Sentence.from_knp(case["knp"])
     assert sent1 == sent2
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_eq_raw_text(case: dict[str, str]) -> None:
+def test_eq_raw_text(case: Dict[str, str]) -> None:
     sent1 = Sentence.from_raw_text(case["raw_text"])
     sent2 = Sentence.from_raw_text(case["raw_text"])
     assert sent1 == sent2

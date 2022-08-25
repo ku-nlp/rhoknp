@@ -1,7 +1,7 @@
 import re
 from dataclasses import dataclass
 from enum import Enum
-from typing import ClassVar, Optional
+from typing import ClassVar, List, Optional
 
 
 class RelMode(Enum):
@@ -51,7 +51,7 @@ class RelTag:
         return ret
 
 
-class RelTagList(list[RelTag]):
+class RelTagList(List[RelTag]):
     """関係タグ付きコーパスにおける <rel> タグの列を表すクラス．"""
 
     @classmethod

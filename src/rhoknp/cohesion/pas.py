@@ -3,7 +3,7 @@ import logging
 import re
 from collections import defaultdict
 from enum import Enum, auto
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, Dict, List, Optional, Union
 
 from rhoknp.cohesion.argument import Argument, ArgumentType, EndophoraArgument, ExophoraArgument
 from rhoknp.cohesion.exophora import ExophoraReferent
@@ -33,8 +33,8 @@ class Pas:
     def __init__(self, predicate: Predicate):
         self._predicate = predicate
         predicate.pas = self
-        self._arguments: dict[str, list[Argument]] = defaultdict(list)
-        self.modes: dict[str, RelMode] = {}
+        self._arguments: Dict[str, List[Argument]] = defaultdict(list)
+        self.modes: Dict[str, RelMode] = {}
 
     @property
     def predicate(self) -> Predicate:
@@ -42,7 +42,7 @@ class Pas:
         return self._predicate
 
     @property
-    def cases(self) -> list[str]:
+    def cases(self) -> List[str]:
         """属する全ての項の持つ格を集めたリスト．"""
         return [case for case, args in self._arguments.items() if args]
 
@@ -126,7 +126,7 @@ class Pas:
         relax: bool = True,
         include_nonidentical: bool = False,
         include_optional: bool = False,
-    ) -> list[Argument]:
+    ) -> List[Argument]:
         """与えられた格の全ての項を返す．
 
         Args:
@@ -172,7 +172,7 @@ class Pas:
         relax: bool = True,
         include_nonidentical: bool = False,
         include_optional: bool = False,
-    ) -> dict[str, list[Argument]]:
+    ) -> Dict[str, List[Argument]]:
         """この述語項構造が持つ全ての項を格を key とする辞書形式で返す．
 
         Args:
@@ -182,7 +182,7 @@ class Pas:
 
         Returns: 格を key とする項の辞書．
         """
-        all_arguments: dict[str, list[Argument]] = {}
+        all_arguments: Dict[str, List[Argument]] = {}
         for case in self.cases:
             all_arguments[case] = self.get_arguments(
                 case,

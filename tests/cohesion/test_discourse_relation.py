@@ -1,4 +1,5 @@
 import textwrap
+from typing import List
 
 import pytest
 
@@ -30,7 +31,7 @@ def test_discourse_relation_tag_value(sid: str, base_phrase_index: int, label: s
         ("<節-区切>", []),
     ],
 )
-def test_discourse_relation_tag(fstring: str, values: list[DiscourseRelationTagValue]) -> None:
+def test_discourse_relation_tag(fstring: str, values: List[DiscourseRelationTagValue]) -> None:
     discourse_relation_tag = DiscourseRelationTag.from_fstring(fstring)
     assert discourse_relation_tag.values == values
 

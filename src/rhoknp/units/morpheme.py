@@ -1,7 +1,7 @@
 import re
 from dataclasses import astuple, dataclass, fields
 from functools import cached_property
-from typing import TYPE_CHECKING, ClassVar, Optional, Union
+from typing import TYPE_CHECKING, ClassVar, List, Optional, Tuple, Union
 
 from rhoknp.props.feature import FeatureDict
 from rhoknp.props.semantics import SemanticsDict
@@ -78,7 +78,7 @@ class Morpheme(Unit):
         self._attributes = attributes
         self.semantics = semantics  #: 辞書 (JumanDic) に記載の意味情報．
         self.features = features  #: 素性．
-        self.homographs: list["Morpheme"] = []  #: 同形の形態素のリスト．
+        self.homographs: List["Morpheme"] = []  #: 同形の形態素のリスト．
 
         self.text = attributes.surf
 
@@ -240,7 +240,7 @@ class Morpheme(Unit):
         return self.base_phrase.head
 
     @cached_property
-    def span(self) -> tuple[int, int]:
+    def span(self) -> Tuple[int, int]:
         """文における文字レベルのスパン．"""
         if self.index == 0:
             start = 0
@@ -250,7 +250,7 @@ class Morpheme(Unit):
         return start, end
 
     @cached_property
-    def global_span(self) -> tuple[int, int]:
+    def global_span(self) -> Tuple[int, int]:
         """文書全体における文字レベルのスパン．"""
         offset = 0
         for prev_sentence in self.document.sentences[: self.sentence.index]:
@@ -259,7 +259,7 @@ class Morpheme(Unit):
         return start + offset, end + offset
 
     @cached_property
-    def children(self) -> list["Morpheme"]:
+    def children(self) -> List["Morpheme"]:
         """この形態素に係っている形態素のリスト．"""
         return [morpheme for morpheme in self.sentence.morphemes if morpheme.parent == self]
 

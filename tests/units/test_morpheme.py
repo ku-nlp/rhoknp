@@ -1,4 +1,5 @@
 import textwrap
+from typing import Dict
 
 import pytest
 
@@ -217,111 +218,111 @@ JUMANPP_SNIPPETS = [
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_document_knp(case: dict[str, str]) -> None:
+def test_document_knp(case: Dict[str, str]) -> None:
     doc = Document.from_knp(case["knp"])
     for morpheme in doc.morphemes:
         assert morpheme.document == doc
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_document_jumanpp(case: dict[str, str]) -> None:
+def test_document_jumanpp(case: Dict[str, str]) -> None:
     doc = Document.from_jumanpp(case["jumanpp"])
     for morpheme in doc.morphemes:
         assert morpheme.document == doc
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_sentence_knp(case: dict[str, str]) -> None:
+def test_sentence_knp(case: Dict[str, str]) -> None:
     sent = Sentence.from_knp(case["knp"])
     for morpheme in sent.morphemes:
         assert morpheme.sentence == sent
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_sentence_jumanpp(case: dict[str, str]) -> None:
+def test_sentence_jumanpp(case: Dict[str, str]) -> None:
     sent = Sentence.from_jumanpp(case["jumanpp"])
     for morpheme in sent.morphemes:
         assert morpheme.sentence == sent
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_num_document_knp(case: dict[str, str]) -> None:
+def test_num_document_knp(case: Dict[str, str]) -> None:
     doc = Document.from_knp(case["knp"])
     assert len(doc.morphemes) == case["num"]
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_num_document_jumanpp(case: dict[str, str]) -> None:
+def test_num_document_jumanpp(case: Dict[str, str]) -> None:
     doc = Document.from_jumanpp(case["jumanpp"])
     assert len(doc.morphemes) == case["num"]
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_num_sentence_knp(case: dict[str, str]) -> None:
+def test_num_sentence_knp(case: Dict[str, str]) -> None:
     sent = Sentence.from_knp(case["knp"])
     assert len(sent.morphemes) == case["num"]
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_num_sentence_jumanpp(case: dict[str, str]) -> None:
+def test_num_sentence_jumanpp(case: Dict[str, str]) -> None:
     sent = Sentence.from_jumanpp(case["jumanpp"])
     assert len(sent.morphemes) == case["num"]
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_parent_document_knp(case: dict[str, str]) -> None:
+def test_parent_document_knp(case: Dict[str, str]) -> None:
     doc = Document.from_knp(case["knp"])
     assert [morpheme.parent.index if morpheme.parent else -1 for morpheme in doc.morphemes] == case["parent_ids"]
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_parent_document_jumanpp(case: dict[str, str]) -> None:
+def test_parent_document_jumanpp(case: Dict[str, str]) -> None:
     doc = Document.from_jumanpp(case["jumanpp"])
     with pytest.raises(AttributeError):
         assert [morpheme.parent.index if morpheme.parent else -1 for morpheme in doc.morphemes] == case["parent_ids"]
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_parent_sentence_knp(case: dict[str, str]) -> None:
+def test_parent_sentence_knp(case: Dict[str, str]) -> None:
     sent = Sentence.from_knp(case["knp"])
     assert [morpheme.parent.index if morpheme.parent else -1 for morpheme in sent.morphemes] == case["parent_ids"]
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_parent_sentence_jumanpp(case: dict[str, str]) -> None:
+def test_parent_sentence_jumanpp(case: Dict[str, str]) -> None:
     sent = Sentence.from_jumanpp(case["jumanpp"])
     with pytest.raises(AttributeError):
         assert [morpheme.parent.index if morpheme.parent else -1 for morpheme in sent.morphemes] == case["parent_ids"]
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_children_document_knp(case: dict[str, str]) -> None:
+def test_children_document_knp(case: Dict[str, str]) -> None:
     doc = Document.from_knp(case["knp"])
     assert [[child.index for child in morpheme.children] for morpheme in doc.morphemes] == case["children_ids"]
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_children_document_jumanpp(case: dict[str, str]) -> None:
+def test_children_document_jumanpp(case: Dict[str, str]) -> None:
     doc = Document.from_jumanpp(case["jumanpp"])
     with pytest.raises(AttributeError):
         assert [[child.index for child in morpheme.children] for morpheme in doc.morphemes] == case["children_ids"]
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_children_sentence_knp(case: dict[str, str]) -> None:
+def test_children_sentence_knp(case: Dict[str, str]) -> None:
     sent = Sentence.from_knp(case["knp"])
     assert [[child.index for child in morpheme.children] for morpheme in sent.morphemes] == case["children_ids"]
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_children_sentence_jumanpp(case: dict[str, str]) -> None:
+def test_children_sentence_jumanpp(case: Dict[str, str]) -> None:
     sent = Sentence.from_jumanpp(case["jumanpp"])
     with pytest.raises(AttributeError):
         assert [[child.index for child in morpheme.children] for morpheme in sent.morphemes] == case["children_ids"]
 
 
 @pytest.mark.parametrize("case", JUMANPP_SNIPPETS)
-def test_from_jumanpp(case: dict[str, str]) -> None:
+def test_from_jumanpp(case: Dict[str, str]) -> None:
     _ = Morpheme.from_jumanpp(case["jumanpp"])
 
 
@@ -332,7 +333,7 @@ def test_from_jumanpp_error() -> None:
 
 
 @pytest.mark.parametrize("case", JUMANPP_SNIPPETS)
-def test_to_jumanpp(case: dict[str, str]) -> None:
+def test_to_jumanpp(case: Dict[str, str]) -> None:
     morpheme = Morpheme.from_jumanpp(case["jumanpp"])
     assert morpheme.to_jumanpp() == case["jumanpp"]
 
@@ -342,40 +343,40 @@ def test_to_jumanpp(case: dict[str, str]) -> None:
     "attr",
     ["text", "surf", "reading", "lemma", "pos", "subpos", "conjtype", "conjform", "sstring", "fstring", "canon"],
 )
-def test_attr(case: dict[str, str], attr: str) -> None:
+def test_attr(case: Dict[str, str], attr: str) -> None:
     morpheme = Morpheme.from_jumanpp(case["jumanpp"])
     assert getattr(morpheme, attr) == case[attr]
 
 
 @pytest.mark.parametrize("case", JUMANPP_SNIPPETS)
-def test_semantics(case: dict[str, str]) -> None:
+def test_semantics(case: Dict[str, str]) -> None:
     morpheme = Morpheme.from_jumanpp(case["jumanpp"])
     assert str(morpheme.semantics) == case["sstring"]
 
 
 @pytest.mark.parametrize("case", JUMANPP_SNIPPETS)
-def test_document_error(case: dict[str, str]) -> None:
+def test_document_error(case: Dict[str, str]) -> None:
     with pytest.raises(AttributeError):
         morpheme = Morpheme.from_jumanpp(case["jumanpp"])
         _ = morpheme.document
 
 
 @pytest.mark.parametrize("case", JUMANPP_SNIPPETS)
-def test_sentence_error(case: dict[str, str]) -> None:
+def test_sentence_error(case: Dict[str, str]) -> None:
     with pytest.raises(AttributeError):
         morpheme = Morpheme.from_jumanpp(case["jumanpp"])
         _ = morpheme.sentence
 
 
 @pytest.mark.parametrize("case", JUMANPP_SNIPPETS)
-def test_phrase_error(case: dict[str, str]) -> None:
+def test_phrase_error(case: Dict[str, str]) -> None:
     with pytest.raises(AttributeError):
         morpheme = Morpheme.from_jumanpp(case["jumanpp"])
         _ = morpheme.phrase
 
 
 @pytest.mark.parametrize("case", JUMANPP_SNIPPETS)
-def test_base_phrase_error(case: dict[str, str]) -> None:
+def test_base_phrase_error(case: Dict[str, str]) -> None:
     with pytest.raises(AttributeError):
         morpheme = Morpheme.from_jumanpp(case["jumanpp"])
         _ = morpheme.base_phrase

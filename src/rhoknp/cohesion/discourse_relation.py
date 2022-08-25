@@ -2,7 +2,7 @@ import logging
 import re
 from collections.abc import MutableSequence
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, ClassVar, Iterable, Optional, Union, overload
+from typing import TYPE_CHECKING, ClassVar, Iterable, List, Optional, Union, overload
 
 if TYPE_CHECKING:
     from rhoknp import Clause, Sentence
@@ -28,7 +28,7 @@ class DiscourseRelationTag:
     """関係タグ付きコーパスにおける <談話関係> タグを表すクラス．"""
 
     PAT: ClassVar[re.Pattern[str]] = re.compile(r"<談話関係:(?P<values>[^/]+/\d+/[^/]+(;[^/]+/\d+/[^/]+)*)>")
-    values: list[DiscourseRelationTagValue] = field(default_factory=list)
+    values: List[DiscourseRelationTagValue] = field(default_factory=list)
 
     def __str__(self) -> str:
         return self.to_fstring()
@@ -109,8 +109,8 @@ class DiscourseRelation:
 class DiscourseRelationList(MutableSequence[DiscourseRelation]):
     """談話関係リストクラス"""
 
-    def __init__(self, values: list[DiscourseRelation] = None) -> None:
-        self._items: list[DiscourseRelation] = values if values is not None else []
+    def __init__(self, values: List[DiscourseRelation] = None) -> None:
+        self._items: List[DiscourseRelation] = values if values is not None else []
 
     def insert(self, index: int, value: DiscourseRelation) -> None:
         current_tag = value.modifier.end.discourse_relation_tag
@@ -123,10 +123,10 @@ class DiscourseRelationList(MutableSequence[DiscourseRelation]):
         ...
 
     @overload
-    def __getitem__(self, index: slice) -> list[DiscourseRelation]:
+    def __getitem__(self, index: slice) -> List[DiscourseRelation]:
         ...
 
-    def __getitem__(self, index: Union[int, slice]) -> Union[DiscourseRelation, list[DiscourseRelation]]:
+    def __getitem__(self, index: Union[int, slice]) -> Union[DiscourseRelation, List[DiscourseRelation]]:
         return self._items[index]
 
     @overload

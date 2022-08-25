@@ -1,5 +1,5 @@
 from dataclasses import astuple, dataclass
-from typing import Union
+from typing import Dict, Union
 
 import pytest
 
@@ -9,7 +9,7 @@ from rhoknp.props import FeatureDict
 @dataclass(frozen=True)
 class FeaturesTestCase:
     fstring: str
-    features: dict[str, Union[str, bool]]
+    features: Dict[str, Union[str, bool]]
     length: int
 
 
@@ -53,7 +53,7 @@ cases_with_ignored_tag = [
 
 
 @pytest.mark.parametrize("fstring,features,length", [astuple(case) for case in cases + cases_with_ignored_tag])
-def test_from_fstring(fstring: str, features: dict[str, Union[str, bool]], length: int) -> None:
+def test_from_fstring(fstring: str, features: Dict[str, Union[str, bool]], length: int) -> None:
     fs = FeatureDict.from_fstring(fstring)
     assert len(fs) == length
     assert dict(fs) == features
@@ -61,7 +61,7 @@ def test_from_fstring(fstring: str, features: dict[str, Union[str, bool]], lengt
 
 
 @pytest.mark.parametrize("fstring,features,length", [astuple(case) for case in cases])
-def test_to_fstring(fstring: str, features: dict[str, Union[str, bool]], length: int) -> None:
+def test_to_fstring(fstring: str, features: Dict[str, Union[str, bool]], length: int) -> None:
     fs = FeatureDict.from_fstring(fstring)
     assert fs.to_fstring() == fstring
 

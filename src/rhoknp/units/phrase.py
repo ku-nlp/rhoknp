@@ -1,6 +1,6 @@
 import re
 from functools import cached_property
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, List, Optional, Union
 
 from rhoknp.props.dependency import DepType
 from rhoknp.props.feature import FeatureDict
@@ -28,7 +28,7 @@ class Phrase(Unit):
         self._sentence: Optional["Sentence"] = None
 
         # child units
-        self._base_phrases: Optional[list[BasePhrase]] = None
+        self._base_phrases: Optional[List[BasePhrase]] = None
 
         self.parent_index: Optional[int] = parent_index  #: 係り先の文節の文内におけるインデックス．
         self.dep_type: Optional[DepType] = dep_type  #: 係り受けの種類．
@@ -56,7 +56,7 @@ class Phrase(Unit):
         return None
 
     @property
-    def child_units(self) -> Optional[list[BasePhrase]]:
+    def child_units(self) -> Optional[List[BasePhrase]]:
         """下位の言語単位（基本句）．解析結果にアクセスできないなら None．"""
         return self._base_phrases
 
@@ -108,14 +108,14 @@ class Phrase(Unit):
         self._clause = clause
 
     @property
-    def base_phrases(self) -> list[BasePhrase]:
+    def base_phrases(self) -> List[BasePhrase]:
         """基本句のリスト．"""
         if self._base_phrases is None:
             raise AssertionError
         return self._base_phrases
 
     @base_phrases.setter
-    def base_phrases(self, base_phrases: list[BasePhrase]) -> None:
+    def base_phrases(self, base_phrases: List[BasePhrase]) -> None:
         """基本句のリスト．
 
         Args:
@@ -126,7 +126,7 @@ class Phrase(Unit):
         self._base_phrases = base_phrases
 
     @property
-    def morphemes(self) -> list[Morpheme]:
+    def morphemes(self) -> List[Morpheme]:
         """形態素のリスト．
 
         Raises:
@@ -148,7 +148,7 @@ class Phrase(Unit):
         return self.sentence.phrases[self.parent_index]
 
     @cached_property
-    def children(self) -> list["Phrase"]:
+    def children(self) -> List["Phrase"]:
         """この文節に係っている文節のリスト．
 
         Raises:
@@ -172,8 +172,8 @@ class Phrase(Unit):
         features = FeatureDict.from_fstring(match.group("feats") or "")
         phrase = cls(parent_index, dep_type, features)
 
-        base_phrases: list[BasePhrase] = []
-        base_phrase_lines: list[str] = []
+        base_phrases: List[BasePhrase] = []
+        base_phrase_lines: List[str] = []
         for line in lines:
             if not line.strip():
                 continue

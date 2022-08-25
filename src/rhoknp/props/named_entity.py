@@ -3,7 +3,7 @@ import re
 from collections.abc import MutableSequence
 from dataclasses import dataclass
 from enum import Enum
-from typing import TYPE_CHECKING, ClassVar, Iterable, Optional, Union, overload
+from typing import TYPE_CHECKING, ClassVar, Iterable, List, Optional, Union, overload
 
 if TYPE_CHECKING:
     from rhoknp.units.morpheme import Morpheme
@@ -23,7 +23,7 @@ class NETag:
         return f"<NE:{self.category}:{self.name}>"
 
 
-class NETagList(list[NETag]):
+class NETagList(List[NETag]):
     """関係タグ付きコーパスにおける <NE> タグの列を表すクラス．"""
 
     @classmethod
@@ -65,7 +65,7 @@ class NamedEntity:
     """固有表現を表すクラス．"""
 
     category: NamedEntityCategory
-    morphemes: list["Morpheme"]
+    morphemes: List["Morpheme"]
 
     @property
     def text(self) -> str:
@@ -75,7 +75,7 @@ class NamedEntity:
         return self.text
 
     @classmethod
-    def from_ne_tag(cls, ne_tag: NETag, candidate_morphemes: list["Morpheme"]) -> Optional["NamedEntity"]:
+    def from_ne_tag(cls, ne_tag: NETag, candidate_morphemes: List["Morpheme"]) -> Optional["NamedEntity"]:
         """NETag オブジェクトから初期化．"""
         if not NamedEntityCategory.has_value(ne_tag.category):
             logger.warning(f"{candidate_morphemes[0].sentence.sid}: unknown NE category: {ne_tag.category}")
@@ -98,7 +98,7 @@ class NamedEntity:
         return self.to_ne_tag().to_fstring()
 
     @staticmethod
-    def _find_morpheme_span(name: str, candidates: list["Morpheme"]) -> Optional[range]:
+    def _find_morpheme_span(name: str, candidates: List["Morpheme"]) -> Optional[range]:
         """name にマッチする形態素の範囲を返す．
 
         Args:
@@ -115,8 +115,8 @@ class NamedEntity:
 
 
 class NamedEntityList(MutableSequence[NamedEntity]):
-    def __init__(self, items: list[NamedEntity] = None) -> None:
-        self._items: list[NamedEntity] = items if items is not None else []
+    def __init__(self, items: List[NamedEntity] = None) -> None:
+        self._items: List[NamedEntity] = items if items is not None else []
 
     def insert(self, index: int, value: NamedEntity) -> None:
         current_ne_tags = value.morphemes[-1].base_phrase.ne_tags
@@ -130,10 +130,10 @@ class NamedEntityList(MutableSequence[NamedEntity]):
         ...
 
     @overload
-    def __getitem__(self, index: slice) -> list[NamedEntity]:
+    def __getitem__(self, index: slice) -> List[NamedEntity]:
         ...
 
-    def __getitem__(self, index: Union[int, slice]) -> Union[NamedEntity, list[NamedEntity]]:
+    def __getitem__(self, index: Union[int, slice]) -> Union[NamedEntity, List[NamedEntity]]:
         return self._items[index]
 
     @overload

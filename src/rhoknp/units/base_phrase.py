@@ -1,7 +1,7 @@
 import logging
 import re
 from functools import cached_property
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, List, Optional, Set
 
 from rhoknp.cohesion.coreference import Entity, EntityManager
 from rhoknp.cohesion.discourse_relation import DiscourseRelationTag
@@ -48,7 +48,7 @@ class BasePhrase(Unit):
         self._phrase: Optional["Phrase"] = None
 
         # child units
-        self._morphemes: Optional[list[Morpheme]] = None
+        self._morphemes: Optional[List[Morpheme]] = None
 
         self.parent_index: Optional[int] = parent_index  #: 係り先の基本句の文内におけるインデックス．
         self.dep_type: Optional[DepType] = dep_type  #: 係り受けの種類．
@@ -57,8 +57,8 @@ class BasePhrase(Unit):
         self.ne_tags: NETagList = ne_tags  #: 固有表現タグ．
         self.discourse_relation_tag: DiscourseRelationTag = discourse_relation_tag  #: 談話関係タグ．
         self.pas: Optional["Pas"] = None  #: 述語項構造．
-        self.entities: set[Entity] = set()  #: 参照しているエンティティ．
-        self.entities_nonidentical: set[Entity] = set()  #: ≒で参照しているエンティティ．
+        self.entities: Set[Entity] = set()  #: 参照しているエンティティ．
+        self.entities_nonidentical: Set[Entity] = set()  #: ≒で参照しているエンティティ．
 
         self.index = self.count
         BasePhrase.count += 1
@@ -78,7 +78,7 @@ class BasePhrase(Unit):
         return self._phrase
 
     @property
-    def child_units(self) -> Optional[list[Morpheme]]:
+    def child_units(self) -> Optional[List[Morpheme]]:
         """下位の言語単位（形態素）．解析結果にアクセスできないなら None．"""
         return self._morphemes
 
@@ -130,14 +130,14 @@ class BasePhrase(Unit):
         self._phrase = phrase
 
     @property
-    def morphemes(self) -> list[Morpheme]:
+    def morphemes(self) -> List[Morpheme]:
         """形態素のリスト．"""
         if self._morphemes is None:
             raise AssertionError
         return self._morphemes
 
     @morphemes.setter
-    def morphemes(self, morphemes: list[Morpheme]) -> None:
+    def morphemes(self, morphemes: List[Morpheme]) -> None:
         """形態素のリスト．
 
         Args:
@@ -176,7 +176,7 @@ class BasePhrase(Unit):
         return self.sentence.base_phrases[self.parent_index]
 
     @cached_property
-    def children(self) -> list["BasePhrase"]:
+    def children(self) -> List["BasePhrase"]:
         """この基本句に係っている基本句のリスト．
 
         Raises:
@@ -185,7 +185,7 @@ class BasePhrase(Unit):
         return [base_phrase for base_phrase in self.sentence.base_phrases if base_phrase.parent == self]
 
     @property
-    def entities_all(self) -> set[Entity]:
+    def entities_all(self) -> Set[Entity]:
         """nonidentical も含めた参照している全エンティティの集合．"""
         return self.entities | self.entities_nonidentical
 
@@ -208,7 +208,7 @@ class BasePhrase(Unit):
         discourse_relation_tag = DiscourseRelationTag.from_fstring(match.group("tags") or "")
         base_phrase = cls(parent_index, dep_type, features, rels, ne_tags, discourse_relation_tag)
 
-        morphemes: list[Morpheme] = []
+        morphemes: List[Morpheme] = []
         for line in lines:
             if not line.strip():
                 continue
@@ -232,7 +232,7 @@ class BasePhrase(Unit):
         ret += "".join(morpheme.to_jumanpp() for morpheme in self.morphemes)
         return ret
 
-    def get_coreferents(self, include_nonidentical: bool = False, include_self: bool = False) -> set["BasePhrase"]:
+    def get_coreferents(self, include_nonidentical: bool = False, include_self: bool = False) -> Set["BasePhrase"]:
         """この基本句と共参照している基本句の集合を返却．
 
         Args:
@@ -242,7 +242,7 @@ class BasePhrase(Unit):
         Returns:
             共参照している基本句の集合．
         """
-        mentions: set["BasePhrase"] = set()
+        mentions: Set["BasePhrase"] = set()
         for entity in self.entities:
             mentions.update(entity.mentions)
         if include_nonidentical is True:
