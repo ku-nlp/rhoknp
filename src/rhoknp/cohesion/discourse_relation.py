@@ -57,4 +57,4 @@ class DiscourseRelation:
         return cls(sid, base_phrase_index, label, modifier, head)
 
     def to_fstring(self) -> str:
-        return f"{self.sid}/{self.base_phrase_index}/{self.label}"
+        return f"<談話関係:{self.sid}/{self.base_phrase_index}/{self.label}>"

@@ -106,7 +106,7 @@ def test_to_fstring():
         """
     )
     sentence = Sentence.from_knp(knp_text)
-    assert sentence.clauses[0].discourse_relations[0].to_fstring() == "1/4/条件"
+    assert sentence.clauses[0].discourse_relations[0].to_fstring() == "<談話関係:1/4/条件>"
 
 
 def test_invalid_discourse_relation_tag():
