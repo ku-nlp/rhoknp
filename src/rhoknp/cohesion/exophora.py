@@ -20,7 +20,7 @@ class ExophoraReferentType(Enum):
 class ExophoraReferent:
     """外界照応における照応先を表すクラス．"""
 
-    PAT: ClassVar[re.Pattern[str]] = re.compile(
+    PAT: ClassVar[re.Pattern] = re.compile(
         rf"^(?P<type>{'|'.join(t.value for t in ExophoraReferentType if t != ExophoraReferentType.OTHER)})"
         rf"(?P<index>[０-９\d]*)$"
     )

@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 class NETag:
     """関係タグ付きコーパスにおける <NE> タグを表すクラス．"""
 
-    PAT: ClassVar[re.Pattern[str]] = re.compile(r"<NE:(?P<cat>\w+):(?P<name>[^>]+)>")
+    PAT: ClassVar[re.Pattern] = re.compile(r"<NE:(?P<cat>\w+):(?P<name>[^>]+)>")
     category: str
     name: str
 
@@ -114,7 +114,7 @@ class NamedEntity:
         return None
 
 
-class NamedEntityList(MutableSequence[NamedEntity]):
+class NamedEntityList(MutableSequence):
     def __init__(self, items: List[NamedEntity] = None) -> None:
         self._items: List[NamedEntity] = items if items is not None else []
 

@@ -54,7 +54,7 @@ class MorphemeAttributes:
 class Morpheme(Unit):
     """形態素クラス．"""
 
-    JUMANPP_PAT: ClassVar[re.Pattern[str]] = re.compile(
+    JUMANPP_PAT: ClassVar[re.Pattern] = re.compile(
         rf"^({MorphemeAttributes.JUMANPP_PAT.pattern})"
         + rf"(\s{SemanticsDict.PAT.pattern})?"
         + rf"(\s{FeatureDict.PAT.pattern})?$"

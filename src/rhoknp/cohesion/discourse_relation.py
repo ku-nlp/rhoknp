@@ -27,7 +27,7 @@ class DiscourseRelationTagValue:
 class DiscourseRelationTag:
     """関係タグ付きコーパスにおける <談話関係> タグを表すクラス．"""
 
-    PAT: ClassVar[re.Pattern[str]] = re.compile(r"<談話関係:(?P<values>[^/]+/\d+/[^/]+(;[^/]+/\d+/[^/]+)*)>")
+    PAT: ClassVar[re.Pattern] = re.compile(r"<談話関係:(?P<values>[^/]+/\d+/[^/]+(;[^/]+/\d+/[^/]+)*)>")
     values: List[DiscourseRelationTagValue] = field(default_factory=list)
 
     def __str__(self) -> str:
@@ -106,7 +106,7 @@ class DiscourseRelation:
         return self.to_discourse_relation_tag_value().to_fstring()
 
 
-class DiscourseRelationList(MutableSequence[DiscourseRelation]):
+class DiscourseRelationList(MutableSequence):
     """談話関係リストクラス"""
 
     def __init__(self, values: List[DiscourseRelation] = None) -> None:

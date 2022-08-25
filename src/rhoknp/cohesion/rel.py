@@ -28,7 +28,7 @@ class RelMode(Enum):
 class RelTag:
     """関係タグ付きコーパスにおける <rel> タグを表すクラス．"""
 
-    PAT: ClassVar[re.Pattern[str]] = re.compile(
+    PAT: ClassVar[re.Pattern] = re.compile(
         r'<rel type="(?P<type>\S+?)"( mode="(?P<mode>[^>]+?)")? target="(?P<target>.+?)"( sid="(?P<sid>.*?)" '
         r'id="(?P<id>\d+?)")?/>'
     )
