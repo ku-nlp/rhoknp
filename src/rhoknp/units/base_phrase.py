@@ -4,7 +4,6 @@ from functools import cached_property
 from typing import TYPE_CHECKING, List, Optional, Set
 
 from rhoknp.cohesion.coreference import Entity, EntityManager
-from rhoknp.cohesion.discourse_relation import DiscourseRelationTag
 from rhoknp.cohesion.exophora import ExophoraReferent
 from rhoknp.cohesion.pas import CaseInfoFormat, Pas
 from rhoknp.cohesion.predicate import Predicate
@@ -40,7 +39,6 @@ class BasePhrase(Unit):
         features: FeatureDict,
         rels: RelTagList,
         ne_tags: NETagList,
-        discourse_relation_tag: DiscourseRelationTag,
     ):
         super().__init__()
 
@@ -55,7 +53,6 @@ class BasePhrase(Unit):
         self.features: FeatureDict = features  #: 素性．
         self.rels: RelTagList = rels  #: 基本句間関係．
         self.ne_tags: NETagList = ne_tags  #: 固有表現タグ．
-        self.discourse_relation_tag: DiscourseRelationTag = discourse_relation_tag  #: 談話関係タグ．
         self.pas: Optional["Pas"] = None  #: 述語項構造．
         self.entities: Set[Entity] = set()  #: 参照しているエンティティ．
         self.entities_nonidentical: Set[Entity] = set()  #: ≒で参照しているエンティティ．
@@ -205,8 +202,7 @@ class BasePhrase(Unit):
         features = FeatureDict.from_fstring(match.group("tags") or "")
         rels = RelTagList.from_fstring(match.group("tags") or "")
         ne_tags = NETagList.from_fstring(match.group("tags") or "")
-        discourse_relation_tag = DiscourseRelationTag.from_fstring(match.group("tags") or "")
-        base_phrase = cls(parent_index, dep_type, features, rels, ne_tags, discourse_relation_tag)
+        base_phrase = cls(parent_index, dep_type, features, rels, ne_tags)
 
         morphemes: List[Morpheme] = []
         for line in lines:
@@ -222,12 +218,11 @@ class BasePhrase(Unit):
         if self.parent_index is not None:
             assert self.dep_type is not None
             ret += f" {self.parent_index}{self.dep_type.value}"
-        if self.rels or self.ne_tags or self.features or self.discourse_relation_tag:
+        if self.rels or self.ne_tags or self.features:
             ret += " "
             ret += self.rels.to_fstring()
             ret += self.ne_tags.to_fstring()
             ret += self.features.to_fstring()
-            ret += self.discourse_relation_tag.to_fstring()
         ret += "\n"
         ret += "".join(morpheme.to_jumanpp() for morpheme in self.morphemes)
         return ret

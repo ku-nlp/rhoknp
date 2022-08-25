@@ -176,6 +176,8 @@ class Clause(Unit):
 
     def parse_discourse_relation_tag(self) -> None:
         self.discourse_relations = []
-        for value in self.end.discourse_relation_tag.values:
-            if discourse_relation := DiscourseRelation.from_discourse_relation_tag_value(value, modifier=self):
-                self.discourse_relations.append(discourse_relation)
+        if values := self.end.features.get("談話関係", None):
+            assert isinstance(values, str)
+            for value in values.split(";"):
+                if discourse_relation := DiscourseRelation.from_fstring(value, modifier=self):
+                    self.discourse_relations.append(discourse_relation)
