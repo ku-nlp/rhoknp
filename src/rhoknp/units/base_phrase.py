@@ -218,10 +218,9 @@ class BasePhrase(Unit):
         if self.parent_index is not None:
             assert self.dep_type is not None
             ret += f" {self.parent_index}{self.dep_type.value}"
-        if self.rels or self.ne_tags or self.features:
+        if self.rels or self.features:
             ret += " "
             ret += self.rels.to_fstring()
-            ret += self.ne_tags.to_fstring()
             ret += self.features.to_fstring()
         ret += "\n"
         ret += "".join(morpheme.to_jumanpp() for morpheme in self.morphemes)

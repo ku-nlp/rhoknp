@@ -9,7 +9,7 @@ class FeatureDict(Dict[str, Union[str, bool]]):
     """文節，基本句，形態素の素性情報を表すクラス．"""
 
     PAT = re.compile(r"(?P<feats>(<[^>]+>)*)")
-    IGNORE_TAG_PREFIXES = {"rel ", "NE:"}
+    IGNORE_TAG_PREFIXES = {"rel "}
     FEATURE_PAT = re.compile(rf"<(?!({'|'.join(IGNORE_TAG_PREFIXES)}))(?P<key>[^:]+?)(:(?P<value>.+?))?>")
 
     @classmethod
@@ -34,12 +34,6 @@ class FeatureDict(Dict[str, Union[str, bool]]):
             logger.warning(
                 f"Adding 'rel' to {self.__class__.__name__} is not supported and was ignored. Instead, add a Rel "
                 f"object to BasePhrase.rels and call Document.reparse()."
-            )
-            return
-        if key == "NE":
-            logger.warning(
-                f"Adding 'NE' to {self.__class__.__name__} is not supported and was ignored. Instead, append a "
-                f"NamedEntity object to Sentence.named_entities."
             )
             return
         super().__setitem__(key, value)

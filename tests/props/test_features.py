@@ -43,11 +43,12 @@ cases_with_ignored_tag = [
     FeaturesTestCase(
         fstring="""<NE:DATE:平成２３年度><BGH:年度/ねんど><解析済><カウンタ:年度>""",
         features={
+            "NE": "DATE:平成２３年度",
             "BGH": "年度/ねんど",
             "解析済": True,
             "カウンタ": "年度",
         },
-        length=3,
+        length=4,
     ),
 ]
 
@@ -73,5 +74,4 @@ def test_false():
 def test_ignore_tag_prefix():
     features = FeatureDict()
     features["rel"] = 'type="ノ" target="ユーザー" sid="w201106-0000060560-1" id="1"'
-    features["NE"] = "MONEY:100円"
     assert len(features) == 0
