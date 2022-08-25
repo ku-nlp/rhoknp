@@ -26,13 +26,14 @@ class DiscourseRelation:
 
     @classmethod
     def from_fstring(cls, fstring: str, modifier: "Clause") -> Optional["DiscourseRelation"]:
-        if match := re.match(cls.PAT, fstring):
-            sid = match.group("sid")
-            base_phrase_index = int(match.group("base_phrase_index"))
-            label = match.group("label")
-        else:
+        match = re.match(cls.PAT, fstring)
+        if match is None:
             logger.warning(f"'{fstring}' is not a valid discourse relation fstring")
             return None
+        sid = match.group("sid")
+        base_phrase_index = int(match.group("base_phrase_index"))
+        label = match.group("label")
+
         head_sentence: Optional["Sentence"] = None
         if modifier.sentence.has_document:
             sentences = modifier.document.sentences
