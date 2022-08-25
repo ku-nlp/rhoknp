@@ -21,7 +21,16 @@ class FeatureDict(Dict[str, Union[str, bool]]):
         """
         features = {}
         for match in cls.FEATURE_PAT.finditer(fstring):
-            features[match.group("key")] = match.group("value") or True
+            key: str = match["key"]
+            value: Union[str, bool] = True
+            if match["value"] is not None:
+                if key.startswith("rel "):
+                    # To prevent from 'rel type="ガ" target="不特定:人"/' being treated as a feature where key is
+                    # 'rel type="ガ" target="不特定' and value is '人"/'
+                    key += f":{match['value']}"
+                else:
+                    value = match["value"]
+            features[key] = value
         return cls(features)
 
     def to_fstring(self) -> str:
