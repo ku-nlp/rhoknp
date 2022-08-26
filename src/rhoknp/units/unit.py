@@ -4,8 +4,7 @@ from typing import Any, Optional, Sequence
 
 class Unit(ABC):
     def __init__(self) -> None:
-        self._index: Optional[int] = None
-
+        self.index: int = -1
         self._text: Optional[str] = None
 
     def __str__(self) -> str:
@@ -29,15 +28,6 @@ class Unit(ABC):
     @abstractmethod
     def child_units(self) -> Optional[Sequence["Unit"]]:
         raise NotImplementedError
-
-    @property
-    def index(self) -> int:
-        assert self._index is not None
-        return self._index
-
-    @index.setter
-    def index(self, index: int) -> None:
-        self._index = index
 
     @property
     def text(self) -> str:
