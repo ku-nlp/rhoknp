@@ -1,6 +1,6 @@
 from .argument import Argument, ArgumentType, EndophoraArgument, ExophoraArgument
 from .coreference import Entity, EntityManager
-from .discourse_relation import DiscourseRelation
+from .discourse_relation import DiscourseRelation, DiscourseRelationCategory
 from .exophora import ExophoraReferent, ExophoraReferentType
 from .pas import Pas
 from .predicate import Predicate
@@ -19,4 +19,5 @@ __all__ = [
     "EntityManager",
     "RelMode",
     "DiscourseRelation",
+    "DiscourseRelationCategory",
 ]

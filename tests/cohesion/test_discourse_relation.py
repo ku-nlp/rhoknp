@@ -1,6 +1,7 @@
 import textwrap
 
 from rhoknp import Document, Sentence
+from rhoknp.cohesion import DiscourseRelationCategory
 
 
 def test_document():
@@ -42,13 +43,13 @@ def test_document():
     discourse_relation_0 = document.clauses[0].discourse_relations[0]
     assert discourse_relation_0.sid == "1"
     assert discourse_relation_0.base_phrase_index == 4
-    assert discourse_relation_0.label == "条件"
+    assert discourse_relation_0.label == DiscourseRelationCategory.CONDITION
     assert discourse_relation_0.modifier == document.clauses[0]
     assert discourse_relation_0.head == document.clauses[1]
     discourse_relation_1 = document.clauses[0].discourse_relations[1]
     assert discourse_relation_1.sid == "2"
     assert discourse_relation_1.base_phrase_index == 1
-    assert discourse_relation_1.label == "条件"
+    assert discourse_relation_1.label == DiscourseRelationCategory.CONDITION
     assert discourse_relation_1.modifier == document.clauses[0]
     assert discourse_relation_1.head == document.clauses[2]
 
