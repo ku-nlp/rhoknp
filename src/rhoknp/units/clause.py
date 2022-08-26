@@ -34,6 +34,17 @@ class Clause(Unit):
         self.index = self.count
         Clause.count += 1
 
+    def __post_init__(self) -> None:
+        super().__post_init__()
+
+        # Find discourse relations.
+        self.discourse_relations = []
+        if values := self.end.features.get("談話関係", None):
+            assert isinstance(values, str)
+            for value in values.split(";"):
+                if discourse_relation := DiscourseRelation.from_fstring(value, modifier=self):
+                    self.discourse_relations.append(discourse_relation)
+
     @cached_property
     def global_index(self) -> int:
         """文書全体におけるインデックス．"""
@@ -173,11 +184,3 @@ class Clause(Unit):
     def to_knp(self) -> str:
         """KNP フォーマットに変換．"""
         return "".join(phrase.to_knp() for phrase in self.phrases)
-
-    def parse_discourse_relation_tag(self) -> None:
-        self.discourse_relations = []
-        if values := self.end.features.get("談話関係", None):
-            assert isinstance(values, str)
-            for value in values.split(";"):
-                if discourse_relation := DiscourseRelation.from_fstring(value, modifier=self):
-                    self.discourse_relations.append(discourse_relation)

@@ -56,13 +56,18 @@ class Sentence(Unit):
         self.index = self.count
         Sentence.count += 1
 
-    def post_init(self) -> None:
-        """インスタンス作成後の追加処理を行う．"""
+    def __post_init__(self) -> None:
+        super().__post_init__()
+
+        # Find named entities in the sentence.
+        self.named_entities = []
         if self.need_knp is False:
-            self._parse_knp_pas()
-            self._parse_ne_tags()
-        if self.need_clause_tag is False:
-            self._parse_discourse_relation()
+            for base_phrase in self.base_phrases:
+                if fstring := base_phrase.features.get("NE", None):
+                    assert isinstance(fstring, str)
+                    candidate_morphemes = self.morphemes[: base_phrase.morphemes[-1].index + 1]
+                    if named_entity := NamedEntity.from_fstring(fstring, candidate_morphemes):
+                        self.named_entities.append(named_entity)
 
     @property
     def global_index(self) -> int:
@@ -263,7 +268,7 @@ class Sentence(Unit):
                 text_lines.append(line)
         sentence.text = "\n".join(text_lines)
         if post_init is True:
-            sentence.post_init()
+            sentence.__post_init__()
         return sentence
 
     @classmethod
@@ -311,7 +316,7 @@ class Sentence(Unit):
                 break
         sentence.morphemes = morphemes
         if post_init is True:
-            sentence.post_init()
+            sentence.__post_init__()
         return sentence
 
     @classmethod
@@ -382,7 +387,7 @@ class Sentence(Unit):
         else:
             sentence.phrases = phrases
         if post_init is True:
-            sentence.post_init()
+            sentence.__post_init__()
         return sentence
 
     @staticmethod
@@ -450,26 +455,6 @@ class Sentence(Unit):
         elif self.need_jumanpp is False:
             return Sentence.from_jumanpp(self.to_jumanpp())
         return Sentence.from_raw_text(self.to_raw_text())
-
-    def _parse_knp_pas(self) -> None:
-        """KNP 解析結果における <述語項構造> タグおよび <格解析結果> タグをパース．"""
-        for base_phrase in self.base_phrases:
-            base_phrase.parse_pas_tag()
-
-    def _parse_ne_tags(self) -> None:
-        """<NE> タグをパースし，固有表現オブジェクトを作成．"""
-        self.named_entities = []
-        for base_phrase in self.base_phrases:
-            if fstring := base_phrase.features.get("NE", None):
-                assert isinstance(fstring, str)
-                candidate_morphemes = self.morphemes[: base_phrase.morphemes[-1].index + 1]
-                if named_entity := NamedEntity.from_fstring(fstring, candidate_morphemes):
-                    self.named_entities.append(named_entity)
-
-    def _parse_discourse_relation(self) -> None:
-        """<談話関係> タグをパース．"""
-        for clause in self.clauses:
-            clause.parse_discourse_relation_tag()
 
     def __eq__(self, other: Any) -> bool:
         if isinstance(other, Sentence) is False:

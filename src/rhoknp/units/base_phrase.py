@@ -55,6 +55,49 @@ class BasePhrase(Unit):
         self.index = self.count
         BasePhrase.count += 1
 
+    def __post_init__(self) -> None:
+        super().__post_init__()
+
+        # Parse the PAS tag.
+        if "述語項構造" in self.features:
+            pas_string = self.features["述語項構造"]
+            assert isinstance(pas_string, str)
+            pas = Pas.from_pas_string(self, pas_string, format_=CaseInfoFormat.PAS)
+        elif "格解析結果" in self.features:
+            pas_string = self.features["格解析結果"]
+            assert isinstance(pas_string, str)
+            pas = Pas.from_pas_string(self, pas_string, format_=CaseInfoFormat.CASE)
+        else:
+            pas = Pas(Predicate(self))
+        self.pas = pas
+
+        # Parse the rel tag if this unit is a piece of a document.
+        if self.sentence.has_document is False:
+            return
+        pat: re.Pattern = re.compile(
+            r'rel type="(?P<type>\S+?)"( mode="(?P<mode>[^>]+?)")? target="(?P<target>.+?)"( sid="(?P<sid>.*?)" '
+            r'id="(?P<id>\d+?)")?/'
+        )
+        for key, value in self.features.items():
+            match = pat.match(key)
+            if match is None:
+                continue
+            type_: str = match["type"]
+            target: str = match["target"]
+            sid: Optional[str] = match["sid"]
+            base_phrase_index: Optional[int] = int(match["id"]) if match["id"] else None
+            mode: Optional[RelMode] = RelMode(match["mode"]) if match["mode"] else None
+            if sid == "":
+                logger.warning(f"empty sid found in {self.sentence.sid}; assume to be self")
+                sid = self.sentence.sid
+            if type_ in ALL_CASES:
+                self._add_pas(type_, target, sid, base_phrase_index, mode)
+            elif type_ in ALL_COREFS:
+                if mode in (None, RelMode.AND):  # ignore "OR" and "?"
+                    self._add_coreference(type_, target, sid, base_phrase_index)
+            else:
+                logger.warning(f"unknown rel type: {type_}")
+
     @cached_property
     def global_index(self) -> int:
         """文書全体におけるインデックス．"""
@@ -256,48 +299,6 @@ class BasePhrase(Unit):
         else:
             self.entities.add(entity)
         entity.add_mention(self, nonidentical=nonidentical)
-
-    def parse_rel_tag(self) -> None:
-        """関係タグ付きコーパスにおける <rel> タグをパース．"""
-        if self.pas is None:
-            self.pas = Pas(Predicate(self))
-        pat: re.Pattern = re.compile(
-            r'rel type="(?P<type>\S+?)"( mode="(?P<mode>[^>]+?)")? target="(?P<target>.+?)"( sid="(?P<sid>.*?)" '
-            r'id="(?P<id>\d+?)")?/'
-        )
-        for key, value in self.features.items():
-            match = pat.match(key)
-            if match is None:
-                continue
-            type_: str = match["type"]
-            target: str = match["target"]
-            sid: Optional[str] = match["sid"]
-            base_phrase_index: Optional[int] = int(match["id"]) if match["id"] else None
-            mode: Optional[RelMode] = RelMode(match["mode"]) if match["mode"] else None
-            if sid == "":
-                logger.warning(f"empty sid found in {self.sentence.sid}; assume to be self")
-                sid = self.sentence.sid
-            if type_ in ALL_CASES:
-                self._add_pas(type_, target, sid, base_phrase_index, mode)
-            elif type_ in ALL_COREFS:
-                if mode in (None, RelMode.AND):  # ignore "OR" and "?"
-                    self._add_coreference(type_, target, sid, base_phrase_index)
-            else:
-                logger.warning(f"unknown rel type: {type_}")
-
-    def parse_pas_tag(self) -> None:
-        """KNP 解析結果における <述語項構造> タグおよび <格解析結果> タグをパース．"""
-        if "述語項構造" in self.features:
-            pas_string = self.features["述語項構造"]
-            assert isinstance(pas_string, str)
-            pas = Pas.from_pas_string(self, pas_string, format_=CaseInfoFormat.PAS)
-        elif "格解析結果" in self.features:
-            pas_string = self.features["格解析結果"]
-            assert isinstance(pas_string, str)
-            pas = Pas.from_pas_string(self, pas_string, format_=CaseInfoFormat.CASE)
-        else:
-            pas = Pas(Predicate(self))
-        self.pas = pas
 
     def _add_pas(
         self,

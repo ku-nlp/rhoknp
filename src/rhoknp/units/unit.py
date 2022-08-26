@@ -7,6 +7,11 @@ class Unit(ABC):
         self.index: int = -1
         self._text: Optional[str] = None
 
+    def __post_init__(self) -> None:
+        if self.child_units is not None:
+            for child_unit in self.child_units:
+                child_unit.__post_init__()
+
     def __str__(self) -> str:
         return self.text
 
