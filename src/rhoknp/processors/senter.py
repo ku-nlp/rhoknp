@@ -12,6 +12,7 @@ class RegexSenter(Processor):
     """正規表現にもとづく文分割クラス．
 
     Example::
+
         from rhoknp import RegexSenter
 
         senter = RegexSenter()
@@ -20,13 +21,26 @@ class RegexSenter(Processor):
 
     PERIODS = "。．？！♪☆★…?!"
 
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}()"
+
     def apply_to_document(self, document: Union[Document, str]) -> Document:
+        """文書に RegexSenter を適用する．
+
+        Args:
+            document: 文書．
+        """
         if isinstance(document, str):
             document = Document(document)
         sentence_texts = self._split_document(document.text)
         return Document.from_sentences(sentence_texts)
 
     def apply_to_sentence(self, sentence: Union[Sentence, str]) -> Sentence:
+        """文に RegexSenter を適用する．
+
+        Args:
+            sentence: 文．
+        """
         if isinstance(sentence, str):
             sentence = Sentence(sentence)
         return sentence
@@ -104,6 +118,3 @@ class RegexSenter(Processor):
     def _clean_up_candidates(sentence_candidates: List[str]) -> List[str]:
         """Remove empty sentence candidates."""
         return [sentence_candidate.strip() for sentence_candidate in sentence_candidates if sentence_candidate.strip()]
-
-    def __repr__(self) -> str:
-        return f"{self.__class__.__name__}()"
