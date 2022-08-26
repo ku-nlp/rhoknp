@@ -371,18 +371,18 @@ class Document(Unit):
         elif self.need_jumanpp is False:
             return Document.from_jumanpp(self.to_jumanpp())
         elif self.need_senter is False:
-            return Document.from_line_by_line_text(self.to_plain())
-        return Document.from_raw_text(self.to_plain())
+            return Document.from_line_by_line_text(self.to_raw_text())
+        return Document.from_raw_text(self.to_raw_text())
 
-    def to_plain(self) -> str:
-        """プレーンテキストフォーマットに変換．
+    def to_raw_text(self) -> str:
+        """生テキストフォーマットに変換．
 
         .. note::
             文分割済みの場合は一行一文の形式で出力．
         """
         if self.need_senter:
             return self.text.rstrip() + "\n"
-        return "".join(sentence.to_plain() for sentence in self.sentences)
+        return "".join(sentence.to_raw_text() for sentence in self.sentences)
 
     def to_jumanpp(self) -> str:
         """Juman++ フォーマットに変換．"""

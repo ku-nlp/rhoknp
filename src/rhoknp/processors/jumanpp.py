@@ -66,7 +66,7 @@ class Jumanpp(Processor):
             document = self.senter.apply_to_document(document)
 
         with Popen(self.run_command, stdout=PIPE, stdin=PIPE, encoding="utf-8") as p:
-            jumanpp_text, _ = p.communicate(input=document.to_plain())
+            jumanpp_text, _ = p.communicate(input=document.to_raw_text())
         return Document.from_jumanpp(jumanpp_text)
 
     def apply_to_sentence(self, sentence: Union[Sentence, str]) -> Sentence:
@@ -79,7 +79,7 @@ class Jumanpp(Processor):
             sentence = Sentence(sentence)
 
         with Popen(self.run_command, stdout=PIPE, stdin=PIPE, encoding="utf-8") as p:
-            jumanpp_text, _ = p.communicate(input=sentence.to_plain())
+            jumanpp_text, _ = p.communicate(input=sentence.to_raw_text())
         return Sentence.from_jumanpp(jumanpp_text)
 
     def is_available(self) -> bool:

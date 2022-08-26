@@ -414,8 +414,8 @@ class Sentence(Unit):
         assert comment.startswith("# ")
         return None, None, comment[2:]
 
-    def to_plain(self) -> str:
-        """プレーンテキストフォーマットに変換．"""
+    def to_raw_text(self) -> str:
+        """生テキストフォーマットに変換．"""
         ret = ""
         if self.comment != "":
             ret += self.comment + "\n"
@@ -449,7 +449,7 @@ class Sentence(Unit):
             return Sentence.from_knp(self.to_knp())
         elif self.need_jumanpp is False:
             return Sentence.from_jumanpp(self.to_jumanpp())
-        return Sentence.from_raw_text(self.to_plain())
+        return Sentence.from_raw_text(self.to_raw_text())
 
     def _parse_knp_pas(self) -> None:
         """KNP 解析結果における <述語項構造> タグおよび <格解析結果> タグをパース．"""
