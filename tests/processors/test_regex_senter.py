@@ -1,3 +1,5 @@
+from typing import List
+
 import pytest
 
 from rhoknp import RegexSenter
@@ -72,7 +74,7 @@ from rhoknp import RegexSenter
         ),
     ],
 )
-def test_apply_to_document(document: str, sentence_strings: list[str]) -> None:
+def test_apply_to_document(document: str, sentence_strings: List[str]) -> None:
     senter = RegexSenter()
     doc = senter.apply_to_document(document)
     for i, sentence in enumerate(doc.sentences):

@@ -1,6 +1,6 @@
 import logging
 from subprocess import PIPE, Popen, run
-from typing import Optional, Union
+from typing import List, Optional, Union
 
 from rhoknp.processors.processor import Processor
 from rhoknp.processors.senter import RegexSenter
@@ -29,7 +29,7 @@ class Jumanpp(Processor):
     def __init__(
         self,
         executable: str = "jumanpp",
-        options: Optional[list[str]] = None,
+        options: Optional[List[str]] = None,
         senter: Optional[Processor] = None,
     ):
         self.executable = executable
@@ -93,7 +93,7 @@ class Jumanpp(Processor):
             return False
 
     @property
-    def run_command(self) -> list[str]:
+    def run_command(self) -> List[str]:
         """解析時に実行するコマンド．"""
         command = [self.executable]
         if self.options:
@@ -101,6 +101,6 @@ class Jumanpp(Processor):
         return command
 
     @property
-    def version_command(self) -> list[str]:
+    def version_command(self) -> List[str]:
         """バージョン確認時に実行するコマンド．"""
         return [self.executable, "-v"]

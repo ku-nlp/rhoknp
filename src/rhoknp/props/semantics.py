@@ -1,15 +1,15 @@
 import re
-from typing import Union
+from typing import Dict, Union
 
 
-class SemanticsDict(dict[str, Union[str, bool]]):
+class SemanticsDict(Dict[str, Union[str, bool]]):
     """形態素の意味情報を表すクラス．"""
 
     NIL = "NIL"
     PAT = re.compile(rf'(?P<sems>("([^"]|\\")+?")|{NIL})')
     SEM_PAT = re.compile(r"(?P<key>[^:\s]+)(:(?P<value>\S+))?(\s|$)")
 
-    def __init__(self, semantics: dict[str, Union[str, bool]] = None, is_nil: bool = False):
+    def __init__(self, semantics: Dict[str, Union[str, bool]] = None, is_nil: bool = False):
         if semantics is None:
             semantics = {}
         super().__init__(semantics)

@@ -1,4 +1,5 @@
 import textwrap
+from typing import Dict
 
 import pytest
 
@@ -181,33 +182,33 @@ KNP_SNIPPETS = [
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_document(case: dict[str, str]) -> None:
+def test_document(case: Dict[str, str]) -> None:
     doc = Document.from_knp(case["knp"])
     for base_phrase in doc.base_phrases:
         assert base_phrase.document == doc
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_sentence(case: dict[str, str]) -> None:
+def test_sentence(case: Dict[str, str]) -> None:
     sent = Sentence.from_knp(case["knp"])
     for base_phrase in sent.base_phrases:
         assert base_phrase.sentence == sent
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_num_document(case: dict[str, str]) -> None:
+def test_num_document(case: Dict[str, str]) -> None:
     doc = Document.from_knp(case["knp"])
     assert len(doc.base_phrases) == case["num"]
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_num_sentence(case: dict[str, str]) -> None:
+def test_num_sentence(case: Dict[str, str]) -> None:
     sent = Sentence.from_knp(case["knp"])
     assert len(sent.base_phrases) == case["num"]
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_parent_document(case: dict[str, str]) -> None:
+def test_parent_document(case: Dict[str, str]) -> None:
     doc = Document.from_knp(case["knp"])
     if case["parent_ids"] is not None:
         assert [bp.parent.index if bp.parent else -1 for bp in doc.base_phrases] == case["parent_ids"]
@@ -217,7 +218,7 @@ def test_parent_document(case: dict[str, str]) -> None:
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_parent_sentence(case: dict[str, str]) -> None:
+def test_parent_sentence(case: Dict[str, str]) -> None:
     sent = Sentence.from_knp(case["knp"])
     if case["parent_ids"] is not None:
         assert [bp.parent.index if bp.parent else -1 for bp in sent.base_phrases] == case["parent_ids"]
@@ -227,7 +228,7 @@ def test_parent_sentence(case: dict[str, str]) -> None:
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_children_document(case: dict[str, str]) -> None:
+def test_children_document(case: Dict[str, str]) -> None:
     doc = Document.from_knp(case["knp"])
     if case["children_ids"] is not None:
         assert [[child.index for child in bp.children] for bp in doc.base_phrases] == case["children_ids"]
@@ -237,7 +238,7 @@ def test_children_document(case: dict[str, str]) -> None:
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_children_sentence(case: dict[str, str]) -> None:
+def test_children_sentence(case: Dict[str, str]) -> None:
     sent = Sentence.from_knp(case["knp"])
     if case["children_ids"] is not None:
         assert [[child.index for child in bp.children] for bp in sent.base_phrases] == case["children_ids"]
@@ -247,58 +248,58 @@ def test_children_sentence(case: dict[str, str]) -> None:
 
 
 @pytest.mark.parametrize("case", KNP_SNIPPETS)
-def test_from_knp(case: dict[str, str]) -> None:
+def test_from_knp(case: Dict[str, str]) -> None:
     _ = BasePhrase.from_knp(case["knp"])
 
 
 @pytest.mark.parametrize("case", KNP_SNIPPETS)
-def test_to_knp(case: dict[str, str]) -> None:
+def test_to_knp(case: Dict[str, str]) -> None:
     base_phrase = BasePhrase.from_knp(case["knp"])
     assert base_phrase.to_knp() == case["knp"]
 
 
 @pytest.mark.parametrize("case", KNP_SNIPPETS)
-def test_text(case: dict[str, str]) -> None:
+def test_text(case: Dict[str, str]) -> None:
     base_phrase = BasePhrase.from_knp(case["knp"])
     assert base_phrase.text == case["text"]
 
 
 @pytest.mark.parametrize("case", KNP_SNIPPETS)
-def test_document_error(case: dict[str, str]) -> None:
+def test_document_error(case: Dict[str, str]) -> None:
     with pytest.raises(AttributeError):
         base_phrase = BasePhrase.from_knp(case["knp"])
         _ = base_phrase.document
 
 
 @pytest.mark.parametrize("case", KNP_SNIPPETS)
-def test_sentence_error(case: dict[str, str]) -> None:
+def test_sentence_error(case: Dict[str, str]) -> None:
     with pytest.raises(AttributeError):
         base_phrase = BasePhrase.from_knp(case["knp"])
         _ = base_phrase.sentence
 
 
 @pytest.mark.parametrize("case", KNP_SNIPPETS)
-def test_clause_error(case: dict[str, str]) -> None:
+def test_clause_error(case: Dict[str, str]) -> None:
     with pytest.raises(AttributeError):
         base_phrase = BasePhrase.from_knp(case["knp"])
         _ = base_phrase.clause
 
 
 @pytest.mark.parametrize("case", KNP_SNIPPETS)
-def test_phrase_error(case: dict[str, str]) -> None:
+def test_phrase_error(case: Dict[str, str]) -> None:
     with pytest.raises(AttributeError):
         base_phrase = BasePhrase.from_knp(case["knp"])
         _ = base_phrase.phrase
 
 
 @pytest.mark.parametrize("case", KNP_SNIPPETS)
-def test_morpheme_num(case: dict[str, str]) -> None:
+def test_morpheme_num(case: Dict[str, str]) -> None:
     base_phrase = BasePhrase.from_knp(case["knp"])
     assert len(base_phrase.morphemes) == case["morpheme_num"]
 
 
 @pytest.mark.parametrize("case", KNP_SNIPPETS)
-def test_head_text(case: dict[str, str]) -> None:
+def test_head_text(case: Dict[str, str]) -> None:
     base_phrase = BasePhrase.from_knp(case["knp"])
     assert base_phrase.head.text == case["head_text"]
 
@@ -313,15 +314,3 @@ def test_no_pas():
         )
     )
     assert base_phrase.pas is None
-
-
-def test_discourse_relation_tag():
-    base_phrase = BasePhrase.from_knp(
-        textwrap.dedent(
-            """\
-            + -1D <節-主辞><節-区切><談話関係:1/1/原因・理由>
-            吹く ふく 吹く 動詞 2 * 0 子音動詞カ行 2 基本形 2 "代表表記:吹く/ふく 補文ト" <代表表記:吹く/ふく>
-            """
-        )
-    )
-    assert base_phrase.discourse_relation_tag.to_fstring() == "<談話関係:1/1/原因・理由>"

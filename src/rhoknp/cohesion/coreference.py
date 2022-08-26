@@ -1,5 +1,5 @@
 import logging
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, List, Optional, Set
 
 from rhoknp.cohesion.argument import ExophoraArgument
 from rhoknp.cohesion.exophora import ExophoraReferent
@@ -27,11 +27,11 @@ class Entity:
     def __init__(self, eid: int, exophora_referent: Optional[ExophoraReferent] = None) -> None:
         self.eid: int = eid
         self.exophora_referent: Optional[ExophoraReferent] = exophora_referent
-        self.mentions: set["BasePhrase"] = set()
-        self.mentions_nonidentical: set["BasePhrase"] = set()
+        self.mentions: Set["BasePhrase"] = set()
+        self.mentions_nonidentical: Set["BasePhrase"] = set()
 
     @property
-    def mentions_all(self) -> set["BasePhrase"]:
+    def mentions_all(self) -> Set["BasePhrase"]:
         """nonidentical を含めたこのエンティティを参照する全てのメンションの集合．"""
         return self.mentions | self.mentions_nonidentical
 
@@ -98,7 +98,7 @@ class EntityManager:
     """
 
     def __init__(self):
-        self.entities: list[Entity] = []
+        self.entities: List[Entity] = []
 
     def get_or_create_entity(
         self, exophora_referent: Optional[ExophoraReferent] = None, eid: Optional[int] = None
@@ -123,7 +123,7 @@ class EntityManager:
             if entities:
                 assert len(entities) == 1  # singleton entity が1つしかないことを保証
                 return entities[0]
-        eids: list[int] = [e.eid for e in self.entities]
+        eids: List[int] = [e.eid for e in self.entities]
         if eid in eids:
             _eid = eid
             eid = max(eids) + 1

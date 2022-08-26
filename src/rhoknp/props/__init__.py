@@ -1,6 +1,6 @@
 from .dependency import DepType
 from .feature import FeatureDict
-from .named_entity import NamedEntity, NamedEntityCategory, NamedEntityList, NETag, NETagList
+from .named_entity import NamedEntity, NamedEntityCategory
 from .semantics import SemanticsDict
 
 __all__ = [
@@ -9,7 +9,4 @@ __all__ = [
     "SemanticsDict",
     "NamedEntity",
     "NamedEntityCategory",
-    "NETag",
-    "NETagList",
-    "NamedEntityList",
 ]

@@ -10,13 +10,14 @@ license = "MIT"
 keywords = ["NLP"]
 
 [tool.poetry.dependencies]
-python = ">=3.9,<3.11"
+python = ">=3.8,<3.11"
 
 [tool.poetry.dev-dependencies]
+mypy = "^0.971"
 pytest = "^7.1.2"
 pytest-cov = "^3.0.0"
-flake8 = "^4.0.1"
 pytest-mypy = "^0.9.1"
+flake8 = "^4.0.1"
 Sphinx = "^4.2.0"
 furo = "^2022.4.7"
 sphinx-prompt = "^1.5.0"
@@ -29,10 +30,10 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.black]
 line-length = 120
-target-version = ["py39", "py310"]
+target-version = ["py38", "py39", "py310"]
 
 [tool.isort]
 line_length = 120
 
 [tool.mypy]
-python_version = 3.9
+python_version = 3.8

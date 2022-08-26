@@ -1,6 +1,6 @@
 import logging
 from subprocess import PIPE, Popen, run
-from typing import Optional, Union
+from typing import List, Optional, Union
 
 from rhoknp.processors.jumanpp import Jumanpp
 from rhoknp.processors.processor import Processor
@@ -32,7 +32,7 @@ class KNP(Processor):
     def __init__(
         self,
         executable: str = "knp",
-        options: Optional[list[str]] = None,
+        options: Optional[List[str]] = None,
         senter: Optional[Processor] = None,
         jumanpp: Optional[Processor] = None,
     ):
@@ -121,7 +121,7 @@ class KNP(Processor):
             return False
 
     @property
-    def run_command(self) -> list[str]:
+    def run_command(self) -> List[str]:
         """解析時に実行するコマンド．"""
         command = [self.executable]
         if self.options:
@@ -131,6 +131,6 @@ class KNP(Processor):
         return command
 
     @property
-    def version_command(self) -> list[str]:
+    def version_command(self) -> List[str]:
         """バージョン確認時に実行するコマンド．"""
         return [self.executable, "-v"]

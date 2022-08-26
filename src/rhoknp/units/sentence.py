@@ -1,8 +1,8 @@
 import logging
 import re
-from typing import TYPE_CHECKING, Any, Optional, Union
+from typing import TYPE_CHECKING, Any, List, Optional, Tuple, Union
 
-from rhoknp.props.named_entity import NamedEntity, NamedEntityList
+from rhoknp.props.named_entity import NamedEntity
 from rhoknp.units.base_phrase import BasePhrase
 from rhoknp.units.clause import Clause
 from rhoknp.units.morpheme import Morpheme
@@ -43,15 +43,15 @@ class Sentence(Unit):
         self._document: Optional["Document"] = None
 
         # child units
-        self._clauses: Optional[list[Clause]] = None
-        self._phrases: Optional[list[Phrase]] = None
-        self._morphemes: Optional[list[Morpheme]] = None
+        self._clauses: Optional[List[Clause]] = None
+        self._phrases: Optional[List[Phrase]] = None
+        self._morphemes: Optional[List[Morpheme]] = None
 
         self.sid: Optional[str] = None
         self.doc_id: Optional[str] = None
         self.misc_comment: str = ""
 
-        self.named_entities = NamedEntityList()
+        self.named_entities: List[NamedEntity] = []
 
         self.index = self.count
         Sentence.count += 1
@@ -75,7 +75,7 @@ class Sentence(Unit):
         return self._document
 
     @property
-    def child_units(self) -> Optional[Union[list[Clause], list[Phrase], list[Morpheme]]]:
+    def child_units(self) -> Optional[Union[List[Clause], List[Phrase], List[Morpheme]]]:
         """下位の言語単位（節もしくは形態素）のリスト．解析結果にアクセスできないなら None．
 
         .. note::
@@ -111,7 +111,7 @@ class Sentence(Unit):
         self._document = document
 
     @property
-    def clauses(self) -> list[Clause]:
+    def clauses(self) -> List[Clause]:
         """節のリスト．
 
         Raises:
@@ -122,7 +122,7 @@ class Sentence(Unit):
         return self._clauses
 
     @clauses.setter
-    def clauses(self, clauses: list[Clause]) -> None:
+    def clauses(self, clauses: List[Clause]) -> None:
         """節のリスト．
 
         Args:
@@ -133,7 +133,7 @@ class Sentence(Unit):
         self._clauses = clauses
 
     @property
-    def phrases(self) -> list[Phrase]:
+    def phrases(self) -> List[Phrase]:
         """文節のリスト．
 
         Raises:
@@ -146,7 +146,7 @@ class Sentence(Unit):
         raise AttributeError("not available before applying KNP")
 
     @phrases.setter
-    def phrases(self, phrases: list[Phrase]) -> None:
+    def phrases(self, phrases: List[Phrase]) -> None:
         """文節のリスト．
 
         Args:
@@ -157,7 +157,7 @@ class Sentence(Unit):
         self._phrases = phrases
 
     @property
-    def base_phrases(self) -> list[BasePhrase]:
+    def base_phrases(self) -> List[BasePhrase]:
         """基本句のリスト．
 
         Raises:
@@ -166,7 +166,7 @@ class Sentence(Unit):
         return [base_phrase for phrase in self.phrases for base_phrase in phrase.base_phrases]
 
     @property
-    def morphemes(self) -> list[Morpheme]:
+    def morphemes(self) -> List[Morpheme]:
         """形態素のリスト．
 
         Raises:
@@ -181,7 +181,7 @@ class Sentence(Unit):
         raise AttributeError("not available before applying Jumanpp")
 
     @morphemes.setter
-    def morphemes(self, morphemes: list[Morpheme]) -> None:
+    def morphemes(self, morphemes: List[Morpheme]) -> None:
         """形態素のリスト．
 
         Args:
@@ -292,8 +292,8 @@ class Sentence(Unit):
             sent = Sentence.from_jumanpp(jumanpp_text)
         """
         sentence = cls()
-        morphemes: list[Morpheme] = []
-        jumanpp_lines: list[str] = []
+        morphemes: List[Morpheme] = []
+        jumanpp_lines: List[str] = []
         for line in jumanpp_text.split("\n"):
             if not line.strip():
                 continue
@@ -348,9 +348,9 @@ class Sentence(Unit):
         lines = knp_text.split("\n")
         sentence = cls()
         has_clause_boundary = any("節-区切" in line for line in lines if line.startswith("+"))
-        clauses: list[Clause] = []
-        phrases: list[Phrase] = []
-        child_lines: list[str] = []
+        clauses: List[Clause] = []
+        phrases: List[Phrase] = []
+        child_lines: List[str] = []
         is_clause_end = False
         for line in lines:
             if not line.strip():
@@ -386,7 +386,7 @@ class Sentence(Unit):
         return sentence
 
     @staticmethod
-    def _extract_sid(comment: str) -> tuple[Optional[str], Optional[str], str]:
+    def _extract_sid(comment: str) -> Tuple[Optional[str], Optional[str], str]:
         """Extract sentence id and document id from comment line.
 
         Args:
@@ -458,14 +458,13 @@ class Sentence(Unit):
 
     def _parse_ne_tags(self) -> None:
         """<NE> タグをパースし，固有表現オブジェクトを作成．"""
-        named_entities = []
-        candidate_morphemes = []
+        self.named_entities = []
         for base_phrase in self.base_phrases:
-            candidate_morphemes += base_phrase.morphemes
-            for ne_tag in base_phrase.ne_tags:
-                if named_entity := NamedEntity.from_ne_tag(ne_tag, candidate_morphemes):
-                    named_entities.append(named_entity)
-        self.named_entities = NamedEntityList(named_entities)
+            if fstring := base_phrase.features.get("NE", None):
+                assert isinstance(fstring, str)
+                candidate_morphemes = self.morphemes[: base_phrase.morphemes[-1].index + 1]
+                if named_entity := NamedEntity.from_fstring(fstring, candidate_morphemes):
+                    self.named_entities.append(named_entity)
 
     def _parse_discourse_relation(self) -> None:
         """<談話関係> タグをパース．"""

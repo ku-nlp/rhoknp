@@ -1,8 +1,8 @@
 import logging
 from functools import cached_property
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, List, Optional
 
-from rhoknp.cohesion.discourse_relation import DiscourseRelation, DiscourseRelationList
+from rhoknp.cohesion.discourse_relation import DiscourseRelation
 from rhoknp.units.base_phrase import BasePhrase
 from rhoknp.units.morpheme import Morpheme
 from rhoknp.units.phrase import Phrase
@@ -27,9 +27,9 @@ class Clause(Unit):
         self._sentence: Optional["Sentence"] = None
 
         # child units
-        self._phrases: Optional[list[Phrase]] = None
+        self._phrases: Optional[List[Phrase]] = None
 
-        self.discourse_relations: DiscourseRelationList = DiscourseRelationList()
+        self.discourse_relations: List[DiscourseRelation] = []
 
         self.index = self.count
         Clause.count += 1
@@ -49,7 +49,7 @@ class Clause(Unit):
         return self._sentence
 
     @property
-    def child_units(self) -> Optional[list[Phrase]]:
+    def child_units(self) -> Optional[List[Phrase]]:
         """下位の言語単位（文節）．解析結果にアクセスできないなら None．"""
         return self._phrases
 
@@ -83,14 +83,14 @@ class Clause(Unit):
         self._sentence = sentence
 
     @property
-    def phrases(self) -> list[Phrase]:
+    def phrases(self) -> List[Phrase]:
         """文節のリスト．"""
         if self._phrases is None:
             raise AssertionError
         return self._phrases
 
     @phrases.setter
-    def phrases(self, phrases: list[Phrase]) -> None:
+    def phrases(self, phrases: List[Phrase]) -> None:
         """文節のリスト．
 
         Args:
@@ -101,7 +101,7 @@ class Clause(Unit):
         self._phrases = phrases
 
     @property
-    def base_phrases(self) -> list[BasePhrase]:
+    def base_phrases(self) -> List[BasePhrase]:
         """基本句のリスト．
 
         Raises:
@@ -110,7 +110,7 @@ class Clause(Unit):
         return [base_phrase for phrase in self.phrases for base_phrase in phrase.base_phrases]
 
     @property
-    def morphemes(self) -> list[Morpheme]:
+    def morphemes(self) -> List[Morpheme]:
         """形態素のリスト．
 
         Raises:
@@ -143,7 +143,7 @@ class Clause(Unit):
         return None
 
     @cached_property
-    def children(self) -> list["Clause"]:
+    def children(self) -> List["Clause"]:
         """この節に係っている節のリスト．"""
         return [clause for clause in self.sentence.clauses if clause.parent == self]
 
@@ -156,7 +156,7 @@ class Clause(Unit):
         """
         clause = cls()
         phrases = []
-        phrase_lines: list[str] = []
+        phrase_lines: List[str] = []
         for line in knp_text.split("\n"):
             if not line.strip():
                 continue
@@ -175,7 +175,9 @@ class Clause(Unit):
         return "".join(phrase.to_knp() for phrase in self.phrases)
 
     def parse_discourse_relation_tag(self) -> None:
-        self.discourse_relations = DiscourseRelationList()
-        for value in self.end.discourse_relation_tag.values:
-            if discourse_relation := DiscourseRelation.from_discourse_relation_tag_value(value, modifier=self):
-                self.discourse_relations.append(discourse_relation)
+        self.discourse_relations = []
+        if values := self.end.features.get("談話関係", None):
+            assert isinstance(values, str)
+            for value in values.split(";"):
+                if discourse_relation := DiscourseRelation.from_fstring(value, modifier=self):
+                    self.discourse_relations.append(discourse_relation)

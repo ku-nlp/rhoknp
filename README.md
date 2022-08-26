@@ -39,6 +39,7 @@ with open("result.knp", "rt") as f:
 
 ## Requirements
 
+- Python 3.8+
 - [Juman++](https://github.com/ku-nlp/jumanpp) v2.0.0-rc3+
 - [KNP](https://github.com/ku-nlp/knp) 5.0+
 
@@ -157,7 +158,7 @@ For more information, explore the [examples](./examples) and [documentation](htt
 - **Support document-level language analysis**: *rhoknp* can load and instantiate the result of document-level language analysis: i.e., cohesion analysis and discourse relation analysis.
 - **Strictly type-aware**: *rhoknp* is thoroughly annotated with type annotations. Efficient development is possible with the help of an IDE.
 - **Extensive test suite**: *rhoknp* is tested with an extensive test suite. See the code coverage at [Codecov](https://app.codecov.io/gh/ku-nlp/rhoknp).
-- **Support Python3.9+ only**
+- **Support Python3.8+ only**
 
 ## Reference
 
