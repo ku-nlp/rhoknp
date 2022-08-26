@@ -9,7 +9,7 @@ class FeatureDict(dict[str, Union[str, bool]]):
     """文節，基本句，形態素の素性情報を表すクラス．"""
 
     PAT = re.compile(r"(?P<feats>(<[^>]+>)*)")
-    IGNORE_TAG_PREFIXES = {"rel ", "NE:"}
+    IGNORE_TAG_PREFIXES = {"rel ", "NE:", "談話関係:"}
     FEATURE_PAT = re.compile(rf"<(?!({'|'.join(IGNORE_TAG_PREFIXES)}))(?P<key>[^:]+?)(:(?P<value>.+?))?>")
 
     @classmethod
@@ -32,16 +32,21 @@ class FeatureDict(dict[str, Union[str, bool]]):
     def __setitem__(self, key, value) -> None:
         if key == "rel":
             logger.warning(
-                f"Adding rel to {self.__class__.__name__} is not supported and was ignored. Instead, add a rel object "
-                f"to BasePhrase.rels and call Document.reparse_rel()."
+                f"Adding 'rel' to {self.__class__.__name__} is not supported and was ignored. Instead, add a Rel "
+                f"object to BasePhrase.rels and call Document.reparse()."
             )
             return
         if key == "NE":
             logger.warning(
-                f"Adding NE to {self.__class__.__name__} is not supported and was ignored. Instead, append a "
+                f"Adding 'NE' to {self.__class__.__name__} is not supported and was ignored. Instead, append a "
                 f"NamedEntity object to Sentence.named_entities."
             )
             return
+        if key == "談話関係":
+            logger.warning(
+                f"Adding '談話関係' to {self.__class__.__name__} is not supported and was ignored. Instead, append a "
+                f"DiscourseRelation object to the Clause object."
+            )
         super().__setitem__(key, value)
 
     @staticmethod

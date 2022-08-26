@@ -116,9 +116,7 @@ class NamedEntity:
 
 class NamedEntityList(MutableSequence[NamedEntity]):
     def __init__(self, items: list[NamedEntity] = None) -> None:
-        if items is None:
-            items = []
-        self._items: list[NamedEntity] = items
+        self._items: list[NamedEntity] = items if items is not None else []
 
     def insert(self, index: int, value: NamedEntity) -> None:
         current_ne_tags = value.morphemes[-1].base_phrase.ne_tags

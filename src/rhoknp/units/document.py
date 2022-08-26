@@ -49,7 +49,8 @@ class Document(Unit):
             for sentence in self.sentences:
                 sentence.post_init()
         if self.need_knp is False:
-            self._parse_rel()
+            for base_phrase in self.base_phrases:
+                base_phrase.parse_rel_tag()
 
     @property
     def parent_unit(self) -> None:
@@ -162,7 +163,7 @@ class Document(Unit):
             text = "天気が良かったので散歩した。途中で先生に会った。"
             doc = Document.from_raw_text(text)
         """
-        document = cls(text)
+        document = cls(text.strip())
         document._post_init()
         return document
 
@@ -228,7 +229,7 @@ class Document(Unit):
                 else:
                     sentences_.append(Sentence.from_knp(sentence.to_knp(), post_init=False))
             else:
-                sentences_.append(Sentence.from_raw_text(sentence, post_init=False))
+                sentences_.append(Sentence.from_raw_text(sentence.strip(), post_init=False))
         document.sentences = sentences_
         if sentences_:
             document.doc_id = sentences_[0].doc_id
@@ -268,7 +269,7 @@ class Document(Unit):
             doc = Document.from_jumanpp(jumanpp_text)
 
         .. note::
-            複数文の解析結果が含まれている場合，一つの文書として扱われる．．
+            複数文の解析結果が含まれている場合，一つの文書として扱われる．
         """
         document = cls()
         sentences = []
@@ -359,6 +360,20 @@ class Document(Unit):
         document._post_init()
         return document
 
+    def reparse(self) -> "Document":
+        """文書を再構築．
+
+        .. note::
+            解析結果に対する編集を有効にする際に実行する必要がある．
+        """
+        if self.need_knp is False:
+            return Document.from_knp(self.to_knp())
+        elif self.need_jumanpp is False:
+            return Document.from_jumanpp(self.to_jumanpp())
+        elif self.need_senter is False:
+            return Document.from_line_by_line_text(self.to_plain())
+        return Document.from_raw_text(self.to_plain())
+
     def to_plain(self) -> str:
         """プレーンテキストフォーマットに変換．
 
@@ -376,18 +391,6 @@ class Document(Unit):
     def to_knp(self) -> str:
         """KNP フォーマットに変換．"""
         return "".join(sentence.to_knp() for sentence in self.sentences)
-
-    def _parse_rel(self) -> None:
-        """関係タグ付きコーパスにおける <rel> タグをパース．"""
-        for base_phrase in self.base_phrases:
-            base_phrase.parse_rel()
-
-    def reparse_rel(self) -> None:
-        """base_phrases の持つ rel に基づき PAS と共参照関係を再構築．"""
-        for base_phrase in self.base_phrases:
-            base_phrase.reset_rels()
-        self.entity_manager.reset()
-        self._parse_rel()
 
     def __eq__(self, other: Any) -> bool:
         if isinstance(other, Document) is False:

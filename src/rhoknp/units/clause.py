@@ -1,7 +1,8 @@
+import logging
 from functools import cached_property
 from typing import TYPE_CHECKING, Optional
 
-from rhoknp.cohesion.discourse_relation import DiscourseRelationList
+from rhoknp.cohesion.discourse_relation import DiscourseRelation, DiscourseRelationList
 from rhoknp.units.base_phrase import BasePhrase
 from rhoknp.units.morpheme import Morpheme
 from rhoknp.units.phrase import Phrase
@@ -10,6 +11,8 @@ from rhoknp.units.unit import Unit
 if TYPE_CHECKING:
     from rhoknp.units.document import Document
     from rhoknp.units.sentence import Sentence
+
+logger = logging.getLogger(__name__)
 
 
 class Clause(Unit):
@@ -26,7 +29,7 @@ class Clause(Unit):
         # child units
         self._phrases: Optional[list[Phrase]] = None
 
-        self._discourse_relations: Optional[DiscourseRelationList] = None
+        self.discourse_relations: DiscourseRelationList = DiscourseRelationList()
 
         self.index = self.count
         Clause.count += 1
@@ -36,11 +39,9 @@ class Clause(Unit):
         """文書全体におけるインデックス．"""
         if self.index > 0:
             return self.sentence.clauses[self.index - 1].global_index + 1
-        else:
-            if self.sentence.index == 0:
-                return self.index
-            else:
-                return self.document.sentences[self.sentence.index - 1].clauses[-1].global_index + 1
+        if self.sentence.index == 0:
+            return self.index
+        return self.document.sentences[self.sentence.index - 1].clauses[-1].global_index + 1
 
     @property
     def parent_unit(self) -> Optional["Sentence"]:
@@ -146,17 +147,6 @@ class Clause(Unit):
         """この節に係っている節のリスト．"""
         return [clause for clause in self.sentence.clauses if clause.parent == self]
 
-    @property
-    def discourse_relations(self) -> "DiscourseRelationList":
-        """談話関係．
-
-        Raises:
-            AttributeError: 解析結果にアクセスできない場合．
-        """
-        if self._discourse_relations is None:
-            raise AttributeError("discourse relations have not been set")
-        return self._discourse_relations
-
     @classmethod
     def from_knp(cls, knp_text: str) -> "Clause":
         """節クラスのインスタンスを KNP の解析結果から初期化．
@@ -184,8 +174,8 @@ class Clause(Unit):
         """KNP フォーマットに変換．"""
         return "".join(phrase.to_knp() for phrase in self.phrases)
 
-    def parse_discourse_relation(self) -> None:
-        fstring = self.end.features.get("談話関係", "")
-        assert isinstance(fstring, str)
-        self._discourse_relations = DiscourseRelationList.from_fstring(fstring)
-        self._discourse_relations.tie_units(self)
+    def parse_discourse_relation_tag(self) -> None:
+        self.discourse_relations = DiscourseRelationList()
+        for value in self.end.discourse_relation_tag.values:
+            if discourse_relation := DiscourseRelation.from_discourse_relation_tag_value(value, modifier=self):
+                self.discourse_relations.append(discourse_relation)

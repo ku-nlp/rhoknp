@@ -60,7 +60,7 @@ class Sentence(Unit):
         """インスタンス作成後の追加処理を行う．"""
         if self.need_knp is False:
             self._parse_knp_pas()
-            self.parse_ne_tags()
+            self._parse_ne_tags()
         if self.need_clause_tag is False:
             self._parse_discourse_relation()
 
@@ -439,12 +439,24 @@ class Sentence(Unit):
         ret += self.EOS + "\n"
         return ret
 
+    def reparse(self) -> "Sentence":
+        """文を再構築．
+
+        .. note::
+            解析結果に対する編集を有効にする際に実行する必要がある．
+        """
+        if self.need_knp is False:
+            return Sentence.from_knp(self.to_knp())
+        elif self.need_jumanpp is False:
+            return Sentence.from_jumanpp(self.to_jumanpp())
+        return Sentence.from_raw_text(self.to_plain())
+
     def _parse_knp_pas(self) -> None:
         """KNP 解析結果における <述語項構造> タグおよび <格解析結果> タグをパース．"""
         for base_phrase in self.base_phrases:
-            base_phrase.parse_knp_pas()
+            base_phrase.parse_pas_tag()
 
-    def parse_ne_tags(self) -> None:
+    def _parse_ne_tags(self) -> None:
         """<NE> タグをパースし，固有表現オブジェクトを作成．"""
         named_entities = []
         candidate_morphemes = []
@@ -458,7 +470,7 @@ class Sentence(Unit):
     def _parse_discourse_relation(self) -> None:
         """<談話関係> タグをパース．"""
         for clause in self.clauses:
-            clause.parse_discourse_relation()
+            clause.parse_discourse_relation_tag()
 
     def __eq__(self, other: Any) -> bool:
         if isinstance(other, Sentence) is False:

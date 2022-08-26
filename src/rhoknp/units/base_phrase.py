@@ -4,6 +4,7 @@ from functools import cached_property
 from typing import TYPE_CHECKING, Optional
 
 from rhoknp.cohesion.coreference import Entity, EntityManager
+from rhoknp.cohesion.discourse_relation import DiscourseRelationTag
 from rhoknp.cohesion.exophora import ExophoraReferent
 from rhoknp.cohesion.pas import CaseInfoFormat, Pas
 from rhoknp.cohesion.predicate import Predicate
@@ -39,6 +40,7 @@ class BasePhrase(Unit):
         features: FeatureDict,
         rels: RelTagList,
         ne_tags: NETagList,
+        discourse_relation_tag: DiscourseRelationTag,
     ):
         super().__init__()
 
@@ -53,6 +55,7 @@ class BasePhrase(Unit):
         self.features: FeatureDict = features  #: 素性．
         self.rels: RelTagList = rels  #: 基本句間関係．
         self.ne_tags: NETagList = ne_tags  #: 固有表現タグ．
+        self.discourse_relation_tag: DiscourseRelationTag = discourse_relation_tag  #: 談話関係タグ．
         self.pas: Optional["Pas"] = None  #: 述語項構造．
         self.entities: set[Entity] = set()  #: 参照しているエンティティ．
         self.entities_nonidentical: set[Entity] = set()  #: ≒で参照しているエンティティ．
@@ -65,11 +68,9 @@ class BasePhrase(Unit):
         """文書全体におけるインデックス．"""
         if self.index > 0:
             return self.sentence.base_phrases[self.index - 1].global_index + 1
-        else:
-            if self.sentence.index == 0:
-                return self.index
-            else:
-                return self.document.sentences[self.sentence.index - 1].base_phrases[-1].global_index + 1
+        if self.sentence.index == 0:
+            return self.index
+        return self.document.sentences[self.sentence.index - 1].base_phrases[-1].global_index + 1
 
     @property
     def parent_unit(self) -> Optional["Phrase"]:
@@ -130,17 +131,17 @@ class BasePhrase(Unit):
 
     @property
     def morphemes(self) -> list[Morpheme]:
-        """形態素．"""
+        """形態素のリスト．"""
         if self._morphemes is None:
             raise AssertionError
         return self._morphemes
 
     @morphemes.setter
     def morphemes(self, morphemes: list[Morpheme]) -> None:
-        """形態素．
+        """形態素のリスト．
 
         Args:
-            morphemes: 形態素．
+            morphemes: 形態素のリスト．
         """
         for morpheme in morphemes:
             morpheme.base_phrase = self
@@ -204,7 +205,8 @@ class BasePhrase(Unit):
         features = FeatureDict.from_fstring(match.group("tags") or "")
         rels = RelTagList.from_fstring(match.group("tags") or "")
         ne_tags = NETagList.from_fstring(match.group("tags") or "")
-        base_phrase = cls(parent_index, dep_type, features, rels, ne_tags)
+        discourse_relation_tag = DiscourseRelationTag.from_fstring(match.group("tags") or "")
+        base_phrase = cls(parent_index, dep_type, features, rels, ne_tags, discourse_relation_tag)
 
         morphemes: list[Morpheme] = []
         for line in lines:
@@ -220,8 +222,12 @@ class BasePhrase(Unit):
         if self.parent_index is not None:
             assert self.dep_type is not None
             ret += f" {self.parent_index}{self.dep_type.value}"
-        if self.rels or self.ne_tags or self.features:
-            ret += f" {self.rels.to_fstring()}{self.ne_tags.to_fstring()}{self.features.to_fstring()}"
+        if self.rels or self.ne_tags or self.features or self.discourse_relation_tag:
+            ret += " "
+            ret += self.rels.to_fstring()
+            ret += self.ne_tags.to_fstring()
+            ret += self.features.to_fstring()
+            ret += self.discourse_relation_tag.to_fstring()
         ret += "\n"
         ret += "".join(morpheme.to_jumanpp() for morpheme in self.morphemes)
         return ret
@@ -266,7 +272,7 @@ class BasePhrase(Unit):
             self.entities.add(entity)
         entity.add_mention(self, nonidentical=nonidentical)
 
-    def parse_rel(self) -> None:
+    def parse_rel_tag(self) -> None:
         """関係タグ付きコーパスにおける <rel> タグをパース．"""
         if self.pas is None:
             self.pas = Pas(Predicate(self))
@@ -282,7 +288,7 @@ class BasePhrase(Unit):
             else:
                 logger.warning(f"unknown rel type: {rel.type}")
 
-    def parse_knp_pas(self) -> None:
+    def parse_pas_tag(self) -> None:
         """KNP 解析結果における <述語項構造> タグおよび <格解析結果> タグをパース．"""
         if "述語項構造" in self.features:
             pas_string = self.features["述語項構造"]
@@ -295,12 +301,6 @@ class BasePhrase(Unit):
         else:
             pas = Pas(Predicate(self))
         self.pas = pas
-
-    def reset_rels(self) -> None:
-        """PAS と共参照関係をリセット．"""
-        self.pas = None
-        for entity in self.entities_all:
-            entity.remove_mention(self)
 
     def _add_pas(self, rel: RelTag) -> None:
         """述語項構造を追加．"""

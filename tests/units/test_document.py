@@ -665,6 +665,27 @@ def test_cut_paste(case: dict[str, str]) -> None:
     assert new_doc.need_knp is False
 
 
+@pytest.mark.parametrize("case", CASES)
+@pytest.mark.parametrize(
+    "key",
+    ("raw_text", "sentences", "line_by_line_text", "jumanpp", "knp_with_no_clause_tag", "knp"),
+)
+def test_reparse(case: dict[str, str], key: str) -> None:
+    if key == "raw_text":
+        doc = Document.from_raw_text(case[key])
+    elif key == "sentences":
+        doc = Document.from_sentences(case[key])
+    elif key == "line_by_line_text":
+        doc = Document.from_line_by_line_text(case[key])
+    elif key == "jumanpp":
+        doc = Document.from_jumanpp(case[key])
+    elif key in ("knp_with_no_clause_tag", "knp"):
+        doc = Document.from_knp(case[key])
+    else:
+        raise KeyError
+    assert doc == doc.reparse()
+
+
 def test_to_knp_kwdlc() -> None:
     doc_id = "w201106-0000060050"
     knp = Path(f"tests/data/{doc_id}.knp").read_text()
@@ -689,14 +710,6 @@ def test_id_wac() -> None:
     doc_id = "wiki00100176"
     doc = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text())
     assert doc.doc_id == doc_id
-
-
-def test_reparse_rel() -> None:
-    doc_id = "w201106-0000060050"
-    knp = Path(f"tests/data/{doc_id}.knp").read_text()
-    doc = Document.from_knp(knp)
-    doc.reparse_rel()
-    assert doc.to_knp() == knp
 
 
 def test_eq_knp() -> None:
