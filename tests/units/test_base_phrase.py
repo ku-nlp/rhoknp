@@ -314,15 +314,3 @@ def test_no_pas():
         )
     )
     assert base_phrase.pas is None
-
-
-def test_discourse_relation_tag():
-    base_phrase = BasePhrase.from_knp(
-        textwrap.dedent(
-            """\
-            + -1D <節-主辞><節-区切><談話関係:1/1/原因・理由>
-            吹く ふく 吹く 動詞 2 * 0 子音動詞カ行 2 基本形 2 "代表表記:吹く/ふく 補文ト" <代表表記:吹く/ふく>
-            """
-        )
-    )
-    assert base_phrase.discourse_relation_tag.to_fstring() == "<談話関係:1/1/原因・理由>"
