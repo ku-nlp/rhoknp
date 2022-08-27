@@ -3,6 +3,7 @@ from pathlib import Path
 import typer
 
 from rhoknp import Document, __version__
+from rhoknp.utils.draw_tree import draw_tree
 
 app = typer.Typer(help="rhoknp CLI utilities.")
 
@@ -24,7 +25,10 @@ def main(
 def show(
     knp_path: Path = typer.Argument(..., exists=True, dir_okay=False, help="Path to knp file to show"),
 ):
-    print(Document.from_knp(knp_path.read_text()).to_raw_text(), end="")
+    document = Document.from_knp(knp_path.read_text())
+    for sentence in document.sentences:
+        print(sentence.comment)
+        draw_tree(sentence.base_phrases, show_pos=False)
 
 
 @app.command(help="Show statistics of given file or directory.")
