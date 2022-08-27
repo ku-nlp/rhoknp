@@ -25,9 +25,8 @@ sphinx-prompt = "^1.5.0"
 sphinx-copybutton = "^0.5.0"
 ipdb = "^0.13.9"
 
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+[tool.poetry.scripts]
+rhoknp = "rhoknp.cli:app"
 
 [tool.black]
 line-length = 120
@@ -38,3 +37,7 @@ line_length = 120
 
 [tool.mypy]
 python_version = 3.8
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
