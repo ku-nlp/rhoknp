@@ -11,6 +11,7 @@ keywords = ["NLP"]
 
 [tool.poetry.dependencies]
 python = ">=3.8,<3.11"
+typer = "^0.6.1"
 
 [tool.poetry.dev-dependencies]
 mypy = "^0.971"
