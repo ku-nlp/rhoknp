@@ -10,24 +10,39 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-class DiscourseRelationCategory(Enum):
-    """談話関係カテゴリを表す列挙体．"""
+class DiscourseRelationLabel(Enum):
+    """談話関係ラベルを表す列挙体．"""
+
+    NO_RELATION = "談話関係なし"
+    CAUSE_REASON = "原因・理由"
+    PURPOSE = "目的"
+    CONDITION = "条件"
+    EVIDENCE = "根拠"
+    CONTRAST = "対比"
+    CONCESSION = "逆接"
+
+
+class DiscourseRelationTag(Enum):
+    """談話関係タグを表す列挙体．"""
 
     NO_RELATION = "談話関係なし"
     CAUSE_REASON = "原因・理由"
     CAUSE_REASON_FORWARD = "原因・理由(順方向)"
     CAUSE_REASON_BACKWARD = "原因・理由(逆方向)"
+    CAUSE_REASON_BACKWARD2 = "原因・理由-逆"
     PURPOSE = "目的"
     PURPOSE_FORWARD = "目的(順方向)"
     PURPOSE_BACKWARD = "目的(逆方向)"
     CONDITION = "条件"
     CONDITION_FORWARD = "条件(順方向)"
     CONDITION_BACKWARD = "条件(逆方向)"
+    NEGATIVE_CONDITION = "否定条件"
     CONTRAST = "対比"
     CONTRAST_NO_DIRECTION = "対比(方向なし)"
     CONCESSION = "逆接"
     CONCESSION_FORWARD = "逆接・譲歩(順方向)"
     CONCESSION_BACKWARD = "逆接・譲歩(逆方向)"
+    CONCESSIVE_CONDITION = "条件-逆条件"
     EVIDENCE = "根拠"
     EVIDENCE_FORWARD = "その他根拠(順方向)"
     EVIDENCE_BACKWARD = "その他根拠(逆方向)"
@@ -36,21 +51,68 @@ class DiscourseRelationCategory(Enum):
     def has_value(cls, value: str) -> bool:
         return any(value == item.value for item in cls)
 
+    @property
+    def label(self) -> DiscourseRelationLabel:
+        if self in {
+            DiscourseRelationTag.NO_RELATION,
+        }:
+            return DiscourseRelationLabel.NO_RELATION
+        elif self in {
+            DiscourseRelationTag.CAUSE_REASON,
+            DiscourseRelationTag.CAUSE_REASON_FORWARD,
+            DiscourseRelationTag.CAUSE_REASON_BACKWARD,
+            DiscourseRelationTag.CAUSE_REASON_BACKWARD2,
+        }:
+            return DiscourseRelationLabel.CAUSE_REASON
+        elif self in {
+            DiscourseRelationTag.PURPOSE,
+            DiscourseRelationTag.PURPOSE_FORWARD,
+            DiscourseRelationTag.PURPOSE_BACKWARD,
+        }:
+            return DiscourseRelationLabel.PURPOSE
+        elif self in {
+            DiscourseRelationTag.CONDITION,
+            DiscourseRelationTag.CONDITION_FORWARD,
+            DiscourseRelationTag.CONDITION_BACKWARD,
+            DiscourseRelationTag.NEGATIVE_CONDITION,
+        }:
+            return DiscourseRelationLabel.CONDITION
+        elif self in {
+            DiscourseRelationTag.CONTRAST,
+            DiscourseRelationTag.CONTRAST_NO_DIRECTION,
+        }:
+            return DiscourseRelationLabel.CONTRAST
+        elif self in {
+            DiscourseRelationTag.CONCESSION,
+            DiscourseRelationTag.CONCESSION_FORWARD,
+            DiscourseRelationTag.CONCESSION_BACKWARD,
+            DiscourseRelationTag.CONCESSIVE_CONDITION,
+        }:
+            return DiscourseRelationLabel.CONCESSION
+        elif self in {
+            DiscourseRelationTag.EVIDENCE,
+            DiscourseRelationTag.EVIDENCE_FORWARD,
+            DiscourseRelationTag.EVIDENCE_BACKWARD,
+        }:
+            return DiscourseRelationLabel.EVIDENCE
+        raise ValueError(f"Unknown category: {self}")
+
 
 @dataclass
 class DiscourseRelation:
     """談話関係クラス"""
 
-    PAT: ClassVar[re.Pattern] = re.compile(r"(?P<sid>[^/]+)/(?P<base_phrase_index>\d+)/(?P<label>[^/]+)")
+    PAT: ClassVar[re.Pattern] = re.compile(r"(?P<sid>[^/]+)/(?P<base_phrase_index>\d+)/(?P<tag>[^/]+)")
 
     sid: str
     base_phrase_index: int
-    label: DiscourseRelationCategory
+    label: DiscourseRelationLabel
+    tag: DiscourseRelationTag
     modifier: "Clause"
     head: "Clause"
 
     def __str__(self) -> str:
-        return f"{self.__class__.__name__}({self.sid}, {self.base_phrase_index}, {self.label})"
+        return f"{self.__class__.__name__}({self.sid}, {self.base_phrase_index}, {self.label}, {self.tag})"
 
     @classmethod
     def from_fstring(cls, fstring: str, modifier: "Clause") -> Optional["DiscourseRelation"]:
@@ -60,10 +122,12 @@ class DiscourseRelation:
             return None
         sid = match.group("sid")
         base_phrase_index = int(match.group("base_phrase_index"))
-        label = match.group("label")
-        if not DiscourseRelationCategory.has_value(label):
-            logger.warning(f"unknown discourse relation label '{label}' found")
+        tag = match.group("tag")
+        if not DiscourseRelationTag.has_value(tag):
+            logger.warning(f"unknown discourse relation label '{tag}' found")
             return None
+        tag = DiscourseRelationTag(tag)
+        category = tag.label
         head_sentence: Optional["Sentence"] = None
         if modifier.sentence.has_document:
             sentences = modifier.document.sentences
@@ -84,7 +148,7 @@ class DiscourseRelation:
         if head.end != head_base_phrase:
             logger.warning(f"invalid clause tag in {sid}")
             return None
-        return cls(sid, base_phrase_index, DiscourseRelationCategory(label), modifier, head)
+        return cls(sid, base_phrase_index, category, tag, modifier, head)
 
     def to_fstring(self) -> str:
         return f"<談話関係:{self.sid}/{self.base_phrase_index}/{self.label.value}>"
