@@ -110,6 +110,7 @@ class DiscourseRelation:
     tag: DiscourseRelationTag
     modifier: "Clause"
     head: "Clause"
+    explicit: bool = False
 
     def __str__(self) -> str:
         return f"{self.__class__.__name__}({self.sid}, {self.base_phrase_index}, {self.label}, {self.tag})"
