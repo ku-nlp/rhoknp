@@ -38,11 +38,16 @@ class Clause(Unit):
         super().__post_init__()
 
         # Find discourse relations.
+        # TODO: Use forward/backward clause function
         self.discourse_relations = []
+        for key in self.end.features:
+            if key.startswith("節-機能"):
+                if discourse_relation := DiscourseRelation.from_clause_function_fstring(key, modifier=self):
+                    self.discourse_relations.append(discourse_relation)
         if values := self.end.features.get("談話関係", None):
             assert isinstance(values, str)
             for value in values.split(";"):
-                if discourse_relation := DiscourseRelation.from_fstring(value, modifier=self):
+                if discourse_relation := DiscourseRelation.from_discourse_relation_fstring(value, modifier=self):
                     self.discourse_relations.append(discourse_relation)
 
     @cached_property

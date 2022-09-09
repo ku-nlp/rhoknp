@@ -102,7 +102,10 @@ class DiscourseRelationTag(Enum):
 class DiscourseRelation:
     """談話関係クラス"""
 
-    PAT: ClassVar[re.Pattern] = re.compile(r"(?P<sid>[^/]+)/(?P<base_phrase_index>\d+)/(?P<tag>[^/]+)")
+    CLAUSE_FUNCTION_PAT: ClassVar[re.Pattern] = re.compile(r"節-機能-(?P<label>.+)")
+    DISCOURSE_RELATION_PAT: ClassVar[re.Pattern] = re.compile(
+        r"(?P<sid>[^/]+)/(?P<base_phrase_index>\d+)/(?P<tag>[^/]+)"
+    )
 
     sid: str
     base_phrase_index: int
@@ -116,8 +119,31 @@ class DiscourseRelation:
         return f"{self.__class__.__name__}({self.sid}, {self.base_phrase_index}, {self.label}, {self.tag})"
 
     @classmethod
-    def from_fstring(cls, fstring: str, modifier: "Clause") -> Optional["DiscourseRelation"]:
-        match = re.match(cls.PAT, fstring)
+    def from_clause_function_fstring(cls, fstring: str, modifier: "Clause") -> Optional["DiscourseRelation"]:
+        match = cls.CLAUSE_FUNCTION_PAT.match(fstring)
+        if match is None:
+            return None
+        label = match.group("label")
+        if not DiscourseRelationTag.has_value(label):
+            return None
+        tag = DiscourseRelationTag(label)
+        label = tag.label
+        head = modifier.parent
+        if head is None:
+            return None
+        return cls(
+            sid=modifier.sentence.sid if modifier.sentence.sid is not None else str(modifier.sentence.index),
+            base_phrase_index=head.end.index,
+            label=label,
+            tag=tag,
+            modifier=modifier,
+            head=modifier,
+            explicit=True,
+        )
+
+    @classmethod
+    def from_discourse_relation_fstring(cls, fstring: str, modifier: "Clause") -> Optional["DiscourseRelation"]:
+        match = re.match(cls.DISCOURSE_RELATION_PAT, fstring)
         if match is None:
             logger.warning(f"'{fstring}' is not a valid discourse relation fstring")
             return None
