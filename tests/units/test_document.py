@@ -365,19 +365,19 @@ def test_text(case: Dict[str, str]) -> None:
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_to_plain(case: Dict[str, str]) -> None:
+def test_to_raw_text(case: Dict[str, str]) -> None:
     doc = Document.from_raw_text(case["raw_text"])
-    assert doc.to_plain() == case["raw_text"] + "\n"
+    assert doc.to_raw_text() == case["raw_text"] + "\n"
     doc = Document.from_sentences(case["sentences"])
-    assert doc.to_plain() == "\n".join(case["sentences"]) + "\n"
+    assert doc.to_raw_text() == "\n".join(case["sentences"]) + "\n"
     doc = Document.from_line_by_line_text(case["line_by_line_text"])
-    assert doc.to_plain() == case["line_by_line_text"]
+    assert doc.to_raw_text() == case["line_by_line_text"]
     doc = Document.from_jumanpp(case["jumanpp"])
-    assert doc.to_plain() == case["line_by_line_text"]
+    assert doc.to_raw_text() == case["line_by_line_text"]
     doc = Document.from_knp(case["knp_with_no_clause_tag"])
-    assert doc.to_plain() == case["line_by_line_text"]
+    assert doc.to_raw_text() == case["line_by_line_text"]
     doc = Document.from_knp(case["knp"])
-    assert doc.to_plain() == case["line_by_line_text"]
+    assert doc.to_raw_text() == case["line_by_line_text"]
 
 
 @pytest.mark.parametrize("case", CASES)

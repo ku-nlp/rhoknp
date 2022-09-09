@@ -43,15 +43,6 @@ class Document(Unit):
 
         self.entity_manager = EntityManager()
 
-    def _post_init(self) -> None:
-        """インスタンス作成後の追加処理を行う．"""
-        if self.need_senter is False:
-            for sentence in self.sentences:
-                sentence.post_init()
-        if self.need_knp is False:
-            for base_phrase in self.base_phrases:
-                base_phrase.parse_rel_tag()
-
     @property
     def parent_unit(self) -> None:
         """上位の言語単位．文書は最上位の言語単位なので常に None．"""
@@ -164,7 +155,7 @@ class Document(Unit):
             doc = Document.from_raw_text(text)
         """
         document = cls(text.strip())
-        document._post_init()
+        document.__post_init__()
         return document
 
     @classmethod
@@ -201,7 +192,7 @@ class Document(Unit):
             sentences.append(Sentence.from_raw_text("\n".join(sentence_lines), post_init=False))
             sentence_lines = []
         document.sentences = sentences
-        document._post_init()
+        document.__post_init__()
         return document
 
     @classmethod
@@ -233,7 +224,7 @@ class Document(Unit):
         document.sentences = sentences_
         if sentences_:
             document.doc_id = sentences_[0].doc_id
-        document._post_init()
+        document.__post_init__()
         return document
 
     @classmethod
@@ -286,7 +277,7 @@ class Document(Unit):
                         raise e
                 sentence_lines = []
         document.sentences = sentences
-        document._post_init()
+        document.__post_init__()
         return document
 
     @classmethod
@@ -357,7 +348,7 @@ class Document(Unit):
         document.sentences = sentences
         if sentences:
             document.doc_id = sentences[0].doc_id
-        document._post_init()
+        document.__post_init__()
         return document
 
     def reparse(self) -> "Document":
@@ -371,18 +362,18 @@ class Document(Unit):
         elif self.need_jumanpp is False:
             return Document.from_jumanpp(self.to_jumanpp())
         elif self.need_senter is False:
-            return Document.from_line_by_line_text(self.to_plain())
-        return Document.from_raw_text(self.to_plain())
+            return Document.from_line_by_line_text(self.to_raw_text())
+        return Document.from_raw_text(self.to_raw_text())
 
-    def to_plain(self) -> str:
-        """プレーンテキストフォーマットに変換．
+    def to_raw_text(self) -> str:
+        """生テキストフォーマットに変換．
 
         .. note::
             文分割済みの場合は一行一文の形式で出力．
         """
         if self.need_senter:
             return self.text.rstrip() + "\n"
-        return "".join(sentence.to_plain() for sentence in self.sentences)
+        return "".join(sentence.to_raw_text() for sentence in self.sentences)
 
     def to_jumanpp(self) -> str:
         """Juman++ フォーマットに変換．"""
