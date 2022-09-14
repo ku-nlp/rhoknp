@@ -46,3 +46,8 @@ def test_show():
         f.flush()
         result = runner.invoke(app, ["show", f.name])
         assert result.exit_code == 0
+
+
+def test_show_error():
+    result = runner.invoke(app, ["show", "foo.knp"])  # not exist
+    assert result.exit_code == 2
