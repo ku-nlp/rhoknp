@@ -1,7 +1,39 @@
 import textwrap
 
+import pytest
+
 from rhoknp import Document, Sentence
-from rhoknp.cohesion import DiscourseRelationLabel
+from rhoknp.cohesion import DiscourseRelationLabel, DiscourseRelationTag
+
+
+@pytest.mark.parametrize(
+    "tag, label",
+    [
+        (DiscourseRelationTag.NO_RELATION, DiscourseRelationLabel.NO_RELATION),
+        (DiscourseRelationTag.CAUSE_REASON, DiscourseRelationLabel.CAUSE_REASON),
+        (DiscourseRelationTag.CAUSE_REASON_FORWARD, DiscourseRelationLabel.CAUSE_REASON),
+        (DiscourseRelationTag.CAUSE_REASON_BACKWARD, DiscourseRelationLabel.CAUSE_REASON),
+        (DiscourseRelationTag.CAUSE_REASON_BACKWARD2, DiscourseRelationLabel.CAUSE_REASON),
+        (DiscourseRelationTag.PURPOSE, DiscourseRelationLabel.PURPOSE),
+        (DiscourseRelationTag.PURPOSE_FORWARD, DiscourseRelationLabel.PURPOSE),
+        (DiscourseRelationTag.PURPOSE_BACKWARD, DiscourseRelationLabel.PURPOSE),
+        (DiscourseRelationTag.CONDITION, DiscourseRelationLabel.CONDITION),
+        (DiscourseRelationTag.CONDITION_FORWARD, DiscourseRelationLabel.CONDITION),
+        (DiscourseRelationTag.CONDITION_BACKWARD, DiscourseRelationLabel.CONDITION),
+        (DiscourseRelationTag.NEGATIVE_CONDITION, DiscourseRelationLabel.CONDITION),
+        (DiscourseRelationTag.CONTRAST, DiscourseRelationLabel.CONTRAST),
+        (DiscourseRelationTag.CONTRAST_NO_DIRECTION, DiscourseRelationLabel.CONTRAST),
+        (DiscourseRelationTag.CONCESSION, DiscourseRelationLabel.CONCESSION),
+        (DiscourseRelationTag.CONCESSION_FORWARD, DiscourseRelationLabel.CONCESSION),
+        (DiscourseRelationTag.CONCESSION_BACKWARD, DiscourseRelationLabel.CONCESSION),
+        (DiscourseRelationTag.CONCESSIVE_CONDITION, DiscourseRelationLabel.CONCESSION),
+        (DiscourseRelationTag.EVIDENCE, DiscourseRelationLabel.EVIDENCE),
+        (DiscourseRelationTag.EVIDENCE_FORWARD, DiscourseRelationLabel.EVIDENCE),
+        (DiscourseRelationTag.EVIDENCE_BACKWARD, DiscourseRelationLabel.EVIDENCE),
+    ],
+)
+def test_discourse_relation_tag_label(tag: DiscourseRelationTag, label: DiscourseRelationLabel):
+    assert tag.label == label
 
 
 def test_document():
