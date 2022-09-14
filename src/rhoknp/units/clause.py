@@ -163,6 +163,11 @@ class Clause(Unit):
         """この節に係っている節のリスト．"""
         return [clause for clause in self.sentence.clauses if clause.parent == self]
 
+    @cached_property
+    def is_adnominal(self) -> bool:
+        """連体修飾節なら True．"""
+        return self.end.features.get("節-区切", "") == "連体修飾"
+
     @classmethod
     def from_knp(cls, knp_text: str) -> "Clause":
         """節クラスのインスタンスを KNP の解析結果から初期化．
