@@ -2,7 +2,7 @@ import logging
 from functools import cached_property
 from typing import TYPE_CHECKING, List, Optional
 
-from rhoknp.cohesion.discourse_relation import DiscourseRelation
+from rhoknp.cohesion.discourse import DiscourseRelation
 from rhoknp.units.base_phrase import BasePhrase
 from rhoknp.units.morpheme import Morpheme
 from rhoknp.units.phrase import Phrase
@@ -38,11 +38,16 @@ class Clause(Unit):
         super().__post_init__()
 
         # Find discourse relations.
+        # TODO: Use forward/backward clause function
         self.discourse_relations = []
+        for key in self.end.features:
+            if key.startswith("節-機能"):
+                if discourse_relation := DiscourseRelation.from_clause_function_fstring(key, modifier=self):
+                    self.discourse_relations.append(discourse_relation)
         if values := self.end.features.get("談話関係", None):
             assert isinstance(values, str)
             for value in values.split(";"):
-                if discourse_relation := DiscourseRelation.from_fstring(value, modifier=self):
+                if discourse_relation := DiscourseRelation.from_discourse_relation_fstring(value, modifier=self):
                     self.discourse_relations.append(discourse_relation)
 
     @cached_property
@@ -157,6 +162,11 @@ class Clause(Unit):
     def children(self) -> List["Clause"]:
         """この節に係っている節のリスト．"""
         return [clause for clause in self.sentence.clauses if clause.parent == self]
+
+    @cached_property
+    def is_adnominal(self) -> bool:
+        """連体修飾節なら True．"""
+        return self.end.features.get("節-区切", "") == "連体修飾"
 
     @classmethod
     def from_knp(cls, knp_text: str) -> "Clause":
