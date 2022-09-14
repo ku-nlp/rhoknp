@@ -115,9 +115,6 @@ class DiscourseRelation:
     head: "Clause"
     explicit: bool = False
 
-    def __str__(self) -> str:
-        return f"{self.__class__.__name__}({self.sid}, {self.base_phrase_index}, {self.label}, {self.tag})"
-
     @classmethod
     def from_clause_function_fstring(cls, fstring: str, modifier: "Clause") -> Optional["DiscourseRelation"]:
         match = cls.CLAUSE_FUNCTION_PAT.match(fstring)
