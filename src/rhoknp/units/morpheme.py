@@ -306,3 +306,25 @@ class Morpheme(Unit):
         for homograph in self.homographs:
             ret += f"@ {homograph.to_jumanpp()}"
         return ret
+
+    def to_knp(self) -> str:
+        """KNP フォーマットに変換．"""
+        ret = self._attributes.to_jumanpp()
+        if self.semantics or self.semantics.is_nil is True:
+            ret += f" {self.semantics}"
+        if self.features:
+            ret += f" {self.features}"
+        ret += "\n"
+        # for homograph in self.homographs:
+        #     alt_feature = "ALT-{}-{}-{}-{}-{}-{}-{}-{}".format(
+        #         homograph.surf,
+        #         homograph.reading,
+        #         homograph.lemma,
+        #         homograph._attributes.pos_id,
+        #         homograph._attributes.subpos_id,
+        #         homograph._attributes.conjtype_id,
+        #         homograph._attributes.conjform_id,
+        #         homograph.semantics.to_sstring(),
+        #     )
+        #     self.features[alt_feature] = True
+        return ret

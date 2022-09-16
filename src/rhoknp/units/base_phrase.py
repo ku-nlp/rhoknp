@@ -257,7 +257,7 @@ class BasePhrase(Unit):
         if self.features:
             ret += f" {self.features.to_fstring()}"
         ret += "\n"
-        ret += "".join(morpheme.to_jumanpp() for morpheme in self.morphemes)
+        ret += "".join(morpheme.to_knp() for morpheme in self.morphemes)
         return ret
 
     def get_coreferents(self, include_nonidentical: bool = False, include_self: bool = False) -> Set["BasePhrase"]:

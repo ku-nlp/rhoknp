@@ -431,3 +431,27 @@ def test_morpheme_homograph() -> None:
     assert homograph.conjform == "*"
     assert homograph.sstring == '"代表表記:母/ぼ 漢字読み:音 カテゴリ:人"'
     assert homograph.fstring == ""
+
+
+def test_morpheme_homograph_to_knp() -> None:
+    knp = textwrap.dedent(
+        """\
+        # S-ID:1 KNP:5.0-25425d33
+        * -1D <SM-主体><SM-人><BGH:母/はは><文頭><文末><体言><用言:判><体言止><一文字漢字><レベル:C><区切:5-5><ID:（文末）><裸名詞><提題受:30><主節><状態述語><正規化代表表記:母/はは><主辞代表表記:母/はは>
+        + -1D <SM-主体><SM-人><BGH:母/はは><文頭><文末><体言><用言:判><体言止><一文字漢字><レベル:C><区切:5-5><ID:（文末）><裸名詞><提題受:30><主節><状態述語><判定詞句><名詞項候補><先行詞候補><正規化代表表記:母/はは><主辞代表表記:母/はは><用言代表表記:母/はは><節-区切><節-主辞><時制:非過去>
+        母 はは 母 名詞 6 普通名詞 1 * 0 * 0 "代表表記:母/はは ドメイン:家庭・暮らし カテゴリ:人 漢字読み:訓"
+        EOS
+        """
+    )
+    jumanpp_homograph = textwrap.dedent(
+        """\
+        母 はは 母 名詞 6 普通名詞 1 * 0 * 0 "代表表記:母/はは ドメイン:家庭・暮らし カテゴリ:人 漢字読み:訓"
+        @ 母 ぼ 母 名詞 6 普通名詞 1 * 0 * 0 "代表表記:母/ぼ 漢字読み:音 カテゴリ:人"
+        """
+    )
+    sentence = Sentence.from_knp(knp)
+    morpheme_homograph = Morpheme.from_jumanpp(jumanpp_homograph)
+    assert len(sentence.morphemes) == 1
+    sentence.morphemes[0].homographs = morpheme_homograph.homographs
+    assert len(sentence.morphemes[0].homographs) == 1
+    assert sentence.to_knp() == knp
