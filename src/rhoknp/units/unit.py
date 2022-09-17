@@ -16,7 +16,7 @@ class Unit(ABC):
         return self.text
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(index={repr(self.index)}, text={repr(self.text)})"
+        return f"<{self.__module__}.{self.__class__.__name__}: {repr(self.index)}, {repr(self.text)}>"
 
     def __eq__(self, other: Any) -> bool:
         if isinstance(other, type(self)) is False:
