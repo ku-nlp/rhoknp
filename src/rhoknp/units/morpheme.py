@@ -299,9 +299,9 @@ class Morpheme(Unit):
         """Juman++ フォーマットに変換．"""
         ret = self._attributes.to_jumanpp()
         if self.semantics or self.semantics.is_nil is True:
-            ret += f" {self.semantics}"
+            ret += f" {self.semantics.to_sstring()}"
         if self.features:
-            ret += f" {self.features}"
+            ret += f" {self.features.to_fstring()}"
         ret += "\n"
         for homograph in self.homographs:
             ret += f"@ {homograph.to_jumanpp()}"
@@ -311,7 +311,7 @@ class Morpheme(Unit):
         """KNP フォーマットに変換．"""
         ret = self._attributes.to_jumanpp()
         if self.semantics or self.semantics.is_nil is True:
-            ret += f" {self.semantics}"
+            ret += f" {self.semantics.to_sstring()}"
         features = FeatureDict(self.features)
         for homograph in self.homographs:
             alt_feature_key = "ALT-{}-{}-{}-{}-{}-{}-{}-{}".format(

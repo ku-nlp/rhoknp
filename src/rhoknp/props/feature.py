@@ -44,6 +44,3 @@ class FeatureDict(Dict[str, Union[str, bool]]):
         if value is True:
             return f"<{key}>"
         return f"<{key}:{value}>"
-
-    def __str__(self) -> str:
-        return self.to_fstring()

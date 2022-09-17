@@ -193,7 +193,7 @@ class Phrase(Unit):
             assert self.dep_type is not None
             ret += f" {self.parent_index}{self.dep_type.value}"
         if self.features:
-            ret += f" {self.features}"
+            ret += f" {self.features.to_fstring()}"
         ret += "\n"
         ret += "".join(base_phrase.to_knp() for base_phrase in self.base_phrases)
         return ret

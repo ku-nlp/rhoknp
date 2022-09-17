@@ -351,7 +351,7 @@ def test_attr(case: Dict[str, str], attr: str) -> None:
 @pytest.mark.parametrize("case", JUMANPP_SNIPPETS)
 def test_semantics(case: Dict[str, str]) -> None:
     morpheme = Morpheme.from_jumanpp(case["jumanpp"])
-    assert str(morpheme.semantics) == case["sstring"]
+    assert morpheme.semantics.to_sstring() == case["sstring"]
 
 
 @pytest.mark.parametrize("case", JUMANPP_SNIPPETS)
