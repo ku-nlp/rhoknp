@@ -312,19 +312,20 @@ class Morpheme(Unit):
         ret = self._attributes.to_jumanpp()
         if self.semantics or self.semantics.is_nil is True:
             ret += f" {self.semantics}"
-        if self.features:
-            ret += f" {self.features}"
+        features = FeatureDict(self.features)
+        for homograph in self.homographs:
+            alt_feature_key = "ALT-{}-{}-{}-{}-{}-{}-{}-{}".format(
+                homograph.surf,
+                homograph.reading,
+                homograph.lemma,
+                homograph._attributes.pos_id,
+                homograph._attributes.subpos_id,
+                homograph._attributes.conjtype_id,
+                homograph._attributes.conjform_id,
+                homograph.semantics.to_sstring(),
+            )
+            features[alt_feature_key] = True
+        if features:
+            ret += f" {features.to_fstring()}"
         ret += "\n"
-        # for homograph in self.homographs:
-        #     alt_feature = "ALT-{}-{}-{}-{}-{}-{}-{}-{}".format(
-        #         homograph.surf,
-        #         homograph.reading,
-        #         homograph.lemma,
-        #         homograph._attributes.pos_id,
-        #         homograph._attributes.subpos_id,
-        #         homograph._attributes.conjtype_id,
-        #         homograph._attributes.conjform_id,
-        #         homograph.semantics.to_sstring(),
-        #     )
-        #     self.features[alt_feature] = True
         return ret
