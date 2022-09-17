@@ -9,7 +9,7 @@ class FeatureDict(Dict[str, Union[str, bool]]):
     """文節，基本句，形態素の素性情報を表すクラス．"""
 
     PAT = re.compile(r"(?P<feats>(<[^>]+>)*)")
-    FEATURE_PAT = re.compile(r"<(?P<key>[^:]+?)(:(?P<value>.+?))?>")
+    FEATURE_PAT = re.compile(r"<(?P<key>([^:\"]|\".*?\")+?)(:(?P<value>.+?))?>")
 
     @classmethod
     def from_fstring(cls, fstring: str) -> "FeatureDict":
