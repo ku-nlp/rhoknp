@@ -19,9 +19,8 @@ if TYPE_CHECKING:
 class MorphemeAttributes:
     """形態素の属性クラス．"""
 
-    JUMANPP_PAT = re.compile(r"(?P<attrs>([^ ]+ [^ ]+ [^ ]+ [^ ]+ \d+ [^ ]+ \d+ [^ ]+ \d+ [^ ]+ \d+))")
+    JUMANPP_PAT = re.compile(r"(?P<attrs>([^ ]+ [^ ]+ [^ ]+ \d+ [^ ]+ \d+ [^ ]+ \d+ [^ ]+ \d+))")
 
-    surf: str  #: 表層表現．
     reading: str  #: 読み．
     lemma: str  #: 原形．
     pos: str  #: 品詞．
@@ -55,7 +54,8 @@ class Morpheme(Unit):
     """形態素クラス．"""
 
     JUMANPP_PAT: ClassVar[re.Pattern] = re.compile(
-        rf"^({MorphemeAttributes.JUMANPP_PAT.pattern})"
+        r"(?P<surf>^[^ ]+)"
+        + rf"(\s{MorphemeAttributes.JUMANPP_PAT.pattern})?"
         + rf"(\s{SemanticsDict.PAT.pattern})?"
         + rf"(\s{FeatureDict.PAT.pattern})?$"
     )
@@ -64,23 +64,23 @@ class Morpheme(Unit):
 
     def __init__(
         self,
-        attributes: MorphemeAttributes,
+        text: str,
+        attributes: Optional[MorphemeAttributes],
         semantics: SemanticsDict,
         features: FeatureDict,
         homograph: bool = False,
     ):
         super().__init__()
+        self.text = text
 
         # parent unit
         self._base_phrase: Optional["BasePhrase"] = None
         self._sentence: Optional["Sentence"] = None
 
-        self._attributes = attributes
+        self.attributes = attributes
         self.semantics = semantics  #: 辞書 (JumanDic) に記載の意味情報．
         self.features = features  #: 素性．
         self.homographs: List["Morpheme"] = []  #: 同形の形態素のリスト．
-
-        self.text = attributes.surf
 
         self.index = self.count
         if homograph is False:
@@ -181,17 +181,21 @@ class Morpheme(Unit):
     @property
     def surf(self) -> str:
         """表層表現．"""
-        return self._attributes.surf
+        return self.text
 
     @property
     def reading(self) -> str:
         """読み．"""
-        return self._attributes.reading
+        if self.attributes is None:
+            raise AttributeError("attributes have not been set")
+        return self.attributes.reading
 
     @property
     def lemma(self) -> str:
         """原形．"""
-        return self._attributes.lemma
+        if self.attributes is None:
+            raise AttributeError("attributes have not been set")
+        return self.attributes.lemma
 
     @property
     def canon(self) -> Optional[str]:
@@ -203,22 +207,30 @@ class Morpheme(Unit):
     @property
     def pos(self) -> str:
         """品詞．"""
-        return self._attributes.pos
+        if self.attributes is None:
+            raise AttributeError("attributes have not been set")
+        return self.attributes.pos
 
     @property
     def subpos(self) -> str:
         """品詞細分類．"""
-        return self._attributes.subpos
+        if self.attributes is None:
+            raise AttributeError("attributes have not been set")
+        return self.attributes.subpos
 
     @property
     def conjtype(self) -> str:
         """活用型．"""
-        return self._attributes.conjtype
+        if self.attributes is None:
+            raise AttributeError("attributes have not been set")
+        return self.attributes.conjtype
 
     @property
     def conjform(self) -> str:
         """活用形．"""
-        return self._attributes.conjform
+        if self.attributes is None:
+            raise AttributeError("attributes have not been set")
+        return self.attributes.conjform
 
     @property
     def sstring(self) -> str:
@@ -287,17 +299,19 @@ class Morpheme(Unit):
             homograph: 同形かどうかを表すフラグ．
         """
         assert "\n" not in jumanpp_line.strip()
-        match = cls.JUMANPP_PAT.match(jumanpp_line)
-        if match is None:
+        if (match := cls.JUMANPP_PAT.match(jumanpp_line)) is None:
             raise ValueError(f"malformed line: {jumanpp_line}")
-        attributes = MorphemeAttributes.from_jumanpp(match.group("attrs"))
+        surf = match.group("surf")
+        attributes = match.group("attrs") and MorphemeAttributes.from_jumanpp(match.group("attrs"))
         semantics = SemanticsDict.from_sstring(match.group("sems") or "")
         features = FeatureDict.from_fstring(match.group("feats") or "")
-        return cls(attributes, semantics, features, homograph=homograph)
+        return cls(surf, attributes, semantics, features, homograph=homograph)
 
     def to_jumanpp(self) -> str:
         """Juman++ フォーマットに変換．"""
-        ret = self._attributes.to_jumanpp()
+        ret = self.text
+        if self.attributes:
+            ret += f" {self.attributes.to_jumanpp()}"
         if self.semantics or self.semantics.is_nil is True:
             ret += f" {self.semantics.to_sstring()}"
         if self.features:
@@ -309,19 +323,22 @@ class Morpheme(Unit):
 
     def to_knp(self) -> str:
         """KNP フォーマットに変換．"""
-        ret = self._attributes.to_jumanpp()
+        ret = self.text
+        if self.attributes:
+            ret += f" {self.attributes.to_jumanpp()}"
         if self.semantics or self.semantics.is_nil is True:
             ret += f" {self.semantics.to_sstring()}"
         features = FeatureDict(self.features)
         for homograph in self.homographs:
+            assert homograph.attributes is not None, "homographs must have attributes"
             alt_feature_key = "ALT-{}-{}-{}-{}-{}-{}-{}-{}".format(
                 homograph.surf,
                 homograph.reading,
                 homograph.lemma,
-                homograph._attributes.pos_id,
-                homograph._attributes.subpos_id,
-                homograph._attributes.conjtype_id,
-                homograph._attributes.conjform_id,
+                homograph.attributes.pos_id,
+                homograph.attributes.subpos_id,
+                homograph.attributes.conjtype_id,
+                homograph.attributes.conjform_id,
                 homograph.semantics.to_sstring(),
             )
             features[alt_feature_key] = True
