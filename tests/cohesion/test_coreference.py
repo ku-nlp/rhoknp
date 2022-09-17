@@ -38,26 +38,23 @@ def test_entity() -> None:
     assert entity.exophora_referent is None
     assert entity.mentions_all == {base_phrase_0}
     assert str(entity) == "天気が"
-    assert repr(entity) == "Entity(eid=0, mentions={BasePhrase(index=0, text='天気が')})"
+    assert repr(entity) == "<rhoknp.cohesion.coreference.Entity: 0, '天気が'>"
 
     entity.add_mention(base_phrase_0, nonidentical=True)
     assert entity.mentions_all == {base_phrase_0}
     assert str(entity) == "天気が"
-    assert repr(entity) == "Entity(eid=0, mentions={BasePhrase(index=0, text='天気が')})"
+    assert repr(entity) == "<rhoknp.cohesion.coreference.Entity: 0, '天気が'>"
 
     base_phrase_1 = document.base_phrases[1]
     entity.add_mention(base_phrase_1, nonidentical=True)
     assert entity.mentions_all == {base_phrase_0, base_phrase_1}
     assert str(entity) == "天気が"
-    assert (
-        repr(entity)
-        == "Entity(eid=0, mentions={BasePhrase(index=0, text='天気が')}, mentions_nonidentical={BasePhrase(index=1, text='いいので')})"
-    )
+    assert repr(entity) == "<rhoknp.cohesion.coreference.Entity: 0, '天気が', 'いいので'>"
 
     entity.remove_mention(base_phrase_0)
     assert entity.mentions_all == {base_phrase_1}
     assert str(entity) == "いいので"
-    assert repr(entity) == "Entity(eid=0, mentions_nonidentical={BasePhrase(index=1, text='いいので')})"
+    assert repr(entity) == "<rhoknp.cohesion.coreference.Entity: 0, 'いいので'>"
 
 
 def test_exophora_entity() -> None:
