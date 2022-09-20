@@ -3,21 +3,14 @@ import textwrap
 
 from typer.testing import CliRunner
 
-from rhoknp import Sentence, __version__
+from rhoknp import Document, __version__
 from rhoknp.cli import app
 
 runner = CliRunner()
 
 
-def test_version():
-    result = runner.invoke(app, ["-v"])
-    assert result.exit_code == 0
-    assert result.stdout.strip() == f"rhoknp version: {__version__}"
-
-
-def test_show():
-    knp = textwrap.dedent(
-        """\
+knp = textwrap.dedent(
+    """\
         # S-ID:1
         * 1D
         + 1D
@@ -39,10 +32,19 @@ def test_show():
         。 。 。 特殊 1 句点 1 * 0 * 0 NIL
         EOS
         """
-    )
-    sentence = Sentence.from_knp(knp)
+)
+
+
+def test_version():
+    result = runner.invoke(app, ["-v"])
+    assert result.exit_code == 0
+    assert result.stdout.strip() == f"rhoknp version: {__version__}"
+
+
+def test_show():
+    doc = Document.from_knp(knp)
     with tempfile.NamedTemporaryFile("wt") as f:
-        f.write(sentence.to_knp())
+        f.write(doc.to_knp())
         f.flush()
         result = runner.invoke(app, ["show", f.name])
         assert result.exit_code == 0
@@ -50,4 +52,27 @@ def test_show():
 
 def test_show_error():
     result = runner.invoke(app, ["show", "foo.knp"])  # not exist
+    assert result.exit_code == 2
+
+
+def test_stats():
+    doc = Document.from_knp(knp)
+    with tempfile.NamedTemporaryFile("wt") as f:
+        f.write(doc.to_knp())
+        f.flush()
+        result = runner.invoke(app, ["stats", f.name])
+        assert result.exit_code == 0
+
+
+def test_stats_json():
+    doc = Document.from_knp(knp)
+    with tempfile.NamedTemporaryFile("wt") as f:
+        f.write(doc.to_knp())
+        f.flush()
+        result = runner.invoke(app, ["stats", f.name, "--json"])
+        assert result.exit_code == 0
+
+
+def test_stats_error():
+    result = runner.invoke(app, ["stats", "foo.knp"])  # not exist
     assert result.exit_code == 2

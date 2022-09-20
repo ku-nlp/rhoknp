@@ -1,9 +1,12 @@
+import json
 from pathlib import Path
 
 import typer
+import yaml
 
 from rhoknp import Document, __version__
 from rhoknp.utils.draw_tree import draw_tree
+from rhoknp.utils.stats import get_document_statistics
 
 app = typer.Typer(help="rhoknp CLI utilities.")
 
@@ -25,10 +28,10 @@ def main(
 def show(
     knp_path: Path = typer.Argument(..., exists=True, dir_okay=False, help="Path to knp file to show"),
 ):
-    document = Document.from_knp(knp_path.read_text())
-    for sentence in document.sentences:
-        print(sentence.comment)
-        draw_tree(sentence.base_phrases, show_pos=False)
+    doc = Document.from_knp(knp_path.read_text())
+    for sent in doc.sentences:
+        print(sent.comment)
+        draw_tree(sent.base_phrases, show_pos=False)
 
 
 @app.command(help="Show statistics of given KNP file.")
@@ -36,9 +39,14 @@ def stats(
     knp_path: Path = typer.Argument(
         ..., exists=True, dir_okay=False, help="Path to knp file to calculate statistics on."
     ),
-    json: bool = typer.Option(False, "--json", "-j", help="Output statistics in JSON format."),
+    use_json: bool = typer.Option(False, "--json", "-j", help="Output statistics in JSON format."),
 ):
-    print(f"knp_path: {knp_path}, json: {json}")
+    doc = Document.from_knp(knp_path.read_text())
+    doc_stats = get_document_statistics(doc)
+    if use_json:
+        typer.echo(json.dumps(doc_stats, ensure_ascii=False, indent=4))
+    else:
+        typer.echo(yaml.dump(doc_stats, allow_unicode=True, sort_keys=False))
 
 
 if __name__ == "__main__":
