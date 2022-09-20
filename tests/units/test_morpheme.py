@@ -390,12 +390,12 @@ def test_attr(case: Dict[str, str], attr: str) -> None:
 @pytest.mark.parametrize("case", JUMANPP_SNIPPETS)
 @pytest.mark.parametrize(
     "attr",
-    ["reading", "lemma", "pos", "subpos", "conjtype", "conjform", "sstring", "fstring", "canon"],
+    ["reading", "lemma", "pos", "subpos", "conjtype", "conjform"],
 )
 def test_attr_error(case: Dict[str, str], attr: str) -> None:
-    morpheme = Morpheme(case["text"], attributes=None)
+    morpheme = Morpheme(case["text"])
     with pytest.raises(AttributeError):
-        _ = getattr(morpheme, attr + "s")
+        _ = getattr(morpheme, attr)
 
 
 @pytest.mark.parametrize("case", JUMANPP_SNIPPETS)

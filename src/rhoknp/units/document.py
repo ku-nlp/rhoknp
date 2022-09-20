@@ -147,12 +147,12 @@ class Document(Unit):
         Args:
             text: 文書の生テキスト．
 
-        Example::
+        Example:
 
-            from rhoknp import Document
-
-            text = "天気が良かったので散歩した。途中で先生に会った。"
-            doc = Document.from_raw_text(text)
+            >>> from rhoknp import Document
+            <BLANKLINE>
+            >>> text = "天気が良かったので散歩した。途中で先生に会った。"
+            >>> doc = Document.from_raw_text(text)
         """
         document = cls(text.strip())
         document.__post_init__()
@@ -165,17 +165,17 @@ class Document(Unit):
         Args:
             text: 一行一文形式に整形された文書のテキスト．
 
-        Example::
+        Example:
 
-            from rhoknp import Document
-
-            sents = \"\"\"
-            # S-ID:1
-            天気が良かったので散歩した。
-            # S-ID:2
-            途中で先生に会った。
-            \"\"\"
-            doc = Document.from_line_by_line_text(sents)
+            >>> from rhoknp import Document
+            <BLANKLINE>
+            >>> sents = \"\"\"
+            ... # S-ID:1
+            ... 天気が良かったので散歩した。
+            ... # S-ID:2
+            ... 途中で先生に会った。
+            ... \"\"\"
+            >>> doc = Document.from_line_by_line_text(sents)
 
         .. note::
             # から始まる行は直後の文に対するコメントとして認識される．
@@ -202,12 +202,12 @@ class Document(Unit):
         Args:
             sentences: 文（文の文字列）のリスト．
 
-        Example::
+        Example:
 
-            from rhoknp import Document
-
-            sents = ["天気が良かったので散歩した。", "途中で先生に会った。"]
-            doc = Document.from_sentences(sents)
+            >>> from rhoknp import Document
+            <BLANKLINE>
+            >>> sents = ["天気が良かったので散歩した。", "途中で先生に会った。"]
+            >>> doc = Document.from_sentences(sents)
         """
         document = cls()
         sentences_ = []
@@ -235,29 +235,29 @@ class Document(Unit):
             jumanpp_text: Juman++ の解析結果．
             ignore_errors: 解析結果中にエラーが発生してもその文を捨てて処理を続行する．
 
-        Example::
+        Example:
 
-            from rhoknp import Document
-
-            jumanpp_text = \"\"\"
-            # S-ID:1
-            天気 てんき 天気 名詞 6 普通名詞 1 * 0 * 0 "代表表記:天気/てんき カテゴリ:抽象物"
-            が が が 助詞 9 格助詞 1 * 0 * 0 NIL
-            良かった よかった 良い 形容詞 3 * 0 イ形容詞アウオ段 18 タ形 8 "代表表記:良い/よい 反義:形容詞:悪い/わるい"
-            ので ので のだ 助動詞 5 * 0 ナ形容詞 21 ダ列タ系連用テ形 12 NIL
-            散歩 さんぽ 散歩 名詞 6 サ変名詞 2 * 0 * 0 "代表表記:散歩/さんぽ ドメイン:レクリエーション カテゴリ:抽象物"
-            した した する 動詞 2 * 0 サ変動詞 16 タ形 10 "代表表記:する/する 自他動詞:自:成る/なる 付属動詞候補（基本）"
-            。 。 。 特殊 1 句点 1 * 0 * 0 NIL
-            EOS
-            # S-ID:2
-            途中 とちゅう 途中 名詞 6 時相名詞 10 * 0 * 0 "代表表記:途中/とちゅう カテゴリ:抽象物 弱時相名詞 修飾（デ格）"
-            で で で 助詞 9 格助詞 1 * 0 * 0 NIL
-            先生 せんせい 先生 名詞 6 普通名詞 1 * 0 * 0 "代表表記:先生/せんせい ドメイン:教育・学習 カテゴリ:人 人名末尾"
-            に に に 助詞 9 格助詞 1 * 0 * 0 NIL
-            会った あった 会う 動詞 2 * 0 子音動詞ワ行 12 タ形 10 "代表表記:会う/あう 反義:動詞:分かれる/わかれる;動詞:別れる/わかれる"
-            EOS
-            \"\"\"
-            doc = Document.from_jumanpp(jumanpp_text)
+            >>> from rhoknp import Document
+            <BLANKLINE>
+            >>> jumanpp_text = \"\"\"
+            ... # S-ID:1
+            ... 天気 てんき 天気 名詞 6 普通名詞 1 * 0 * 0 "代表表記:天気/てんき カテゴリ:抽象物"
+            ... が が が 助詞 9 格助詞 1 * 0 * 0 NIL
+            ... 良かった よかった 良い 形容詞 3 * 0 イ形容詞アウオ段 18 タ形 8 "代表表記:良い/よい 反義:形容詞:悪い/わるい"
+            ... ので ので のだ 助動詞 5 * 0 ナ形容詞 21 ダ列タ系連用テ形 12 NIL
+            ... 散歩 さんぽ 散歩 名詞 6 サ変名詞 2 * 0 * 0 "代表表記:散歩/さんぽ ドメイン:レクリエーション カテゴリ:抽象物"
+            ... した した する 動詞 2 * 0 サ変動詞 16 タ形 10 "代表表記:する/する 自他動詞:自:成る/なる 付属動詞候補（基本）"
+            ... 。 。 。 特殊 1 句点 1 * 0 * 0 NIL
+            ... EOS
+            ... # S-ID:2
+            ... 途中 とちゅう 途中 名詞 6 時相名詞 10 * 0 * 0 "代表表記:途中/とちゅう カテゴリ:抽象物 弱時相名詞 修飾（デ格）"
+            ... で で で 助詞 9 格助詞 1 * 0 * 0 NIL
+            ... 先生 せんせい 先生 名詞 6 普通名詞 1 * 0 * 0 "代表表記:先生/せんせい ドメイン:教育・学習 カテゴリ:人 人名末尾"
+            ... に に に 助詞 9 格助詞 1 * 0 * 0 NIL
+            ... 会った あった 会う 動詞 2 * 0 子音動詞ワ行 12 タ形 10 "代表表記:会う/あう 反義:動詞:分かれる/わかれる;動詞:別れる/わかれる"
+            ... EOS
+            ... \"\"\"
+            >>> doc = Document.from_jumanpp(jumanpp_text)
 
         .. note::
             複数文の解析結果が含まれている場合，一つの文書として扱われる．
@@ -269,7 +269,7 @@ class Document(Unit):
             if line.strip() == "":
                 continue
             sentence_lines.append(line)
-            if line.strip() == Sentence.EOS:
+            if line.strip() == Sentence.EOS_PAT:
                 try:
                     sentences.append(Sentence.from_jumanpp("\n".join(sentence_lines) + "\n", post_init=False))
                 except Exception as e:
@@ -291,42 +291,42 @@ class Document(Unit):
         Raises:
             Exception: ignore_errors=False かつ解析結果読み込み中にエラーが発生した場合．
 
-        Example::
+        Example:
 
-            from rhoknp import Document
-
-            knp_text = \"\"\"
-            # S-ID:1
-            * 1D
-            + 1D
-            天気 てんき 天気 名詞 6 普通名詞 1 * 0 * 0 "代表表記:天気/てんき カテゴリ:抽象物"
-            が が が 助詞 9 格助詞 1 * 0 * 0 NIL
-            * 2D
-            + 2D <節-区切><節-主辞>
-            良かった よかった 良い 形容詞 3 * 0 イ形容詞アウオ段 18 タ形 8 "代表表記:良い/よい 反義:形容詞:悪い/わるい"
-            ので ので のだ 助動詞 5 * 0 ナ形容詞 21 ダ列タ系連用テ形 12 NIL
-            * -1D
-            + -1D <節-区切><節-主辞>
-            散歩 さんぽ 散歩 名詞 6 サ変名詞 2 * 0 * 0 "代表表記:散歩/さんぽ ドメイン:レクリエーション カテゴリ:抽象物"
-            した した する 動詞 2 * 0 サ変動詞 16 タ形 10 "代表表記:する/する 自他動詞:自:成る/なる 付属動詞候補（基本）"
-            。 。 。 特殊 1 句点 1 * 0 * 0 NIL
-            EOS
-            # S-ID:2
-            * 2D
-            + 2D
-            途中 とちゅう 途中 名詞 6 時相名詞 10 * 0 * 0 "代表表記:途中/とちゅう カテゴリ:抽象物 弱時相名詞 修飾（デ格）"
-            で で で 助詞 9 格助詞 1 * 0 * 0 NIL
-            * 2D
-            + 2D
-            先生 せんせい 先生 名詞 6 普通名詞 1 * 0 * 0 "代表表記:先生/せんせい ドメイン:教育・学習 カテゴリ:人 人名末尾"
-            に に に 助詞 9 格助詞 1 * 0 * 0 NIL
-            * -1D
-            + -1D <節-区切><節-主辞>
-            会った あった 会う 動詞 2 * 0 子音動詞ワ行 12 タ形 10 "代表表記:会う/あう 反義:動詞:分かれる/わかれる;動詞:別れる/わかれる"
-            。 。 。 特殊 1 句点 1 * 0 * 0 NIL
-            EOS
-            \"\"\"
-            doc = Document.from_knp(knp_text)
+            >>> from rhoknp import Document
+            <BLANKLINE>
+            >>> knp_text = \"\"\"
+            ... # S-ID:1
+            ... * 1D
+            ... + 1D
+            ... 天気 てんき 天気 名詞 6 普通名詞 1 * 0 * 0 "代表表記:天気/てんき カテゴリ:抽象物"
+            ... が が が 助詞 9 格助詞 1 * 0 * 0 NIL
+            ... * 2D
+            ... + 2D <節-区切><節-主辞>
+            ... 良かった よかった 良い 形容詞 3 * 0 イ形容詞アウオ段 18 タ形 8 "代表表記:良い/よい 反義:形容詞:悪い/わるい"
+            ... ので ので のだ 助動詞 5 * 0 ナ形容詞 21 ダ列タ系連用テ形 12 NIL
+            ... * -1D
+            ... + -1D <節-区切><節-主辞>
+            ... 散歩 さんぽ 散歩 名詞 6 サ変名詞 2 * 0 * 0 "代表表記:散歩/さんぽ ドメイン:レクリエーション カテゴリ:抽象物"
+            ... した した する 動詞 2 * 0 サ変動詞 16 タ形 10 "代表表記:する/する 自他動詞:自:成る/なる 付属動詞候補（基本）"
+            ... 。 。 。 特殊 1 句点 1 * 0 * 0 NIL
+            ... EOS
+            ... # S-ID:2
+            ... * 2D
+            ... + 2D
+            ... 途中 とちゅう 途中 名詞 6 時相名詞 10 * 0 * 0 "代表表記:途中/とちゅう カテゴリ:抽象物 弱時相名詞 修飾（デ格）"
+            ... で で で 助詞 9 格助詞 1 * 0 * 0 NIL
+            ... * 2D
+            ... + 2D
+            ... 先生 せんせい 先生 名詞 6 普通名詞 1 * 0 * 0 "代表表記:先生/せんせい ドメイン:教育・学習 カテゴリ:人 人名末尾"
+            ... に に に 助詞 9 格助詞 1 * 0 * 0 NIL
+            ... * -1D
+            ... + -1D <節-区切><節-主辞>
+            ... 会った あった 会う 動詞 2 * 0 子音動詞ワ行 12 タ形 10 "代表表記:会う/あう 反義:動詞:分かれる/わかれる;動詞:別れる/わかれる"
+            ... 。 。 。 特殊 1 句点 1 * 0 * 0 NIL
+            ... EOS
+            ... \"\"\"
+            >>> doc = Document.from_knp(knp_text)
 
         .. note::
             複数文の解析結果が含まれている場合，一つの文書として扱われる．
@@ -338,7 +338,7 @@ class Document(Unit):
             if line.strip() == "":
                 continue
             sentence_lines.append(line)
-            if line.strip() == Sentence.EOS:
+            if line.strip() == Sentence.EOS_PAT:
                 try:
                     sentences.append(Sentence.from_knp("\n".join(sentence_lines) + "\n", post_init=False))
                 except Exception as e:

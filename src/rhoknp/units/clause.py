@@ -29,9 +29,9 @@ class Clause(Unit):
         # child units
         self._phrases: Optional[List[Phrase]] = None
 
-        self.discourse_relations: List[DiscourseRelation] = []
+        self.discourse_relations: List[DiscourseRelation] = []  #: 談話関係のリスト．
 
-        self.index = self.count
+        self.index = self.count  #: 文内におけるインデックス．
         Clause.count += 1
 
     def __post_init__(self) -> None:

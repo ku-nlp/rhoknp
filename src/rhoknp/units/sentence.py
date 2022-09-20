@@ -23,7 +23,7 @@ class Sentence(Unit):
         text: 文の文字列．
     """
 
-    EOS = "EOS"
+    EOS_PAT = "EOS"
     SID_PAT = re.compile(r"^(?P<sid>(?P<did>[a-zA-Z\d\-_]+?)(-(\d+))?)$")
     SID_PAT_KWDLC = re.compile(r"^(?P<sid>(?P<did>w\d{6}-\d{10})(-\d+){1,2})$")
     SID_PAT_WAC = re.compile(r"^(?P<sid>(?P<did>wiki\d{8})(-\d{2})(-\d{2})?)$")
@@ -53,7 +53,7 @@ class Sentence(Unit):
 
         self.named_entities: List[NamedEntity] = []
 
-        self.index = self.count
+        self.index = self.count  #: 文書全体におけるインデックス．
         Sentence.count += 1
 
     def __post_init__(self) -> None:
@@ -250,12 +250,12 @@ class Sentence(Unit):
             text: 文の文字列．
             post_init: インスタンス作成後の追加処理を行うなら True．
 
-        Example::
+        Example:
 
-            from rhoknp import Sentence
-
-            text = "天気が良かったので散歩した。"
-            sent = Sentence(text)
+            >>> from rhoknp import Sentence
+            <BLANKLINE>
+            >>> text = "天気が良かったので散歩した。"
+            >>> sent = Sentence(text)
         """
         sentence = cls()
         text_lines = []
@@ -279,22 +279,22 @@ class Sentence(Unit):
             jumanpp_text: Juman++ の解析結果．
             post_init: インスタンス作成後の追加処理を行うなら True．
 
-        Example::
+        Example:
 
-            from rhoknp import Sentence
-
-            jumanpp_text = \"\"\"
-            # S-ID:1
-            天気 てんき 天気 名詞 6 普通名詞 1 * 0 * 0 "代表表記:天気/てんき カテゴリ:抽象物"
-            が が が 助詞 9 格助詞 1 * 0 * 0 NIL
-            良かった よかった 良い 形容詞 3 * 0 イ形容詞アウオ段 18 タ形 8 "代表表記:良い/よい 反義:形容詞:悪い/わるい"
-            ので ので のだ 助動詞 5 * 0 ナ形容詞 21 ダ列タ系連用テ形 12 NIL
-            散歩 さんぽ 散歩 名詞 6 サ変名詞 2 * 0 * 0 "代表表記:散歩/さんぽ ドメイン:レクリエーション カテゴリ:抽象物"
-            した した する 動詞 2 * 0 サ変動詞 16 タ形 10 "代表表記:する/する 自他動詞:自:成る/なる 付属動詞候補（基本）"
-            。 。 。 特殊 1 句点 1 * 0 * 0 NIL
-            EOS
-            \"\"\"
-            sent = Sentence.from_jumanpp(jumanpp_text)
+            >>> from rhoknp import Sentence
+            <BLANKLINE>
+            >>> jumanpp_text = \"\"\"
+            ... # S-ID:1
+            ... 天気 てんき 天気 名詞 6 普通名詞 1 * 0 * 0 "代表表記:天気/てんき カテゴリ:抽象物"
+            ... が が が 助詞 9 格助詞 1 * 0 * 0 NIL
+            ... 良かった よかった 良い 形容詞 3 * 0 イ形容詞アウオ段 18 タ形 8 "代表表記:良い/よい 反義:形容詞:悪い/わるい"
+            ... ので ので のだ 助動詞 5 * 0 ナ形容詞 21 ダ列タ系連用テ形 12 NIL
+            ... 散歩 さんぽ 散歩 名詞 6 サ変名詞 2 * 0 * 0 "代表表記:散歩/さんぽ ドメイン:レクリエーション カテゴリ:抽象物"
+            ... した した する 動詞 2 * 0 サ変動詞 16 タ形 10 "代表表記:する/する 自他動詞:自:成る/なる 付属動詞候補（基本）"
+            ... 。 。 。 特殊 1 句点 1 * 0 * 0 NIL
+            ... EOS
+            ... \"\"\"
+            >>> sent = Sentence.from_jumanpp(jumanpp_text)
         """
         sentence = cls()
         morphemes: List[Morpheme] = []
@@ -312,7 +312,7 @@ class Sentence(Unit):
                 morphemes.append(Morpheme.from_jumanpp("\n".join(jumanpp_lines)))
                 jumanpp_lines = []
             jumanpp_lines.append(line)
-            if line.strip() == cls.EOS:
+            if line.strip() == cls.EOS_PAT:
                 break
         sentence.morphemes = morphemes
         if post_init is True:
@@ -327,28 +327,28 @@ class Sentence(Unit):
             knp_text: KNP の解析結果．
             post_init: インスタンス作成後の追加処理を行うなら True．
 
-        Example::
+        Example:
 
-            from rhoknp import Sentence
-
-            knp_text = \"\"\"
-            # S-ID:1
-            * 1D
-            + 1D
-            天気 てんき 天気 名詞 6 普通名詞 1 * 0 * 0 "代表表記:天気/てんき カテゴリ:抽象物"
-            が が が 助詞 9 格助詞 1 * 0 * 0 NIL
-            * 2D
-            + 2D <節-区切><節-主辞>
-            良かった よかった 良い 形容詞 3 * 0 イ形容詞アウオ段 18 タ形 8 "代表表記:良い/よい 反義:形容詞:悪い/わるい"
-            ので ので のだ 助動詞 5 * 0 ナ形容詞 21 ダ列タ系連用テ形 12 NIL
-            * -1D
-            + -1D <節-区切><節-主辞>
-            散歩 さんぽ 散歩 名詞 6 サ変名詞 2 * 0 * 0 "代表表記:散歩/さんぽ ドメイン:レクリエーション カテゴリ:抽象物"
-            した した する 動詞 2 * 0 サ変動詞 16 タ形 10 "代表表記:する/する 自他動詞:自:成る/なる 付属動詞候補（基本）"
-            。 。 。 特殊 1 句点 1 * 0 * 0 NIL
-            EOS
-            \"\"\"
-            sent = Sentence.from_knp(knp_text)
+            >>> from rhoknp import Sentence
+            <BLANKLINE>
+            >>> knp_text = \"\"\"
+            ... # S-ID:1
+            ... * 1D
+            ... + 1D
+            ... 天気 てんき 天気 名詞 6 普通名詞 1 * 0 * 0 "代表表記:天気/てんき カテゴリ:抽象物"
+            ... が が が 助詞 9 格助詞 1 * 0 * 0 NIL
+            ... * 2D
+            ... + 2D <節-区切><節-主辞>
+            ... 良かった よかった 良い 形容詞 3 * 0 イ形容詞アウオ段 18 タ形 8 "代表表記:良い/よい 反義:形容詞:悪い/わるい"
+            ... ので ので のだ 助動詞 5 * 0 ナ形容詞 21 ダ列タ系連用テ形 12 NIL
+            ... * -1D
+            ... + -1D <節-区切><節-主辞>
+            ... 散歩 さんぽ 散歩 名詞 6 サ変名詞 2 * 0 * 0 "代表表記:散歩/さんぽ ドメイン:レクリエーション カテゴリ:抽象物"
+            ... した した する 動詞 2 * 0 サ変動詞 16 タ形 10 "代表表記:する/する 自他動詞:自:成る/なる 付属動詞候補（基本）"
+            ... 。 。 。 特殊 1 句点 1 * 0 * 0 NIL
+            ... EOS
+            ... \"\"\"
+            >>> sent = Sentence.from_knp(knp_text)
         """
         lines = knp_text.split("\n")
         sentence = cls()
@@ -367,7 +367,7 @@ class Sentence(Unit):
                 raise Exception(f"Error: {line}")
             if line.startswith("+") and "節-区切" in line:
                 is_clause_end = True
-            if line.strip() == cls.EOS:
+            if line.strip() == cls.EOS_PAT:
                 if has_clause_boundary is True:
                     clauses.append(Clause.from_knp("\n".join(child_lines)))
                 else:
@@ -432,7 +432,7 @@ class Sentence(Unit):
         ret = ""
         if self.comment != "":
             ret += self.comment + "\n"
-        ret += "".join(morpheme.to_jumanpp() for morpheme in self.morphemes) + self.EOS + "\n"
+        ret += "".join(morpheme.to_jumanpp() for morpheme in self.morphemes) + self.EOS_PAT + "\n"
         return ret
 
     def to_knp(self) -> str:
@@ -441,7 +441,7 @@ class Sentence(Unit):
         if self.comment != "":
             ret += self.comment + "\n"
         ret += "".join(child.to_knp() for child in self._clauses or self.phrases)
-        ret += self.EOS + "\n"
+        ret += self.EOS_PAT + "\n"
         return ret
 
     def reparse(self) -> "Sentence":
