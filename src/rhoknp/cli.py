@@ -31,10 +31,10 @@ def show(
         draw_tree(sentence.base_phrases, show_pos=False)
 
 
-@app.command(help="Show statistics of given file or directory.")
+@app.command(help="Show statistics of given KNP file.")
 def stats(
     knp_path: Path = typer.Argument(
-        ..., exists=True, dir_okay=True, help="Path to knp file or directory to calculate statistics on."
+        ..., exists=True, dir_okay=False, help="Path to knp file to calculate statistics on."
     ),
     json: bool = typer.Option(False, "--json", "-j", help="Output statistics in JSON format."),
 ):
