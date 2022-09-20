@@ -26,11 +26,14 @@ def get_document_statistics(document: Document) -> Dict[str, Dict[str, int]]:
         stats["unit"]["morpheme"] = len(document.morphemes)
     # Cohesion
     if document.need_knp is False:
-        stats["cohesion"]["anaphora"] = sum(
-            len([rel for rel in base_phrase.rels if rel.type in ALL_CASES]) for base_phrase in document.base_phrases
+        stats["cohesion"]["predicate"] = sum(
+            len([rel for rel in bp.rels if rel.type in ALL_CASES]) > 0 for bp in document.base_phrases
+        )
+        stats["cohesion"]["arguments"] = sum(
+            len([rel for rel in bp.rels if rel.type in ALL_CASES]) for bp in document.base_phrases
         )
         stats["cohesion"]["coreference"] = sum(
-            len([rel for rel in base_phrase.rels if rel.type in ALL_COREFS]) for base_phrase in document.base_phrases
+            len([rel for rel in bp.rels if rel.type in ALL_COREFS]) for bp in document.base_phrases
         )
     if document.need_clause_tag is False:
         stats["cohesion"]["discourse"] = sum(len(clause.discourse_relations) for clause in document.clauses)
