@@ -13,14 +13,17 @@ class Predicate:
 
     @property
     def base_phrase(self) -> "BasePhrase":
+        """基本句．"""
         return self.unit
 
     @property
     def text(self) -> str:
+        """表層文字列．"""
         return self.unit.text
 
     @property
     def sid(self) -> str:
+        """文 ID．"""
         if self.unit.sentence is None:
             raise AttributeError("sentence has not been set")
         if self.unit.sentence.sid is None:
@@ -29,12 +32,18 @@ class Predicate:
 
     @property
     def pas(self) -> "Pas":
+        """述語項構造．"""
         if self._pas is None:
             raise AttributeError("pas has not been set")
         return self._pas
 
     @pas.setter
     def pas(self, pas: "Pas") -> None:
+        """述語項構造．
+
+        Args:
+            pas: 述語項構造．
+        """
         self._pas = pas
 
     def __str__(self) -> str:

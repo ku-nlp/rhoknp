@@ -17,8 +17,8 @@ logger = logging.getLogger(__name__)
 
 
 class CaseInfoFormat(Enum):
-    CASE = auto()  # 格解析フォーマット
-    PAS = auto()  # 述語項構造フォーマット
+    CASE = auto()  #: 格解析フォーマット
+    PAS = auto()  #: 述語項構造フォーマット
 
 
 class Pas:
@@ -59,8 +59,6 @@ class Pas:
             base_phrase: 述語となる基本句．
             fstring: 述語項構造を表す素性文字列（e.g., "食べる/たべる:動2:ガ/C/太郎/0/0/1;ヲ/C/パン/1/0/1;ニ/U/-/-/-/-;デ/U/-/-/-/-;カラ/U/-/-/-/-;時間/U/-/-/-/-"）
             format_: fstring における述語項構造のフォーマット．
-
-        Returns: 述語項構造オブジェクト．
         """
         # language=RegExp
         cfid_pat = r"(.*?):([^:/]+?)"  # 食べる/たべる:動1
@@ -137,8 +135,6 @@ class Pas:
 
         References:
             格・省略・共参照タグ付けの基準 3.2.1 修飾的表現
-
-        Returns: 項のリスト．
         """
         args = self._arguments[case]
         if include_nonidentical is True:
@@ -179,8 +175,6 @@ class Pas:
             relax: True なら 共参照関係で結ばれた項も含めて出力する．
             include_nonidentical: True なら nonidentical な項も含めて出力する．
             include_optional: True なら修飾的表現（「すぐに」など）も含めて出力する．
-
-        Returns: 格を key とする項の辞書．
         """
         all_arguments: Dict[str, List[Argument]] = {}
         for case in self.cases:
