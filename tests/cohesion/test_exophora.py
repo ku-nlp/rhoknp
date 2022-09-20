@@ -7,6 +7,7 @@ def test_exophora():
     assert referent.index is None
     assert str(referent) == "著者"
     assert repr(referent) == "ExophoraReferent(text='著者')"
+    assert eval(repr(referent)) == referent
 
 
 def test_exophora_number():
@@ -15,6 +16,7 @@ def test_exophora_number():
     assert referent.index == 3
     assert str(referent) == "不特定:人3"
     assert repr(referent) == "ExophoraReferent(text='不特定:人3')"
+    assert eval(repr(referent)) == referent
 
 
 def test_exophora_other():
@@ -23,3 +25,4 @@ def test_exophora_other():
     assert referent.index is None
     assert str(referent) == "ほげほげ２"
     assert repr(referent) == "ExophoraReferent(text='ほげほげ２')"
+    assert eval(repr(referent)) == referent

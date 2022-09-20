@@ -1,17 +1,15 @@
 import logging
 import re
 from functools import cached_property
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, List, Optional, Set
 
 from rhoknp.cohesion.coreference import Entity, EntityManager
-from rhoknp.cohesion.discourse_relation import DiscourseRelationTag
 from rhoknp.cohesion.exophora import ExophoraReferent
 from rhoknp.cohesion.pas import CaseInfoFormat, Pas
 from rhoknp.cohesion.predicate import Predicate
 from rhoknp.cohesion.rel import RelMode, RelTag, RelTagList
 from rhoknp.props.dependency import DepType
 from rhoknp.props.feature import FeatureDict
-from rhoknp.props.named_entity import NETagList
 from rhoknp.units.morpheme import Morpheme
 from rhoknp.units.unit import Unit
 from rhoknp.utils.constants import ALL_CASES, ALL_COREFS
@@ -37,10 +35,8 @@ class BasePhrase(Unit):
         self,
         parent_index: Optional[int],
         dep_type: Optional[DepType],
-        features: FeatureDict,
-        rels: RelTagList,
-        ne_tags: NETagList,
-        discourse_relation_tag: DiscourseRelationTag,
+        features: Optional[FeatureDict] = None,
+        rels: Optional[RelTagList] = None,
     ):
         super().__init__()
 
@@ -48,20 +44,45 @@ class BasePhrase(Unit):
         self._phrase: Optional["Phrase"] = None
 
         # child units
-        self._morphemes: Optional[list[Morpheme]] = None
+        self._morphemes: Optional[List[Morpheme]] = None
 
         self.parent_index: Optional[int] = parent_index  #: 係り先の基本句の文内におけるインデックス．
         self.dep_type: Optional[DepType] = dep_type  #: 係り受けの種類．
-        self.features: FeatureDict = features  #: 素性．
-        self.rels: RelTagList = rels  #: 基本句間関係．
-        self.ne_tags: NETagList = ne_tags  #: 固有表現タグ．
-        self.discourse_relation_tag: DiscourseRelationTag = discourse_relation_tag  #: 談話関係タグ．
+        self.features: FeatureDict = features or FeatureDict()  #: 素性．
+        self.rels: RelTagList = rels or RelTagList()  #: 基本句間関係．
         self.pas: Optional["Pas"] = None  #: 述語項構造．
-        self.entities: set[Entity] = set()  #: 参照しているエンティティ．
-        self.entities_nonidentical: set[Entity] = set()  #: ≒で参照しているエンティティ．
+        self.entities: Set[Entity] = set()  #: 参照しているエンティティ．
+        self.entities_nonidentical: Set[Entity] = set()  #: ≒で参照しているエンティティ．
 
         self.index = self.count
         BasePhrase.count += 1
+
+    def __post_init__(self) -> None:
+        super().__post_init__()
+
+        # Parse the PAS tag.
+        if "述語項構造" in self.features:
+            pas_string = self.features["述語項構造"]
+            assert isinstance(pas_string, str)
+            pas = Pas.from_pas_string(self, pas_string, format_=CaseInfoFormat.PAS)
+        elif "格解析結果" in self.features:
+            pas_string = self.features["格解析結果"]
+            assert isinstance(pas_string, str)
+            pas = Pas.from_pas_string(self, pas_string, format_=CaseInfoFormat.CASE)
+        else:
+            pas = Pas(Predicate(self))
+        self.pas = pas
+
+        # Parse the rel tag if this unit is a piece of a document.
+        if self.sentence.has_document is False:
+            return
+        for rel in self.rels:
+            if rel.sid == "":
+                rel.sid = self.sentence.sid
+            if rel.type in ALL_CASES:
+                self._add_pas(rel)
+            elif rel.type in ALL_COREFS and rel.mode in (None, RelMode.AND):  # ignore "OR" and "?"
+                self._add_coreference(rel)
 
     @cached_property
     def global_index(self) -> int:
@@ -78,7 +99,7 @@ class BasePhrase(Unit):
         return self._phrase
 
     @property
-    def child_units(self) -> Optional[list[Morpheme]]:
+    def child_units(self) -> Optional[List[Morpheme]]:
         """下位の言語単位（形態素）．解析結果にアクセスできないなら None．"""
         return self._morphemes
 
@@ -130,14 +151,14 @@ class BasePhrase(Unit):
         self._phrase = phrase
 
     @property
-    def morphemes(self) -> list[Morpheme]:
+    def morphemes(self) -> List[Morpheme]:
         """形態素のリスト．"""
         if self._morphemes is None:
             raise AssertionError
         return self._morphemes
 
     @morphemes.setter
-    def morphemes(self, morphemes: list[Morpheme]) -> None:
+    def morphemes(self, morphemes: List[Morpheme]) -> None:
         """形態素のリスト．
 
         Args:
@@ -176,7 +197,7 @@ class BasePhrase(Unit):
         return self.sentence.base_phrases[self.parent_index]
 
     @cached_property
-    def children(self) -> list["BasePhrase"]:
+    def children(self) -> List["BasePhrase"]:
         """この基本句に係っている基本句のリスト．
 
         Raises:
@@ -185,7 +206,7 @@ class BasePhrase(Unit):
         return [base_phrase for base_phrase in self.sentence.base_phrases if base_phrase.parent == self]
 
     @property
-    def entities_all(self) -> set[Entity]:
+    def entities_all(self) -> Set[Entity]:
         """nonidentical も含めた参照している全エンティティの集合．"""
         return self.entities | self.entities_nonidentical
 
@@ -204,11 +225,9 @@ class BasePhrase(Unit):
         dep_type = DepType(match.group("dtype")) if match.group("dtype") is not None else None
         features = FeatureDict.from_fstring(match.group("tags") or "")
         rels = RelTagList.from_fstring(match.group("tags") or "")
-        ne_tags = NETagList.from_fstring(match.group("tags") or "")
-        discourse_relation_tag = DiscourseRelationTag.from_fstring(match.group("tags") or "")
-        base_phrase = cls(parent_index, dep_type, features, rels, ne_tags, discourse_relation_tag)
+        base_phrase = cls(parent_index, dep_type, features, rels)
 
-        morphemes: list[Morpheme] = []
+        morphemes: List[Morpheme] = []
         for line in lines:
             if not line.strip():
                 continue
@@ -222,17 +241,15 @@ class BasePhrase(Unit):
         if self.parent_index is not None:
             assert self.dep_type is not None
             ret += f" {self.parent_index}{self.dep_type.value}"
-        if self.rels or self.ne_tags or self.features or self.discourse_relation_tag:
+        if self.rels or self.features:
             ret += " "
             ret += self.rels.to_fstring()
-            ret += self.ne_tags.to_fstring()
             ret += self.features.to_fstring()
-            ret += self.discourse_relation_tag.to_fstring()
         ret += "\n"
-        ret += "".join(morpheme.to_jumanpp() for morpheme in self.morphemes)
+        ret += "".join(morpheme.to_knp() for morpheme in self.morphemes)
         return ret
 
-    def get_coreferents(self, include_nonidentical: bool = False, include_self: bool = False) -> set["BasePhrase"]:
+    def get_coreferents(self, include_nonidentical: bool = False, include_self: bool = False) -> Set["BasePhrase"]:
         """この基本句と共参照している基本句の集合を返却．
 
         Args:
@@ -242,7 +259,7 @@ class BasePhrase(Unit):
         Returns:
             共参照している基本句の集合．
         """
-        mentions: set["BasePhrase"] = set()
+        mentions: Set["BasePhrase"] = set()
         for entity in self.entities:
             mentions.update(entity.mentions)
         if include_nonidentical is True:
@@ -271,36 +288,6 @@ class BasePhrase(Unit):
         else:
             self.entities.add(entity)
         entity.add_mention(self, nonidentical=nonidentical)
-
-    def parse_rel_tag(self) -> None:
-        """関係タグ付きコーパスにおける <rel> タグをパース．"""
-        if self.pas is None:
-            self.pas = Pas(Predicate(self))
-        for rel in self.rels:
-            if rel.sid == "":
-                logger.warning(f"empty sid found in {self.sentence.sid}; assume to be self")
-                rel.sid = self.sentence.sid
-            if rel.type in ALL_CASES:
-                self._add_pas(rel)
-            elif rel.type in ALL_COREFS:
-                if rel.mode in (None, RelMode.AND):  # ignore "OR" and "?"
-                    self._add_coreference(rel)
-            else:
-                logger.warning(f"unknown rel type: {rel.type}")
-
-    def parse_pas_tag(self) -> None:
-        """KNP 解析結果における <述語項構造> タグおよび <格解析結果> タグをパース．"""
-        if "述語項構造" in self.features:
-            pas_string = self.features["述語項構造"]
-            assert isinstance(pas_string, str)
-            pas = Pas.from_pas_string(self, pas_string, format_=CaseInfoFormat.PAS)
-        elif "格解析結果" in self.features:
-            pas_string = self.features["格解析結果"]
-            assert isinstance(pas_string, str)
-            pas = Pas.from_pas_string(self, pas_string, format_=CaseInfoFormat.CASE)
-        else:
-            pas = Pas(Predicate(self))
-        self.pas = pas
 
     def _add_pas(self, rel: RelTag) -> None:
         """述語項構造を追加．"""

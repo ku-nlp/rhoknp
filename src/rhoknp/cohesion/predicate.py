@@ -41,4 +41,4 @@ class Predicate:
         return self.text
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(text={repr(self.text)})"
+        return f"<{self.__module__}.{self.__class__.__name__}: {repr(self.text)}>"

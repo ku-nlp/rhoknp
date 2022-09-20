@@ -1,4 +1,5 @@
 import textwrap
+from typing import Dict
 
 import pytest
 
@@ -22,7 +23,8 @@ CASES = [
             散歩 さんぽ 散歩 名詞 6 サ変名詞 2 * 0 * 0 "代表表記:散歩/さんぽ ドメイン:レクリエーション カテゴリ:抽象物" <代表表記:散歩/さんぽ><ドメイン:レクリエーション><カテゴリ:抽象物><正規化代表表記:散歩/さんぽ><漢字><かな漢字><名詞相当語><サ変><サ変動詞><自立><内容語><タグ単位始><文節始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
             した した する 動詞 2 * 0 サ変動詞 16 タ形 10 "代表表記:する/する 自他動詞:自:成る/なる 付属動詞候補（基本）" <代表表記:する/する><自他動詞:自:成る/なる><付属動詞候補（基本）><正規化代表表記:する/する><かな漢字><ひらがな><活用語><表現文末><とタ系連用テ形複合辞><付属>
             。 。 。 特殊 1 句点 1 * 0 * 0 NIL <英記号><記号><文末><付属>
-            EOS"""
+            EOS
+            """
         ),
         "jumanpp": textwrap.dedent(
             """\
@@ -34,7 +36,8 @@ CASES = [
             散歩 さんぽ 散歩 名詞 6 サ変名詞 2 * 0 * 0 "代表表記:散歩/さんぽ ドメイン:レクリエーション カテゴリ:抽象物" <代表表記:散歩/さんぽ><ドメイン:レクリエーション><カテゴリ:抽象物><正規化代表表記:散歩/さんぽ><漢字><かな漢字><名詞相当語><サ変><サ変動詞><自立><内容語><タグ単位始><文節始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
             した した する 動詞 2 * 0 サ変動詞 16 タ形 10 "代表表記:する/する 自他動詞:自:成る/なる 付属動詞候補（基本）" <代表表記:する/する><自他動詞:自:成る/なる><付属動詞候補（基本）><正規化代表表記:する/する><かな漢字><ひらがな><活用語><表現文末><とタ系連用テ形複合辞><付属>
             。 。 。 特殊 1 句点 1 * 0 * 0 NIL <英記号><記号><文末><付属>
-            EOS"""
+            EOS
+            """
         ),
         "num": 7,
         "parent_ids": [2, 0, 4, 2, -1, 4, 4],
@@ -77,6 +80,43 @@ CASES = [
         "num": 6,
         "parent_ids": [3, 0, 3, -1, 3, 3],
         "children_ids": [[1], [], [], [0, 2, 4, 5], [], []],
+    },
+    {
+        "knp": textwrap.dedent(
+            """\
+            # S-ID:1
+            * 1D
+            + 1D
+            天気
+            が
+            * 2D
+            + 2D
+            いい
+            ので
+            * -1D
+            + -1D
+            散歩
+            した
+            。
+            EOS
+            """
+        ),
+        "jumanpp": textwrap.dedent(
+            """\
+            # S-ID:1
+            天気
+            が
+            いい
+            ので
+            散歩
+            した
+            。
+            EOS
+            """
+        ),
+        "num": 7,
+        "parent_ids": [2, 0, 4, 2, -1, 4, 4],
+        "children_ids": [[1], [], [0, 3], [], [2, 5, 6], [], []],
     },
 ]
 
@@ -217,111 +257,111 @@ JUMANPP_SNIPPETS = [
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_document_knp(case: dict[str, str]) -> None:
+def test_document_knp(case: Dict[str, str]) -> None:
     doc = Document.from_knp(case["knp"])
     for morpheme in doc.morphemes:
         assert morpheme.document == doc
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_document_jumanpp(case: dict[str, str]) -> None:
+def test_document_jumanpp(case: Dict[str, str]) -> None:
     doc = Document.from_jumanpp(case["jumanpp"])
     for morpheme in doc.morphemes:
         assert morpheme.document == doc
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_sentence_knp(case: dict[str, str]) -> None:
+def test_sentence_knp(case: Dict[str, str]) -> None:
     sent = Sentence.from_knp(case["knp"])
     for morpheme in sent.morphemes:
         assert morpheme.sentence == sent
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_sentence_jumanpp(case: dict[str, str]) -> None:
+def test_sentence_jumanpp(case: Dict[str, str]) -> None:
     sent = Sentence.from_jumanpp(case["jumanpp"])
     for morpheme in sent.morphemes:
         assert morpheme.sentence == sent
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_num_document_knp(case: dict[str, str]) -> None:
+def test_num_document_knp(case: Dict[str, str]) -> None:
     doc = Document.from_knp(case["knp"])
     assert len(doc.morphemes) == case["num"]
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_num_document_jumanpp(case: dict[str, str]) -> None:
+def test_num_document_jumanpp(case: Dict[str, str]) -> None:
     doc = Document.from_jumanpp(case["jumanpp"])
     assert len(doc.morphemes) == case["num"]
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_num_sentence_knp(case: dict[str, str]) -> None:
+def test_num_sentence_knp(case: Dict[str, str]) -> None:
     sent = Sentence.from_knp(case["knp"])
     assert len(sent.morphemes) == case["num"]
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_num_sentence_jumanpp(case: dict[str, str]) -> None:
+def test_num_sentence_jumanpp(case: Dict[str, str]) -> None:
     sent = Sentence.from_jumanpp(case["jumanpp"])
     assert len(sent.morphemes) == case["num"]
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_parent_document_knp(case: dict[str, str]) -> None:
+def test_parent_document_knp(case: Dict[str, str]) -> None:
     doc = Document.from_knp(case["knp"])
     assert [morpheme.parent.index if morpheme.parent else -1 for morpheme in doc.morphemes] == case["parent_ids"]
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_parent_document_jumanpp(case: dict[str, str]) -> None:
+def test_parent_document_jumanpp(case: Dict[str, str]) -> None:
     doc = Document.from_jumanpp(case["jumanpp"])
     with pytest.raises(AttributeError):
         assert [morpheme.parent.index if morpheme.parent else -1 for morpheme in doc.morphemes] == case["parent_ids"]
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_parent_sentence_knp(case: dict[str, str]) -> None:
+def test_parent_sentence_knp(case: Dict[str, str]) -> None:
     sent = Sentence.from_knp(case["knp"])
     assert [morpheme.parent.index if morpheme.parent else -1 for morpheme in sent.morphemes] == case["parent_ids"]
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_parent_sentence_jumanpp(case: dict[str, str]) -> None:
+def test_parent_sentence_jumanpp(case: Dict[str, str]) -> None:
     sent = Sentence.from_jumanpp(case["jumanpp"])
     with pytest.raises(AttributeError):
         assert [morpheme.parent.index if morpheme.parent else -1 for morpheme in sent.morphemes] == case["parent_ids"]
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_children_document_knp(case: dict[str, str]) -> None:
+def test_children_document_knp(case: Dict[str, str]) -> None:
     doc = Document.from_knp(case["knp"])
     assert [[child.index for child in morpheme.children] for morpheme in doc.morphemes] == case["children_ids"]
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_children_document_jumanpp(case: dict[str, str]) -> None:
+def test_children_document_jumanpp(case: Dict[str, str]) -> None:
     doc = Document.from_jumanpp(case["jumanpp"])
     with pytest.raises(AttributeError):
         assert [[child.index for child in morpheme.children] for morpheme in doc.morphemes] == case["children_ids"]
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_children_sentence_knp(case: dict[str, str]) -> None:
+def test_children_sentence_knp(case: Dict[str, str]) -> None:
     sent = Sentence.from_knp(case["knp"])
     assert [[child.index for child in morpheme.children] for morpheme in sent.morphemes] == case["children_ids"]
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_children_sentence_jumanpp(case: dict[str, str]) -> None:
+def test_children_sentence_jumanpp(case: Dict[str, str]) -> None:
     sent = Sentence.from_jumanpp(case["jumanpp"])
     with pytest.raises(AttributeError):
         assert [[child.index for child in morpheme.children] for morpheme in sent.morphemes] == case["children_ids"]
 
 
 @pytest.mark.parametrize("case", JUMANPP_SNIPPETS)
-def test_from_jumanpp(case: dict[str, str]) -> None:
+def test_from_jumanpp(case: Dict[str, str]) -> None:
     _ = Morpheme.from_jumanpp(case["jumanpp"])
 
 
@@ -332,7 +372,7 @@ def test_from_jumanpp_error() -> None:
 
 
 @pytest.mark.parametrize("case", JUMANPP_SNIPPETS)
-def test_to_jumanpp(case: dict[str, str]) -> None:
+def test_to_jumanpp(case: Dict[str, str]) -> None:
     morpheme = Morpheme.from_jumanpp(case["jumanpp"])
     assert morpheme.to_jumanpp() == case["jumanpp"]
 
@@ -342,40 +382,51 @@ def test_to_jumanpp(case: dict[str, str]) -> None:
     "attr",
     ["text", "surf", "reading", "lemma", "pos", "subpos", "conjtype", "conjform", "sstring", "fstring", "canon"],
 )
-def test_attr(case: dict[str, str], attr: str) -> None:
+def test_attr(case: Dict[str, str], attr: str) -> None:
     morpheme = Morpheme.from_jumanpp(case["jumanpp"])
     assert getattr(morpheme, attr) == case[attr]
 
 
 @pytest.mark.parametrize("case", JUMANPP_SNIPPETS)
-def test_semantics(case: dict[str, str]) -> None:
-    morpheme = Morpheme.from_jumanpp(case["jumanpp"])
-    assert str(morpheme.semantics) == case["sstring"]
+@pytest.mark.parametrize(
+    "attr",
+    ["reading", "lemma", "pos", "subpos", "conjtype", "conjform", "sstring", "fstring", "canon"],
+)
+def test_attr_error(case: Dict[str, str], attr: str) -> None:
+    morpheme = Morpheme(case["text"], attributes=None)
+    with pytest.raises(AttributeError):
+        _ = getattr(morpheme, attr + "s")
 
 
 @pytest.mark.parametrize("case", JUMANPP_SNIPPETS)
-def test_document_error(case: dict[str, str]) -> None:
+def test_semantics(case: Dict[str, str]) -> None:
+    morpheme = Morpheme.from_jumanpp(case["jumanpp"])
+    assert morpheme.semantics.to_sstring() == case["sstring"]
+
+
+@pytest.mark.parametrize("case", JUMANPP_SNIPPETS)
+def test_document_error(case: Dict[str, str]) -> None:
     with pytest.raises(AttributeError):
         morpheme = Morpheme.from_jumanpp(case["jumanpp"])
         _ = morpheme.document
 
 
 @pytest.mark.parametrize("case", JUMANPP_SNIPPETS)
-def test_sentence_error(case: dict[str, str]) -> None:
+def test_sentence_error(case: Dict[str, str]) -> None:
     with pytest.raises(AttributeError):
         morpheme = Morpheme.from_jumanpp(case["jumanpp"])
         _ = morpheme.sentence
 
 
 @pytest.mark.parametrize("case", JUMANPP_SNIPPETS)
-def test_phrase_error(case: dict[str, str]) -> None:
+def test_phrase_error(case: Dict[str, str]) -> None:
     with pytest.raises(AttributeError):
         morpheme = Morpheme.from_jumanpp(case["jumanpp"])
         _ = morpheme.phrase
 
 
 @pytest.mark.parametrize("case", JUMANPP_SNIPPETS)
-def test_base_phrase_error(case: dict[str, str]) -> None:
+def test_base_phrase_error(case: Dict[str, str]) -> None:
     with pytest.raises(AttributeError):
         morpheme = Morpheme.from_jumanpp(case["jumanpp"])
         _ = morpheme.base_phrase
@@ -430,3 +481,37 @@ def test_morpheme_homograph() -> None:
     assert homograph.conjform == "*"
     assert homograph.sstring == '"代表表記:母/ぼ 漢字読み:音 カテゴリ:人"'
     assert homograph.fstring == ""
+
+
+def test_morpheme_homograph_to_knp() -> None:
+    knp = textwrap.dedent(
+        """\
+        # S-ID:1
+        * -1D <体言><用言:判>
+        + -1D <体言><用言:判>
+        母 はは 母 名詞 6 普通名詞 1 * 0 * 0 "代表表記:母/はは ドメイン:家庭・暮らし カテゴリ:人 漢字読み:訓"
+        EOS
+        """
+    )
+    jumanpp_homograph = textwrap.dedent(
+        """\
+        母 はは 母 名詞 6 普通名詞 1 * 0 * 0 "代表表記:母/はは ドメイン:家庭・暮らし カテゴリ:人 漢字読み:訓"
+        @ 母 ぼ 母 名詞 6 普通名詞 1 * 0 * 0 "代表表記:母/ぼ 漢字読み:音 カテゴリ:人"
+        """
+    )
+    knp_homograph = textwrap.dedent(
+        """\
+        # S-ID:1
+        * -1D <体言><用言:判>
+        + -1D <体言><用言:判>
+        母 はは 母 名詞 6 普通名詞 1 * 0 * 0 "代表表記:母/はは ドメイン:家庭・暮らし カテゴリ:人 漢字読み:訓" <ALT-母-ぼ-母-6-1-0-0-"代表表記:母/ぼ 漢字読み:音 カテゴリ:人">
+        EOS
+        """
+    )
+    sentence = Sentence.from_knp(knp)
+    morpheme_homograph = Morpheme.from_jumanpp(jumanpp_homograph)
+    assert len(sentence.morphemes) == 1
+    sentence.morphemes[0].homographs = morpheme_homograph.homographs
+    assert len(sentence.morphemes[0].homographs) == 1
+    assert sentence.morphemes[0].to_jumanpp() == jumanpp_homograph
+    assert sentence.to_knp() == knp_homograph

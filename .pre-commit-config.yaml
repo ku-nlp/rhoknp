@@ -22,8 +22,10 @@ repos:
     rev: v0.910
     hooks:
     -   id: mypy
+        additional_dependencies:
+            - types-PyYAML
 - repo: https://github.com/asottile/pyupgrade
   rev: v2.31.1
   hooks:
     - id: pyupgrade
-      args: [--py39-plus]
+      args: [--py38-plus]

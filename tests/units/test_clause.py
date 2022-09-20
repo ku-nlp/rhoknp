@@ -1,4 +1,5 @@
 import textwrap
+from typing import Dict
 
 import pytest
 
@@ -22,7 +23,8 @@ CASES = [
             散歩 さんぽ 散歩 名詞 6 サ変名詞 2 * 0 * 0 "代表表記:散歩/さんぽ ドメイン:レクリエーション カテゴリ:抽象物" <代表表記:散歩/さんぽ><ドメイン:レクリエーション><カテゴリ:抽象物><正規化代表表記:散歩/さんぽ><漢字><かな漢字><名詞相当語><サ変><サ変動詞><自立><内容語><タグ単位始><文節始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
             した した する 動詞 2 * 0 サ変動詞 16 タ形 10 "代表表記:する/する 自他動詞:自:成る/なる 付属動詞候補（基本）" <代表表記:する/する><自他動詞:自:成る/なる><付属動詞候補（基本）><正規化代表表記:する/する><かな漢字><ひらがな><活用語><表現文末><とタ系連用テ形複合辞><付属>
             。 。 。 特殊 1 句点 1 * 0 * 0 NIL <英記号><記号><文末><付属>
-            EOS"""
+            EOS
+            """
         ),
         "num": 2,
         "parent_ids": [1, -1],
@@ -52,6 +54,38 @@ CASES = [
         "parent_ids": [-1],
         "children_ids": [[]],
     },
+    {
+        "knp": textwrap.dedent(
+            textwrap.dedent(
+                """\
+                # S-ID:1
+                * 1D <BGH:御飯/ごはん><文頭><ヲ><助詞><体言><係:ヲ格><区切:0-0><格要素><連用要素><正規化代表表記:御飯/ごはん><主辞代表表記:御飯/ごはん>
+                + 1D <BGH:御飯/ごはん><文頭><ヲ><助詞><体言><係:ヲ格><区切:0-0><格要素><連用要素><名詞項候補><先行詞候補><正規化代表表記:御飯/ごはん><主辞代表表記:御飯/ごはん><解析格:ヲ>
+                ご飯 ごはん ご飯 名詞 6 普通名詞 1 * 0 * 0 "代表表記:御飯/ごはん ドメイン:料理・食事 カテゴリ:人工物-食べ物" <代表表記:御飯/ごはん><ドメイン:料理・食事><カテゴリ:人工物-食べ物><正規化代表表記:御飯/ごはん><かな漢字><名詞相当語><文頭><自立><内容語><タグ単位始><文節始><文節主辞>
+                を を を 助詞 9 格助詞 1 * 0 * 0 NIL <かな漢字><ひらがな><付属>
+                * 2D <BGH:食べる/たべる><連体修飾><用言:動><係:連格><レベル:B><区切:0-5><ID:（動詞連体形副名）><連体節><動態述語><正規化代表表記:食べる/たべる><主辞代表表記:食べる/たべる>
+                + 2D <BGH:食べる/たべる><連体修飾><用言:動><係:連格><レベル:B><区切:0-5><ID:（動詞連体形副名）><連体節><動態述語><正規化代表表記:食べる/たべる><主辞代表表記:食べる/たべる><用言代表表記:食べる/たべる~テ形+いる/いる><節-主辞><時制:非過去><格関係0:ヲ:ご飯><格関係2:外の関係:ところ><格解析結果:食べる/たべる~テ形+いる/いる:動1:ガ/U/-/-/-/-;ヲ/C/ご飯/0/0/1;ニ/U/-/-/-/-;デ/U/-/-/-/-;カラ/U/-/-/-/-;マデ/U/-/-/-/-;時間/U/-/-/-/-;外の関係/N/ところ/2/0/1><標準用言代表表記:食べる/たべる~テ形+いる/いる>
+                食べて たべて 食べる 動詞 2 * 0 母音動詞 1 タ系連用テ形 14 "代表表記:食べる/たべる ドメイン:料理・食事" <代表表記:食べる/たべる><ドメイン:料理・食事><正規化代表表記:食べる/たべる><かな漢字><活用語><自立><内容語><タグ単位始><文節始><用言見出接辞:テ形><文節主辞><用言表記先頭>
+                いる いる いる 接尾辞 14 動詞性接尾辞 7 母音動詞 1 基本形 2 "代表表記:いる/いる" <代表表記:いる/いる><正規化代表表記:いる/いる><かな漢字><ひらがな><活用語><付属><用言表記末尾><用言意味表記末尾>
+                * 4D <形副名詞><外の関係><ニ><助詞><体言><係:ニ格><区切:0-0><格要素><連用要素><機能的基本句><正規化代表表記:ところ/ところ><主辞代表表記:ところ/ところ>
+                + 4D <形副名詞><外の関係><ニ><助詞><体言><係:ニ格><区切:0-0><格要素><連用要素><機能的基本句><名詞項候補><省略解析なし><正規化代表表記:ところ/ところ><主辞代表表記:ところ/ところ><節-区切><節-機能疑-目的:サ変名詞+に><クエリ削除語><解析連格:外の関係><解析格:ニ>
+                ところ ところ ところ 名詞 6 副詞的名詞 9 * 0 * 0 "代表表記:ところ/ところ" <代表表記:ところ/ところ><正規化代表表記:ところ/ところ><かな漢字><ひらがな><名詞相当語><形副名詞><自立><内容語><タグ単位始><文節始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
+                に に に 助詞 9 格助詞 1 * 0 * 0 NIL <かな漢字><ひらがな><付属>
+                * 4D <SM-主体><SM-人><BGH:彼/かれ><ガ><助詞><体言><一文字漢字><係:ガ格><区切:0-0><格要素><連用要素><正規化代表表記:彼/かれ><主辞代表表記:彼/かれ>
+                + 4D <SM-主体><SM-人><BGH:彼/かれ><ガ><助詞><体言><一文字漢字><係:ガ格><区切:0-0><格要素><連用要素><名詞項候補><先行詞候補><人称代名詞><正規化代表表記:彼/かれ><主辞代表表記:彼/かれ><解析格:ガ>
+                彼 かれ 彼 名詞 6 普通名詞 1 * 0 * 0 "代表表記:彼/かれ カテゴリ:人 漢字読み:訓" <代表表記:彼/かれ><カテゴリ:人><漢字読み:訓><正規化代表表記:彼/かれ><漢字><かな漢字><名詞相当語><自立><内容語><タグ単位始><文節始><文節主辞>
+                が が が 助詞 9 格助詞 1 * 0 * 0 NIL <かな漢字><ひらがな><付属>
+                * -1D <BGH:来る/くる><文末><時制:過去><用言:動><レベル:C><区切:5-5><ID:（文末）><提題受:30><主節><動態述語><正規化代表表記:来る/くる><主辞代表表記:来る/くる>
+                + -1D <BGH:来る/くる><文末><時制:過去><用言:動><レベル:C><区切:5-5><ID:（文末）><提題受:30><主節><動態述語><正規化代表表記:来る/くる><主辞代表表記:来る/くる><用言代表表記:来る/くる><節-区切><節-主辞><主題格:一人称優位><格関係2:ニ:ところ><格関係3:ガ:彼><格解析結果:来る/くる:動17:ガ/C/彼/3/0/1;ニ/C/ところ/2/0/1;ト/U/-/-/-/-;デ/U/-/-/-/-;時間/U/-/-/-/-><標準用言代表表記:来る/くる>
+                来た 来た 来る 動詞 2 * 0 カ変動詞来 15 タ形 10 "代表表記:来る/くる 反義:動詞:帰る/かえる" <代表表記:来る/くる><反義:動詞:帰る/かえる><正規化代表表記:来る/くる><移動動詞><かな漢字><活用語><文末><表現文末><自立><内容語><タグ単位始><文節始><文節主辞><用言表記先頭><用言表記末尾><用言意味表記末尾>
+                EOS
+                """
+            )
+        ),
+        "num": 2,
+        "parent_ids": [1, -1],
+        "children_ids": [[], [0]],
+    },
 ]
 
 
@@ -75,6 +109,7 @@ KNP_SNIPPETS = [
         "morpheme_num": 4,
         "head_text": "いいので",
         "end_text": "いいので",
+        "is_adnominal": False,
     },
     {
         "knp": textwrap.dedent(
@@ -92,6 +127,7 @@ KNP_SNIPPETS = [
         "morpheme_num": 3,
         "head_text": "散歩した。",
         "end_text": "散歩した。",
+        "is_adnominal": False,
     },
     {
         "knp": textwrap.dedent(
@@ -115,6 +151,7 @@ KNP_SNIPPETS = [
         "morpheme_num": 6,
         "head_text": "記号です。",
         "end_text": "記号です。",
+        "is_adnominal": False,
     },
     {
         "knp": textwrap.dedent(
@@ -134,116 +171,144 @@ KNP_SNIPPETS = [
         "morpheme_num": 3,
         "head_text": "走った",
         "end_text": "ところで",
+        "is_adnominal": False,
+    },
+    {
+        "knp": textwrap.dedent(
+            """\
+            * 1D <SM-主体><SM-人><BGH:私/わたし><文頭><一人称><ガ><助詞><体言><一文字漢字><係:ガ格><区切:0-0><格要素><連用要素><正規化代表表記:私/わたし><主辞代表表記:私/わたし>
+            + 1D <SM-主体><SM-人><BGH:私/わたし><文頭><一人称><ガ><助詞><体言><一文字漢字><係:ガ格><区切:0-0><格要素><連用要素><名詞項候補><先行詞候補><正規化代表表記:私/わたし><主辞代表表記:私/わたし><解析格:ガ>
+            私 わたし 私 名詞 6 普通名詞 1 * 0 * 0 "代表表記:私/わたし カテゴリ:人 漢字読み:訓" <代表表記:私/わたし><カテゴリ:人><漢字読み:訓><正規化代表表記:私/わたし><一人称><漢字><かな漢字><名詞相当語><文頭><自立><内容語><タグ単位始><文節始><文節主辞>
+            が が が 助詞 9 格助詞 1 * 0 * 0 NIL <かな漢字><ひらがな><付属>
+            * 2D <BGH:育てる/そだてる><連体修飾><用言:動><係:連格><レベル:B><区切:0-5><ID:（動詞連体）><連体節><動態述語><正規化代表表記:育てる/そだてる><主辞代表表記:育てる/そだてる>
+            + 2D <BGH:育てる/そだてる><連体修飾><用言:動><係:連格><レベル:B><区切:0-5><ID:（動詞連体）><連体節><動態述語><正規化代表表記:育てる/そだてる><主辞代表表記:育てる/そだてる><用言代表表記:育てる/そだてる~テ形+いる/いる><節-区切:連体修飾><節-主辞><時制:非過去><格関係0:ガ:私><格関係2:ヲ:犬><格解析結果:育てる/そだてる~テ形+いる/いる:動2:ガ/C/私/0/0/1;ヲ/N/犬/2/0/1;ニ/U/-/-/-/-;デ/U/-/-/-/-;時間/U/-/-/-/-><標準用言代表表記:育てる/そだてる~テ形+いる/いる>
+            育てて そだてて 育てる 動詞 2 * 0 母音動詞 1 タ系連用テ形 14 "代表表記:育てる/そだてる ドメイン:家庭・暮らし 自他動詞:自:育つ/そだつ" <代表表記:育てる/そだてる><ドメイン:家庭・暮らし><自他動詞:自:育つ/そだつ><正規化代表表記:育てる/そだてる><かな漢字><活用語><自立><内容語><タグ単位始><文節始><用言見出接辞:テ形><文節主辞><用言表記先頭>
+            いる いる いる 接尾辞 14 動詞性接尾辞 7 母音動詞 1 基本形 2 "代表表記:いる/いる" <代表表記:いる/いる><正規化代表表記:いる/いる><かな漢字><ひらがな><活用語><付属><用言表記末尾><用言意味表記末尾>
+            """
+        ),
+        "text": "私が育てている",
+        "phrase_num": 2,
+        "base_phrase_num": 2,
+        "morpheme_num": 4,
+        "head_text": "育てている",
+        "end_text": "育てている",
+        "is_adnominal": True,
     },
 ]
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_document(case: dict[str, str]) -> None:
+def test_document(case: Dict[str, str]) -> None:
     doc = Document.from_knp(case["knp"])
     for clause in doc.clauses:
         assert clause.document == doc
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_sentence(case: dict[str, str]) -> None:
+def test_sentence(case: Dict[str, str]) -> None:
     sent = Sentence.from_knp(case["knp"])
     for clause in sent.clauses:
         assert clause.sentence == sent
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_num_document(case: dict[str, str]) -> None:
+def test_num_document(case: Dict[str, str]) -> None:
     doc = Document.from_knp(case["knp"])
     assert len(doc.clauses) == case["num"]
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_num_sentence(case: dict[str, str]) -> None:
+def test_num_sentence(case: Dict[str, str]) -> None:
     sent = Sentence.from_knp(case["knp"])
     assert len(sent.clauses) == case["num"]
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_parent_document(case: dict[str, str]) -> None:
+def test_parent_document(case: Dict[str, str]) -> None:
     doc = Document.from_knp(case["knp"])
     assert [clause.parent.index if clause.parent else -1 for clause in doc.clauses] == case["parent_ids"]
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_parent_sentence(case: dict[str, str]) -> None:
+def test_parent_sentence(case: Dict[str, str]) -> None:
     sent = Sentence.from_knp(case["knp"])
     assert [clause.parent.index if clause.parent else -1 for clause in sent.clauses] == case["parent_ids"]
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_children_document(case: dict[str, str]) -> None:
+def test_children_document(case: Dict[str, str]) -> None:
     doc = Document.from_knp(case["knp"])
     assert [[child.index for child in clause.children] for clause in doc.clauses] == case["children_ids"]
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_children_sentence(case: dict[str, str]) -> None:
+def test_children_sentence(case: Dict[str, str]) -> None:
     sent = Sentence.from_knp(case["knp"])
     assert [[child.index for child in clause.children] for clause in sent.clauses] == case["children_ids"]
 
 
 @pytest.mark.parametrize("case", KNP_SNIPPETS)
-def test_from_knp(case: dict[str, str]) -> None:
+def test_from_knp(case: Dict[str, str]) -> None:
     _ = Clause.from_knp(case["knp"])
 
 
 @pytest.mark.parametrize("case", KNP_SNIPPETS)
-def test_to_knp(case: dict[str, str]) -> None:
+def test_to_knp(case: Dict[str, str]) -> None:
     clause = Clause.from_knp(case["knp"])
     assert clause.to_knp() == case["knp"]
 
 
 @pytest.mark.parametrize("case", KNP_SNIPPETS)
-def test_text(case: dict[str, str]) -> None:
+def test_text(case: Dict[str, str]) -> None:
     clause = Clause.from_knp(case["knp"])
     assert clause.text == case["text"]
 
 
 @pytest.mark.parametrize("case", KNP_SNIPPETS)
-def test_document_error(case: dict[str, str]) -> None:
+def test_document_error(case: Dict[str, str]) -> None:
     with pytest.raises(AttributeError):
         clause = Clause.from_knp(case["knp"])
         _ = clause.document
 
 
 @pytest.mark.parametrize("case", KNP_SNIPPETS)
-def test_sentence_error(case: dict[str, str]) -> None:
+def test_sentence_error(case: Dict[str, str]) -> None:
     with pytest.raises(AttributeError):
         clause = Clause.from_knp(case["knp"])
         _ = clause.sentence
 
 
 @pytest.mark.parametrize("case", KNP_SNIPPETS)
-def test_phrase_num(case: dict[str, str]) -> None:
+def test_phrase_num(case: Dict[str, str]) -> None:
     clause = Clause.from_knp(case["knp"])
     assert len(clause.phrases) == case["phrase_num"]
 
 
 @pytest.mark.parametrize("case", KNP_SNIPPETS)
-def test_base_phrase_num(case: dict[str, str]) -> None:
+def test_base_phrase_num(case: Dict[str, str]) -> None:
     clause = Clause.from_knp(case["knp"])
     assert len(clause.base_phrases) == case["base_phrase_num"]
 
 
 @pytest.mark.parametrize("case", KNP_SNIPPETS)
-def test_morpheme_num(case: dict[str, str]) -> None:
+def test_morpheme_num(case: Dict[str, str]) -> None:
     clause = Clause.from_knp(case["knp"])
     assert len(clause.morphemes) == case["morpheme_num"]
 
 
 @pytest.mark.parametrize("case", KNP_SNIPPETS)
-def test_head_text(case: dict[str, str]) -> None:
+def test_head_text(case: Dict[str, str]) -> None:
     clause = Clause.from_knp(case["knp"])
     assert clause.head.text == case["head_text"]
 
 
 @pytest.mark.parametrize("case", KNP_SNIPPETS)
-def test_end_text(case: dict[str, str]) -> None:
+def test_end_text(case: Dict[str, str]) -> None:
     clause = Clause.from_knp(case["knp"])
     assert clause.end.text == case["end_text"]
+
+
+@pytest.mark.parametrize("case", KNP_SNIPPETS)
+def test_is_adnominal(case: Dict[str, str]) -> None:
+    clause = Clause.from_knp(case["knp"])
+    assert clause.is_adnominal == case["is_adnominal"]

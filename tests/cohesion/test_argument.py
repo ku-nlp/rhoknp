@@ -22,7 +22,7 @@ def test_endophora_argument() -> None:
     # assert argument.sentence == base_phrase.sentence
     # assert argument.clause == base_phrase.clause
     # assert argument.phrase == base_phrase.phrase
-    assert repr(argument) == f"EndophoraArgument(base_phrase={repr(base_phrase)}, arg_type={repr(arg_type)})"
+    assert repr(argument) == "<rhoknp.cohesion.argument.EndophoraArgument: '彼は'>"
     assert str(argument) == base_phrase.text
     assert argument != "test"
     assert argument == EndophoraArgument(
@@ -38,6 +38,7 @@ def test_exophora_argument() -> None:
     assert argument.exophora_referent == exophora_referent
     assert argument.eid == 3
     assert repr(argument) == f"ExophoraArgument(exophora_referent={repr(exophora_referent)}, eid=3)"
+    assert eval(repr(argument)) == argument
     assert str(argument) == "不特定:人"
     assert argument != "test"
     assert argument == ExophoraArgument(exophora_referent, eid=1)  # TODO: consider whether this is expected

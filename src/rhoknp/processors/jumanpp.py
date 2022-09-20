@@ -1,6 +1,6 @@
 import logging
 from subprocess import PIPE, Popen, run
-from typing import Optional, Union
+from typing import List, Optional, Union
 
 from rhoknp.processors.processor import Processor
 from rhoknp.processors.senter import RegexSenter
@@ -29,7 +29,7 @@ class Jumanpp(Processor):
     def __init__(
         self,
         executable: str = "jumanpp",
-        options: Optional[list[str]] = None,
+        options: Optional[List[str]] = None,
         senter: Optional[Processor] = None,
     ):
         self.executable = executable
@@ -66,7 +66,7 @@ class Jumanpp(Processor):
             document = self.senter.apply_to_document(document)
 
         with Popen(self.run_command, stdout=PIPE, stdin=PIPE, encoding="utf-8") as p:
-            jumanpp_text, _ = p.communicate(input=document.to_plain())
+            jumanpp_text, _ = p.communicate(input=document.to_raw_text())
         return Document.from_jumanpp(jumanpp_text)
 
     def apply_to_sentence(self, sentence: Union[Sentence, str]) -> Sentence:
@@ -79,7 +79,7 @@ class Jumanpp(Processor):
             sentence = Sentence(sentence)
 
         with Popen(self.run_command, stdout=PIPE, stdin=PIPE, encoding="utf-8") as p:
-            jumanpp_text, _ = p.communicate(input=sentence.to_plain())
+            jumanpp_text, _ = p.communicate(input=sentence.to_raw_text())
         return Sentence.from_jumanpp(jumanpp_text)
 
     def is_available(self) -> bool:
@@ -93,7 +93,7 @@ class Jumanpp(Processor):
             return False
 
     @property
-    def run_command(self) -> list[str]:
+    def run_command(self) -> List[str]:
         """解析時に実行するコマンド．"""
         command = [self.executable]
         if self.options:
@@ -101,6 +101,6 @@ class Jumanpp(Processor):
         return command
 
     @property
-    def version_command(self) -> list[str]:
+    def version_command(self) -> List[str]:
         """バージョン確認時に実行するコマンド．"""
         return [self.executable, "-v"]

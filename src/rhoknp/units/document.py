@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Optional, Sequence, Union
+from typing import Any, List, Optional, Sequence, Union
 
 from rhoknp.cohesion.coreference import EntityManager
 from rhoknp.cohesion.pas import Pas
@@ -31,7 +31,7 @@ class Document(Unit):
         Sentence.count = 0
 
         # child units
-        self._sentences: Optional[list[Sentence]] = None
+        self._sentences: Optional[List[Sentence]] = None
 
         if text is not None:
             self.text = text
@@ -43,27 +43,18 @@ class Document(Unit):
 
         self.entity_manager = EntityManager()
 
-    def _post_init(self) -> None:
-        """インスタンス作成後の追加処理を行う．"""
-        if self.need_senter is False:
-            for sentence in self.sentences:
-                sentence.post_init()
-        if self.need_knp is False:
-            for base_phrase in self.base_phrases:
-                base_phrase.parse_rel_tag()
-
     @property
     def parent_unit(self) -> None:
         """上位の言語単位．文書は最上位の言語単位なので常に None．"""
         return None
 
     @property
-    def child_units(self) -> Optional[list[Sentence]]:
+    def child_units(self) -> Optional[List[Sentence]]:
         """下位の言語単位（文）のリスト．解析結果にアクセスできないなら None．"""
         return self._sentences
 
     @property
-    def sentences(self) -> list[Sentence]:
+    def sentences(self) -> List[Sentence]:
         """文のリスト．
 
         Raises:
@@ -74,7 +65,7 @@ class Document(Unit):
         return self._sentences
 
     @sentences.setter
-    def sentences(self, sentences: list[Sentence]) -> None:
+    def sentences(self, sentences: List[Sentence]) -> None:
         """文のリスト．
 
         Args:
@@ -85,7 +76,7 @@ class Document(Unit):
         self._sentences = sentences
 
     @property
-    def clauses(self) -> list[Clause]:
+    def clauses(self) -> List[Clause]:
         """節のリスト．
 
         Raises:
@@ -94,7 +85,7 @@ class Document(Unit):
         return [clause for sentence in self.sentences for clause in sentence.clauses]
 
     @property
-    def phrases(self) -> list[Phrase]:
+    def phrases(self) -> List[Phrase]:
         """文節のリスト．
 
         Raises:
@@ -103,7 +94,7 @@ class Document(Unit):
         return [phrase for sentence in self.sentences for phrase in sentence.phrases]
 
     @property
-    def base_phrases(self) -> list[BasePhrase]:
+    def base_phrases(self) -> List[BasePhrase]:
         """基本句のリスト．
 
         Raises:
@@ -112,7 +103,7 @@ class Document(Unit):
         return [base_phrase for sentence in self.sentences for base_phrase in sentence.base_phrases]
 
     @property
-    def morphemes(self) -> list[Morpheme]:
+    def morphemes(self) -> List[Morpheme]:
         """形態素のリスト．
 
         Raises:
@@ -121,7 +112,7 @@ class Document(Unit):
         return [morpheme for sentence in self.sentences for morpheme in sentence.morphemes]
 
     @property
-    def named_entities(self) -> list[NamedEntity]:
+    def named_entities(self) -> List[NamedEntity]:
         """固有表現のリスト．"""
         return [ne for sentence in self.sentences for ne in sentence.named_entities]
 
@@ -145,7 +136,7 @@ class Document(Unit):
         """KNP による節-主辞・節-区切のタグ付与がまだなら True．"""
         return self.need_senter or any(sentence.need_clause_tag for sentence in self.sentences)
 
-    def pas_list(self) -> list[Pas]:
+    def pas_list(self) -> List[Pas]:
         """述語項構造のリストを返却．"""
         return [base_phrase.pas for base_phrase in self.base_phrases if base_phrase.pas is not None]
 
@@ -164,7 +155,7 @@ class Document(Unit):
             doc = Document.from_raw_text(text)
         """
         document = cls(text.strip())
-        document._post_init()
+        document.__post_init__()
         return document
 
     @classmethod
@@ -191,7 +182,7 @@ class Document(Unit):
         """
         document = cls()
         sentences = []
-        sentence_lines: list[str] = []
+        sentence_lines: List[str] = []
         for line in text.split("\n"):
             if line.strip() == "":
                 continue
@@ -201,7 +192,7 @@ class Document(Unit):
             sentences.append(Sentence.from_raw_text("\n".join(sentence_lines), post_init=False))
             sentence_lines = []
         document.sentences = sentences
-        document._post_init()
+        document.__post_init__()
         return document
 
     @classmethod
@@ -233,7 +224,7 @@ class Document(Unit):
         document.sentences = sentences_
         if sentences_:
             document.doc_id = sentences_[0].doc_id
-        document._post_init()
+        document.__post_init__()
         return document
 
     @classmethod
@@ -273,7 +264,7 @@ class Document(Unit):
         """
         document = cls()
         sentences = []
-        sentence_lines: list[str] = []
+        sentence_lines: List[str] = []
         for line in jumanpp_text.split("\n"):
             if line.strip() == "":
                 continue
@@ -286,7 +277,7 @@ class Document(Unit):
                         raise e
                 sentence_lines = []
         document.sentences = sentences
-        document._post_init()
+        document.__post_init__()
         return document
 
     @classmethod
@@ -342,7 +333,7 @@ class Document(Unit):
         """
         document = cls()
         sentences = []
-        sentence_lines: list[str] = []
+        sentence_lines: List[str] = []
         for line in knp_text.split("\n"):
             if line.strip() == "":
                 continue
@@ -357,7 +348,7 @@ class Document(Unit):
         document.sentences = sentences
         if sentences:
             document.doc_id = sentences[0].doc_id
-        document._post_init()
+        document.__post_init__()
         return document
 
     def reparse(self) -> "Document":
@@ -371,18 +362,18 @@ class Document(Unit):
         elif self.need_jumanpp is False:
             return Document.from_jumanpp(self.to_jumanpp())
         elif self.need_senter is False:
-            return Document.from_line_by_line_text(self.to_plain())
-        return Document.from_raw_text(self.to_plain())
+            return Document.from_line_by_line_text(self.to_raw_text())
+        return Document.from_raw_text(self.to_raw_text())
 
-    def to_plain(self) -> str:
-        """プレーンテキストフォーマットに変換．
+    def to_raw_text(self) -> str:
+        """生テキストフォーマットに変換．
 
         .. note::
             文分割済みの場合は一行一文の形式で出力．
         """
         if self.need_senter:
             return self.text.rstrip() + "\n"
-        return "".join(sentence.to_plain() for sentence in self.sentences)
+        return "".join(sentence.to_raw_text() for sentence in self.sentences)
 
     def to_jumanpp(self) -> str:
         """Juman++ フォーマットに変換．"""

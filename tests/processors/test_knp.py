@@ -16,7 +16,7 @@ from rhoknp import KNP, Jumanpp, RegexSenter
     ],
 )
 def test_knp_apply(text: str) -> None:
-    knp = KNP()
+    knp = KNP(options=["-tab"])
     sent = knp.apply(text)
     assert sent.text == text.replace(" ", "　").replace('"', "”")
 

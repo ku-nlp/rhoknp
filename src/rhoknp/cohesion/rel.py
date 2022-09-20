@@ -1,7 +1,7 @@
 import re
 from dataclasses import dataclass
 from enum import Enum
-from typing import ClassVar, Optional
+from typing import ClassVar, List, Optional
 
 
 class RelMode(Enum):
@@ -28,7 +28,7 @@ class RelMode(Enum):
 class RelTag:
     """関係タグ付きコーパスにおける <rel> タグを表すクラス．"""
 
-    PAT: ClassVar[re.Pattern[str]] = re.compile(
+    PAT: ClassVar[re.Pattern] = re.compile(
         r'<rel type="(?P<type>\S+?)"( mode="(?P<mode>[^>]+?)")? target="(?P<target>.+?)"( sid="(?P<sid>.*?)" '
         r'id="(?P<id>\d+?)")?/>'
     )
@@ -51,7 +51,7 @@ class RelTag:
         return ret
 
 
-class RelTagList(list[RelTag]):
+class RelTagList(List[RelTag]):
     """関係タグ付きコーパスにおける <rel> タグの列を表すクラス．"""
 
     @classmethod

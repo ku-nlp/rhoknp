@@ -1,5 +1,5 @@
-rhoknp.rel package
-==================
+rhoknp.cohesion package
+=======================
 
 .. toctree::
    :maxdepth: 4
@@ -10,4 +10,4 @@ rhoknp.rel package
    rhoknp.cohesion.argument
    rhoknp.cohesion.exophora
    rhoknp.cohesion.coreference
-   rhoknp.cohesion.discourse_relation
+   rhoknp.cohesion.discourse
