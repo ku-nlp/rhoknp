@@ -18,4 +18,4 @@ def test_predicate() -> None:
     with pytest.raises(AttributeError):
         _ = predicate.pas
     assert str(predicate) == "行った。"
-    assert repr(predicate) == "Predicate(text='行った。')"
+    assert repr(predicate) == "<rhoknp.cohesion.predicate.Predicate: '行った。'>"

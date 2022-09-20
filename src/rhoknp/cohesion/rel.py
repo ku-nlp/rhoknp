@@ -1,4 +1,7 @@
+import re
+from dataclasses import dataclass
 from enum import Enum
+from typing import ClassVar, List, Optional
 
 
 class RelMode(Enum):
@@ -19,3 +22,57 @@ class RelMode(Enum):
     AND = "AND"
     OR = "OR"
     AMBIGUOUS = "？"
+
+
+@dataclass
+class RelTag:
+    """関係タグ付きコーパスにおける <rel> タグを表すクラス．"""
+
+    PAT: ClassVar[re.Pattern] = re.compile(
+        r'<rel type="(?P<type>\S+?)"( mode="(?P<mode>[^>]+?)")? target="(?P<target>.+?)"( sid="(?P<sid>.*?)" '
+        r'id="(?P<id>\d+?)")?/>'
+    )
+    type: str
+    target: str
+    sid: Optional[str]
+    base_phrase_index: Optional[int]
+    mode: Optional[RelMode]
+
+    def to_fstring(self) -> str:
+        """素性文字列に変換．"""
+        ret = f'<rel type="{self.type}"'
+        if self.mode is not None:
+            ret += f' mode="{self.mode.value}"'
+        ret += f' target="{self.target}"'
+        if self.sid is not None:
+            assert self.base_phrase_index is not None
+            ret += f' sid="{self.sid}" id="{self.base_phrase_index}"'
+        ret += "/>"
+        return ret
+
+
+class RelTagList(List[RelTag]):
+    """関係タグ付きコーパスにおける <rel> タグの列を表すクラス．"""
+
+    @classmethod
+    def from_fstring(cls, fstring: str) -> "RelTagList":
+        """KNP における素性文字列からオブジェクトを作成．"""
+        rels = []
+        for match in RelTag.PAT.finditer(fstring):
+            rels.append(
+                RelTag(
+                    type=match["type"],
+                    target=match["target"],
+                    sid=match["sid"],
+                    base_phrase_index=int(match["id"]) if match["id"] else None,
+                    mode=RelMode(match["mode"]) if match["mode"] else None,
+                )
+            )
+        return cls(rels)
+
+    def to_fstring(self) -> str:
+        """素性文字列に変換．"""
+        return "".join(rel.to_fstring() for rel in self)
+
+    def __str__(self) -> str:
+        return self.to_fstring()

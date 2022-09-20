@@ -76,15 +76,12 @@ class Entity:
             return ""
 
     def __repr__(self) -> str:
-        ret = f"{self.__class__.__name__}(eid={repr(self.eid)}"
-        if self.mentions:
-            ret += f", mentions={repr(self.mentions)}"
-        if self.mentions_nonidentical:
-            ret += f", mentions_nonidentical={repr(self.mentions_nonidentical)}"
+        items = [repr(self.eid)]
+        items += [repr(m.text) for m in self.mentions]
+        items += [repr(m.text) for m in self.mentions_nonidentical]
         if self.exophora_referent:
-            ret += f", exophora_referent={repr(self.exophora_referent)}"
-        ret += ")"
-        return ret
+            items.append(repr(self.exophora_referent))
+        return f"<{self.__module__}.{self.__class__.__name__}: {', '.join(items)}>"
 
     def __hash__(self):
         return hash(self.eid)

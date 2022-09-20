@@ -20,7 +20,12 @@ class Phrase(Unit):
     KNP_PAT = re.compile(rf"^\*( (?P<pid>-1|\d+)(?P<dtype>[DPAI]))?( {FeatureDict.PAT.pattern})?$")
     count = 0
 
-    def __init__(self, parent_index: Optional[int], dep_type: Optional[DepType], features: FeatureDict):
+    def __init__(
+        self,
+        parent_index: Optional[int],
+        dep_type: Optional[DepType],
+        features: Optional[FeatureDict] = None,
+    ):
         super().__init__()
 
         # parent unit
@@ -32,7 +37,7 @@ class Phrase(Unit):
 
         self.parent_index: Optional[int] = parent_index  #: 係り先の文節の文内におけるインデックス．
         self.dep_type: Optional[DepType] = dep_type  #: 係り受けの種類．
-        self.features: FeatureDict = features  #: 素性．
+        self.features: FeatureDict = features or FeatureDict()  #: 素性．
 
         self.index = self.count
         Phrase.count += 1
@@ -193,7 +198,7 @@ class Phrase(Unit):
             assert self.dep_type is not None
             ret += f" {self.parent_index}{self.dep_type.value}"
         if self.features:
-            ret += f" {self.features}"
+            ret += f" {self.features.to_fstring()}"
         ret += "\n"
         ret += "".join(base_phrase.to_knp() for base_phrase in self.base_phrases)
         return ret

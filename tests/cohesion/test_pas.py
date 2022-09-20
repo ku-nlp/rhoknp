@@ -275,12 +275,7 @@ def test_pas_rel() -> None:
     assert len(pas_list) == 19
 
     pas = pas_list[1]
-    assert (
-        repr(pas) == "Pas(predicate=Predicate(text='トスを'), "
-        "arguments={'ガ': [ExophoraArgument(exophora_referent=ExophoraReferent(text='不特定:人'), eid=0)], "
-        "'ヲ': [EndophoraArgument(base_phrase=BasePhrase(index=0, text='コイン'), "
-        "arg_type=<ArgumentType.CASE_HIDDEN: 'N'>)]})"
-    )
+    assert repr(pas) == "<rhoknp.cohesion.pas.Pas: 'トスを'>"
 
 
 def test_get_arguments_idempotency() -> None:

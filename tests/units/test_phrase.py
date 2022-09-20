@@ -237,6 +237,11 @@ def test_from_knp(case: Dict[str, str]) -> None:
     _ = Phrase.from_knp(case["knp"])
 
 
+def test_from_knp_error() -> None:
+    with pytest.raises(ValueError):
+        _ = Phrase.from_knp("MALFORMED LINE")
+
+
 @pytest.mark.parametrize("case", KNP_SNIPPETS)
 def test_to_knp(case: Dict[str, str]) -> None:
     phrase = Phrase.from_knp(case["knp"])
@@ -280,3 +285,9 @@ def test_base_phrase_num(case: Dict[str, str]) -> None:
 def test_morpheme_num(case: Dict[str, str]) -> None:
     phrase = Phrase.from_knp(case["knp"])
     assert len(phrase.morphemes) == case["morpheme_num"]
+
+
+@pytest.mark.parametrize("case", KNP_SNIPPETS)
+def test_parent_unit(case: Dict[str, str]) -> None:
+    phrase = Phrase.from_knp(case["knp"])
+    assert phrase.parent_unit is None
