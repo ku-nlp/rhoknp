@@ -65,7 +65,7 @@ class Morpheme(Unit):
     def __init__(
         self,
         text: str,
-        attributes: Optional[MorphemeAttributes],
+        attributes: Optional[MorphemeAttributes] = None,
         semantics: Optional[SemanticsDict] = None,
         features: Optional[FeatureDict] = None,
         homograph: bool = False,
@@ -82,7 +82,7 @@ class Morpheme(Unit):
         self.features: FeatureDict = features if features is not None else FeatureDict()  #: 素性．
         self.homographs: List["Morpheme"] = []  #: 同形の形態素のリスト．
 
-        self.index = self.count
+        self.index = self.count  #: 文内におけるインデックス．
         if homograph is False:
             Morpheme.count += 1
 

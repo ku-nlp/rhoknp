@@ -54,7 +54,7 @@ class BasePhrase(Unit):
         self.entities: Set[Entity] = set()  #: 参照しているエンティティ．
         self.entities_nonidentical: Set[Entity] = set()  #: ≒で参照しているエンティティ．
 
-        self.index = self.count
+        self.index = self.count  #: 文内におけるインデックス．
         BasePhrase.count += 1
 
     def __post_init__(self) -> None:

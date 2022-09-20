@@ -11,15 +11,15 @@ logger = logging.getLogger(__name__)
 class RegexSenter(Processor):
     """正規表現にもとづく文分割クラス．
 
-    Example::
+    Example:
 
-        from rhoknp import RegexSenter
-
-        senter = RegexSenter()
-        document = senter.apply_to_document("天気が良かったので散歩した。途中で先生に会った。")
+        >>> from rhoknp import RegexSenter
+        <BLANKLINE>
+        >>> senter = RegexSenter()
+        >>> document = senter.apply_to_document("天気が良かったので散歩した。途中で先生に会った。")
     """
 
-    PERIODS = "。．？！♪☆★…?!"
+    PERIODS = "。．？！♪☆★…?!"  #: ピリオドとみなす文字．
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}()"

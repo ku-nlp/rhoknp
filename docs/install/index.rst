@@ -13,12 +13,12 @@ Requirements
 
 .. note::
 
-	If you just would like to load the result of text analysis by Jumanpp/KNP, their installation is optional.
+	If you just would like to load the result of language analysis by Jumanpp/KNP, their installation is optional.
 
 Installation
 ------------
 
-We recommend to install rhoknp with pip:
+We recommend installing rhoknp with pip:
 
 .. prompt::
 	:prompts: $

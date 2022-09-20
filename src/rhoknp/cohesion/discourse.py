@@ -49,10 +49,12 @@ class DiscourseRelationTag(Enum):
 
     @classmethod
     def has_value(cls, value: str) -> bool:
+        """指定された値が存在すれば True．"""
         return any(value == item.value for item in cls)
 
     @property
     def label(self) -> DiscourseRelationLabel:
+        """タグに対応する談話関係のラベルを返却．"""
         if self in {
             DiscourseRelationTag.NO_RELATION,
         }:
@@ -107,16 +109,25 @@ class DiscourseRelation:
         r"(?P<sid>[^/]+)/(?P<base_phrase_index>\d+)/(?P<tag>[^/]+)"
     )
 
-    sid: str
-    base_phrase_index: int
-    label: DiscourseRelationLabel
-    tag: DiscourseRelationTag
-    modifier: "Clause"
-    head: "Clause"
-    explicit: bool = False
+    sid: str  #: 主辞の文ID．
+    base_phrase_index: int  #: 主辞の基本句インデックス．
+    label: DiscourseRelationLabel  #: 談話関係ラベル．
+    tag: DiscourseRelationTag  #: 談話関係タグ．
+    modifier: "Clause"  #: 修飾節．
+    head: "Clause"  #: 主辞節．
+    explicit: bool = False  #: 明示的な談話関係ならTrue．．
 
     @classmethod
     def from_clause_function_fstring(cls, fstring: str, modifier: "Clause") -> Optional["DiscourseRelation"]:
+        """節機能を表す素性文字列から初期化．
+
+        Args:
+            fstring: 節機能を表す素性文字列．
+            modifier: 修飾節
+
+        .. note::
+            節機能由来で認定された談話関係は明示的 (explicit) とみなす．
+        """
         match = cls.CLAUSE_FUNCTION_PAT.match(fstring)
         if match is None:
             return None
@@ -140,6 +151,12 @@ class DiscourseRelation:
 
     @classmethod
     def from_discourse_relation_fstring(cls, fstring: str, modifier: "Clause") -> Optional["DiscourseRelation"]:
+        """談話関係を表す素性文字列から初期化．
+
+        Args:
+            fstring: 談話関係を表す素性文字列．
+            modifier: 修飾節．
+        """
         match = re.match(cls.DISCOURSE_RELATION_PAT, fstring)
         if match is None:
             logger.warning(f"'{fstring}' is not a valid discourse relation fstring")
@@ -175,4 +192,5 @@ class DiscourseRelation:
         return cls(sid, base_phrase_index, category, tag, modifier, head)
 
     def to_fstring(self) -> str:
+        """談話関係を素性文字列に変換する．"""
         return f"<談話関係:{self.sid}/{self.base_phrase_index}/{self.label.value}>"

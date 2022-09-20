@@ -39,7 +39,7 @@ class Phrase(Unit):
         self.dep_type: Optional[DepType] = dep_type  #: 係り受けの種類．
         self.features: FeatureDict = features or FeatureDict()  #: 素性．
 
-        self.index = self.count
+        self.index = self.count  #: 文内におけるインデックス．
         Phrase.count += 1
 
     @cached_property
