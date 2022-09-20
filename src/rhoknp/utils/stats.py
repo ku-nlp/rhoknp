@@ -29,7 +29,7 @@ def get_document_statistics(document: Document) -> Dict[str, Dict[str, int]]:
         stats["cohesion"]["predicate"] = sum(
             len([rel for rel in bp.rels if rel.type in ALL_CASES]) > 0 for bp in document.base_phrases
         )
-        stats["cohesion"]["arguments"] = sum(
+        stats["cohesion"]["argument"] = sum(
             len([rel for rel in bp.rels if rel.type in ALL_CASES]) for bp in document.base_phrases
         )
         stats["cohesion"]["coreference"] = sum(
