@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from rhoknp import Document
-from rhoknp.props import NamedEntityCategory
+from rhoknp.props import NamedEntity, NamedEntityCategory
 
 
 def test_ne1() -> None:
@@ -9,8 +9,8 @@ def test_ne1() -> None:
     doc = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text())
     nes = doc.named_entities
     assert len(nes) == 2
-    assert (nes[0].category, nes[0].text) == (NamedEntityCategory.ORGANIZATION, "柏市ひまわり園")
-    assert (nes[1].category, nes[1].text) == (NamedEntityCategory.DATE, "平成２３年度")
+    assert (nes[0].category, str(nes[0])) == (NamedEntityCategory.ORGANIZATION, "柏市ひまわり園")
+    assert (nes[1].category, str(nes[1])) == (NamedEntityCategory.DATE, "平成２３年度")
 
 
 def test_ne2() -> None:
@@ -18,6 +18,12 @@ def test_ne2() -> None:
     doc = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text())
     nes = doc.named_entities
     assert len(nes) == 3
-    assert (nes[0].category, nes[0].text) == (NamedEntityCategory.LOCATION, "ダーマ神殿")
-    assert (nes[1].category, nes[1].text) == (NamedEntityCategory.ARTIFACT, "天の箱舟")
-    assert (nes[2].category, nes[2].text) == (NamedEntityCategory.LOCATION, "ナザム村")
+    assert (nes[0].category, str(nes[0])) == (NamedEntityCategory.LOCATION, "ダーマ神殿")
+    assert (nes[1].category, str(nes[1])) == (NamedEntityCategory.ARTIFACT, "天の箱舟")
+    assert (nes[2].category, str(nes[2])) == (NamedEntityCategory.LOCATION, "ナザム村")
+
+
+def test_from_fstring_malformed_line() -> None:
+    fstring = "MALFORMED LINE"
+    ne = NamedEntity.from_fstring(fstring, [])
+    assert ne is None

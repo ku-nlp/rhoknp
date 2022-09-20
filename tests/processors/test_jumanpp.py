@@ -16,7 +16,7 @@ from rhoknp import Jumanpp, RegexSenter
     ],
 )
 def test_jumanpp_apply(text: str) -> None:
-    jumanpp = Jumanpp()
+    jumanpp = Jumanpp(options=["--juman"])
     sent = jumanpp.apply(text)
     assert sent.text == text.replace(" ", "　").replace('"', "”")
 

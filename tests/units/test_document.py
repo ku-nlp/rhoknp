@@ -422,6 +422,12 @@ def test_to_knp(case: Dict[str, str]) -> None:
 
 
 @pytest.mark.parametrize("case", CASES)
+def test_parent_unit(case: Dict[str, str]) -> None:
+    doc = Document.from_raw_text(case["raw_text"])
+    assert doc.parent_unit is None
+
+
+@pytest.mark.parametrize("case", CASES)
 def test_sentences(case: Dict[str, str]) -> None:
     doc = Document.from_raw_text(case["raw_text"])
     with pytest.raises(AttributeError):
@@ -711,6 +717,11 @@ def test_id_wac() -> None:
     doc_id = "wiki00100176"
     doc = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text())
     assert doc.doc_id == doc_id
+
+
+def test_eq() -> None:
+    doc = Document.from_raw_text("天気がいいので散歩した。")
+    assert doc != "天気がいいので散歩した。"
 
 
 def test_eq_knp() -> None:
