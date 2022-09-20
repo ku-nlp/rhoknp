@@ -65,9 +65,9 @@ class Morpheme(Unit):
     def __init__(
         self,
         text: str,
-        attributes: Optional[MorphemeAttributes],
-        semantics: SemanticsDict,
-        features: FeatureDict,
+        attributes: Optional[MorphemeAttributes] = None,
+        semantics: Optional[SemanticsDict] = None,
+        features: Optional[FeatureDict] = None,
         homograph: bool = False,
     ):
         super().__init__()
@@ -78,8 +78,8 @@ class Morpheme(Unit):
         self._sentence: Optional["Sentence"] = None
 
         self.attributes = attributes
-        self.semantics = semantics  #: 辞書 (JumanDic) に記載の意味情報．
-        self.features = features  #: 素性．
+        self.semantics: SemanticsDict = semantics if semantics is not None else SemanticsDict()  #: 辞書に記載の意味情報．
+        self.features: FeatureDict = features if features is not None else FeatureDict()  #: 素性．
         self.homographs: List["Morpheme"] = []  #: 同形の形態素のリスト．
 
         self.index = self.count

@@ -388,6 +388,17 @@ def test_attr(case: Dict[str, str], attr: str) -> None:
 
 
 @pytest.mark.parametrize("case", JUMANPP_SNIPPETS)
+@pytest.mark.parametrize(
+    "attr",
+    ["reading", "lemma", "pos", "subpos", "conjtype", "conjform", "sstring", "fstring", "canon"],
+)
+def test_attr_error(case: Dict[str, str], attr: str) -> None:
+    morpheme = Morpheme(case["text"])
+    with pytest.raises(AttributeError):
+        _ = getattr(morpheme, attr + "s")
+
+
+@pytest.mark.parametrize("case", JUMANPP_SNIPPETS)
 def test_semantics(case: Dict[str, str]) -> None:
     morpheme = Morpheme.from_jumanpp(case["jumanpp"])
     assert morpheme.semantics.to_sstring() == case["sstring"]

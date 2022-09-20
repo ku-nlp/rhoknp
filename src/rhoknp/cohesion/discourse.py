@@ -95,7 +95,7 @@ class DiscourseRelationTag(Enum):
             DiscourseRelationTag.EVIDENCE_BACKWARD,
         }:
             return DiscourseRelationLabel.EVIDENCE
-        raise ValueError(f"Unknown category: {self}")
+        raise AssertionError  # unreachable
 
 
 @dataclass
