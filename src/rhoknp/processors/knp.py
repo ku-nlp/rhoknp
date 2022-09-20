@@ -21,12 +21,20 @@ class KNP(Processor):
         jumanpp: Jumanpp のインスタンス．形態素解析がまだなら，先にこのインスタンスを用いて形態素解析する．
             未設定なら Jumanpp （オプションなし）を使って形態素解析する．
 
-    Example::
+    Attributes:
+        executable: KNP のパス．
+        options: KNP のオプション．
+        senter: 文分割器のインスタンス．文分割がまだなら，先にこのインスタンスを用いて文分割する．
+            未設定なら RegexSenter を使って文分割する．
+        jumanpp: Jumanpp のインスタンス．形態素解析がまだなら，先にこのインスタンスを用いて形態素解析する．
+            未設定なら Jumanpp （オプションなし）を使って形態素解析する．
 
-        from rhoknp import KNP
+    Example:
 
-        knp = KNP()
-        sentence = knp.apply("電気抵抗率は、どんな材料が電気を通しにくいかを比較するために、用いられる物性値である。")
+        >>> from rhoknp import KNP
+        <BLANKLINE>
+        >>> knp = KNP()
+        >>> sentence = knp.apply("電気抵抗率は、どんな材料が電気を通しにくいかを比較するために、用いられる物性値である。")
     """
 
     def __init__(

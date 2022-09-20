@@ -18,12 +18,18 @@ class Jumanpp(Processor):
         senter: 文分割器のインスタンス．文分割がまだなら，先にこのインスタンスを用いて文分割する．
             未設定なら RegexSenter を使って文分割する．
 
-    Example::
+    Attributes:
+        executable: Juman++ のパス．
+        options: Juman++ のオプション．
+        senter: 文分割器のインスタンス．文分割がまだなら，先にこのインスタンスを用いて文分割する．
+            未設定なら RegexSenter を使って文分割する．
 
-        from rhoknp import Jumanpp
+    Example:
 
-        jumanpp = Jumanpp()
-        sentence = jumanpp.apply("電気抵抗率は、どんな材料が電気を通しにくいかを比較するために、用いられる物性値である。")
+        >>> from rhoknp import Jumanpp
+        <BLANKLINE>
+        >>> jumanpp = Jumanpp()
+        >>> sentence = jumanpp.apply("電気抵抗率は、どんな材料が電気を通しにくいかを比較するために、用いられる物性値である。")
     """
 
     def __init__(
@@ -31,10 +37,9 @@ class Jumanpp(Processor):
         executable: str = "jumanpp",
         options: Optional[List[str]] = None,
         senter: Optional[Processor] = None,
-    ):
+    ) -> None:
         self.executable = executable
         self.options = options
-
         self.senter = senter
 
     def __repr__(self) -> str:
