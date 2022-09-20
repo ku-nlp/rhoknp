@@ -7,11 +7,9 @@ __version__ = version("rhoknp")
 
 __all__ = [
     "__version__",
-    # processors
     "RegexSenter",
     "Jumanpp",
     "KNP",
-    # units
     "Document",
     "Sentence",
     "Clause",
