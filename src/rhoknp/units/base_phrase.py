@@ -35,8 +35,8 @@ class BasePhrase(Unit):
         self,
         parent_index: Optional[int],
         dep_type: Optional[DepType],
-        features: FeatureDict,
-        rels: RelTagList,
+        features: Optional[FeatureDict] = None,
+        rels: Optional[RelTagList] = None,
     ):
         super().__init__()
 
@@ -48,8 +48,8 @@ class BasePhrase(Unit):
 
         self.parent_index: Optional[int] = parent_index  #: 係り先の基本句の文内におけるインデックス．
         self.dep_type: Optional[DepType] = dep_type  #: 係り受けの種類．
-        self.features: FeatureDict = features  #: 素性．
-        self.rels: RelTagList = rels  #: 基本句間関係．
+        self.features: FeatureDict = features or FeatureDict()  #: 素性．
+        self.rels: RelTagList = rels or RelTagList()  #: 基本句間関係．
         self.pas: Optional["Pas"] = None  #: 述語項構造．
         self.entities: Set[Entity] = set()  #: 参照しているエンティティ．
         self.entities_nonidentical: Set[Entity] = set()  #: ≒で参照しているエンティティ．
