@@ -1,5 +1,5 @@
-rhoknp.rel package
-==================
+rhoknp.cohesion package
+=======================
 
 .. toctree::
    :maxdepth: 4
