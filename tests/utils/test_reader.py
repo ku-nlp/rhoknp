@@ -1,7 +1,7 @@
 import re
 import textwrap
 from io import StringIO
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Union
 
 import pytest
 
@@ -116,6 +116,13 @@ def test_read_as_documents(case: Dict[str, Any]) -> None:
     reader = Reader(StringIO(case["text"]))
     actual = list(reader.read_as_documents(doc_id_format=case["doc_id_format"]))
     assert actual == case["documents"]
+
+
+@pytest.mark.parametrize("doc_id_format", ["ERROR", 1])
+def test_read_as_documents_error(doc_id_format: Union[str, int]) -> None:
+    reader = Reader(StringIO(""))
+    with pytest.raises(ValueError):
+        _ = list(reader.read_as_documents(doc_id_format=doc_id_format))  # noqa
 
 
 @pytest.mark.parametrize(
