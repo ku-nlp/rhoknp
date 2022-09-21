@@ -81,6 +81,26 @@ CASES = [
         ],
         "doc_id_format": lambda x: x.split("-")[0],
     },
+    # empty line
+    {
+        "text": textwrap.dedent(
+            """\
+            # S-ID:1-1
+            EOS
+
+            # S-ID:1-2
+            EOS
+            """
+        ),
+        "sentences": [
+            "# S-ID:1-1\nEOS\n",
+            "# S-ID:1-2\nEOS\n",
+        ],
+        "documents": [
+            "# S-ID:1-1\nEOS\n# S-ID:1-2\nEOS\n",
+        ],
+        "doc_id_format": "default",
+    },
 ]
 
 
