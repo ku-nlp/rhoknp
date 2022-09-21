@@ -133,6 +133,13 @@ CASES = [
 
 
 @pytest.mark.parametrize("case", CASES)
+def test_call(case: Dict[str, Any]) -> None:
+    reader = Reader(StringIO(case["text"]))
+    actual = list(reader())
+    assert actual == case["sentences"]
+
+
+@pytest.mark.parametrize("case", CASES)
 def test_read_as_sentences(case: Dict[str, Any]) -> None:
     reader = Reader(StringIO(case["text"]))
     actual = list(reader.read_as_sentences())
