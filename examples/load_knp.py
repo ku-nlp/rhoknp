@@ -1,18 +1,16 @@
 import sys
 
 from rhoknp import Document, Sentence
-from rhoknp.utils.reader import Reader
+from rhoknp.utils.reader import chunk_by_document, chunk_by_sentence
 
 # Read the given file as a list of sentences.
 with open(sys.argv[1]) as f:
-    reader = Reader(f)
-    for jumanpp in reader.read_as_sentences():
+    for jumanpp in chunk_by_sentence(f):
         sent = Sentence.from_knp(jumanpp)
         print(f"Successfully loaded a sentence: {sent.text}")
 
 # Read the given file as a list of documents.
 with open(sys.argv[1]) as f:
-    reader = Reader(f)
-    for jumanpp in reader.read_as_documents():
+    for jumanpp in chunk_by_document(f):
         doc = Document.from_knp(jumanpp)
         print(f"Successfully loaded a document: {doc.text}")

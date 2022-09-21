@@ -6,7 +6,7 @@ from typing import Any, Dict, Optional
 import pytest
 
 from rhoknp import Sentence
-from rhoknp.utils.reader import Reader, _extract_doc_id
+from rhoknp.utils.reader import _extract_doc_id, chunk_by_document, chunk_by_sentence
 
 CASES = [
     {
@@ -175,31 +175,21 @@ CASES = [
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_call(case: Dict[str, Any]) -> None:
-    reader = Reader(StringIO(case["text"]))
-    actual = list(reader())
+def test_chunk_by_sentence(case: Dict[str, Any]) -> None:
+    actual = list(chunk_by_sentence(StringIO(case["text"])))
     assert actual == case["sentences"]
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_read_as_sentences(case: Dict[str, Any]) -> None:
-    reader = Reader(StringIO(case["text"]))
-    actual = list(reader.read_as_sentences())
-    assert actual == case["sentences"]
-
-
-@pytest.mark.parametrize("case", CASES)
-def test_read_as_documents(case: Dict[str, Any]) -> None:
-    reader = Reader(StringIO(case["text"]))
-    actual = list(reader.read_as_documents(doc_id_format=case["doc_id_format"]))
+def test_chunk_by_document(case: Dict[str, Any]) -> None:
+    actual = list(chunk_by_document(StringIO(case["text"]), doc_id_format=case["doc_id_format"]))
     assert actual == case["documents"]
 
 
 @pytest.mark.parametrize("doc_id_format", ["ERROR", 1])
-def test_read_as_documents_error(doc_id_format: Any) -> None:
-    reader = Reader(StringIO(""))
+def test_chunk_by_document_error(doc_id_format: Any) -> None:
     with pytest.raises(ValueError):
-        _ = list(reader.read_as_documents(doc_id_format=doc_id_format))  # noqa
+        _ = list(chunk_by_document(StringIO(""), doc_id_format=doc_id_format))  # noqa
 
 
 @pytest.mark.parametrize(
