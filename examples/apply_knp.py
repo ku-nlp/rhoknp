@@ -3,7 +3,7 @@ from rhoknp import KNP, Document
 # Create a KNP instance.
 knp = KNP()
 
-# Apply Jumanpp to a sentence.
+# Apply KNP to a sentence.
 sent = knp.apply("電気抵抗率は、電気の通しにくさを表す物性値である。")
 
 # Get information.
