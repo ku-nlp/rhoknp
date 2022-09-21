@@ -1,7 +1,7 @@
 import sys
 
 from rhoknp import Document, Sentence
-from rhoknp.utils import Reader
+from rhoknp.utils.reader import Reader
 
 # Read the given file as a list of sentences.
 with open(sys.argv[1]) as f:
