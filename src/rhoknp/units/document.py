@@ -228,12 +228,11 @@ class Document(Unit):
         return document
 
     @classmethod
-    def from_jumanpp(cls, jumanpp_text: str, ignore_errors: bool = False) -> "Document":
+    def from_jumanpp(cls, jumanpp_text: str) -> "Document":
         """文書クラスのインスタンスを Juman++ の解析結果から初期化．
 
         Args:
             jumanpp_text: Juman++ の解析結果．
-            ignore_errors: 解析結果中にエラーが発生してもその文を捨てて処理を続行する．
 
         Example:
 
@@ -270,26 +269,21 @@ class Document(Unit):
                 continue
             sentence_lines.append(line)
             if line.strip() == Sentence.EOS_PAT:
-                try:
-                    sentences.append(Sentence.from_jumanpp("\n".join(sentence_lines) + "\n", post_init=False))
-                except Exception as e:
-                    if not ignore_errors:
-                        raise e
+                sentences.append(Sentence.from_jumanpp("\n".join(sentence_lines) + "\n", post_init=False))
                 sentence_lines = []
         document.sentences = sentences
         document.__post_init__()
         return document
 
     @classmethod
-    def from_knp(cls, knp_text: str, ignore_errors: bool = False) -> "Document":
+    def from_knp(cls, knp_text: str) -> "Document":
         """文書クラスのインスタンスを KNP の解析結果から初期化．
 
         Args:
             knp_text: KNP の解析結果．
-            ignore_errors: 解析結果読み込み中にエラーが発生してもその文を捨てて処理を続行する．
 
         Raises:
-            Exception: ignore_errors=False かつ解析結果読み込み中にエラーが発生した場合．
+            Exception: 解析結果読み込み中にエラーが発生した場合．
 
         Example:
 
@@ -339,11 +333,7 @@ class Document(Unit):
                 continue
             sentence_lines.append(line)
             if line.strip() == Sentence.EOS_PAT:
-                try:
-                    sentences.append(Sentence.from_knp("\n".join(sentence_lines) + "\n", post_init=False))
-                except Exception as e:
-                    if not ignore_errors:
-                        raise e
+                sentences.append(Sentence.from_knp("\n".join(sentence_lines) + "\n", post_init=False))
                 sentence_lines = []
         document.sentences = sentences
         if sentences:
