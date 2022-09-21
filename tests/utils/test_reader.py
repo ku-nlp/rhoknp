@@ -12,22 +12,22 @@ CASES = [
     {
         "text": textwrap.dedent(
             """\
-            # S-ID:1-1
+            # S-ID:A-X-1
             EOS
-            # S-ID:1-2
+            # S-ID:A-X-2
             EOS
-            # S-ID:2-1
+            # S-ID:A-Y-1
             EOS
             """
         ),
         "sentences": [
-            "# S-ID:1-1\nEOS\n",
-            "# S-ID:1-2\nEOS\n",
-            "# S-ID:2-1\nEOS\n",
+            "# S-ID:A-X-1\nEOS\n",
+            "# S-ID:A-X-2\nEOS\n",
+            "# S-ID:A-Y-1\nEOS\n",
         ],
         "documents": [
-            "# S-ID:1-1\nEOS\n# S-ID:1-2\nEOS\n",
-            "# S-ID:2-1\nEOS\n",
+            "# S-ID:A-X-1\nEOS\n# S-ID:A-X-2\nEOS\n",
+            "# S-ID:A-Y-1\nEOS\n",
         ],
         "doc_id_format": "default",
     },

@@ -54,8 +54,8 @@ def chunk_by_document(
 
     .. note::
         文書IDのフォーマットとして指定可能なのは以下の通り：
-            * "default": 文ID (S-ID) の最初のハイフン以前を文書IDとみなす．
-                (例) # S-ID:A-1 -> 文書ID: A
+            * "default": 文ID (S-ID) の最後のハイフン以前を文書IDとみなす．
+                (例) # S-ID:A-X-1 -> 文書ID: A-X
             * "kwdlc": KWDLCの文IDから文書IDを取り出す．
                 (例) # S-ID:w201106-0000060050-1 -> 文書ID: w201106-0000060050
             * "wac": WACの文IDから文書IDを取り出す．
