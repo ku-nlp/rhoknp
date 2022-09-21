@@ -1,14 +1,13 @@
 import logging
 import re
-from typing import IO, Callable, Iterator, List, Literal, Optional, Union
+from typing import Callable, Iterator, List, Literal, Optional, TextIO, Union
 
 from rhoknp import Sentence
 
 logger = logging.getLogger(__name__)
 
 
-def chunk_by_sentence(f: IO) -> Iterator[str]:
-
+def chunk_by_sentence(f: TextIO) -> Iterator[str]:
     """ファイルを文ごとに分割するジェネレータ．
 
     Args:
@@ -36,7 +35,7 @@ def chunk_by_sentence(f: IO) -> Iterator[str]:
 
 
 def chunk_by_document(
-    f: IO, doc_id_format: Union[Literal["default", "kwdlc", "wac"], Callable] = "default"
+    f: TextIO, doc_id_format: Union[Literal["default", "kwdlc", "wac"], Callable] = "default"
 ) -> Iterator[str]:
     """ファイルを文書ごとに分割するジェネレータ．
 
