@@ -16,14 +16,18 @@ CASES = [
             EOS
             # S-ID:1-2
             EOS
+            # S-ID:2-1
+            EOS
             """
         ),
         "sentences": [
             "# S-ID:1-1\nEOS\n",
             "# S-ID:1-2\nEOS\n",
+            "# S-ID:2-1\nEOS\n",
         ],
         "documents": [
             "# S-ID:1-1\nEOS\n# S-ID:1-2\nEOS\n",
+            "# S-ID:2-1\nEOS\n",
         ],
         "doc_id_format": "default",
     },
