@@ -8,7 +8,21 @@ logger = logging.getLogger(__name__)
 
 
 class Reader:
-    """言語解析結果を読み込むクラス．"""
+    """言語解析結果を読み込むクラス．
+
+    Args:
+        f: 読み込むファイル．
+
+    Examples:
+
+        >>> from rhoknp.units import Sentence
+        >>> from rhoknp.utils.reader import Reader
+        <BLANKLINE>
+        >>> with open("example.knp") as f:
+        ...     reader = Reader(f)
+        ...     for knp in reader():
+        ...         sentence = Sentence.from_knp(knp)
+    """
 
     def __init__(self, f: IO) -> None:
         self.f = f
@@ -57,6 +71,18 @@ class Reader:
             ...     reader = Reader(f)
             ...     for knp in reader.read_as_documents():
             ...         document = Document.from_knp(knp)
+
+
+        .. note::
+            文書IDのフォーマットとして指定可能なのは以下の通り．
+                * "default": 文ID (S-ID) の最初のハイフン以前を文書IDとみなす．
+                    (例) # S-ID:A-1 -> 文書ID: A
+                * "kwdlc": KWDLCの文IDから文書IDを取り出す．
+                    (例) # S-ID:w201106-0000060050-1 -> 文書ID: w201106-0000060050
+                * "wac": WACの文IDから文書IDを取り出す．
+                    (例) # S-ID:wiki00100176-00 -> 文書ID: wiki00100176
+
+            関数が指定された場合， S-ID から文書IDを取り出す関数とみなす．
         """
         if isinstance(doc_id_format, str):
             if doc_id_format == "default":

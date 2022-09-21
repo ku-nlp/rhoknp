@@ -5,3 +5,4 @@ rhoknp.utils package
    :maxdepth: 4
 
    rhoknp.utils.draw_tree
+   rhoknp.utils.reader
