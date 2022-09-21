@@ -13,7 +13,7 @@ def chunk_by_sentence(f: TextIO) -> Iterator[str]:
     Args:
         f: 分割するファイル．
 
-        Examples:
+    Examples:
 
         >>> from rhoknp.units import Sentence
         >>> from rhoknp.utils.reader import chunk_by_sentence
