@@ -129,6 +129,24 @@ CASES = [
         ],
         "doc_id_format": "default",
     },
+    # no trailing EOS
+    {
+        "text": textwrap.dedent(
+            """\
+            # S-ID:1-1
+            EOS
+            # S-ID:1-2
+            """
+        ),
+        "sentences": [
+            "# S-ID:1-1\nEOS\n",
+            "# S-ID:1-2\n",
+        ],
+        "documents": [
+            "# S-ID:1-1\nEOS\n# S-ID:1-2\n",
+        ],
+        "doc_id_format": "default",
+    },
 ]
 
 
