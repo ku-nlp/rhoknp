@@ -74,7 +74,7 @@ class Reader:
 
 
         .. note::
-            文書IDのフォーマットとして指定可能なのは以下の通り．
+            文書IDのフォーマットとして指定可能なのは以下の通り：
                 * "default": 文ID (S-ID) の最初のハイフン以前を文書IDとみなす．
                     (例) # S-ID:A-1 -> 文書ID: A
                 * "kwdlc": KWDLCの文IDから文書IDを取り出す．
@@ -82,7 +82,11 @@ class Reader:
                 * "wac": WACの文IDから文書IDを取り出す．
                     (例) # S-ID:wiki00100176-00 -> 文書ID: wiki00100176
 
-            関数が指定された場合， S-ID から文書IDを取り出す関数とみなす．
+            関数が指定された場合，文解析結果の先頭行から文書IDを取り出す関数とみなす．
+            例えば default 相当の処理を行うには以下のような関数を渡す．
+
+                >>> def default_doc_id_format(line: str) -> str:
+                ...     return line.lstrip("# S-ID:").split("-")[0]
         """
         if isinstance(doc_id_format, str):
             if doc_id_format == "default":
