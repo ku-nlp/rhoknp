@@ -1,7 +1,7 @@
 import re
 import textwrap
 from io import StringIO
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional
 
 import pytest
 
@@ -105,6 +105,26 @@ CASES = [
         ],
         "doc_id_format": "default",
     },
+    # no sid
+    {
+        "text": textwrap.dedent(
+            """\
+            # 1-1
+            EOS
+            # 1-2
+            EOS
+            """
+        ),
+        "sentences": [
+            "# 1-1\nEOS\n",
+            "# 1-2\nEOS\n",
+        ],
+        "documents": [
+            "# 1-1\nEOS\n",
+            "# 1-2\nEOS\n",
+        ],
+        "doc_id_format": "default",
+    },
 ]
 
 
@@ -123,7 +143,7 @@ def test_read_as_documents(case: Dict[str, Any]) -> None:
 
 
 @pytest.mark.parametrize("doc_id_format", ["ERROR", 1])
-def test_read_as_documents_error(doc_id_format: Union[str, int]) -> None:
+def test_read_as_documents_error(doc_id_format: Any) -> None:
     reader = Reader(StringIO(""))
     with pytest.raises(ValueError):
         _ = list(reader.read_as_documents(doc_id_format=doc_id_format))  # noqa

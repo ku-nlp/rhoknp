@@ -102,7 +102,7 @@ class Reader:
         buffer: List[str] = []
         for sentence in self.read_as_sentences():
             doc_id = extract_doc_id(sentence.split("\n")[0])
-            if prev_doc_id is not None and prev_doc_id != doc_id:
+            if buffer and (prev_doc_id != doc_id or doc_id is None):
                 yield "".join(buffer)
                 buffer = []
             buffer.append(sentence)
