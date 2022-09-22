@@ -5,7 +5,7 @@ Requirements
 ------------
 
 * `Python <https://python.org/>`_
-	* Supported versions: 3.9+
+	* Supported versions: 3.8+
 * `Juman++ <https://github.com/ku-nlp/jumanpp>`_
 	* Supported versions: v2.0.0-rc3+
 * `KNP <https://github.com/ku-nlp/knp>`_

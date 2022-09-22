@@ -218,7 +218,7 @@ def test_from_jumanpp_parallel(case: Dict[str, str]) -> None:
         _ = pool.map(Document.from_jumanpp, [case["jumanpp"]])
 
 
-def test_from_jumanpp_ignore_error():
+def test_from_jumanpp_error():
     invalid_jumanpp_text = textwrap.dedent(
         """\
         # S-ID:1
@@ -234,7 +234,6 @@ def test_from_jumanpp_ignore_error():
     )
     with pytest.raises(ValueError):
         _ = Document.from_jumanpp(invalid_jumanpp_text)
-    _ = Document.from_jumanpp(invalid_jumanpp_text, ignore_errors=True)
 
 
 @pytest.mark.parametrize("case", CASES)
@@ -259,7 +258,7 @@ def test_from_knp_parallel(case: Dict[str, str]) -> None:
         _ = pool.map(Document.from_knp, [case["knp"]])
 
 
-def test_from_knp_ignore_error():
+def test_from_knp_error():
     invalid_knp_text = textwrap.dedent(
         """\
         # S-ID:1
@@ -281,7 +280,6 @@ def test_from_knp_ignore_error():
     )
     with pytest.raises(ValueError):
         _ = Document.from_knp(invalid_knp_text)
-    _ = Document.from_knp(invalid_knp_text, ignore_errors=True)
 
 
 @pytest.mark.parametrize("case", CASES)

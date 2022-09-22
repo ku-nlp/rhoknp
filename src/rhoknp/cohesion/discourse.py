@@ -145,7 +145,7 @@ class DiscourseRelation:
             label=label,
             tag=tag,
             modifier=modifier,
-            head=modifier,
+            head=head,
             explicit=True,
         )
 
