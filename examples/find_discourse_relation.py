@@ -23,7 +23,7 @@ for clause in sent.clauses:
     discourse_relations.extend(clause.discourse_relations)
 
 if discourse_relations:
-    print(f"Found {len(discourse_relations)} discourse relation(s):")
+    print(f"Found {len(discourse_relations)} discourse relations:")
     for i, discourse_relation in enumerate(discourse_relations, start=1):
         modifier = discourse_relation.modifier
         head = discourse_relation.head
