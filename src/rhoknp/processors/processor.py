@@ -46,23 +46,6 @@ class Processor(ABC):
             processes (int, optional): 並列処理数．0以下の場合はシングルプロセスで処理する．
         """
         if processes < 1:
-            return list(map(self.apply, sentences))
+            return list(map(self.apply_to_sentence, sentences))
         with Pool(processes=processes) as pool:
-            return pool.map(self.apply, sentences)
-
-    def apply(self, sentence: Union[Sentence, str]) -> Sentence:
-        """文に解析器を適用する．
-
-        Args:
-            sentence (Union[Sentence, str]): 文．
-        """
-        return self.apply_to_sentence(sentence)
-
-    def batch_apply(self, sentences: Sequence[Union[Sentence, str]], processes: int = 0) -> List[Sentence]:
-        """複数文に解析器を適用する．
-
-        Args:
-            sentences (Sequence[Union[Sentence, str]]): 文のリスト．
-            processes (int, optional): 並列処理数．0以下の場合はシングルプロセスで処理する．
-        """
-        return self.batch_apply_to_sentences(sentences, processes)
+            return pool.map(self.apply_to_sentence, sentences)

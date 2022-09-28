@@ -1,6 +1,6 @@
 import logging
 from subprocess import PIPE, run
-from typing import List, Optional, Union
+from typing import List, Optional, Sequence, Union
 
 from rhoknp.processors.processor import Processor
 from rhoknp.units import Document, Sentence
@@ -40,6 +40,23 @@ class KWJA(Processor):
         if self.options is not None:
             arg_string += f", options={repr(self.options)}"
         return f"{self.__class__.__name__}({arg_string})"
+
+    def apply(self, document: Union[Document, str]) -> Document:
+        """文書に解析器を適用する．
+
+        Args:
+            document (Union[Sentence, str]): 文書．
+        """
+        return self.apply_to_document(document)
+
+    def batch_apply(self, documents: Sequence[Union[Document, str]], processes: int = 0) -> List[Document]:
+        """複数文書に解析器を適用する．
+
+        Args:
+            documents (Sequence[Union[Document, str]]): 文書のリスト．
+            processes (int, optional): 並列処理数．0以下の場合はシングルプロセスで処理する．
+        """
+        return self.batch_apply_to_documents(documents, processes)
 
     def apply_to_document(self, document: Union[Document, str]) -> Document:
         """文書に KWJA を適用する．

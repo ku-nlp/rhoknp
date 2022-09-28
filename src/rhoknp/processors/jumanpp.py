@@ -1,6 +1,6 @@
 import logging
 from subprocess import PIPE, Popen, run
-from typing import List, Optional, Union
+from typing import List, Optional, Sequence, Union
 
 from rhoknp.processors.processor import Processor
 from rhoknp.processors.senter import RegexSenter
@@ -49,6 +49,23 @@ class Jumanpp(Processor):
         if self.senter is not None:
             arg_string += f", senter={repr(self.senter)}"
         return f"{self.__class__.__name__}({arg_string})"
+
+    def apply(self, sentence: Union[Sentence, str]) -> Sentence:
+        """文に解析器を適用する．
+
+        Args:
+            sentence (Union[Sentence, str]): 文．
+        """
+        return self.apply_to_sentence(sentence)
+
+    def batch_apply(self, sentences: Sequence[Union[Sentence, str]], processes: int = 0) -> List[Sentence]:
+        """複数文に解析器を適用する．
+
+        Args:
+            sentences (Sequence[Union[Sentence, str]]): 文のリスト．
+            processes (int, optional): 並列処理数．0以下の場合はシングルプロセスで処理する．
+        """
+        return self.batch_apply_to_sentences(sentences, processes)
 
     def apply_to_document(self, document: Union[Document, str]) -> Document:
         """文書に Jumanpp を適用する．
