@@ -196,7 +196,7 @@ class Document(Unit):
         return document
 
     @classmethod
-    def from_sentences(cls, sentences: Union[Sequence[Union[Sentence, str]], str]) -> "Document":
+    def from_sentences(cls, sentences: Sequence[Union[Sentence, str]]) -> "Document":
         """文書クラスのインスタンスを文のリストから初期化．
 
         Args:

@@ -1,6 +1,6 @@
 import logging
 from subprocess import PIPE, Popen, run
-from typing import List, Optional, Union
+from typing import List, Optional, Sequence, Union
 
 from rhoknp.processors.jumanpp import Jumanpp
 from rhoknp.processors.processor import Processor
@@ -58,6 +58,23 @@ class KNP(Processor):
         if self.jumanpp is not None:
             arg_string += f", jumanpp={repr(self.jumanpp)}"
         return f"{self.__class__.__name__}({arg_string})"
+
+    def apply(self, sentence: Union[Sentence, str]) -> Sentence:
+        """文に解析器を適用する．
+
+        Args:
+            sentence (Union[Sentence, str]): 文．
+        """
+        return self.apply_to_sentence(sentence)
+
+    def batch_apply(self, sentences: Sequence[Union[Sentence, str]], processes: int = 0) -> List[Sentence]:
+        """複数文に解析器を適用する．
+
+        Args:
+            sentences (Sequence[Union[Sentence, str]]): 文のリスト．
+            processes (int, optional): 並列処理数．0以下の場合はシングルプロセスで処理する．
+        """
+        return self.batch_apply_to_sentences(sentences, processes)
 
     def apply_to_document(self, document: Union[Document, str]) -> Document:
         """文書に KNP を適用する．
