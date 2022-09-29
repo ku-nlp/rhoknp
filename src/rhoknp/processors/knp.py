@@ -1,6 +1,6 @@
 import logging
 from subprocess import PIPE, Popen, run
-from typing import List, Optional, Sequence, Union
+from typing import List, Optional, Union
 
 from rhoknp.processors.jumanpp import Jumanpp
 from rhoknp.processors.processor import Processor
@@ -21,20 +21,12 @@ class KNP(Processor):
         jumanpp: Jumanpp のインスタンス．形態素解析がまだなら，先にこのインスタンスを用いて形態素解析する．
             未設定なら Jumanpp （オプションなし）を使って形態素解析する．
 
-    Attributes:
-        executable: KNP のパス．
-        options: KNP のオプション．
-        senter: 文分割器のインスタンス．文分割がまだなら，先にこのインスタンスを用いて文分割する．
-            未設定なら RegexSenter を使って文分割する．
-        jumanpp: Jumanpp のインスタンス．形態素解析がまだなら，先にこのインスタンスを用いて形態素解析する．
-            未設定なら Jumanpp （オプションなし）を使って形態素解析する．
-
     Example:
 
         >>> from rhoknp import KNP
         <BLANKLINE>
         >>> knp = KNP()
-        >>> sentence = knp.apply("電気抵抗率は、どんな材料が電気を通しにくいかを比較するために、用いられる物性値である。")
+        >>> document = knp.apply("電気抵抗率は電気の通しにくさを表す物性値である。")
     """
 
     def __init__(
@@ -44,8 +36,8 @@ class KNP(Processor):
         senter: Optional[Processor] = None,
         jumanpp: Optional[Processor] = None,
     ):
-        self.executable = executable
-        self.options = options
+        self.executable = executable  #: KNP のパス．
+        self.options = options  #: KNP のオプション．
         self.senter = senter
         self.jumanpp = jumanpp
 
@@ -58,23 +50,6 @@ class KNP(Processor):
         if self.jumanpp is not None:
             arg_string += f", jumanpp={repr(self.jumanpp)}"
         return f"{self.__class__.__name__}({arg_string})"
-
-    def apply(self, sentence: Union[Sentence, str]) -> Sentence:
-        """文に解析器を適用する．
-
-        Args:
-            sentence (Union[Sentence, str]): 文．
-        """
-        return self.apply_to_sentence(sentence)
-
-    def batch_apply(self, sentences: Sequence[Union[Sentence, str]], processes: int = 0) -> List[Sentence]:
-        """複数文に解析器を適用する．
-
-        Args:
-            sentences (Sequence[Union[Sentence, str]]): 文のリスト．
-            processes (int, optional): 並列処理数．0以下の場合はシングルプロセスで処理する．
-        """
-        return self.batch_apply_to_sentences(sentences, processes)
 
     def apply_to_document(self, document: Union[Document, str]) -> Document:
         """文書に KNP を適用する．

@@ -26,7 +26,7 @@ rhoknp: Yet another Python binding for Juman++/KNP
 
    # Perform language analysis by Juman++
    jumanpp = rhoknp.Jumanpp()
-   sentence = jumanpp.apply("電気抵抗率は電気の通しにくさを表す物性値である。")
+   sentence = jumanpp.apply_to_sentence("電気抵抗率は電気の通しにくさを表す物性値である。")
 
    # Dump language analysis by Juman++
    with open("result.jumanpp", "wt") as f:

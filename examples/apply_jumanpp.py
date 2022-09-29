@@ -11,7 +11,7 @@ from rhoknp import Jumanpp
 jumanpp = Jumanpp()
 
 # Apply Jumanpp to a sentence.
-sent = jumanpp.apply(sys.argv[1])
+sent = jumanpp.apply_to_sentence(sys.argv[1])
 
 # Get information.
 for mrph in sent.morphemes:
