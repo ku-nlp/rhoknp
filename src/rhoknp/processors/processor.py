@@ -2,7 +2,21 @@ from abc import ABC, abstractmethod
 from multiprocessing import Pool
 from typing import List, Sequence, Union, overload
 
+from typing_extensions import TypeGuard
+
 from rhoknp.units import Document, Sentence
+
+
+def _is_sequence_of_str(seq: Sequence) -> TypeGuard[Sequence[str]]:
+    return all(isinstance(x, str) for x in seq)
+
+
+def _is_sequence_of_sentence(seq: Sequence) -> TypeGuard[Sequence[Sentence]]:
+    return all(isinstance(x, Sentence) for x in seq)
+
+
+def _is_sequence_of_document(seq: Sequence) -> TypeGuard[Sequence[Document]]:
+    return all(isinstance(x, Document) for x in seq)
 
 
 class Processor(ABC):
@@ -76,11 +90,11 @@ class Processor(ABC):
             引数の型が ``Sentence`` のリストの場合は ``batch_apply_to_sentences`` を呼び出す．
             引数の型が ``Document`` のリストの場合は ``batch_apply_to_documents`` を呼び出す．
         """
-        if all(isinstance(text, str) for text in texts):
+        if _is_sequence_of_str(texts):
             return self.batch_apply_to_documents(texts, processes)
-        elif all(isinstance(text, Sentence) for text in texts):
+        elif _is_sequence_of_sentence(texts):
             return self.batch_apply_to_sentences(texts, processes)
-        elif all(isinstance(text, Document) for text in texts):
+        elif _is_sequence_of_document(texts):
             return self.batch_apply_to_documents(texts, processes)
         else:
             raise TypeError("Invalid type: texts must be a sequence of str, Sentence, or Document")
@@ -104,11 +118,16 @@ class Processor(ABC):
         Args:
             documents: 文書のリスト．
             processes: 並列処理数．0以下の場合はシングルプロセスで処理する．
+
+        Raises:
+            TypeError: documentsの型がstr, Documentのリスト以外の場合．
         """
-        if processes < 1:
-            return list(map(self.apply_to_document, documents))
-        with Pool(processes) as pool:
-            return pool.map(self.apply_to_document, documents)
+        if _is_sequence_of_str(documents) or _is_sequence_of_document(documents):
+            if processes < 1:
+                return list(map(self.apply_to_document, documents))
+            with Pool(processes) as pool:
+                return pool.map(self.apply_to_document, documents)
+        raise TypeError("Invalid type: documents must be a sequence of str or Document")
 
     @abstractmethod
     def apply_to_sentence(self, sentence: Union[Sentence, str]) -> Sentence:
@@ -129,8 +148,13 @@ class Processor(ABC):
         Args:
             sentences: 文のリスト．
             processes: 並列処理数．0以下の場合はシングルプロセスで処理する．
+
+        Raises:
+            TypeError: sentencesの型がstr, Sentenceのリスト以外の場合．
         """
-        if processes < 1:
-            return list(map(self.apply_to_sentence, sentences))
-        with Pool(processes) as pool:
-            return pool.map(self.apply_to_sentence, sentences)
+        if _is_sequence_of_str(sentences) or _is_sequence_of_sentence(sentences):
+            if processes < 1:
+                return list(map(self.apply_to_sentence, sentences))
+            with Pool(processes) as pool:
+                return pool.map(self.apply_to_sentence, sentences)
+        raise TypeError("Invalid type: sentences must be a sequence of str or Sentence")
