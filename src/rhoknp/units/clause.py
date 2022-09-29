@@ -138,7 +138,7 @@ class Clause(Unit):
     def head(self) -> BasePhrase:
         """節主辞の基本句．"""
         for base_phrase in self.base_phrases:
-            if base_phrase.features and "節-主辞" in base_phrase.features:
+            if "節-主辞" in base_phrase.features:
                 return base_phrase
         raise AssertionError
 
