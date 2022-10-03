@@ -168,6 +168,11 @@ class Clause(Unit):
         """連体修飾節なら True．"""
         return self.end.features.get("節-区切", "") == "連体修飾"
 
+    @cached_property
+    def is_sentential_complement(self) -> bool:
+        """補文節なら True．"""
+        return self.end.features.get("節-区切", "") == "補文"
+
     @classmethod
     def from_knp(cls, knp_text: str) -> "Clause":
         """節クラスのインスタンスを KNP の解析結果から初期化．
