@@ -84,4 +84,4 @@ class KWJA(Processor):
     @property
     def version_command(self) -> List[str]:
         """バージョン確認時に実行するコマンド．"""
-        raise NotImplementedError  # TODO: Implement version option for KWJA
+        return [self.executable, "--version"]
