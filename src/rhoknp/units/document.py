@@ -192,6 +192,8 @@ class Document(Unit):
             sentences.append(Sentence.from_raw_text("\n".join(sentence_lines), post_init=False))
             sentence_lines = []
         document.sentences = sentences
+        if sentences:
+            document.doc_id = sentences[0].doc_id
         document.__post_init__()
         return document
 
@@ -272,6 +274,8 @@ class Document(Unit):
                 sentences.append(Sentence.from_jumanpp("\n".join(sentence_lines) + "\n", post_init=False))
                 sentence_lines = []
         document.sentences = sentences
+        if sentences:
+            document.doc_id = sentences[0].doc_id
         document.__post_init__()
         return document
 
