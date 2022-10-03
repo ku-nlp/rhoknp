@@ -1,7 +1,7 @@
 from typing import Any, Dict
 
 from rhoknp import Document
-from rhoknp.utils.constants import ALL_CASES, ALL_COREFS
+from rhoknp.cohesion.rel import CASE_TYPES, COREF_TYPES
 
 
 def get_document_statistics(document: Document) -> Dict[str, Dict[str, int]]:
@@ -27,13 +27,13 @@ def get_document_statistics(document: Document) -> Dict[str, Dict[str, int]]:
     # Cohesion
     if document.need_knp is False:
         stats["cohesion"]["predicate"] = sum(
-            len([rel for rel in bp.rels if rel.type in ALL_CASES]) > 0 for bp in document.base_phrases
+            len([rel for rel in bp.rels if rel.type in CASE_TYPES]) > 0 for bp in document.base_phrases
         )
         stats["cohesion"]["argument"] = sum(
-            len([rel for rel in bp.rels if rel.type in ALL_CASES]) for bp in document.base_phrases
+            len([rel for rel in bp.rels if rel.type in CASE_TYPES]) for bp in document.base_phrases
         )
         stats["cohesion"]["coreference"] = sum(
-            len([rel for rel in bp.rels if rel.type in ALL_COREFS]) for bp in document.base_phrases
+            len([rel for rel in bp.rels if rel.type in COREF_TYPES]) for bp in document.base_phrases
         )
     if document.need_clause_tag is False:
         stats["cohesion"]["discourse"] = sum(len(clause.discourse_relations) for clause in document.clauses)
