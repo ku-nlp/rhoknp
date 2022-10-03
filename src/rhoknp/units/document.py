@@ -43,6 +43,15 @@ class Document(Unit):
 
         self.entity_manager = EntityManager()
 
+    def __post_init__(self) -> None:
+        super().__post_init__()
+
+        # Set doc_id.
+        if self.need_senter is False:
+            self.doc_id = self.sentences[0].doc_id
+            if not all(sentence.doc_id == self.doc_id for sentence in self.sentences):
+                logger.warning("doc_id is not consistent.")
+
     @property
     def parent_unit(self) -> None:
         """上位の言語単位．文書は最上位の言語単位なので常に None．"""
@@ -192,8 +201,6 @@ class Document(Unit):
             sentences.append(Sentence.from_raw_text("\n".join(sentence_lines), post_init=False))
             sentence_lines = []
         document.sentences = sentences
-        if sentences:
-            document.doc_id = sentences[0].doc_id
         document.__post_init__()
         return document
 
@@ -224,8 +231,6 @@ class Document(Unit):
             else:
                 sentences_.append(Sentence.from_raw_text(sentence.strip(), post_init=False))
         document.sentences = sentences_
-        if sentences_:
-            document.doc_id = sentences_[0].doc_id
         document.__post_init__()
         return document
 
@@ -274,8 +279,6 @@ class Document(Unit):
                 sentences.append(Sentence.from_jumanpp("\n".join(sentence_lines) + "\n", post_init=False))
                 sentence_lines = []
         document.sentences = sentences
-        if sentences:
-            document.doc_id = sentences[0].doc_id
         document.__post_init__()
         return document
 
@@ -340,8 +343,6 @@ class Document(Unit):
                 sentences.append(Sentence.from_knp("\n".join(sentence_lines) + "\n", post_init=False))
                 sentence_lines = []
         document.sentences = sentences
-        if sentences:
-            document.doc_id = sentences[0].doc_id
         document.__post_init__()
         return document
 
