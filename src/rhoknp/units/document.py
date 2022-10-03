@@ -122,8 +122,21 @@ class Document(Unit):
 
     @property
     def named_entities(self) -> List[NamedEntity]:
-        """固有表現のリスト．"""
+        """固有表現のリスト．
+
+        Raises:
+            AttributeError: 解析結果にアクセスできない場合．
+        """
         return [ne for sentence in self.sentences for ne in sentence.named_entities]
+
+    @property
+    def pas_list(self) -> List[Pas]:
+        """述語項構造のリストを返却．
+
+        Raises:
+            AttributeError: 解析結果にアクセスできない場合．
+        """
+        return [base_phrase.pas for base_phrase in self.base_phrases if base_phrase.pas is not None]
 
     @property
     def need_senter(self) -> bool:
@@ -144,10 +157,6 @@ class Document(Unit):
     def need_clause_tag(self) -> bool:
         """KNP による節-主辞・節-区切のタグ付与がまだなら True．"""
         return self.need_senter or any(sentence.need_clause_tag for sentence in self.sentences)
-
-    def pas_list(self) -> List[Pas]:
-        """述語項構造のリストを返却．"""
-        return [base_phrase.pas for base_phrase in self.base_phrases if base_phrase.pas is not None]
 
     @classmethod
     def from_raw_text(cls, text: str) -> "Document":

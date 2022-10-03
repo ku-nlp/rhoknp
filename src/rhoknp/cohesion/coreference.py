@@ -179,7 +179,7 @@ class EntityManager:
         for tm in target_entity.mentions_all:
             source_entity.add_mention(tm, nonidentical=tm.is_nonidentical_to(target_entity))
         # argument も eid を持っているので eid が変わった場合はこちらも更新
-        pas_list = source_mention.document.pas_list()
+        pas_list = source_mention.document.pas_list
         for arg in [arg for pas in pas_list for args in pas.get_all_arguments(relax=False).values() for arg in args]:
             if isinstance(arg, ExophoraArgument) and arg.eid == target_entity.eid:
                 arg.eid = source_entity.eid
