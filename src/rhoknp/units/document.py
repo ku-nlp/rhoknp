@@ -47,10 +47,12 @@ class Document(Unit):
         super().__post_init__()
 
         # Set doc_id.
-        if self.need_senter is False:
+        if self.need_senter is False and len(self.sentences) > 0:
             self.doc_id = self.sentences[0].doc_id
             if not all(sentence.doc_id == self.doc_id for sentence in self.sentences):
-                logger.warning("doc_id is not consistent.")
+                logger.warning(
+                    f"'doc_id' is not consistent; use 'doc_id' extracted from the first sentence: {self.doc_id}."
+                )
 
     @property
     def parent_unit(self) -> None:
