@@ -279,6 +279,9 @@ class Sentence(Unit):
             jumanpp_text: Juman++ の解析結果．
             post_init: インスタンス作成後の追加処理を行うなら True．
 
+        Raises:
+            Exception: 解析結果読み込み中にエラーが発生した場合．
+
         Example:
 
             >>> from rhoknp import Sentence
@@ -326,6 +329,9 @@ class Sentence(Unit):
         Args:
             knp_text: KNP の解析結果．
             post_init: インスタンス作成後の追加処理を行うなら True．
+
+        Raises:
+            Exception: 解析結果読み込み中にエラーが発生した場合．
 
         Example:
 
@@ -428,7 +434,11 @@ class Sentence(Unit):
         return ret
 
     def to_jumanpp(self) -> str:
-        """Juman++ フォーマットに変換．"""
+        """Juman++ フォーマットに変換．
+
+        Raises:
+            AttributeError: 解析結果にアクセスできない場合．
+        """
         ret = ""
         if self.comment != "":
             ret += self.comment + "\n"
@@ -436,7 +446,11 @@ class Sentence(Unit):
         return ret
 
     def to_knp(self) -> str:
-        """KNP フォーマットに変換．"""
+        """KNP フォーマットに変換．
+
+        Raises:
+            AttributeError: 解析結果にアクセスできない場合．
+        """
         ret = ""
         if self.comment != "":
             ret += self.comment + "\n"

@@ -250,6 +250,9 @@ class Document(Unit):
         Args:
             jumanpp_text: Juman++ の解析結果．
 
+        Raises:
+            Exception: 解析結果読み込み中にエラーが発生した場合．
+
         Example:
 
             >>> from rhoknp import Document
@@ -380,11 +383,19 @@ class Document(Unit):
         return "".join(sentence.to_raw_text() for sentence in self.sentences)
 
     def to_jumanpp(self) -> str:
-        """Juman++ フォーマットに変換．"""
+        """Juman++ フォーマットに変換．
+
+        Raises:
+            AttributeError: 解析結果にアクセスできない場合．
+        """
         return "".join(sentence.to_jumanpp() for sentence in self.sentences)
 
     def to_knp(self) -> str:
-        """KNP フォーマットに変換．"""
+        """KNP フォーマットに変換．
+
+        Raises:
+            AttributeError: 解析結果にアクセスできない場合．
+        """
         return "".join(sentence.to_knp() for sentence in self.sentences)
 
     def __eq__(self, other: Any) -> bool:
