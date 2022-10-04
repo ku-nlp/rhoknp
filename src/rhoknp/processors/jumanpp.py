@@ -27,8 +27,6 @@ class Jumanpp(Processor):
         >>> document = jumanpp.apply("電気抵抗率は電気の通しにくさを表す物性値である。")
     """
 
-    lock: Lock = Lock()
-
     def __init__(
         self,
         executable: str = "jumanpp",
@@ -43,6 +41,7 @@ class Jumanpp(Processor):
             self._proc = Popen(self.run_command, stdout=PIPE, stdin=PIPE, encoding="utf-8")
         except Exception as e:
             logger.warning(f"failed to start Juman++: {e}")
+        self._lock = Lock()
 
     def __repr__(self) -> str:
         arg_string = f"executable={repr(self.executable)}"
@@ -82,7 +81,7 @@ class Jumanpp(Processor):
                 self.senter = RegexSenter()
             document = self.senter.apply_to_document(document)
 
-        with self.lock:
+        with self._lock:
             jumanpp_text = ""
             for sentence in document.sentences:
                 self._proc.stdin.write(sentence.to_raw_text())
@@ -109,7 +108,7 @@ class Jumanpp(Processor):
         if isinstance(sentence, str):
             sentence = Sentence(sentence)
 
-        with self.lock:
+        with self._lock:
             jumanpp_text = ""
             self._proc.stdin.write(sentence.to_raw_text())
             self._proc.stdin.flush()

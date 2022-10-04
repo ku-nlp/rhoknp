@@ -30,8 +30,6 @@ class KNP(Processor):
         >>> document = knp.apply("電気抵抗率は電気の通しにくさを表す物性値である。")
     """
 
-    lock: Lock = Lock()
-
     def __init__(
         self,
         executable: str = "knp",
@@ -48,6 +46,7 @@ class KNP(Processor):
             self._proc = Popen(self.run_command, stdout=PIPE, stdin=PIPE, encoding="utf-8")
         except Exception as e:
             logger.warning(f"failed to start KNP: {e}")
+        self._lock = Lock()
 
     def __repr__(self) -> str:
         arg_string = f"executable={repr(self.executable)}"
@@ -100,7 +99,7 @@ class KNP(Processor):
                 logger.debug(self.jumanpp)
             document = self.jumanpp.apply_to_document(document)
 
-        with self.lock:
+        with self._lock:
             knp_text = ""
             for sentence in document.sentences:
                 self._proc.stdin.write(sentence.to_jumanpp() if sentence.need_knp else sentence.to_knp())
@@ -138,7 +137,7 @@ class KNP(Processor):
                 self.jumanpp = Jumanpp()
             sentence = self.jumanpp.apply_to_sentence(sentence)
 
-        with self.lock:
+        with self._lock:
             knp_text = ""
             self._proc.stdin.write(sentence.to_jumanpp() if sentence.need_knp else sentence.to_knp())
             self._proc.stdin.flush()
