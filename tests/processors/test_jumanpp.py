@@ -1,3 +1,5 @@
+import concurrent.futures
+
 import pytest
 
 from rhoknp import Jumanpp, RegexSenter
@@ -33,7 +35,7 @@ def test_jumanpp_apply(text: str) -> None:
         # "これは\rどう",  # carriage return  # TODO
     ],
 )
-def test_jumanpp_apply_to_sentence(text: str) -> None:
+def test_apply_to_sentence(text: str) -> None:
     jumanpp = Jumanpp(options=["--juman"])
     sent = jumanpp.apply_to_sentence(text)
     assert sent.text == text.replace(" ", "　").replace('"', "”")
@@ -51,13 +53,24 @@ def test_jumanpp_apply_to_sentence(text: str) -> None:
         # "これは\rどう",  # carriage return  # TODO
     ],
 )
-def test_jumanpp_apply_to_document(text: str) -> None:
+def test_apply_to_document(text: str) -> None:
     jumanpp = Jumanpp()
     doc = jumanpp.apply_to_document(text)
     assert doc.text == text.replace(" ", "　").replace('"', "”")
 
 
-def test_jumanpp_normal() -> None:
+def test_thread_safe() -> None:
+    jumanpp = Jumanpp()
+    texts = ["外国人参政権", "望遠鏡で泳いでいる少女を見た。", "エネルギーを素敵にENEOS"]
+    texts *= 10
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        futures = [executor.submit(jumanpp.apply_to_sentence, text) for text in texts]
+        for i, future in enumerate(futures):
+            sentence = future.result()
+            assert sentence.text == texts[i]
+
+
+def test_normal() -> None:
     jumanpp = Jumanpp()
     text = "この文を解析してください。"
     sent = jumanpp.apply(text)
@@ -65,7 +78,7 @@ def test_jumanpp_normal() -> None:
     assert "".join(m.text for m in sent.morphemes) == text
 
 
-def test_jumanpp_nominalization() -> None:
+def test_nominalization() -> None:
     jumanpp = Jumanpp()
     text = "音の響きを感じる。"
     sent = jumanpp.apply(text)
@@ -75,7 +88,7 @@ def test_jumanpp_nominalization() -> None:
     assert sent.morphemes[2].pos == "名詞"
 
 
-def test_jumanpp_whitespace() -> None:
+def test_whitespace() -> None:
     jumanpp = Jumanpp()
     text = "半角 スペース"
     sent = jumanpp.apply(text)
@@ -85,7 +98,7 @@ def test_jumanpp_whitespace() -> None:
     assert sent.morphemes[1].subpos == "空白"
 
 
-def test_jumanpp_is_available() -> None:
+def test_is_available() -> None:
     jumanpp = Jumanpp()
     assert jumanpp.is_available() is True
 
@@ -93,6 +106,6 @@ def test_jumanpp_is_available() -> None:
     assert jumanpp.is_available() is False
 
 
-def test_jumanpp_repr() -> None:
+def test_repr() -> None:
     jumanpp = Jumanpp(options=["--juman"], senter=RegexSenter())
     assert repr(jumanpp) == "Jumanpp(executable='jumanpp', options=['--juman'], senter=RegexSenter())"
