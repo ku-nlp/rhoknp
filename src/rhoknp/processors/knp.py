@@ -1,5 +1,5 @@
 import logging
-from subprocess import PIPE, Popen, run
+from subprocess import PIPE, Popen
 from typing import List, Optional, Union
 
 from rhoknp.processors.jumanpp import Jumanpp
@@ -40,6 +40,11 @@ class KNP(Processor):
         self.options = options  #: KNP のオプション．
         self.senter = senter
         self.jumanpp = jumanpp
+        self._proc: Optional[Popen] = None
+        try:
+            self._proc = Popen(self.run_command, stdout=PIPE, stdin=PIPE, encoding="utf-8")
+        except Exception as e:
+            logger.warning(f"failed to start KNP: {e}")
 
     def __repr__(self) -> str:
         arg_string = f"executable={repr(self.executable)}"
@@ -50,6 +55,10 @@ class KNP(Processor):
         if self.jumanpp is not None:
             arg_string += f", jumanpp={repr(self.jumanpp)}"
         return f"{self.__class__.__name__}({arg_string})"
+
+    def is_available(self) -> bool:
+        """KNP が利用可能であれば True を返す．"""
+        return self._proc is not None and self._proc.poll() is None
 
     def apply_to_document(self, document: Union[Document, str]) -> Document:
         """文書に KNP を適用する．
@@ -63,6 +72,12 @@ class KNP(Processor):
             形態素解析がまだなら，先に初期化時に設定した jumanpp で形態素解析する．
             未設定なら Jumanpp （オプションなし）で形態素解析する．
         """
+        if not self.is_available():
+            raise RuntimeError("KNP is not available.")
+        assert self._proc is not None
+        assert self._proc.stdin is not None
+        assert self._proc.stdout is not None
+
         if isinstance(document, str):
             document = Document(document)
 
@@ -82,8 +97,17 @@ class KNP(Processor):
                 logger.debug(self.jumanpp)
             document = self.jumanpp.apply_to_document(document)
 
-        with Popen(self.run_command, stdout=PIPE, stdin=PIPE, encoding="utf-8") as p:
-            knp_text, _ = p.communicate(input=document.to_jumanpp() if document.need_knp else document.to_knp())
+        knp_text = ""
+        for sentence in document.sentences:
+            with self.lock:
+                self._proc.stdin.write(sentence.to_jumanpp() if sentence.need_knp else sentence.to_knp())
+                self._proc.stdin.flush()
+                while self.is_available():
+                    line = self._proc.stdout.readline()
+                    knp_text += line
+                    if line.strip() == Sentence.EOS_PAT:
+                        break
+
         return Document.from_knp(knp_text)
 
     def apply_to_sentence(self, sentence: Union[Sentence, str]) -> Sentence:
@@ -96,6 +120,12 @@ class KNP(Processor):
             形態素解析がまだなら，先に初期化時に設定した jumanpp で形態素解析する．
             未設定なら Jumanpp （オプションなし）で形態素解析する．
         """
+        if not self.is_available():
+            raise RuntimeError("KNP is not available.")
+        assert self._proc is not None
+        assert self._proc.stdin is not None
+        assert self._proc.stdout is not None
+
         if isinstance(sentence, str):
             sentence = Sentence(sentence)
 
@@ -106,19 +136,17 @@ class KNP(Processor):
                 self.jumanpp = Jumanpp()
             sentence = self.jumanpp.apply_to_sentence(sentence)
 
-        with Popen(self.run_command, stdout=PIPE, stdin=PIPE, encoding="utf-8") as p:
-            knp_text, _ = p.communicate(input=sentence.to_jumanpp() if sentence.need_knp else sentence.to_knp())
-        return Sentence.from_knp(knp_text)
+        knp_text = ""
+        with self.lock:
+            self._proc.stdin.write(sentence.to_jumanpp() if sentence.need_knp else sentence.to_knp())
+            self._proc.stdin.flush()
+            while self.is_available():
+                line = self._proc.stdout.readline()
+                knp_text += line
+                if line.strip() == Sentence.EOS_PAT:
+                    break
 
-    def is_available(self) -> bool:
-        """KNP が利用可能であれば True を返す．"""
-        try:
-            p = run(self.version_command, stdout=PIPE, stdin=PIPE, encoding="utf-8")
-            logger.info(p.stdout.strip())
-            return True
-        except Exception as e:
-            logger.warning(e)
-            return False
+        return Sentence.from_knp(knp_text)
 
     @property
     def run_command(self) -> List[str]:

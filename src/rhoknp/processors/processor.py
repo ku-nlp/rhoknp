@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from threading import Lock
 from typing import Union, overload
 
 from rhoknp.units import Document, Sentence
@@ -6,6 +7,8 @@ from rhoknp.units import Document, Sentence
 
 class Processor(ABC):
     """解析器の基底クラス．"""
+
+    lock: Lock = Lock()
 
     @overload
     def apply(self, text: str) -> Document:

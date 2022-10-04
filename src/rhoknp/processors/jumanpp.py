@@ -1,5 +1,5 @@
 import logging
-from subprocess import PIPE, Popen, run
+from subprocess import PIPE, Popen
 from typing import List, Optional, Union
 
 from rhoknp.processors.processor import Processor
@@ -35,6 +35,11 @@ class Jumanpp(Processor):
         self.executable = executable  #: Juman++ のパス．
         self.options = options  #: Juman++ のオプション．
         self.senter = senter
+        self._proc: Optional[Popen] = None
+        try:
+            self._proc = Popen(self.run_command, stdout=PIPE, stdin=PIPE, encoding="utf-8")
+        except Exception as e:
+            logger.warning(f"failed to start Juman++: {e}")
 
     def __repr__(self) -> str:
         arg_string = f"executable={repr(self.executable)}"
@@ -43,6 +48,10 @@ class Jumanpp(Processor):
         if self.senter is not None:
             arg_string += f", senter={repr(self.senter)}"
         return f"{self.__class__.__name__}({arg_string})"
+
+    def is_available(self) -> bool:
+        """Jumanpp が利用可能であれば True を返す．"""
+        return self._proc is not None and self._proc.poll() is None
 
     def apply_to_document(self, document: Union[Document, str]) -> Document:
         """文書に Jumanpp を適用する．
@@ -54,6 +63,12 @@ class Jumanpp(Processor):
             文分割がまだなら，先に初期化時に設定した senter で文分割する．
             未設定なら RegexSenter で文分割する．
         """
+        if not self.is_available():
+            raise RuntimeError("Juman++ is not available.")
+        assert self._proc is not None
+        assert self._proc.stdin is not None
+        assert self._proc.stdout is not None
+
         if isinstance(document, str):
             document = Document(document)
 
@@ -64,8 +79,17 @@ class Jumanpp(Processor):
                 self.senter = RegexSenter()
             document = self.senter.apply_to_document(document)
 
-        with Popen(self.run_command, stdout=PIPE, stdin=PIPE, encoding="utf-8") as p:
-            jumanpp_text, _ = p.communicate(input=document.to_raw_text())
+        jumanpp_text = ""
+        for sentence in document.sentences:
+            with self.lock:
+                self._proc.stdin.write(sentence.to_raw_text())
+                self._proc.stdin.flush()
+                while self.is_available():
+                    line = self._proc.stdout.readline()
+                    jumanpp_text += line
+                    if line.strip() == Sentence.EOS_PAT:
+                        break
+
         return Document.from_jumanpp(jumanpp_text)
 
     def apply_to_sentence(self, sentence: Union[Sentence, str]) -> Sentence:
@@ -74,22 +98,26 @@ class Jumanpp(Processor):
         Args:
             sentence: 文．
         """
+        if not self.is_available():
+            raise RuntimeError("Juman++ is not available.")
+        assert self._proc is not None
+        assert self._proc.stdin is not None
+        assert self._proc.stdout is not None
+
         if isinstance(sentence, str):
             sentence = Sentence(sentence)
 
-        with Popen(self.run_command, stdout=PIPE, stdin=PIPE, encoding="utf-8") as p:
-            jumanpp_text, _ = p.communicate(input=sentence.to_raw_text())
-        return Sentence.from_jumanpp(jumanpp_text)
+        jumanpp_text = ""
+        with self.lock:
+            self._proc.stdin.write(sentence.to_raw_text())
+            self._proc.stdin.flush()
+            while self.is_available():
+                line = self._proc.stdout.readline()
+                jumanpp_text += line
+                if line.strip() == Sentence.EOS_PAT:
+                    break
 
-    def is_available(self) -> bool:
-        """Jumanpp が利用可能であれば True を返す．"""
-        try:
-            p = run(self.version_command, stdout=PIPE, stdin=PIPE, encoding="utf-8")
-            logger.info(p.stdout.strip())
-            return True
-        except Exception as e:
-            logger.warning(e)
-            return False
+        return Sentence.from_jumanpp(jumanpp_text)
 
     @property
     def run_command(self) -> List[str]:
