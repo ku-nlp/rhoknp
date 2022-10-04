@@ -57,60 +57,6 @@ def test_jumanpp_apply_to_document(text: str) -> None:
     assert doc.text == text.replace(" ", "　").replace('"', "”")
 
 
-def test_jumanpp_batch_apply() -> None:
-    texts = [
-        "外国人参政権",
-        "望遠鏡で泳いでいる少女を見た。",
-        "エネルギーを素敵にENEOS",
-    ]
-    jumanpp = Jumanpp()
-    docs = jumanpp.batch_apply(texts)
-    assert [doc.text for doc in docs] == texts
-
-    # parallel
-    docs = jumanpp.batch_apply(texts, processes=2)
-    assert [doc.text for doc in docs] == texts
-
-    docs = jumanpp.batch_apply(texts, processes=4)
-    assert [doc.text for doc in docs] == texts
-
-
-def test_jumanpp_batch_apply_to_sentences() -> None:
-    texts = [
-        "外国人参政権",
-        "望遠鏡で泳いでいる少女を見た。",
-        "エネルギーを素敵にENEOS",
-    ]
-    jumanpp = Jumanpp()
-    sents = jumanpp.batch_apply(texts)
-    assert [sent.text for sent in sents] == texts
-
-    # parallel
-    sents = jumanpp.batch_apply(texts, processes=2)
-    assert [sent.text for sent in sents] == texts
-
-    sents = jumanpp.batch_apply(texts, processes=4)
-    assert [sent.text for sent in sents] == texts
-
-
-def test_jumanpp_batch_apply_to_documents() -> None:
-    texts = [
-        "外国人参政権",
-        "望遠鏡で泳いでいる少女を見た。",
-        "エネルギーを素敵にENEOS",
-    ]
-    jumanpp = Jumanpp()
-    docs = jumanpp.batch_apply_to_documents(texts)
-    assert [doc.text for doc in docs] == texts
-
-    # parallel
-    docs = jumanpp.batch_apply_to_documents(texts, processes=2)
-    assert [doc.text for doc in docs] == texts
-
-    docs = jumanpp.batch_apply_to_documents(texts, processes=4)
-    assert [doc.text for doc in docs] == texts
-
-
 def test_jumanpp_normal() -> None:
     jumanpp = Jumanpp()
     text = "この文を解析してください。"

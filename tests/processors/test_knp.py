@@ -57,60 +57,6 @@ def test_knp_apply_to_document(text: str) -> None:
     assert doc.text == text.replace(" ", "　").replace('"', "”")
 
 
-def test_knp_batch_apply() -> None:
-    texts = [
-        "外国人参政権",
-        "望遠鏡で泳いでいる少女を見た。",
-        "エネルギーを素敵にENEOS",
-    ]
-    knp = KNP()
-    docs = knp.batch_apply(texts)
-    assert [doc.text for doc in docs] == [text.replace(" ", "　").replace('"', "”") for text in texts]
-
-    # parallel
-    docs = knp.batch_apply(texts, processes=2)
-    assert [doc.text for doc in docs] == [text.replace(" ", "　").replace('"', "”") for text in texts]
-
-    docs = knp.batch_apply(texts, processes=4)
-    assert [doc.text for doc in docs] == [text.replace(" ", "　").replace('"', "”") for text in texts]
-
-
-def test_knp_batch_apply_to_sentences() -> None:
-    texts = [
-        "外国人参政権",
-        "望遠鏡で泳いでいる少女を見た。",
-        "エネルギーを素敵にENEOS",
-    ]
-    knp = KNP()
-    sents = knp.batch_apply_to_sentences(texts)
-    assert [sent.text for sent in sents] == [text.replace(" ", "　").replace('"', "”") for text in texts]
-
-    # parallel
-    sents = knp.batch_apply_to_sentences(texts, processes=2)
-    assert [sent.text for sent in sents] == [text.replace(" ", "　").replace('"', "”") for text in texts]
-
-    sents = knp.batch_apply_to_sentences(texts, processes=4)
-    assert [sent.text for sent in sents] == [text.replace(" ", "　").replace('"', "”") for text in texts]
-
-
-def test_knp_batch_apply_to_documents() -> None:
-    texts = [
-        "外国人参政権",
-        "望遠鏡で泳いでいる少女を見た。",
-        "エネルギーを素敵にENEOS",
-    ]
-    knp = KNP()
-    docs = knp.batch_apply_to_documents(texts)
-    assert [doc.text for doc in docs] == [text.replace(" ", "　").replace('"', "”") for text in texts]
-
-    # parallel
-    docs = knp.batch_apply_to_documents(texts, processes=2)
-    assert [doc.text for doc in docs] == [text.replace(" ", "　").replace('"', "”") for text in texts]
-
-    docs = knp.batch_apply_to_documents(texts, processes=4)
-    assert [doc.text for doc in docs] == [text.replace(" ", "　").replace('"', "”") for text in texts]
-
-
 def test_knp_is_available() -> None:
     knp = KNP()
     assert knp.is_available() is True
