@@ -82,9 +82,9 @@ class Jumanpp(Processor):
                 self.senter = RegexSenter()
             document = self.senter.apply_to_document(document)
 
-        jumanpp_text = ""
-        for sentence in document.sentences:
-            with self.lock:
+        with self.lock:
+            jumanpp_text = ""
+            for sentence in document.sentences:
                 self._proc.stdin.write(sentence.to_raw_text())
                 self._proc.stdin.flush()
                 while self.is_available():
@@ -92,8 +92,7 @@ class Jumanpp(Processor):
                     jumanpp_text += line
                     if line.strip() == Sentence.EOS_PAT:
                         break
-
-        return Document.from_jumanpp(jumanpp_text)
+            return Document.from_jumanpp(jumanpp_text)
 
     def apply_to_sentence(self, sentence: Union[Sentence, str]) -> Sentence:
         """文に Jumanpp を適用する．
@@ -110,8 +109,8 @@ class Jumanpp(Processor):
         if isinstance(sentence, str):
             sentence = Sentence(sentence)
 
-        jumanpp_text = ""
         with self.lock:
+            jumanpp_text = ""
             self._proc.stdin.write(sentence.to_raw_text())
             self._proc.stdin.flush()
             while self.is_available():
@@ -119,8 +118,7 @@ class Jumanpp(Processor):
                 jumanpp_text += line
                 if line.strip() == Sentence.EOS_PAT:
                     break
-
-        return Sentence.from_jumanpp(jumanpp_text)
+            return Sentence.from_jumanpp(jumanpp_text)
 
     @property
     def run_command(self) -> List[str]:

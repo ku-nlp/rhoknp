@@ -100,9 +100,9 @@ class KNP(Processor):
                 logger.debug(self.jumanpp)
             document = self.jumanpp.apply_to_document(document)
 
-        knp_text = ""
-        for sentence in document.sentences:
-            with self.lock:
+        with self.lock:
+            knp_text = ""
+            for sentence in document.sentences:
                 self._proc.stdin.write(sentence.to_jumanpp() if sentence.need_knp else sentence.to_knp())
                 self._proc.stdin.flush()
                 while self.is_available():
@@ -110,8 +110,7 @@ class KNP(Processor):
                     knp_text += line
                     if line.strip() == Sentence.EOS_PAT:
                         break
-
-        return Document.from_knp(knp_text)
+            return Document.from_knp(knp_text)
 
     def apply_to_sentence(self, sentence: Union[Sentence, str]) -> Sentence:
         """文に KNP を適用する．
@@ -139,8 +138,8 @@ class KNP(Processor):
                 self.jumanpp = Jumanpp()
             sentence = self.jumanpp.apply_to_sentence(sentence)
 
-        knp_text = ""
         with self.lock:
+            knp_text = ""
             self._proc.stdin.write(sentence.to_jumanpp() if sentence.need_knp else sentence.to_knp())
             self._proc.stdin.flush()
             while self.is_available():
@@ -148,8 +147,7 @@ class KNP(Processor):
                 knp_text += line
                 if line.strip() == Sentence.EOS_PAT:
                     break
-
-        return Sentence.from_knp(knp_text)
+            return Sentence.from_knp(knp_text)
 
     @property
     def run_command(self) -> List[str]:
