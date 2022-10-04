@@ -1,5 +1,6 @@
 import logging
 from subprocess import PIPE, Popen
+from threading import Lock
 from typing import List, Optional, Union
 
 from rhoknp.processors.processor import Processor
@@ -25,6 +26,8 @@ class Jumanpp(Processor):
         >>> jumanpp = Jumanpp()
         >>> document = jumanpp.apply("電気抵抗率は電気の通しにくさを表す物性値である。")
     """
+
+    lock: Lock = Lock()
 
     def __init__(
         self,
