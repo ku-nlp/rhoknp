@@ -105,6 +105,12 @@ def test_is_available() -> None:
     jumanpp = Jumanpp("jumanp")
     assert jumanpp.is_available() is False
 
+    with pytest.raises(RuntimeError):
+        _ = jumanpp.apply_to_sentence("test")
+
+    with pytest.raises(RuntimeError):
+        _ = jumanpp.apply_to_document("test")
+
 
 def test_repr() -> None:
     jumanpp = Jumanpp(options=["--juman"], senter=RegexSenter())

@@ -77,6 +77,12 @@ def test_is_available() -> None:
     knp = KNP("knpp")
     assert knp.is_available() is False
 
+    with pytest.raises(RuntimeError):
+        _ = knp.apply_to_sentence("test")
+
+    with pytest.raises(RuntimeError):
+        _ = knp.apply_to_document("test")
+
 
 def test_repr() -> None:
     jumanpp = KNP(options=["--tab"], senter=RegexSenter(), jumanpp=Jumanpp())
