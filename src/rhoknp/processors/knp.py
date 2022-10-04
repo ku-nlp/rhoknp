@@ -160,8 +160,3 @@ class KNP(Processor):
         else:
             command += ["-tab"]
         return command
-
-    @property
-    def version_command(self) -> List[str]:
-        """バージョン確認時に実行するコマンド．"""
-        return [self.executable, "-v"]
