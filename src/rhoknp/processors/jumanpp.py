@@ -91,6 +91,7 @@ class Jumanpp(Processor):
                     jumanpp_text += line
                     if line.strip() == Sentence.EOS_PAT:
                         break
+                self._proc.stdout.flush()
             return Document.from_jumanpp(jumanpp_text)
 
     def apply_to_sentence(self, sentence: Union[Sentence, str]) -> Sentence:
@@ -117,6 +118,7 @@ class Jumanpp(Processor):
                 jumanpp_text += line
                 if line.strip() == Sentence.EOS_PAT:
                     break
+            self._proc.stdout.flush()
             return Sentence.from_jumanpp(jumanpp_text)
 
     @property

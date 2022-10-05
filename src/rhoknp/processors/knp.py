@@ -109,6 +109,7 @@ class KNP(Processor):
                     knp_text += line
                     if line.strip() == Sentence.EOS_PAT:
                         break
+                self._proc.stdout.flush()
             return Document.from_knp(knp_text)
 
     def apply_to_sentence(self, sentence: Union[Sentence, str]) -> Sentence:
@@ -146,6 +147,7 @@ class KNP(Processor):
                 knp_text += line
                 if line.strip() == Sentence.EOS_PAT:
                     break
+            self._proc.stdout.flush()
             return Sentence.from_knp(knp_text)
 
     @property
