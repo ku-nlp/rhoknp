@@ -344,3 +344,9 @@ def test_end_text(case: Dict[str, str]) -> None:
 def test_is_adnominal(case: Dict[str, str]) -> None:
     clause = Clause.from_knp(case["knp"])
     assert clause.is_adnominal == case["is_adnominal"]
+
+
+@pytest.mark.parametrize("case", KNP_SNIPPETS)
+def test_is_sentential_complement(case: Dict[str, str]) -> None:
+    clause = Clause.from_knp(case["knp"])
+    assert clause.is_sentential_complement == case["is_sentential_complement"]
