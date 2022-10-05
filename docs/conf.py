@@ -34,6 +34,7 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx_copybutton",
     "sphinx-prompt",
+    "myst_parser",
 ]
 
 # sphinx.ext.autodoc
