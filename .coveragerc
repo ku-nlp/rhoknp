@@ -14,5 +14,8 @@ exclude_lines =
 	# Do not complain about abstract methods:
 	@(abc\.)?abstractmethod
 
+	# Do not complain about overloads:
+	@overload
+
 [run]
 omit = tests/*
