@@ -11,6 +11,8 @@ def test_apply() -> None:
     assert isinstance(knp.apply(text), Document)
     assert isinstance(knp.apply(Document.from_raw_text(text)), Document)
     assert isinstance(knp.apply(Sentence.from_raw_text(text)), Sentence)
+    with pytest.raises(TypeError):
+        knp.apply(1)  # noqa
 
 
 @pytest.mark.parametrize(

@@ -11,6 +11,8 @@ def test_apply() -> None:
     assert isinstance(jumanpp.apply(text), Document)
     assert isinstance(jumanpp.apply(Document.from_raw_text(text)), Document)
     assert isinstance(jumanpp.apply(Sentence.from_raw_text(text)), Sentence)
+    with pytest.raises(TypeError):
+        jumanpp.apply(1)  # noqa
 
 
 @pytest.mark.parametrize(
