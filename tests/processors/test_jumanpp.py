@@ -2,25 +2,15 @@ import concurrent.futures
 
 import pytest
 
-from rhoknp import Jumanpp, RegexSenter
+from rhoknp import Document, Jumanpp, RegexSenter, Sentence
 
 
-@pytest.mark.parametrize(
-    "text",
-    [
-        "外国人参政権",
-        "望遠鏡で泳いでいる少女を見た。",
-        "エネルギーを素敵にENEOS",  # EOS
-        "Canon EOS 80D買った",  # EOS
-        '"最高"の気分',  # double quotes
-        "&lt;tag&gt;\\エス'ケープ",  # escape
-        # "これは\rどう",  # carriage return  # TODO
-    ],
-)
-def test_jumanpp_apply(text: str) -> None:
+def test_apply() -> None:
     jumanpp = Jumanpp(options=["--juman"])
-    doc = jumanpp.apply(text)
-    assert doc.text == text.replace(" ", "　").replace('"', "”")
+    text = "外国人参政権"
+    assert isinstance(jumanpp.apply(text), Document)
+    assert isinstance(jumanpp.apply(Document.from_raw_text(text)), Document)
+    assert isinstance(jumanpp.apply(Sentence.from_raw_text(text)), Sentence)
 
 
 @pytest.mark.parametrize(
