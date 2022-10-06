@@ -22,15 +22,37 @@ with open("result.jumanpp", "rt") as f:
     sentence = rhoknp.Sentence.from_jumanpp(f.read())
 ```
 
-## Contents
+```{admonition} Why not *pyknp*?
+:class: note
+[*pyknp*](https://pypi.org/project/pyknp/) has been developed as the official Python binding for Juman++ and KNP.
+In *rhoknp*, we redesigned the API from the top-down, taking into account the current use cases of *pyknp*.
+The main differences from *pyknp* are as follows:
+
+- **Support document-level language analysis**: *rhoknp* can load and instantiate the result of document-level language analysis: i.e., cohesion analysis and discourse relation analysis.
+- **Strictly type-aware**: *rhoknp* is thoroughly annotated with type annotations. Efficient development is possible with the help of an IDE.
+- **Extensive test suite**: *rhoknp* is tested with an extensive test suite. See the code coverage at Codecov.
+```
 
 ```{toctree}
 ---
-maxdepth: 3
+hidden:
+caption: User Guide
+maxdepth: 1
 ---
 
-install/index
+installation/index
 reference/index
+```
+
+```{toctree}
+---
+hidden:
+caption: Development
+maxdepth: 1
+---
+
+contributing/index
+authors
 ```
 
 ```{toctree}
