@@ -246,6 +246,11 @@ def test_from_jumanpp_control_character() -> None:
         @
         EOS
         \u0020
+        <
+        >
+        "
+        :
+        ;
         EOS
         # S-ID:2
         #
@@ -254,6 +259,11 @@ def test_from_jumanpp_control_character() -> None:
         @
         EOS
         \u0020
+        <
+        >
+        "
+        :
+        ;
         EOS
         """
     )

@@ -371,7 +371,7 @@ def test_from_jumanpp_error() -> None:
         _ = Morpheme.from_jumanpp(jumanpp)
 
 
-@pytest.mark.parametrize("char", ["#", "*", "+", "@", "EOS", "\u0020"])
+@pytest.mark.parametrize("char", ["#", "*", "+", "@", "EOS", "\u0020", "<", ">", '"', ":", ";"])
 def test_from_jumanpp_control_character(char: str) -> None:
     morpheme = Morpheme.from_jumanpp(char)
     assert morpheme.text == char
