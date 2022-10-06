@@ -267,6 +267,23 @@ def test_from_jumanpp_empty_line():
     )
 
 
+def test_from_jumanpp_control_character() -> None:
+    jumanpp = textwrap.dedent(
+        """\
+        # S-ID:1
+        #
+        *
+        +
+        @
+        EOS
+        \u0020
+        EOS
+        """
+    )
+    sentence = Sentence.from_jumanpp(jumanpp)
+    assert sentence.to_jumanpp() == jumanpp
+
+
 @pytest.mark.parametrize("case", CASES)
 def test_from_knp_with_no_clause_tag(case: Dict[str, str]) -> None:
     _ = Sentence.from_knp(case["knp_with_no_clause_tag"])

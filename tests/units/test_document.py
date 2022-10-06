@@ -236,6 +236,32 @@ def test_from_jumanpp_error():
         _ = Document.from_jumanpp(invalid_jumanpp_text)
 
 
+def test_from_jumanpp_control_character() -> None:
+    jumanpp = textwrap.dedent(
+        """\
+        # S-ID:1
+        #
+        *
+        +
+        @
+        EOS
+        \u0020
+        EOS
+        # S-ID:2
+        #
+        *
+        +
+        @
+        EOS
+        \u0020
+        EOS
+        """
+    )
+    document = Document.from_jumanpp(jumanpp)
+    assert document.to_jumanpp() == document
+    assert len(document.sentences) == 2
+
+
 @pytest.mark.parametrize("case", CASES)
 def test_from_knp_with_no_clause_tag(case: Dict[str, str]) -> None:
     _ = Document.from_knp(case["knp_with_no_clause_tag"])
