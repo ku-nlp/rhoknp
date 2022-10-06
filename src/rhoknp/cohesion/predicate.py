@@ -6,9 +6,16 @@ if TYPE_CHECKING:
 
 
 class Predicate:
+    """述語を表すクラス．
+
+    Args:
+        unit: 述語の基本句．
+        cfid: 格フーレムID．
+    """
+
     def __init__(self, unit: "BasePhrase", cfid: Optional[str] = None):
-        self.unit: "BasePhrase" = unit
-        self.cfid: Optional[str] = cfid
+        self.unit: "BasePhrase" = unit  #: 述語の基本句．
+        self.cfid: Optional[str] = cfid  #: 格フーレムID．
         self._pas: Optional["Pas"] = None
 
     @property

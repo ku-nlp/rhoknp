@@ -16,19 +16,13 @@ class Entity:
     Args:
         eid: エンティティ ID．
         exophora_referent: 自身が外界照応の照応先に対応するなら照応先の種類. 対応しないなら None.
-
-    Attributes:
-        eid: エンティティ ID
-        exophora_referent: 外界照応の照応先．対応するものがなければ None.
-        mentions: このエンティティを参照するメンションの集合．
-        mentions_nonidentical: このエンティティを≒関係で参照するメンションの集合．
     """
 
     def __init__(self, eid: int, exophora_referent: Optional[ExophoraReferent] = None) -> None:
-        self.eid: int = eid
-        self.exophora_referent: Optional[ExophoraReferent] = exophora_referent
-        self.mentions: Set["BasePhrase"] = set()
-        self.mentions_nonidentical: Set["BasePhrase"] = set()
+        self.eid = eid  #: エンティティ ID
+        self.exophora_referent = exophora_referent  #: 外界照応の照応先．対応するものがなければ None.
+        self.mentions: Set["BasePhrase"] = set()  #: このエンティティを参照するメンションの集合．
+        self.mentions_nonidentical: Set["BasePhrase"] = set()  #: このエンティティを≒関係で参照するメンションの集合．
 
     @property
     def mentions_all(self) -> Set["BasePhrase"]:
@@ -38,12 +32,13 @@ class Entity:
     def add_mention(self, mention: "BasePhrase", nonidentical: bool = False) -> None:
         """このエンティティを参照するメンションを追加．
 
-        When an identical mention is added and the mention has already been registered as a nonidentical
-        mention, it will be overwritten as identical.
-
         Args:
             mention: 追加対象のメンション．
             nonidentical: メンションが nonidentical ("≒" 付きでアノテーションされている) なら True．
+
+        .. note::
+            identical なメンションが追加されたとき，すでに nonidentical なメンションとして登録されていたら，
+            identical なメンションとして上書きする．
         """
         if nonidentical:
             if mention in self.mentions_all:
@@ -57,7 +52,11 @@ class Entity:
             self.mentions.add(mention)
 
     def remove_mention(self, mention: "BasePhrase") -> None:
-        """このエンティティを参照するメンションを削除．"""
+        """このエンティティを参照するメンションを削除．
+
+        Args:
+            mention: 削除対象のメンション．
+        """
         if mention in self.mentions:
             self.mentions.remove(mention)
             mention.entities.remove(self)
@@ -88,14 +87,10 @@ class Entity:
 
 
 class EntityManager:
-    """文書全体のエンティティを管理．
-
-    Attributes:
-        entities: エンティティのリスト．
-    """
+    """文書全体のエンティティを管理．"""
 
     def __init__(self):
-        self.entities: List[Entity] = []
+        self.entities: List[Entity] = []  #: エンティティのリスト．
 
     def get_or_create_entity(
         self, exophora_referent: Optional[ExophoraReferent] = None, eid: Optional[int] = None
@@ -184,7 +179,7 @@ class EntityManager:
         for tm in target_entity.mentions_all:
             source_entity.add_mention(tm, nonidentical=tm.is_nonidentical_to(target_entity))
         # argument も eid を持っているので eid が変わった場合はこちらも更新
-        pas_list = source_mention.document.pas_list()
+        pas_list = source_mention.document.pas_list
         for arg in [arg for pas in pas_list for args in pas.get_all_arguments(relax=False).values() for arg in args]:
             if isinstance(arg, ExophoraArgument) and arg.eid == target_entity.eid:
                 arg.eid = source_entity.eid

@@ -14,23 +14,21 @@ if TYPE_CHECKING:
 
 
 class ArgumentType(Enum):
-    """
-    ref: https://nlp.ist.i.kyoto-u.ac.jp/index.php?KNP%2F%E6%A0%BC%E8%A7%A3%E6%9E%90%E7%B5%90%E6%9E%9C%E6%9B%B8%E5%BC%8F
-    """
+    """項のタイプ．"""
 
-    CASE_EXPLICIT = "C"  # a.k.a. overt
-    CASE_HIDDEN = "N"
-    OMISSION = "O"
-    DEMONSTRATIVE = "D"
-    EXOPHORA = "E"
-    UNASSIGNED = "U"
+    CASE_EXPLICIT = "C"  #: 直接係り受けをもつ格要素 (格は明示されている)
+    CASE_HIDDEN = "N"  #: 直接係り受けをもつ格要素（格は明示されていない）
+    OMISSION = "O"  #: 省略の指示対象
+    DEMONSTRATIVE = "D"  #: 指示詞の指示対象
+    EXOPHORA = "E"  #: 特殊（不特定：人など）
+    UNASSIGNED = "U"  #: 格要素の割り当てなし
 
 
 class BaseArgument(ABC):
     """A base class for all kinds of arguments"""
 
     def __init__(self, arg_type: ArgumentType):
-        self.type: ArgumentType = arg_type
+        self.type = arg_type
         self.optional = False
         self._pas: Optional["Pas"] = None
 
@@ -62,9 +60,16 @@ class BaseArgument(ABC):
 
 
 class EndophoraArgument(BaseArgument):
+    """文脈中の句を指す項を表すクラス．
+
+    Args:
+        base_phrase: 文脈照応詞．
+        arg_type: 項のタイプ．
+    """
+
     def __init__(self, base_phrase: "BasePhrase", arg_type: ArgumentType):
         super().__init__(arg_type)
-        self.base_phrase: "BasePhrase" = base_phrase
+        self.base_phrase = base_phrase  #: 文脈照応詞．
 
     @property
     def unit(self) -> "BasePhrase":
@@ -100,14 +105,14 @@ class ExophoraArgument(BaseArgument):
     """外界を指す項を表すクラス．
 
     Args:
-        exophora_referent (str): 外界照応詞 (不特定:人など)
-        eid (int): 外界照応詞のエンティティID
+        exophora_referent: 外界照応詞 (不特定:人など)
+        eid: 外界照応詞のエンティティID
     """
 
     def __init__(self, exophora_referent: ExophoraReferent, eid: int):
         super().__init__(ArgumentType.EXOPHORA)
-        self.exophora_referent: ExophoraReferent = exophora_referent
-        self.eid: int = eid
+        self.exophora_referent = exophora_referent  #: 外界照応詞．
+        self.eid = eid
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(exophora_referent={repr(self.exophora_referent)}, eid={repr(self.eid)})"

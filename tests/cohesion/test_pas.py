@@ -271,17 +271,16 @@ def test_get_arguments(case: Dict[str, Any]) -> None:
 def test_pas_rel() -> None:
     doc_id = "w201106-0000060050"
     doc = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text())
-    pas_list = doc.pas_list()
-    assert len(pas_list) == 19
+    assert len(doc.pas_list) == 19
 
-    pas = pas_list[1]
+    pas = doc.pas_list[1]
     assert repr(pas) == "<rhoknp.cohesion.pas.Pas: 'トスを'>"
 
 
 def test_get_arguments_idempotency() -> None:
     doc_id = "w201106-0000060050"
     doc = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text())
-    for pas in doc.pas_list():
+    for pas in doc.pas_list:
         pas_before = id(pas)
         predicate_before = id(pas.predicate)
         arguments_before = id(pas._arguments)
@@ -398,7 +397,7 @@ def test_pas_relax() -> None:
 def test_get_all_arguments() -> None:
     doc_id = "w201106-0000060050"
     doc = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text())
-    pas = doc.pas_list()[3]
+    pas = doc.pas_list[3]
     all_arguments = pas.get_all_arguments()
     assert set(all_arguments.keys()) == {"ガ", "ヲ"}
     assert {str(arg) for arg in all_arguments["ガ"]} == {"不特定:人", "著者", "読者"}

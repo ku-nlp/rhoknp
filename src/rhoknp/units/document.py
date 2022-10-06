@@ -43,6 +43,17 @@ class Document(Unit):
 
         self.entity_manager = EntityManager()
 
+    def __post_init__(self) -> None:
+        super().__post_init__()
+
+        # Set doc_id.
+        if self.need_senter is False and len(self.sentences) > 0:
+            self.doc_id = self.sentences[0].doc_id
+            if not all(sentence.doc_id == self.doc_id for sentence in self.sentences):
+                logger.warning(
+                    f"'doc_id' is not consistent; use 'doc_id' extracted from the first sentence: {self.doc_id}."
+                )
+
     @property
     def parent_unit(self) -> None:
         """上位の言語単位．文書は最上位の言語単位なので常に None．"""
@@ -113,8 +124,21 @@ class Document(Unit):
 
     @property
     def named_entities(self) -> List[NamedEntity]:
-        """固有表現のリスト．"""
+        """固有表現のリスト．
+
+        Raises:
+            AttributeError: 解析結果にアクセスできない場合．
+        """
         return [ne for sentence in self.sentences for ne in sentence.named_entities]
+
+    @property
+    def pas_list(self) -> List[Pas]:
+        """述語項構造のリストを返却．
+
+        Raises:
+            AttributeError: 解析結果にアクセスできない場合．
+        """
+        return [base_phrase.pas for base_phrase in self.base_phrases if base_phrase.pas is not None]
 
     @property
     def need_senter(self) -> bool:
@@ -135,10 +159,6 @@ class Document(Unit):
     def need_clause_tag(self) -> bool:
         """KNP による節-主辞・節-区切のタグ付与がまだなら True．"""
         return self.need_senter or any(sentence.need_clause_tag for sentence in self.sentences)
-
-    def pas_list(self) -> List[Pas]:
-        """述語項構造のリストを返却．"""
-        return [base_phrase.pas for base_phrase in self.base_phrases if base_phrase.pas is not None]
 
     @classmethod
     def from_raw_text(cls, text: str) -> "Document":
@@ -222,8 +242,6 @@ class Document(Unit):
             else:
                 sentences_.append(Sentence.from_raw_text(sentence.strip(), post_init=False))
         document.sentences = sentences_
-        if sentences_:
-            document.doc_id = sentences_[0].doc_id
         document.__post_init__()
         return document
 
@@ -233,6 +251,9 @@ class Document(Unit):
 
         Args:
             jumanpp_text: Juman++ の解析結果．
+
+        Raises:
+            Exception: 解析結果読み込み中にエラーが発生した場合．
 
         Example:
 
@@ -336,8 +357,6 @@ class Document(Unit):
                 sentences.append(Sentence.from_knp("\n".join(sentence_lines) + "\n", post_init=False))
                 sentence_lines = []
         document.sentences = sentences
-        if sentences:
-            document.doc_id = sentences[0].doc_id
         document.__post_init__()
         return document
 
@@ -366,11 +385,19 @@ class Document(Unit):
         return "".join(sentence.to_raw_text() for sentence in self.sentences)
 
     def to_jumanpp(self) -> str:
-        """Juman++ フォーマットに変換．"""
+        """Juman++ フォーマットに変換．
+
+        Raises:
+            AttributeError: 解析結果にアクセスできない場合．
+        """
         return "".join(sentence.to_jumanpp() for sentence in self.sentences)
 
     def to_knp(self) -> str:
-        """KNP フォーマットに変換．"""
+        """KNP フォーマットに変換．
+
+        Raises:
+            AttributeError: 解析結果にアクセスできない場合．
+        """
         return "".join(sentence.to_knp() for sentence in self.sentences)
 
     def __eq__(self, other: Any) -> bool:

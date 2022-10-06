@@ -1,6 +1,18 @@
+import concurrent.futures
+
 import pytest
 
-from rhoknp import KNP, Jumanpp, RegexSenter
+from rhoknp import KNP, Document, Jumanpp, RegexSenter, Sentence
+
+
+def test_apply() -> None:
+    knp = KNP(options=["-tab"])
+    text = "外国人参政権"
+    assert isinstance(knp.apply(text), Document)
+    assert isinstance(knp.apply(Document.from_raw_text(text)), Document)
+    assert isinstance(knp.apply(Sentence.from_raw_text(text)), Sentence)
+    with pytest.raises(TypeError):
+        knp.apply(1)  # type: ignore
 
 
 @pytest.mark.parametrize(
@@ -15,12 +27,23 @@ from rhoknp import KNP, Jumanpp, RegexSenter
         # "これは\rどう",  # carriage return  # TODO
     ],
 )
-def test_knp_apply(text: str) -> None:
+def test_apply_to_sentence(text: str) -> None:
     knp = KNP(options=["-tab"])
-    sent = knp.apply(text)
+    sent = knp.apply_to_sentence(text)
     assert sent.text == text.replace(" ", "　").replace('"', "”")
 
 
+def test_thread_safe() -> None:
+    knp = KNP(options=["-tab"])
+    texts = ["外国人参政権", "望遠鏡で泳いでいる少女を見た。", "エネルギーを素敵にENEOS"]
+    texts *= 10
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        futures = [executor.submit(knp.apply_to_sentence, text) for text in texts]
+        for i, future in enumerate(futures):
+            sentence = future.result()
+            assert sentence.text == texts[i]
+
+
 @pytest.mark.parametrize(
     "text",
     [
@@ -33,57 +56,27 @@ def test_knp_apply(text: str) -> None:
         # "これは\rどう",  # carriage return  # TODO
     ],
 )
-def test_knp_apply_to_document(text: str) -> None:
+def test_apply_to_document(text: str) -> None:
     knp = KNP()
     doc = knp.apply_to_document(text)
     assert doc.text == text.replace(" ", "　").replace('"', "”")
 
 
-def test_knp_batch_apply() -> None:
-    texts = [
-        "外国人参政権",
-        "望遠鏡で泳いでいる少女を見た。",
-        "エネルギーを素敵にENEOS",
-    ]
-    knp = KNP()
-    sents = knp.batch_apply(texts)
-    assert [sent.text for sent in sents] == [text.replace(" ", "　").replace('"', "”") for text in texts]
-
-    # parallel
-    sents = knp.batch_apply(texts, processes=2)
-    assert [sent.text for sent in sents] == [text.replace(" ", "　").replace('"', "”") for text in texts]
-
-    sents = knp.batch_apply(texts, processes=4)
-    assert [sent.text for sent in sents] == [text.replace(" ", "　").replace('"', "”") for text in texts]
-
-
-def test_knp_batch_apply_to_documents() -> None:
-    texts = [
-        "外国人参政権",
-        "望遠鏡で泳いでいる少女を見た。",
-        "エネルギーを素敵にENEOS",
-    ]
-    knp = KNP()
-    docs = knp.batch_apply_to_documents(texts)
-    assert [doc.text for doc in docs] == [text.replace(" ", "　").replace('"', "”") for text in texts]
-
-    # parallel
-    docs = knp.batch_apply_to_documents(texts, processes=2)
-    assert [doc.text for doc in docs] == [text.replace(" ", "　").replace('"', "”") for text in texts]
-
-    docs = knp.batch_apply_to_documents(texts, processes=4)
-    assert [doc.text for doc in docs] == [text.replace(" ", "　").replace('"', "”") for text in texts]
-
-
-def test_knp_is_available() -> None:
+def test_is_available() -> None:
     knp = KNP()
     assert knp.is_available() is True
 
     knp = KNP("knpp")
     assert knp.is_available() is False
 
+    with pytest.raises(RuntimeError):
+        _ = knp.apply_to_sentence("test")
 
-def test_knp_repr() -> None:
+    with pytest.raises(RuntimeError):
+        _ = knp.apply_to_document("test")
+
+
+def test_repr() -> None:
     jumanpp = KNP(options=["--tab"], senter=RegexSenter(), jumanpp=Jumanpp())
     assert (
         repr(jumanpp)

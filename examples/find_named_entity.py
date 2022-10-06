@@ -11,7 +11,7 @@ from rhoknp import KNP
 knp = KNP()
 
 # Apply KNP to a sentence.
-sent = knp.apply(sys.argv[1])
+sent = knp.apply_to_sentence(sys.argv[1])
 
 # Get information.
 if sent.named_entities:

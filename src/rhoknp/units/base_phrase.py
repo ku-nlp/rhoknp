@@ -7,12 +7,11 @@ from rhoknp.cohesion.coreference import Entity, EntityManager
 from rhoknp.cohesion.exophora import ExophoraReferent
 from rhoknp.cohesion.pas import CaseInfoFormat, Pas
 from rhoknp.cohesion.predicate import Predicate
-from rhoknp.cohesion.rel import RelMode, RelTag, RelTagList
+from rhoknp.cohesion.rel import CASE_TYPES, COREF_TYPES, RelMode, RelTag, RelTagList
 from rhoknp.props.dependency import DepType
 from rhoknp.props.feature import FeatureDict
 from rhoknp.units.morpheme import Morpheme
 from rhoknp.units.unit import Unit
-from rhoknp.utils.constants import ALL_CASES, ALL_COREFS
 
 if TYPE_CHECKING:
     from rhoknp.units.clause import Clause
@@ -79,9 +78,9 @@ class BasePhrase(Unit):
         for rel in self.rels:
             if rel.sid == "":
                 rel.sid = self.sentence.sid
-            if rel.type in ALL_CASES:
+            if rel.type in CASE_TYPES:
                 self._add_pas(rel)
-            elif rel.type in ALL_COREFS and rel.mode in (None, RelMode.AND):  # ignore "OR" and "?"
+            elif rel.type in COREF_TYPES and rel.mode in (None, RelMode.AND):  # ignore "OR" and "?"
                 self._add_coreference(rel)
 
     @cached_property

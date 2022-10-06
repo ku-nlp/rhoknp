@@ -1,6 +1,18 @@
+import concurrent.futures
+
 import pytest
 
-from rhoknp import Jumanpp, RegexSenter
+from rhoknp import Document, Jumanpp, RegexSenter, Sentence
+
+
+def test_apply() -> None:
+    jumanpp = Jumanpp(options=["--juman"])
+    text = "外国人参政権"
+    assert isinstance(jumanpp.apply(text), Document)
+    assert isinstance(jumanpp.apply(Document.from_raw_text(text)), Document)
+    assert isinstance(jumanpp.apply(Sentence.from_raw_text(text)), Sentence)
+    with pytest.raises(TypeError):
+        jumanpp.apply(1)  # type: ignore
 
 
 @pytest.mark.parametrize(
@@ -15,9 +27,9 @@ from rhoknp import Jumanpp, RegexSenter
         # "これは\rどう",  # carriage return  # TODO
     ],
 )
-def test_jumanpp_apply(text: str) -> None:
+def test_apply_to_sentence(text: str) -> None:
     jumanpp = Jumanpp(options=["--juman"])
-    sent = jumanpp.apply(text)
+    sent = jumanpp.apply_to_sentence(text)
     assert sent.text == text.replace(" ", "　").replace('"', "”")
 
 
@@ -33,49 +45,24 @@ def test_jumanpp_apply(text: str) -> None:
         # "これは\rどう",  # carriage return  # TODO
     ],
 )
-def test_jumanpp_apply_to_document(text: str) -> None:
+def test_apply_to_document(text: str) -> None:
     jumanpp = Jumanpp()
     doc = jumanpp.apply_to_document(text)
     assert doc.text == text.replace(" ", "　").replace('"', "”")
 
 
-def test_jumanpp_batch_apply() -> None:
-    texts = [
-        "外国人参政権",
-        "望遠鏡で泳いでいる少女を見た。",
-        "エネルギーを素敵にENEOS",
-    ]
+def test_thread_safe() -> None:
     jumanpp = Jumanpp()
-    sents = jumanpp.batch_apply(texts)
-    assert [sent.text for sent in sents] == texts
-
-    # parallel
-    sents = jumanpp.batch_apply(texts, processes=2)
-    assert [sent.text for sent in sents] == texts
-
-    sents = jumanpp.batch_apply(texts, processes=4)
-    assert [sent.text for sent in sents] == texts
+    texts = ["外国人参政権", "望遠鏡で泳いでいる少女を見た。", "エネルギーを素敵にENEOS"]
+    texts *= 10
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        futures = [executor.submit(jumanpp.apply_to_sentence, text) for text in texts]
+        for i, future in enumerate(futures):
+            sentence = future.result()
+            assert sentence.text == texts[i]
 
 
-def test_jumanpp_batch_apply_to_documents() -> None:
-    texts = [
-        "外国人参政権",
-        "望遠鏡で泳いでいる少女を見た。",
-        "エネルギーを素敵にENEOS",
-    ]
-    jumanpp = Jumanpp()
-    docs = jumanpp.batch_apply_to_documents(texts)
-    assert [doc.text for doc in docs] == texts
-
-    # parallel
-    docs = jumanpp.batch_apply_to_documents(texts, processes=2)
-    assert [doc.text for doc in docs] == texts
-
-    docs = jumanpp.batch_apply_to_documents(texts, processes=4)
-    assert [doc.text for doc in docs] == texts
-
-
-def test_jumanpp_normal() -> None:
+def test_normal() -> None:
     jumanpp = Jumanpp()
     text = "この文を解析してください。"
     sent = jumanpp.apply(text)
@@ -83,7 +70,7 @@ def test_jumanpp_normal() -> None:
     assert "".join(m.text for m in sent.morphemes) == text
 
 
-def test_jumanpp_nominalization() -> None:
+def test_nominalization() -> None:
     jumanpp = Jumanpp()
     text = "音の響きを感じる。"
     sent = jumanpp.apply(text)
@@ -93,7 +80,7 @@ def test_jumanpp_nominalization() -> None:
     assert sent.morphemes[2].pos == "名詞"
 
 
-def test_jumanpp_whitespace() -> None:
+def test_whitespace() -> None:
     jumanpp = Jumanpp()
     text = "半角 スペース"
     sent = jumanpp.apply(text)
@@ -103,14 +90,20 @@ def test_jumanpp_whitespace() -> None:
     assert sent.morphemes[1].subpos == "空白"
 
 
-def test_jumanpp_is_available() -> None:
+def test_is_available() -> None:
     jumanpp = Jumanpp()
     assert jumanpp.is_available() is True
 
     jumanpp = Jumanpp("jumanp")
     assert jumanpp.is_available() is False
 
+    with pytest.raises(RuntimeError):
+        _ = jumanpp.apply_to_sentence("test")
 
-def test_jumanpp_repr() -> None:
+    with pytest.raises(RuntimeError):
+        _ = jumanpp.apply_to_document("test")
+
+
+def test_repr() -> None:
     jumanpp = Jumanpp(options=["--juman"], senter=RegexSenter())
     assert repr(jumanpp) == "Jumanpp(executable='jumanpp', options=['--juman'], senter=RegexSenter())"

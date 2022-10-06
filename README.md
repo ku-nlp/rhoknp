@@ -14,7 +14,7 @@ import rhoknp
 
 # Perform language analysis by Juman++
 jumanpp = rhoknp.Jumanpp()
-sentence = jumanpp.apply("電気抵抗率は電気の通しにくさを表す物性値である。")
+sentence = jumanpp.apply_to_sentence("電気抵抗率は電気の通しにくさを表す物性値である。")
 
 # Save language analysis by Juman++
 with open("result.jumanpp", "wt") as f:
@@ -26,7 +26,7 @@ with open("result.jumanpp", "rt") as f:
 
 # Perform language analysis by KNP
 knp = rhoknp.KNP()
-sentence = knp.apply(sentence)  # or knp.apply("電気抵抗率は...")
+sentence = knp.apply_to_sentence(sentence)  # or knp.apply_to_sentence("電気抵抗率は...")
 
 # Save language analysis by KNP
 with open("result.knp", "wt") as f:
@@ -60,11 +60,11 @@ pip install rhoknp
 ```python
 # Perform language analysis by Juman++
 jumanpp = rhoknp.Jumanpp()
-sentence = jumanpp.apply("電気抵抗率は電気の通しにくさを表す物性値である。")
+sentence = jumanpp.apply_to_sentence("電気抵抗率は電気の通しにくさを表す物性値である。")
 
 # Perform language analysis by KNP
 knp = rhoknp.KNP()
-sentence = knp.apply(sentence)  # or knp.apply("電気抵抗率は...")
+sentence = knp.apply_to_sentence(sentence)  # or knp.apply_to_sentence("電気抵抗率は...")
 ```
 
 Sentence objects can be saved in the Juman/KNP format

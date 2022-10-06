@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "rhoknp"
-version = "0.4.2"
+version = "0.4.3"
 description = "Yet another Python binding for Juman++/KNP"
 authors = ["Hirokazu Kiyomaru <h.kiyomaru@gmail.com>", "Nobuhiro Ueda <ueda@nlp.ist.i.kyoto-u.ac.jp>"]
 repository = "https://github.com/ku-nlp/rhoknp"
@@ -15,6 +15,7 @@ typer = "^0.6.1"
 PyYAML = "^6.0"
 
 [tool.poetry.dev-dependencies]
+ipdb = "^0.13.9"
 mypy = "^0.971"
 pytest = "^7.1.2"
 pytest-cov = "^3.0.0"
@@ -24,7 +25,7 @@ Sphinx = "^4.2.0"
 furo = "^2022.4.7"
 sphinx-prompt = "^1.5.0"
 sphinx-copybutton = "^0.5.0"
-ipdb = "^0.13.9"
+myst-parser = "^0.18.1"
 
 [tool.poetry.scripts]
 rhoknp = "rhoknp.cli:app"

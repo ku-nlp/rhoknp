@@ -1,6 +1,7 @@
 import logging
-from subprocess import PIPE, Popen, run
-from typing import List, Optional, Sequence, Union
+from subprocess import PIPE, Popen
+from threading import Lock
+from typing import List, Optional, Union
 
 from rhoknp.processors.jumanpp import Jumanpp
 from rhoknp.processors.processor import Processor
@@ -21,20 +22,12 @@ class KNP(Processor):
         jumanpp: Jumanpp のインスタンス．形態素解析がまだなら，先にこのインスタンスを用いて形態素解析する．
             未設定なら Jumanpp （オプションなし）を使って形態素解析する．
 
-    Attributes:
-        executable: KNP のパス．
-        options: KNP のオプション．
-        senter: 文分割器のインスタンス．文分割がまだなら，先にこのインスタンスを用いて文分割する．
-            未設定なら RegexSenter を使って文分割する．
-        jumanpp: Jumanpp のインスタンス．形態素解析がまだなら，先にこのインスタンスを用いて形態素解析する．
-            未設定なら Jumanpp （オプションなし）を使って形態素解析する．
-
     Example:
 
         >>> from rhoknp import KNP
         <BLANKLINE>
         >>> knp = KNP()
-        >>> sentence = knp.apply("電気抵抗率は、どんな材料が電気を通しにくいかを比較するために、用いられる物性値である。")
+        >>> document = knp.apply("電気抵抗率は電気の通しにくさを表す物性値である。")
     """
 
     def __init__(
@@ -44,10 +37,16 @@ class KNP(Processor):
         senter: Optional[Processor] = None,
         jumanpp: Optional[Processor] = None,
     ):
-        self.executable = executable
-        self.options = options
+        self.executable = executable  #: KNP のパス．
+        self.options = options  #: KNP のオプション．
         self.senter = senter
         self.jumanpp = jumanpp
+        self._proc: Optional[Popen] = None
+        try:
+            self._proc = Popen(self.run_command, stdout=PIPE, stdin=PIPE, encoding="utf-8")
+        except Exception as e:
+            logger.warning(f"failed to start KNP: {e}")
+        self._lock = Lock()
 
     def __repr__(self) -> str:
         arg_string = f"executable={repr(self.executable)}"
@@ -59,22 +58,9 @@ class KNP(Processor):
             arg_string += f", jumanpp={repr(self.jumanpp)}"
         return f"{self.__class__.__name__}({arg_string})"
 
-    def apply(self, sentence: Union[Sentence, str]) -> Sentence:
-        """文に解析器を適用する．
-
-        Args:
-            sentence (Union[Sentence, str]): 文．
-        """
-        return self.apply_to_sentence(sentence)
-
-    def batch_apply(self, sentences: Sequence[Union[Sentence, str]], processes: int = 0) -> List[Sentence]:
-        """複数文に解析器を適用する．
-
-        Args:
-            sentences (Sequence[Union[Sentence, str]]): 文のリスト．
-            processes (int, optional): 並列処理数．0以下の場合はシングルプロセスで処理する．
-        """
-        return self.batch_apply_to_sentences(sentences, processes)
+    def is_available(self) -> bool:
+        """KNP が利用可能であれば True を返す．"""
+        return self._proc is not None and self._proc.poll() is None
 
     def apply_to_document(self, document: Union[Document, str]) -> Document:
         """文書に KNP を適用する．
@@ -88,6 +74,12 @@ class KNP(Processor):
             形態素解析がまだなら，先に初期化時に設定した jumanpp で形態素解析する．
             未設定なら Jumanpp （オプションなし）で形態素解析する．
         """
+        if not self.is_available():
+            raise RuntimeError("KNP is not available.")
+        assert self._proc is not None
+        assert self._proc.stdin is not None
+        assert self._proc.stdout is not None
+
         if isinstance(document, str):
             document = Document(document)
 
@@ -107,9 +99,18 @@ class KNP(Processor):
                 logger.debug(self.jumanpp)
             document = self.jumanpp.apply_to_document(document)
 
-        with Popen(self.run_command, stdout=PIPE, stdin=PIPE, encoding="utf-8") as p:
-            knp_text, _ = p.communicate(input=document.to_jumanpp() if document.need_knp else document.to_knp())
-        return Document.from_knp(knp_text)
+        with self._lock:
+            knp_text = ""
+            for sentence in document.sentences:
+                self._proc.stdin.write(sentence.to_jumanpp() if sentence.need_knp else sentence.to_knp())
+                self._proc.stdin.flush()
+                while self.is_available():
+                    line = self._proc.stdout.readline()
+                    knp_text += line
+                    if line.strip() == Sentence.EOS_PAT:
+                        break
+                self._proc.stdout.flush()
+            return Document.from_knp(knp_text)
 
     def apply_to_sentence(self, sentence: Union[Sentence, str]) -> Sentence:
         """文に KNP を適用する．
@@ -121,6 +122,12 @@ class KNP(Processor):
             形態素解析がまだなら，先に初期化時に設定した jumanpp で形態素解析する．
             未設定なら Jumanpp （オプションなし）で形態素解析する．
         """
+        if not self.is_available():
+            raise RuntimeError("KNP is not available.")
+        assert self._proc is not None
+        assert self._proc.stdin is not None
+        assert self._proc.stdout is not None
+
         if isinstance(sentence, str):
             sentence = Sentence(sentence)
 
@@ -131,19 +138,17 @@ class KNP(Processor):
                 self.jumanpp = Jumanpp()
             sentence = self.jumanpp.apply_to_sentence(sentence)
 
-        with Popen(self.run_command, stdout=PIPE, stdin=PIPE, encoding="utf-8") as p:
-            knp_text, _ = p.communicate(input=sentence.to_jumanpp() if sentence.need_knp else sentence.to_knp())
-        return Sentence.from_knp(knp_text)
-
-    def is_available(self) -> bool:
-        """KNP が利用可能であれば True を返す．"""
-        try:
-            p = run(self.version_command, stdout=PIPE, stdin=PIPE, encoding="utf-8")
-            logger.info(p.stdout.strip())
-            return True
-        except Exception as e:
-            logger.warning(e)
-            return False
+        with self._lock:
+            knp_text = ""
+            self._proc.stdin.write(sentence.to_jumanpp() if sentence.need_knp else sentence.to_knp())
+            self._proc.stdin.flush()
+            while self.is_available():
+                line = self._proc.stdout.readline()
+                knp_text += line
+                if line.strip() == Sentence.EOS_PAT:
+                    break
+            self._proc.stdout.flush()
+            return Sentence.from_knp(knp_text)
 
     @property
     def run_command(self) -> List[str]:
@@ -154,8 +159,3 @@ class KNP(Processor):
         else:
             command += ["-tab"]
         return command
-
-    @property
-    def version_command(self) -> List[str]:
-        """バージョン確認時に実行するコマンド．"""
-        return [self.executable, "-v"]
