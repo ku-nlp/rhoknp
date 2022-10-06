@@ -515,3 +515,10 @@ def test_morpheme_homograph_to_knp() -> None:
     assert len(sentence.morphemes[0].homographs) == 1
     assert sentence.morphemes[0].to_jumanpp() == jumanpp_homograph
     assert sentence.to_knp() == knp_homograph
+
+
+@pytest.mark.parametrize("char", ["#", "*", "+", "@", "EOS", "\u0020"])
+def test_control_char(char: str) -> None:
+    morpheme = Morpheme.from_jumanpp(char)
+    assert morpheme.text == char
+    assert morpheme.to_jumanpp() == char + "\n"
