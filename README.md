@@ -160,6 +160,15 @@ For more information, explore the [examples](./examples) and [documentation](htt
 - **Extensive test suite**: *rhoknp* is tested with an extensive test suite. See the code coverage at [Codecov](https://app.codecov.io/gh/ku-nlp/rhoknp).
 - **Support Python3.8+ only**
 
+## License
+
+MIT
+
+## Contributing
+
+We welcome contributions to *rhoknp*.
+You can get started by reading the [contribution guide](https://rhoknp.readthedocs.io/en/latest/contributing/index.html).
+
 ## Reference
 
 - [KNP FORMAT](http://cr.fvcrc.i.nagoya-u.ac.jp/~sasano/knp/format.html)
