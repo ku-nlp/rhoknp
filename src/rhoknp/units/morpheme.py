@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 class MorphemeAttributes:
     """形態素の属性クラス．"""
 
-    JUMANPP_PAT = re.compile(r"(?P<attrs>([^ ]+ [^ ]+ [^ ]+ \d+ [^ ]+ \d+ [^ ]+ \d+ [^ ]+ \d+))")
+    PAT = re.compile(r"([^ ]+| ) ([^ ]+| ) ([^ ]+) (\d+) ([^ ]+) (\d+) ([^ ]+) (\d+) ([^ ]+) (\d+)")
 
     reading: str  #: 読み．
     lemma: str  #: 原形．
@@ -40,7 +40,9 @@ class MorphemeAttributes:
             jumanpp_line: Juman++ の解析結果．
         """
         kwargs = {}
-        for field, value in zip(fields(cls), jumanpp_line.split(" ")):
+        match = cls.PAT.match(jumanpp_line)
+        assert match is not None, f"malformed line: {jumanpp_line}"
+        for field, value in zip(fields(cls), match.groups()):
             kwargs[field.name] = field.type(value)
         assert len(kwargs) == len(fields(cls)), f"malformed line: {jumanpp_line}"
         return cls(**kwargs)
@@ -54,10 +56,10 @@ class Morpheme(Unit):
     """形態素クラス．"""
 
     JUMANPP_PAT: ClassVar[re.Pattern] = re.compile(
-        r"(?P<surf>^[^ ]+)"
-        + rf"(\s{MorphemeAttributes.JUMANPP_PAT.pattern})?"
-        + rf"(\s{SemanticsDict.PAT.pattern})?"
-        + rf"(\s{FeatureDict.PAT.pattern})?$"
+        r"(?P<surf>^([^ ]+| ))"
+        + rf"( (?P<attrs>{MorphemeAttributes.PAT.pattern}))"
+        + rf"( {SemanticsDict.PAT.pattern})?"
+        + rf"( {FeatureDict.PAT.pattern})?$"
     )
 
     count = 0
@@ -298,7 +300,7 @@ class Morpheme(Unit):
             jumanpp_line: Juman++ の解析結果．
             homograph: 同形かどうかを表すフラグ．
         """
-        assert "\n" not in jumanpp_line.strip()
+        assert "\n" not in jumanpp_line.strip("\n")
         if (match := cls.JUMANPP_PAT.match(jumanpp_line)) is None:
             raise ValueError(f"malformed line: {jumanpp_line}")
         surf = match.group("surf")
