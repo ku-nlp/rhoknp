@@ -422,8 +422,8 @@ class Sentence(Unit):
                 match.group("sid"),
                 match_sid.group(2).lstrip() if match_sid.group(2) else "",
             )
-        assert comment.startswith("# ")
-        return None, None, comment[2:]
+        assert comment.startswith("#")
+        return None, None, comment.lstrip("#").lstrip(" ")
 
     def to_raw_text(self) -> str:
         """生テキストフォーマットに変換．"""
