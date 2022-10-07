@@ -8,7 +8,7 @@ from rhoknp.units.clause import Clause
 from rhoknp.units.morpheme import Morpheme
 from rhoknp.units.phrase import Phrase
 from rhoknp.units.unit import Unit
-from rhoknp.utils.utils import is_comment_line
+from rhoknp.utils.utils import is_base_phrase_line, is_comment_line, is_homograph_line, is_phrase_line
 
 if TYPE_CHECKING:
     from rhoknp.units.document import Document
@@ -308,8 +308,7 @@ class Sentence(Unit):
             if is_comment_line(line):
                 sentence.comment = line
                 continue
-            elif line.startswith("@") and not line.startswith("@ @"):
-                # homograph
+            elif is_homograph_line(line):
                 pass
             elif jumanpp_lines:
                 morphemes.append(Morpheme.from_jumanpp("\n".join(jumanpp_lines)))
@@ -358,7 +357,7 @@ class Sentence(Unit):
         """
         lines = knp_text.split("\n")
         sentence = cls()
-        has_clause_boundary = any("節-区切" in line for line in lines if line.startswith("+"))
+        has_clause_boundary = any("節-区切" in line for line in lines if is_base_phrase_line(line))
         clauses: List[Clause] = []
         phrases: List[Phrase] = []
         child_lines: List[str] = []
@@ -371,7 +370,7 @@ class Sentence(Unit):
                 continue
             if line.startswith(";;"):
                 raise Exception(f"Error: {line}")
-            if line.startswith("+") and "節-区切" in line:
+            if is_base_phrase_line(line) and "節-区切" in line:
                 is_clause_end = True
             if line.strip() == cls.EOS_PAT:
                 if has_clause_boundary is True:
@@ -379,7 +378,7 @@ class Sentence(Unit):
                 else:
                     phrases.append(Phrase.from_knp("\n".join(child_lines)))
                 break
-            if line.startswith("*"):
+            if is_phrase_line(line):
                 if is_clause_end is True:
                     clauses.append(Clause.from_knp("\n".join(child_lines)))
                     child_lines = []

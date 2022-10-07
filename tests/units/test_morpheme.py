@@ -81,43 +81,6 @@ CASES = [
         "parent_ids": [3, 0, 3, -1, 3, 3],
         "children_ids": [[1], [], [], [0, 2, 4, 5], [], []],
     },
-    {
-        "knp": textwrap.dedent(
-            """\
-            # S-ID:1
-            * 1D
-            + 1D
-            天気
-            が
-            * 2D
-            + 2D
-            いい
-            ので
-            * -1D
-            + -1D
-            散歩
-            した
-            。
-            EOS
-            """
-        ),
-        "jumanpp": textwrap.dedent(
-            """\
-            # S-ID:1
-            天気
-            が
-            いい
-            ので
-            散歩
-            した
-            。
-            EOS
-            """
-        ),
-        "num": 7,
-        "parent_ids": [2, 0, 4, 2, -1, 4, 4],
-        "children_ids": [[1], [], [0, 3], [], [2, 5, 6], [], []],
-    },
 ]
 
 
@@ -253,6 +216,62 @@ JUMANPP_SNIPPETS = [
         "fstring": "",
         "canon": None,
     },
+    {
+        "jumanpp": "# はっしゅ # 未定義語 15 その他 1 * 0 * 0\n",
+        "text": "#",
+        "surf": "#",
+        "reading": "はっしゅ",
+        "lemma": "#",
+        "pos": "未定義語",
+        "subpos": "その他",
+        "conjtype": "*",
+        "conjform": "*",
+        "sstring": "",
+        "fstring": "",
+        "canon": None,
+    },
+    {
+        "jumanpp": "+ ぷらす + 未定義語 15 その他 1 * 0 * 0\n",
+        "text": "+",
+        "surf": "+",
+        "reading": "ぷらす",
+        "lemma": "+",
+        "pos": "未定義語",
+        "subpos": "その他",
+        "conjtype": "*",
+        "conjform": "*",
+        "sstring": "",
+        "fstring": "",
+        "canon": None,
+    },
+    {
+        "jumanpp": "* あすたりすく * 特殊 1 記号 5 * 0 * 0\n",
+        "text": "*",
+        "surf": "*",
+        "reading": "あすたりすく",
+        "lemma": "*",
+        "pos": "特殊",
+        "subpos": "記号",
+        "conjtype": "*",
+        "conjform": "*",
+        "sstring": "",
+        "fstring": "",
+        "canon": None,
+    },
+    {
+        "jumanpp": "      特殊 1 空白 6 * 0 * 0\n",
+        "text": " ",
+        "surf": " ",
+        "reading": " ",
+        "lemma": " ",
+        "pos": "特殊",
+        "subpos": "空白",
+        "conjtype": "*",
+        "conjform": "*",
+        "sstring": "",
+        "fstring": "",
+        "canon": None,
+    },
 ]
 
 
@@ -369,13 +388,6 @@ def test_from_jumanpp_error() -> None:
     jumanpp = "であり であり だ 判定詞 4 * 0 判定詞 25 デアル列基本連用形 18 MALFORMED_STRING\n"
     with pytest.raises(ValueError):
         _ = Morpheme.from_jumanpp(jumanpp)
-
-
-@pytest.mark.parametrize("char", ["#", "*", "+", "@", "EOS", "\u0020", "<", ">", '"', ":", ";"])
-def test_from_jumanpp_control_character(char: str) -> None:
-    morpheme = Morpheme.from_jumanpp(char)
-    assert morpheme.text == char
-    assert morpheme.to_jumanpp() == char + "\n"
 
 
 @pytest.mark.parametrize("case", JUMANPP_SNIPPETS)

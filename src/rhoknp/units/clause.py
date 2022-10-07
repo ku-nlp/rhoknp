@@ -7,6 +7,7 @@ from rhoknp.units.base_phrase import BasePhrase
 from rhoknp.units.morpheme import Morpheme
 from rhoknp.units.phrase import Phrase
 from rhoknp.units.unit import Unit
+from rhoknp.utils.utils import is_phrase_line
 
 if TYPE_CHECKING:
     from rhoknp.units.document import Document
@@ -186,7 +187,7 @@ class Clause(Unit):
         for line in knp_text.split("\n"):
             if not line.strip():
                 continue
-            if line.startswith("*") and phrase_lines:
+            if is_phrase_line(line) and phrase_lines:
                 phrases.append(Phrase.from_knp("\n".join(phrase_lines)))
                 phrase_lines = []
             phrase_lines.append(line)

@@ -7,6 +7,7 @@ from rhoknp.props.feature import FeatureDict
 from rhoknp.units.base_phrase import BasePhrase
 from rhoknp.units.morpheme import Morpheme
 from rhoknp.units.unit import Unit
+from rhoknp.utils.utils import is_base_phrase_line
 
 if TYPE_CHECKING:
     from rhoknp.units.clause import Clause
@@ -182,7 +183,7 @@ class Phrase(Unit):
         for line in lines:
             if not line.strip():
                 continue
-            if line.startswith("+") and base_phrase_lines:
+            if is_base_phrase_line(line) and base_phrase_lines:
                 base_phrases.append(BasePhrase.from_knp("\n".join(base_phrase_lines)))
                 base_phrase_lines = []
             base_phrase_lines.append(line)
