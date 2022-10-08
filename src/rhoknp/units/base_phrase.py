@@ -354,4 +354,4 @@ class BasePhrase(Unit):
     @staticmethod
     def is_base_phrase_line(line: str) -> bool:
         """基本句行なら True を返す．"""
-        return line.startswith("+") and not Morpheme.is_morpheme_line(line)
+        return BasePhrase.KNP_PAT.match(line) is not None

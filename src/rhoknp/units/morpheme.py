@@ -351,9 +351,10 @@ class Morpheme(Unit):
 
     @staticmethod
     def is_morpheme_line(line: str) -> bool:
+        """形態素行なら True を返す．"""
         return Morpheme.JUMANPP_PAT.match(line) is not None
 
     @staticmethod
     def is_homograph_line(line: str) -> bool:
         """同形行なら True を返す．"""
-        return line.startswith("@") and not Morpheme.is_morpheme_line(line)
+        return line.startswith("@") and Morpheme.is_morpheme_line(line[2:])

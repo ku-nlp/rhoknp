@@ -206,4 +206,4 @@ class Phrase(Unit):
     @staticmethod
     def is_phrase_line(line: str) -> bool:
         """文節行なら True を返す．"""
-        return line.startswith("*") and not Morpheme.is_morpheme_line(line)
+        return Phrase.KNP_PAT.match(line) is not None
