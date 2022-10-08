@@ -81,43 +81,6 @@ CASES = [
         "parent_ids": [3, 0, 3, -1, 3, 3],
         "children_ids": [[1], [], [], [0, 2, 4, 5], [], []],
     },
-    {
-        "knp": textwrap.dedent(
-            """\
-            # S-ID:1
-            * 1D
-            + 1D
-            天気
-            が
-            * 2D
-            + 2D
-            いい
-            ので
-            * -1D
-            + -1D
-            散歩
-            した
-            。
-            EOS
-            """
-        ),
-        "jumanpp": textwrap.dedent(
-            """\
-            # S-ID:1
-            天気
-            が
-            いい
-            ので
-            散歩
-            した
-            。
-            EOS
-            """
-        ),
-        "num": 7,
-        "parent_ids": [2, 0, 4, 2, -1, 4, 4],
-        "children_ids": [[1], [], [0, 3], [], [2, 5, 6], [], []],
-    },
 ]
 
 
@@ -250,6 +213,62 @@ JUMANPP_SNIPPETS = [
         "conjtype": "判定詞",
         "conjform": "デアル列基本連用形",
         "sstring": "NIL",
+        "fstring": "",
+        "canon": None,
+    },
+    {
+        "jumanpp": "# はっしゅ # 未定義語 15 その他 1 * 0 * 0\n",
+        "text": "#",
+        "surf": "#",
+        "reading": "はっしゅ",
+        "lemma": "#",
+        "pos": "未定義語",
+        "subpos": "その他",
+        "conjtype": "*",
+        "conjform": "*",
+        "sstring": "",
+        "fstring": "",
+        "canon": None,
+    },
+    {
+        "jumanpp": "+ ぷらす + 未定義語 15 その他 1 * 0 * 0\n",
+        "text": "+",
+        "surf": "+",
+        "reading": "ぷらす",
+        "lemma": "+",
+        "pos": "未定義語",
+        "subpos": "その他",
+        "conjtype": "*",
+        "conjform": "*",
+        "sstring": "",
+        "fstring": "",
+        "canon": None,
+    },
+    {
+        "jumanpp": "* あすたりすく * 特殊 1 記号 5 * 0 * 0\n",
+        "text": "*",
+        "surf": "*",
+        "reading": "あすたりすく",
+        "lemma": "*",
+        "pos": "特殊",
+        "subpos": "記号",
+        "conjtype": "*",
+        "conjform": "*",
+        "sstring": "",
+        "fstring": "",
+        "canon": None,
+    },
+    {
+        "jumanpp": "      特殊 1 空白 6 * 0 * 0\n",
+        "text": " ",
+        "surf": " ",
+        "reading": " ",
+        "lemma": " ",
+        "pos": "特殊",
+        "subpos": "空白",
+        "conjtype": "*",
+        "conjform": "*",
+        "sstring": "",
         "fstring": "",
         "canon": None,
     },
@@ -462,7 +481,7 @@ def test_span_error() -> None:
         _ = morpheme.span
 
 
-def test_morpheme_homograph() -> None:
+def test_homograph() -> None:
     jumanpp = textwrap.dedent(
         """\
         母 はは 母 名詞 6 普通名詞 1 * 0 * 0 "代表表記:母/はは 漢字読み:訓 カテゴリ:人 ドメイン:家庭・暮らし"
@@ -483,7 +502,7 @@ def test_morpheme_homograph() -> None:
     assert homograph.fstring == ""
 
 
-def test_morpheme_homograph_to_knp() -> None:
+def test_homograph_to_knp() -> None:
     knp = textwrap.dedent(
         """\
         # S-ID:1

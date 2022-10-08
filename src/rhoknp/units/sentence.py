@@ -8,7 +8,6 @@ from rhoknp.units.clause import Clause
 from rhoknp.units.morpheme import Morpheme
 from rhoknp.units.phrase import Phrase
 from rhoknp.units.unit import Unit
-from rhoknp.utils.utils import is_comment_line
 
 if TYPE_CHECKING:
     from rhoknp.units.document import Document
@@ -262,7 +261,7 @@ class Sentence(Unit):
         for line in text.split("\n"):
             if line.strip() == "":
                 continue
-            if is_comment_line(line):
+            if cls.is_comment_line(line):
                 sentence.comment = line
             else:
                 text_lines.append(line)
@@ -305,11 +304,10 @@ class Sentence(Unit):
         for line in jumanpp_text.split("\n"):
             if not line.strip():
                 continue
-            if is_comment_line(line):
+            if cls.is_comment_line(line):
                 sentence.comment = line
                 continue
-            elif line.startswith("@") and not line.startswith("@ @"):
-                # homograph
+            elif Morpheme.is_homograph_line(line):
                 pass
             elif jumanpp_lines:
                 morphemes.append(Morpheme.from_jumanpp("\n".join(jumanpp_lines)))
@@ -358,7 +356,7 @@ class Sentence(Unit):
         """
         lines = knp_text.split("\n")
         sentence = cls()
-        has_clause_boundary = any("節-区切" in line for line in lines if line.startswith("+"))
+        has_clause_boundary = any("節-区切" in line for line in lines if BasePhrase.is_base_phrase_line(line))
         clauses: List[Clause] = []
         phrases: List[Phrase] = []
         child_lines: List[str] = []
@@ -366,12 +364,12 @@ class Sentence(Unit):
         for line in lines:
             if not line.strip():
                 continue
-            if is_comment_line(line):
+            if cls.is_comment_line(line):
                 sentence.comment = line
                 continue
             if line.startswith(";;"):
                 raise Exception(f"Error: {line}")
-            if line.startswith("+") and "節-区切" in line:
+            if BasePhrase.is_base_phrase_line(line) and "節-区切" in line:
                 is_clause_end = True
             if line.strip() == cls.EOS_PAT:
                 if has_clause_boundary is True:
@@ -379,7 +377,7 @@ class Sentence(Unit):
                 else:
                     phrases.append(Phrase.from_knp("\n".join(child_lines)))
                 break
-            if line.startswith("*"):
+            if Phrase.is_phrase_line(line):
                 if is_clause_end is True:
                     clauses.append(Clause.from_knp("\n".join(child_lines)))
                     child_lines = []
@@ -422,8 +420,8 @@ class Sentence(Unit):
                 match.group("sid"),
                 match_sid.group(2).lstrip() if match_sid.group(2) else "",
             )
-        assert comment.startswith("# ")
-        return None, None, comment[2:]
+        assert comment.startswith("#")
+        return None, None, comment.lstrip("#").lstrip(" ")
 
     def to_raw_text(self) -> str:
         """生テキストフォーマットに変換．"""
@@ -474,3 +472,7 @@ class Sentence(Unit):
         if isinstance(other, Sentence) is False:
             return False
         return self.sid == other.sid and self.text == other.text
+
+    @staticmethod
+    def is_comment_line(line: str) -> bool:
+        return line.startswith("#") and not Morpheme.is_morpheme_line(line)

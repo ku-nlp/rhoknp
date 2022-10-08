@@ -186,7 +186,7 @@ class Clause(Unit):
         for line in knp_text.split("\n"):
             if not line.strip():
                 continue
-            if line.startswith("*") and phrase_lines:
+            if Phrase.is_phrase_line(line) and phrase_lines:
                 phrases.append(Phrase.from_knp("\n".join(phrase_lines)))
                 phrase_lines = []
             phrase_lines.append(line)

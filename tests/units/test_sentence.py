@@ -267,6 +267,27 @@ def test_from_jumanpp_empty_line():
     )
 
 
+def test_from_jumanpp_control_character() -> None:
+    jumanpp = textwrap.dedent(
+        """\
+        # S-ID:1
+        * あすたりすく * 特殊 1 記号 5 * 0 * 0
+        + ぷらす + 未定義語 15 その他 1 * 0 * 0
+        @ あっと @ 未定義語 15 その他 1 * 0 * 0
+        EOS いーおーえす EOS 未定義語 15 アルファベット 3 * 0 * 0
+        \u0020 すぺーす \u0020 特殊 1 空白 6 * 0 * 0
+        < < < 特殊 1 括弧始 3 * 0 * 0
+        > > > 特殊 1 括弧終 4 * 0 * 0
+        " " " 特殊 1 括弧終 4 * 0 * 0
+        : : : 未定義語 15 その他 1 * 0 * 0
+        ; ; ; 未定義語 15 その他 1 * 0 * 0
+        EOS
+        """
+    )
+    sentence = Sentence.from_jumanpp(jumanpp)
+    assert sentence.to_jumanpp() == jumanpp
+
+
 @pytest.mark.parametrize("case", CASES)
 def test_from_knp_with_no_clause_tag(case: Dict[str, str]) -> None:
     _ = Sentence.from_knp(case["knp_with_no_clause_tag"])
