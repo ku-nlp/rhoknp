@@ -7,7 +7,6 @@ from rhoknp.props.feature import FeatureDict
 from rhoknp.units.base_phrase import BasePhrase
 from rhoknp.units.morpheme import Morpheme
 from rhoknp.units.unit import Unit
-from rhoknp.utils.utils import is_base_phrase_line
 
 if TYPE_CHECKING:
     from rhoknp.units.clause import Clause
@@ -183,7 +182,7 @@ class Phrase(Unit):
         for line in lines:
             if not line.strip():
                 continue
-            if is_base_phrase_line(line) and base_phrase_lines:
+            if BasePhrase.is_base_phrase_line(line) and base_phrase_lines:
                 base_phrases.append(BasePhrase.from_knp("\n".join(base_phrase_lines)))
                 base_phrase_lines = []
             base_phrase_lines.append(line)
@@ -203,3 +202,8 @@ class Phrase(Unit):
         ret += "\n"
         ret += "".join(base_phrase.to_knp() for base_phrase in self.base_phrases)
         return ret
+
+    @staticmethod
+    def is_phrase_line(line: str) -> bool:
+        """文節行なら True を返す．"""
+        return line.startswith("*") and not Morpheme.is_morpheme_line(line)

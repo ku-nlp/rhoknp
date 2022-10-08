@@ -348,3 +348,12 @@ class Morpheme(Unit):
             ret += f" {features.to_fstring()}"
         ret += "\n"
         return ret
+
+    @staticmethod
+    def is_morpheme_line(line: str) -> bool:
+        return Morpheme.JUMANPP_PAT.match(line) is not None
+
+    @staticmethod
+    def is_homograph_line(line: str) -> bool:
+        """同形行なら True を返す．"""
+        return line.startswith("@") and not Morpheme.is_morpheme_line(line)

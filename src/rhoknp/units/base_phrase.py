@@ -350,3 +350,8 @@ class BasePhrase(Unit):
 
     def __hash__(self) -> int:
         return hash((self.global_index, self.sentence.sid))
+
+    @staticmethod
+    def is_base_phrase_line(line: str) -> bool:
+        """基本句行なら True を返す．"""
+        return line.startswith("+") and not Morpheme.is_morpheme_line(line)

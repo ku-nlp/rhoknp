@@ -10,7 +10,6 @@ from rhoknp.units.morpheme import Morpheme
 from rhoknp.units.phrase import Phrase
 from rhoknp.units.sentence import Sentence
 from rhoknp.units.unit import Unit
-from rhoknp.utils.utils import is_comment_line
 
 logger = logging.getLogger(__name__)
 
@@ -207,7 +206,7 @@ class Document(Unit):
             if line.strip() == "":
                 continue
             sentence_lines.append(line)
-            if is_comment_line(line):
+            if Sentence.is_comment_line(line):
                 continue
             sentences.append(Sentence.from_raw_text("\n".join(sentence_lines), post_init=False))
             sentence_lines = []
