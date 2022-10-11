@@ -7,7 +7,7 @@
 [![Documentation](https://img.shields.io/readthedocs/rhoknp?style=flat-square)](https://rhoknp.readthedocs.io/en/latest/?badge=latest)
 [![Code style - black](https://img.shields.io/badge/code%20style-black-222222?style=flat-square)](https://github.com/psf/black)
 
-*rhoknp* is a Python binding for [Juman++](https://github.com/ku-nlp/jumanpp) and [KNP](https://github.com/ku-nlp/knp).
+*rhoknp* is a Python binding for [Juman++](https://github.com/ku-nlp/jumanpp), [KNP](https://github.com/ku-nlp/knp), and [KWJA](https://github.com/ku-nlp/kwja).
 
 ```python
 import rhoknp
@@ -35,13 +35,21 @@ with open("result.knp", "wt") as f:
 # Load language analysis by KNP
 with open("result.knp", "rt") as f:
     sentence = rhoknp.Sentence.from_knp(f.read())
+
+# Perform language analysis by KWJA
+kwja = rhoknp.KWJA()
+sentence = kwja.apply_to_sentence(sentence)  # or knp.apply_to_sentence("電気抵抗率は...")
 ```
 
 ## Requirements
 
 - Python 3.8+
+
+## Optional requirements for language analysis
+
 - [Juman++](https://github.com/ku-nlp/jumanpp) v2.0.0-rc3+
 - [KNP](https://github.com/ku-nlp/knp) 5.0+
+- [KWJA](https://github.com/ku-nlp/kwja) 1.0.0+
 
 ## Installation
 
