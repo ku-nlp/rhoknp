@@ -36,7 +36,7 @@ class KNP(Processor):
         options: Optional[List[str]] = None,
         senter: Optional[Processor] = None,
         jumanpp: Optional[Processor] = None,
-    ):
+    ) -> None:
         self.executable = executable  #: KNP のパス．
         self.options = options  #: KNP のオプション．
         self.senter = senter
