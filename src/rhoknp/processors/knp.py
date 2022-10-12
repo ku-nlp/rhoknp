@@ -109,7 +109,6 @@ class KNP(Processor):
                     knp_text += line
                     if line.strip() == Sentence.EOS_PAT:
                         break
-                self._proc.stdout.flush()
             return Document.from_knp(knp_text)
 
     def apply_to_sentence(self, sentence: Union[Sentence, str]) -> Sentence:
@@ -139,15 +138,14 @@ class KNP(Processor):
             sentence = self.jumanpp.apply_to_sentence(sentence)
 
         with self._lock:
-            knp_text = ""
             self._proc.stdin.write(sentence.to_jumanpp() if sentence.need_knp else sentence.to_knp())
             self._proc.stdin.flush()
+            knp_text = ""
             while self.is_available():
                 line = self._proc.stdout.readline()
                 knp_text += line
                 if line.strip() == Sentence.EOS_PAT:
                     break
-            self._proc.stdout.flush()
             return Sentence.from_knp(knp_text)
 
     @property

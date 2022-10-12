@@ -64,15 +64,15 @@ class KWJA(Processor):
             document = Document(document)
 
         with self._lock:
-            knp_text = ""
-            self._proc.stdin.write(f"{document.text}")  # TODO: Keep the sentence IDs
+            self._proc.stdin.write(document.text.rstrip("\n") + "\n")  # TODO: Keep the sentence IDs
+            self._proc.stdin.write(Document.EOD_PAT + "\n")
             self._proc.stdin.flush()
+            knp_text = ""
             while self.is_available():
                 line = self._proc.stdout.readline()
                 if line.strip() == Document.EOD_PAT:
                     break
                 knp_text += line
-            self._proc.stdout.flush()
             return Document.from_knp(knp_text)
 
     def apply_to_sentence(self, sentence: Union[Sentence, str]) -> Sentence:
@@ -91,15 +91,16 @@ class KWJA(Processor):
             sentence = Sentence(sentence)
 
         with self._lock:
-            knp_text = ""
-            self._proc.stdin.write(f"{sentence.text}")  # TODO: Keep the sentence ID
+            self._proc.stdout.flush()
+            self._proc.stdin.write(sentence.text.rstrip("\n") + "\n")  # TODO: Keep the sentence ID
+            self._proc.stdin.write(Document.EOD_PAT + "\n")
             self._proc.stdin.flush()
+            knp_text = ""
             while self.is_available():
                 line = self._proc.stdout.readline()
-                knp_text += line
-                if line.strip() == Sentence.EOS_PAT:
+                if line.strip() == Document.EOD_PAT:
                     break
-            self._proc.stdout.flush()
+                knp_text += line
             return Sentence.from_knp(knp_text)
 
     @property
