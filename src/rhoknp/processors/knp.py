@@ -43,7 +43,7 @@ class KNP(Processor):
         self.jumanpp = jumanpp
         self._proc: Optional[Popen] = None
         try:
-            self._proc = Popen(self.run_command, stdout=PIPE, stdin=PIPE, encoding="utf-8")
+            self._proc = Popen(self.run_command, stdin=PIPE, stdout=PIPE, stderr=PIPE, encoding="utf-8")
         except Exception as e:
             logger.warning(f"failed to start KNP: {e}")
         self._lock = Lock()
