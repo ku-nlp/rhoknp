@@ -12,7 +12,7 @@ class FeatureDict(Dict[str, Union[str, bool]]):
     IGNORE_TAG_PREFIXES = {"rel "}
     FEATURE_PAT = re.compile(rf"<(?!({'|'.join(IGNORE_TAG_PREFIXES)}))(?P<key>([^:\"]|\".*?\")+?)(:(?P<value>.+?))?>")
 
-    def __setitem__(self, key, value) -> None:
+    def __setitem__(self, key: str, value: Union[str, bool]) -> None:
         if key == "rel":
             logger.warning(
                 f"Adding 'rel' to {self.__class__.__name__} is not supported and was ignored. Instead, add a RelTag "

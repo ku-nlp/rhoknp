@@ -36,7 +36,7 @@ class BasePhrase(Unit):
         dep_type: Optional[DepType],
         features: Optional[FeatureDict] = None,
         rels: Optional[RelTagList] = None,
-    ):
+    ) -> None:
         super().__init__()
 
         # parent unit

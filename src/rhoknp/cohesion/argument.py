@@ -27,7 +27,7 @@ class ArgumentType(Enum):
 class BaseArgument(ABC):
     """A base class for all kinds of arguments"""
 
-    def __init__(self, arg_type: ArgumentType):
+    def __init__(self, arg_type: ArgumentType) -> None:
         self.type = arg_type
         self.optional = False
         self._pas: Optional["Pas"] = None
@@ -67,7 +67,7 @@ class EndophoraArgument(BaseArgument):
         arg_type: 項のタイプ．
     """
 
-    def __init__(self, base_phrase: "BasePhrase", arg_type: ArgumentType):
+    def __init__(self, base_phrase: "BasePhrase", arg_type: ArgumentType) -> None:
         super().__init__(arg_type)
         self.base_phrase = base_phrase  #: 文脈照応詞．
 
@@ -109,7 +109,7 @@ class ExophoraArgument(BaseArgument):
         eid: 外界照応詞のエンティティID
     """
 
-    def __init__(self, exophora_referent: ExophoraReferent, eid: int):
+    def __init__(self, exophora_referent: ExophoraReferent, eid: int) -> None:
         super().__init__(ArgumentType.EXOPHORA)
         self.exophora_referent = exophora_referent  #: 外界照応詞．
         self.eid = eid

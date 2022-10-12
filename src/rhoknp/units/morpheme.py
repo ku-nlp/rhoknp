@@ -71,7 +71,7 @@ class Morpheme(Unit):
         semantics: Optional[SemanticsDict] = None,
         features: Optional[FeatureDict] = None,
         homograph: bool = False,
-    ):
+    ) -> None:
         super().__init__()
         self.text = text
 

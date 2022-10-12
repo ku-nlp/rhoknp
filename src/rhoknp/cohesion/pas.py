@@ -30,7 +30,7 @@ class Pas:
 
     ARGUMENT_PAT = re.compile(r"([^/;]+/[CNODEU-]/[^/]+/(-?\d*)/(-?\d*)/[^/;]+)")  # matches for "ガ/N/彼/0/0/5"
 
-    def __init__(self, predicate: Predicate):
+    def __init__(self, predicate: Predicate) -> None:
         self._predicate = predicate
         predicate.pas = self
         self._arguments: Dict[str, List[Argument]] = defaultdict(list)

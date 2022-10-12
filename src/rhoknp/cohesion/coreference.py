@@ -82,14 +82,14 @@ class Entity:
             items.append(repr(self.exophora_referent))
         return f"<{self.__module__}.{self.__class__.__name__}: {', '.join(items)}>"
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(self.eid)
 
 
 class EntityManager:
     """文書全体のエンティティを管理．"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.entities: List[Entity] = []  #: エンティティのリスト．
 
     def get_or_create_entity(

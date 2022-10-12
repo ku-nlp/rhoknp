@@ -13,7 +13,7 @@ class Predicate:
         cfid: 格フーレムID．
     """
 
-    def __init__(self, unit: "BasePhrase", cfid: Optional[str] = None):
+    def __init__(self, unit: "BasePhrase", cfid: Optional[str] = None) -> None:
         self.unit: "BasePhrase" = unit  #: 述語の基本句．
         self.cfid: Optional[str] = cfid  #: 格フーレムID．
         self._pas: Optional["Pas"] = None
