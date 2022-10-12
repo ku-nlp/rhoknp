@@ -25,6 +25,9 @@ class Jumanpp(Processor):
         <BLANKLINE>
         >>> jumanpp = Jumanpp()
         >>> document = jumanpp.apply("電気抵抗率は電気の通しにくさを表す物性値である。")
+
+    .. note::
+        使用するには `Juman++ <https://github.com/ku-nlp/jumanpp>`_ がインストールされている必要がある．
     """
 
     def __init__(

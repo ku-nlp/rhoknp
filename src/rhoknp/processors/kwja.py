@@ -22,6 +22,9 @@ class KWJA(Processor):
         <BLANKLINE>
         >>> kwja = KWJA()
         >>> document = kwja.apply("電気抵抗率は電気の通しにくさを表す物性値である。")
+
+    .. note::
+        使用するには `KWJA <https://github.com/ku-nlp/kwja>`_ がインストールされている必要がある．
     """
 
     def __init__(

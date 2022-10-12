@@ -28,6 +28,9 @@ class KNP(Processor):
         <BLANKLINE>
         >>> knp = KNP()
         >>> document = knp.apply("電気抵抗率は電気の通しにくさを表す物性値である。")
+
+    .. note::
+        使用するには `KNP <https://github.com/ku-nlp/knp>`_ がインストールされている必要がある．
     """
 
     def __init__(
