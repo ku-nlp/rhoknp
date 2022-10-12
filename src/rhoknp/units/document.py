@@ -22,6 +22,8 @@ class Document(Unit):
         doc_id: 文書 ID．
     """
 
+    EOD_PAT = "EOD"
+
     count = 0
 
     def __init__(self, text: Optional[str] = None, doc_id: Optional[str] = None) -> None:

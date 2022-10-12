@@ -6,5 +6,6 @@
 rhoknp.processors.senter
 rhoknp.processors.jumanpp
 rhoknp.processors.knp
+rhoknp.processors.kwja
 rhoknp.processors.processor
 ```

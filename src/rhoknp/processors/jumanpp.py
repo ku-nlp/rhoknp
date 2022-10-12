@@ -25,6 +25,9 @@ class Jumanpp(Processor):
         <BLANKLINE>
         >>> jumanpp = Jumanpp()
         >>> document = jumanpp.apply("電気抵抗率は電気の通しにくさを表す物性値である。")
+
+    .. note::
+        使用するには `Juman++ <https://github.com/ku-nlp/jumanpp>`_ がインストールされている必要がある．
     """
 
     def __init__(
@@ -38,7 +41,7 @@ class Jumanpp(Processor):
         self.senter = senter
         self._proc: Optional[Popen] = None
         try:
-            self._proc = Popen(self.run_command, stdout=PIPE, stdin=PIPE, encoding="utf-8")
+            self._proc = Popen(self.run_command, stdin=PIPE, stdout=PIPE, stderr=PIPE, encoding="utf-8")
         except Exception as e:
             logger.warning(f"failed to start Juman++: {e}")
         self._lock = Lock()
@@ -91,7 +94,6 @@ class Jumanpp(Processor):
                     jumanpp_text += line
                     if line.strip() == Sentence.EOS_PAT:
                         break
-                self._proc.stdout.flush()
             return Document.from_jumanpp(jumanpp_text)
 
     def apply_to_sentence(self, sentence: Union[Sentence, str]) -> Sentence:
@@ -110,15 +112,14 @@ class Jumanpp(Processor):
             sentence = Sentence(sentence)
 
         with self._lock:
-            jumanpp_text = ""
             self._proc.stdin.write(sentence.to_raw_text())
             self._proc.stdin.flush()
+            jumanpp_text = ""
             while self.is_available():
                 line = self._proc.stdout.readline()
                 jumanpp_text += line
                 if line.strip() == Sentence.EOS_PAT:
                     break
-            self._proc.stdout.flush()
             return Sentence.from_jumanpp(jumanpp_text)
 
     @property

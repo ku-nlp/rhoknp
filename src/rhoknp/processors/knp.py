@@ -28,6 +28,9 @@ class KNP(Processor):
         <BLANKLINE>
         >>> knp = KNP()
         >>> document = knp.apply("電気抵抗率は電気の通しにくさを表す物性値である。")
+
+    .. note::
+        使用するには `KNP <https://github.com/ku-nlp/knp>`_ がインストールされている必要がある．
     """
 
     def __init__(
@@ -36,14 +39,14 @@ class KNP(Processor):
         options: Optional[List[str]] = None,
         senter: Optional[Processor] = None,
         jumanpp: Optional[Processor] = None,
-    ):
+    ) -> None:
         self.executable = executable  #: KNP のパス．
         self.options = options  #: KNP のオプション．
         self.senter = senter
         self.jumanpp = jumanpp
         self._proc: Optional[Popen] = None
         try:
-            self._proc = Popen(self.run_command, stdout=PIPE, stdin=PIPE, encoding="utf-8")
+            self._proc = Popen(self.run_command, stdin=PIPE, stdout=PIPE, stderr=PIPE, encoding="utf-8")
         except Exception as e:
             logger.warning(f"failed to start KNP: {e}")
         self._lock = Lock()
@@ -109,7 +112,6 @@ class KNP(Processor):
                     knp_text += line
                     if line.strip() == Sentence.EOS_PAT:
                         break
-                self._proc.stdout.flush()
             return Document.from_knp(knp_text)
 
     def apply_to_sentence(self, sentence: Union[Sentence, str]) -> Sentence:
@@ -139,15 +141,14 @@ class KNP(Processor):
             sentence = self.jumanpp.apply_to_sentence(sentence)
 
         with self._lock:
-            knp_text = ""
             self._proc.stdin.write(sentence.to_jumanpp() if sentence.need_knp else sentence.to_knp())
             self._proc.stdin.flush()
+            knp_text = ""
             while self.is_available():
                 line = self._proc.stdout.readline()
                 knp_text += line
                 if line.strip() == Sentence.EOS_PAT:
                     break
-            self._proc.stdout.flush()
             return Sentence.from_knp(knp_text)
 
     @property
