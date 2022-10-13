@@ -7,6 +7,8 @@ logger = logging.getLogger(__name__)
 
 
 class ExophoraReferentType(Enum):
+    """外海照応における照応先を表す列挙体．"""
+
     WRITER = "著者"
     READER = "読者"
     UNSPECIFIED_PERSON = "不特定:人"

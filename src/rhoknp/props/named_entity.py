@@ -25,6 +25,11 @@ class NamedEntityCategory(Enum):
 
     @classmethod
     def has_value(cls, value: str) -> bool:
+        """有効な固有表現カテゴリであれば True．
+
+        Args:
+            value: 固有表現のカテゴリ．
+        """
         return any(value == item.value for item in cls)
 
 
@@ -37,12 +42,13 @@ class NamedEntity:
     category: NamedEntityCategory
     morphemes: List["Morpheme"]
 
-    @property
-    def text(self) -> str:
-        return "".join(m.text for m in self.morphemes)
-
     def __str__(self) -> str:
         return self.text
+
+    @property
+    def text(self) -> str:
+        """固有表現の表層文字列．"""
+        return "".join(m.text for m in self.morphemes)
 
     @classmethod
     def from_fstring(cls, fstring: str, candidate_morphemes: List["Morpheme"]) -> Optional["NamedEntity"]:
@@ -67,7 +73,7 @@ class NamedEntity:
 
     @staticmethod
     def _find_morpheme_span(name: str, candidates: List["Morpheme"]) -> Optional[range]:
-        """name にマッチする形態素の範囲を返す．
+        """固有表現の文字列にマッチする形態素の範囲を返す．
 
         Args:
             name: 固有表現の文字列

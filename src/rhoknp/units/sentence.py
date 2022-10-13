@@ -250,9 +250,7 @@ class Sentence(Unit):
             post_init: インスタンス作成後の追加処理を行うなら True．
 
         Example:
-
             >>> from rhoknp import Sentence
-            <BLANKLINE>
             >>> text = "天気が良かったので散歩した。"
             >>> sent = Sentence(text)
         """
@@ -284,7 +282,6 @@ class Sentence(Unit):
         Example:
 
             >>> from rhoknp import Sentence
-            <BLANKLINE>
             >>> jumanpp_text = \"\"\"
             ... # S-ID:1
             ... 天気 てんき 天気 名詞 6 普通名詞 1 * 0 * 0 "代表表記:天気/てんき カテゴリ:抽象物"
@@ -334,7 +331,6 @@ class Sentence(Unit):
         Example:
 
             >>> from rhoknp import Sentence
-            <BLANKLINE>
             >>> knp_text = \"\"\"
             ... # S-ID:1
             ... * 1D
@@ -475,4 +471,12 @@ class Sentence(Unit):
 
     @staticmethod
     def is_comment_line(line: str) -> bool:
+        """コメント行なら True を返す．
+
+        Args:
+            line: 解析結果の一行．
+
+        .. note::
+            JUMAN/KNP では # から始まる行がコメントとみなされる．
+        """
         return line.startswith("#") and not Morpheme.is_morpheme_line(line)

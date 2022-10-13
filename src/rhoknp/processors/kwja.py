@@ -17,9 +17,7 @@ class KWJA(Processor):
         options: KWJA のオプション．
 
     Example:
-
         >>> from rhoknp import KWJA
-        <BLANKLINE>
         >>> kwja = KWJA()
         >>> document = kwja.apply("電気抵抗率は電気の通しにくさを表す物性値である。")
 

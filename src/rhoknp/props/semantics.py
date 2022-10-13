@@ -18,7 +18,8 @@ class SemanticsDict(Dict[str, Union[str, bool]]):
     @classmethod
     def from_sstring(cls, sstring: str) -> "SemanticsDict":
         """意味情報文字列をパースして辞書型に変換する．
-        e.g., "\"代表表記:日本/にほん 地名:国\"" -> {"代表表記": "日本/にほん", "地名": "国"}
+
+        例："代表表記:日本/にほん 地名:国" -> {"代表表記": "日本/にほん", "地名": "国"}
 
         Args:
             sstring: KNP 形式における意味情報文字列．

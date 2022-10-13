@@ -24,7 +24,8 @@ class FeatureDict(Dict[str, Union[str, bool]]):
     @classmethod
     def from_fstring(cls, fstring: str) -> "FeatureDict":
         """素性文字列をパースして辞書型に変換する．
-        e.g., "<正規化代表表記:遅れる/おくれる>" -> {"正規化代表表記": "遅れる/おくれる"}
+
+        例："<正規化代表表記:遅れる/おくれる>" -> {"正規化代表表記": "遅れる/おくれる"}
 
         Args:
             fstring: KNP 形式における素性文字列．
