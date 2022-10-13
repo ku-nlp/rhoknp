@@ -12,9 +12,7 @@ class RegexSenter(Processor):
     """正規表現にもとづく文分割クラス．
 
     Example:
-
         >>> from rhoknp import RegexSenter
-        <BLANKLINE>
         >>> senter = RegexSenter()
         >>> document = senter.apply("天気が良かったので散歩した。途中で先生に会った。")
     """
@@ -77,9 +75,7 @@ class RegexSenter(Processor):
 
     @staticmethod
     def _merge_parenthesis(sentence_candidates: List[str]) -> List[str]:
-        """Merge sentence candidates so that strings in parentheses or
-        brackets are not split.
-        """
+        """Merge sentence candidates so that strings in parentheses or brackets are not split."""
         parenthesis_level = 0
         quotation_level = 0
 

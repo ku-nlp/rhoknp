@@ -23,9 +23,14 @@ repos:
     hooks:
     -   id: mypy
         additional_dependencies:
-            - types-PyYAML
-- repo: https://github.com/asottile/pyupgrade
-  rev: v2.31.1
-  hooks:
-    - id: pyupgrade
-      args: [--py38-plus]
+        - types-PyYAML
+-   repo: https://github.com/asottile/pyupgrade
+    rev: v2.31.1
+    hooks:
+    -   id: pyupgrade
+        args:
+        - --py38-plus
+-   repo: https://github.com/pycqa/pydocstyle
+    rev: 6.0.0
+    hooks:
+    -   id: pydocstyle

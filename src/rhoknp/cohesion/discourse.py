@@ -49,7 +49,11 @@ class DiscourseRelationTag(Enum):
 
     @classmethod
     def has_value(cls, value: str) -> bool:
-        """指定された値が存在すれば True．"""
+        """指定された値が存在すれば True．
+
+        Args:
+            value: 談話関係タグ．
+        """
         return any(value == item.value for item in cls)
 
     @property
@@ -123,7 +127,7 @@ class DiscourseRelation:
 
         Args:
             fstring: 節機能を表す素性文字列．
-            modifier: 修飾節
+            modifier: 修飾節．
 
         .. note::
             節機能由来で認定された談話関係は明示的 (explicit) とみなす．

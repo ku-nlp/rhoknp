@@ -3,6 +3,8 @@ from typing import Any, Optional, Sequence
 
 
 class Unit(ABC):
+    """言語単位の基底クラス・"""
+
     def __init__(self) -> None:
         self.index: int = -1
         self._text: Optional[str] = None
@@ -27,15 +29,18 @@ class Unit(ABC):
 
     @property
     def parent_unit(self) -> Optional["Unit"]:
+        """上位の言語単位．"""
         raise NotImplementedError
 
     @property
     @abstractmethod
     def child_units(self) -> Optional[Sequence["Unit"]]:
+        """下位の言語単位．"""
         raise NotImplementedError
 
     @property
     def text(self) -> str:
+        """言語単位の表層文字列．"""
         if self._text is not None:
             return self._text
         elif self.child_units is not None:
@@ -45,4 +50,9 @@ class Unit(ABC):
 
     @text.setter
     def text(self, text: str) -> None:
+        """言語単位の表層文字列．
+
+        Args:
+            text: 言語単位の表層文字列．
+        """
         self._text = text

@@ -23,9 +23,7 @@ class KNP(Processor):
             未設定なら Jumanpp （オプションなし）を使って形態素解析する．
 
     Example:
-
         >>> from rhoknp import KNP
-        <BLANKLINE>
         >>> knp = KNP()
         >>> document = knp.apply("電気抵抗率は電気の通しにくさを表す物性値である。")
 
