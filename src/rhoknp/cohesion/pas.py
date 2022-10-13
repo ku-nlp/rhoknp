@@ -19,8 +19,8 @@ logger = logging.getLogger(__name__)
 class CaseInfoFormat(Enum):
     """各解析のフォーマットを表す列挙体．"""
 
-    CASE = auto()  #: 格解析フォーマット
-    PAS = auto()  #: 述語項構造フォーマット
+    CASE = auto()  #: 格解析フォーマット．
+    PAS = auto()  #: 述語項構造フォーマット．
 
 
 class Pas:

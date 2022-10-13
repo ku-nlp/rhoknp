@@ -16,12 +16,12 @@ if TYPE_CHECKING:
 class ArgumentType(Enum):
     """項のタイプ．"""
 
-    CASE_EXPLICIT = "C"  #: 直接係り受けをもつ格要素 (格は明示されている)
-    CASE_HIDDEN = "N"  #: 直接係り受けをもつ格要素（格は明示されていない）
-    OMISSION = "O"  #: 省略の指示対象
-    DEMONSTRATIVE = "D"  #: 指示詞の指示対象
-    EXOPHORA = "E"  #: 特殊（不特定：人など）
-    UNASSIGNED = "U"  #: 格要素の割り当てなし
+    CASE_EXPLICIT = "C"  #: 直接係り受けをもつ格要素（格は明示されている）．
+    CASE_HIDDEN = "N"  #: 直接係り受けをもつ格要素（格は明示されていない）．
+    OMISSION = "O"  #: 省略の指示対象．
+    DEMONSTRATIVE = "D"  #: 指示詞の指示対象．
+    EXOPHORA = "E"  #: 特殊（不特定：人など）．
+    UNASSIGNED = "U"  #: 格要素の割り当てなし．
 
 
 class BaseArgument(ABC):
@@ -117,13 +117,13 @@ class ExophoraArgument(BaseArgument):
     """外界を指す項を表すクラス．
 
     Args:
-        exophora_referent: 外界照応詞 (不特定:人など)．
+        exophora_referent: 外界照応における照応先（不特定:人など）．
         eid: エンティティID．
     """
 
     def __init__(self, exophora_referent: ExophoraReferent, eid: int) -> None:
         super().__init__(ArgumentType.EXOPHORA)
-        self.exophora_referent = exophora_referent  #: 外界照応詞．
+        self.exophora_referent = exophora_referent  #: 外界照応における照応先．
         self.eid = eid  #: エンティティID．
 
     def __repr__(self) -> str:
