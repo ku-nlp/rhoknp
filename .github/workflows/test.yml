@@ -9,7 +9,6 @@ jobs:
     container: kunlp/jumanpp-knp:ubuntu
     runs-on: ubuntu-latest
     strategy:
-      max-parallel: 2
       fail-fast: false
       matrix:
         python-version: [ "3.8", "3.9", "3.10" ]
