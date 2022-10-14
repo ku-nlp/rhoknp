@@ -25,7 +25,7 @@ def chunk_by_sentence(f: TextIO) -> Iterator[str]:
         if line.strip() == "":
             continue
         buffer.append(line)
-        if line.strip() == Sentence.EOS_PAT:
+        if line.rstrip("\n") == Sentence.EOS_PAT:
             yield "".join(buffer)
             buffer = []
     if buffer:
@@ -75,7 +75,7 @@ def chunk_by_document(
     elif callable(doc_id_format):
         extract_doc_id = doc_id_format
     else:
-        raise ValueError(f"Invalid doc_id_format: {doc_id_format}")
+        raise TypeError(f"Invalid doc_id_format: {doc_id_format}")
 
     prev_doc_id: Optional[str] = None
     buffer: List[str] = []
