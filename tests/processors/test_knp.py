@@ -5,6 +5,16 @@ import pytest
 from rhoknp import KNP, Document, Jumanpp, RegexSenter, Sentence
 
 
+def test_call() -> None:
+    knp = KNP(options=["-tab"])
+    text = "外国人参政権"
+    assert isinstance(knp(text), Document)
+    assert isinstance(knp(Document.from_raw_text(text)), Document)
+    assert isinstance(knp(Sentence.from_raw_text(text)), Sentence)
+    with pytest.raises(TypeError):
+        knp(1)  # type: ignore
+
+
 def test_apply() -> None:
     knp = KNP(options=["-tab"])
     text = "外国人参政権"

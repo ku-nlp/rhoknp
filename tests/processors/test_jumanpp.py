@@ -5,6 +5,16 @@ import pytest
 from rhoknp import Document, Jumanpp, RegexSenter, Sentence
 
 
+def test_call() -> None:
+    jumanpp = Jumanpp(options=["--juman"])
+    text = "外国人参政権"
+    assert isinstance(jumanpp(text), Document)
+    assert isinstance(jumanpp(Document.from_raw_text(text)), Document)
+    assert isinstance(jumanpp(Sentence.from_raw_text(text)), Sentence)
+    with pytest.raises(TypeError):
+        jumanpp(1)  # type: ignore
+
+
 def test_apply() -> None:
     jumanpp = Jumanpp(options=["--juman"])
     text = "外国人参政権"
