@@ -16,11 +16,8 @@ PyYAML = "^6.0"
 
 [tool.poetry.dev-dependencies]
 ipdb = "^0.13.9"
-mypy = "^0.971"
 pytest = "^7.1.2"
 pytest-cov = "^3.0.0"
-pytest-mypy = "^0.9.1"
-flake8 = "^4.0.1"
 Sphinx = "^4.2.0"
 furo = "^2022.4.7"
 sphinx-prompt = "^1.5.0"
