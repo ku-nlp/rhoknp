@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 
 def chunk_by_sentence(f: TextIO) -> Iterator[str]:
-    """ファイルを文ごとに分割するジェネレータ．
+    """解析結果ファイルを文ごとに分割するジェネレータ．
 
     Args:
         f: 分割するファイル．
@@ -35,7 +35,7 @@ def chunk_by_sentence(f: TextIO) -> Iterator[str]:
 def chunk_by_document(
     f: TextIO, doc_id_format: Union[Literal["default", "kwdlc", "wac"], Callable] = "default"
 ) -> Iterator[str]:
-    """ファイルを文書ごとに分割するジェネレータ．
+    """解析結果ファイルを文書ごとに分割するジェネレータ．
 
     Args:
         f: 分割するファイル．
@@ -45,7 +45,7 @@ def chunk_by_document(
         >>> from rhoknp.units import Document
         >>> from rhoknp.utils.reader import chunk_by_document
         >>> with open("example.knp") as f:
-        ...     for knp in chunk_by_document():
+        ...     for knp in chunk_by_document(f):
         ...         document = Document.from_knp(knp)
 
     .. note::
@@ -61,7 +61,7 @@ def chunk_by_document(
         例えば default 相当の処理を行うには以下のような関数を渡す．
 
             >>> def default_doc_id_format(line: str) -> str:
-            ...     return line.lstrip("# S-ID:").split("-")[0]
+            ...     return line.lstrip("# S-ID:").rsplit("-", maxsplit=1)[0]
     """
     if isinstance(doc_id_format, str):
         if doc_id_format == "default":
