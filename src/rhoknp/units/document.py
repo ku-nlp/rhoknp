@@ -55,6 +55,11 @@ class Document(Unit):
                     f"'doc_id' is not consistent; use 'doc_id' extracted from the first sentence: {self.doc_id}."
                 )
 
+    def __eq__(self, other: Any) -> bool:
+        if isinstance(other, Document) is False:
+            return False
+        return self.doc_id == other.doc_id and self.text == other.text
+
     @property
     def parent_unit(self) -> None:
         """上位の言語単位．文書は最上位の言語単位なので常に None．"""
@@ -392,8 +397,3 @@ class Document(Unit):
             AttributeError: 解析結果にアクセスできない場合．
         """
         return "".join(sentence.to_knp() for sentence in self.sentences)
-
-    def __eq__(self, other: Any) -> bool:
-        if isinstance(other, Document) is False:
-            return False
-        return self.doc_id == other.doc_id and self.text == other.text

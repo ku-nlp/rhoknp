@@ -1,7 +1,7 @@
 import logging
 import re
 from functools import cached_property
-from typing import TYPE_CHECKING, List, Optional, Set
+from typing import TYPE_CHECKING, Any, List, Optional, Set
 
 from rhoknp.cohesion.coreference import Entity, EntityManager
 from rhoknp.cohesion.exophora import ExophoraReferent
@@ -82,6 +82,13 @@ class BasePhrase(Unit):
                 self._add_pas(rel)
             elif rel.type in COREF_TYPES and rel.mode in (None, RelMode.AND):  # ignore "OR" and "?"
                 self._add_coreference(rel)
+
+    def __eq__(self, other: Any) -> bool:
+        if isinstance(other, type(self)) is False:
+            return False
+        if self.parent_unit != other.parent_unit:
+            return False
+        return self.index == other.index
 
     @cached_property
     def global_index(self) -> int:

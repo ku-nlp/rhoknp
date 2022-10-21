@@ -1,7 +1,7 @@
 import re
 from dataclasses import astuple, dataclass, fields
 from functools import cached_property
-from typing import TYPE_CHECKING, ClassVar, List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Any, ClassVar, List, Optional, Tuple, Union
 
 from rhoknp.props.feature import FeatureDict
 from rhoknp.props.semantics import SemanticsDict
@@ -87,6 +87,13 @@ class Morpheme(Unit):
         self.index = self.count  #: 文内におけるインデックス．
         if homograph is False:
             Morpheme.count += 1
+
+    def __eq__(self, other: Any) -> bool:
+        if isinstance(other, type(self)) is False:
+            return False
+        if self.parent_unit != other.parent_unit:
+            return False
+        return self.index == other.index
 
     @cached_property
     def global_index(self) -> int:

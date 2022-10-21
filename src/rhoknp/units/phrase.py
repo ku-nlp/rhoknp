@@ -1,6 +1,6 @@
 import re
 from functools import cached_property
-from typing import TYPE_CHECKING, List, Optional, Union
+from typing import TYPE_CHECKING, Any, List, Optional, Union
 
 from rhoknp.props.dependency import DepType
 from rhoknp.props.feature import FeatureDict
@@ -41,6 +41,13 @@ class Phrase(Unit):
 
         self.index = self.count  #: 文内におけるインデックス．
         Phrase.count += 1
+
+    def __eq__(self, other: Any) -> bool:
+        if isinstance(other, type(self)) is False:
+            return False
+        if self.parent_unit != other.parent_unit:
+            return False
+        return self.index == other.index
 
     @cached_property
     def global_index(self) -> int:

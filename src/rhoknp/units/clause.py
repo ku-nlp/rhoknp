@@ -1,6 +1,6 @@
 import logging
 from functools import cached_property
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, Any, List, Optional
 
 from rhoknp.cohesion.discourse import DiscourseRelation
 from rhoknp.units.base_phrase import BasePhrase
@@ -49,6 +49,13 @@ class Clause(Unit):
             for value in values.split(";"):
                 if discourse_relation := DiscourseRelation.from_discourse_relation_fstring(value, modifier=self):
                     self.discourse_relations.append(discourse_relation)
+
+    def __eq__(self, other: Any) -> bool:
+        if isinstance(other, type(self)) is False:
+            return False
+        if self.parent_unit != other.parent_unit:
+            return False
+        return self.index == other.index
 
     @cached_property
     def global_index(self) -> int:

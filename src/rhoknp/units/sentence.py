@@ -68,6 +68,11 @@ class Sentence(Unit):
                     if named_entity := NamedEntity.from_fstring(fstring, candidate_morphemes):
                         self.named_entities.append(named_entity)
 
+    def __eq__(self, other: Any) -> bool:
+        if isinstance(other, Sentence) is False:
+            return False
+        return self.sid == other.sid and self.text == other.text
+
     @property
     def global_index(self) -> int:
         """文書全体におけるインデックス．"""
@@ -463,11 +468,6 @@ class Sentence(Unit):
         elif self.need_jumanpp is False:
             return Sentence.from_jumanpp(self.to_jumanpp())
         return Sentence.from_raw_text(self.to_raw_text())
-
-    def __eq__(self, other: Any) -> bool:
-        if isinstance(other, Sentence) is False:
-            return False
-        return self.sid == other.sid and self.text == other.text
 
     @staticmethod
     def is_comment_line(line: str) -> bool:
