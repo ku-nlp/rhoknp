@@ -126,6 +126,7 @@ class Pas:
         relax: bool = True,
         include_nonidentical: bool = False,
         include_optional: bool = False,
+        propagate_arguments: bool = False,
     ) -> List[Argument]:
         """与えられた格の全ての項を返す．
 
@@ -134,6 +135,7 @@ class Pas:
             relax: True なら 共参照関係で結ばれた項も含めて出力する．
             include_nonidentical: True なら nonidentical な項も含めて出力する．
             include_optional: True なら修飾的表現（「すぐに」など）も含めて出力する．
+            propagate_arguments: True なら共参照関係で結ばれた述語に含まれる項も含めて出力する．
 
         References:
             格・省略・共参照タグ付けの基準 3.2.1 修飾的表現
@@ -148,7 +150,7 @@ class Pas:
         pas._arguments[case] = copy.copy(args)
 
         # Propagate arguments for coreferring predicates
-        if all(len(args) == 0 for args in pas._arguments.values()):
+        if propagate_arguments is True and all(len(args) == 0 for args in pas._arguments.values()):
             num_arguments = len(pas._arguments[case])
             for coreferent in self.predicate.base_phrase.get_coreferents():
                 if coreferent.pas is None:

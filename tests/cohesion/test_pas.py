@@ -445,11 +445,11 @@ def test_argument_propagation() -> None:
     assert pas.sid == "000-2"
 
     # 彼女 ガ 食べた
-    argument = pas.get_arguments("ガ")[0]
+    argument = pas.get_arguments("ガ", propagate_arguments=True)[0]
     assert isinstance(argument, EndophoraArgument)
     assert argument.base_phrase == doc.base_phrases[0]
 
     # ご飯 ヲ 食べた
-    argument = pas.get_arguments("ヲ")[0]
+    argument = pas.get_arguments("ヲ", propagate_arguments=True)[0]
     assert isinstance(argument, EndophoraArgument)
     assert argument.base_phrase == doc.base_phrases[1]
