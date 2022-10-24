@@ -20,6 +20,7 @@ class MorphemeAttributes:
     """形態素の属性クラス．"""
 
     PAT = re.compile(r"([^ ]+| ) ([^ ]+| ) ([^ ]+) (\d+) ([^ ]+) (\d+) ([^ ]+) (\d+) ([^ ]+) (\d+)")
+    PAT_REPEATED = re.compile(r"(?P<pat>.+) ((?P=pat)) ([^ ]+) (\d+) ([^ ]+) (\d+) ([^ ]+) (\d+) ([^ ]+) (\d+)")
 
     reading: str  #: 読み．
     lemma: str  #: 原形．
@@ -40,7 +41,7 @@ class MorphemeAttributes:
             jumanpp_line: Juman++ の解析結果．
         """
         kwargs = {}
-        match = cls.PAT.match(jumanpp_line)
+        match = cls.PAT.match(jumanpp_line) or cls.PAT_REPEATED.match(jumanpp_line)
         assert match is not None, f"malformed line: {jumanpp_line}"
         for field, value in zip(fields(cls), match.groups()):
             kwargs[field.name] = field.type(value)
@@ -58,6 +59,12 @@ class Morpheme(Unit):
     JUMANPP_PAT: ClassVar[re.Pattern] = re.compile(
         r"(?P<surf>^([^ ]+| ))"
         + rf"( (?P<attrs>{MorphemeAttributes.PAT.pattern}))"
+        + rf"( {SemanticsDict.PAT.pattern})?"
+        + rf"( {FeatureDict.PAT.pattern})?$"
+    )
+
+    JUMANPP_PAT_REPEATED: ClassVar[re.Pattern] = re.compile(
+        r"(?P<surf>.+) (?P<attrs>(?P=surf) (?P=surf) [^ ]+ \d+ [^ ]+ \d+ [^ ]+ \d+ [^ ]+ \d+)"
         + rf"( {SemanticsDict.PAT.pattern})?"
         + rf"( {FeatureDict.PAT.pattern})?$"
     )
@@ -309,7 +316,8 @@ class Morpheme(Unit):
         """
         assert "\n" not in jumanpp_line.strip("\n")
         if (match := cls.JUMANPP_PAT.match(jumanpp_line)) is None:
-            raise ValueError(f"malformed line: {jumanpp_line}")
+            if (match := cls.JUMANPP_PAT_REPEATED.match(jumanpp_line)) is None:
+                raise ValueError(f"malformed line: {jumanpp_line}")
         surf = match.group("surf")
         attributes = match.group("attrs") and MorphemeAttributes.from_jumanpp(match.group("attrs"))
         semantics = SemanticsDict.from_sstring(match.group("sems") or "")
@@ -359,7 +367,7 @@ class Morpheme(Unit):
     @staticmethod
     def is_morpheme_line(line: str) -> bool:
         """形態素行なら True を返す．"""
-        return Morpheme.JUMANPP_PAT.match(line) is not None
+        return Morpheme.JUMANPP_PAT.match(line) is not None or Morpheme.JUMANPP_PAT_REPEATED.match(line) is not None
 
     @staticmethod
     def is_homograph_line(line: str) -> bool:
