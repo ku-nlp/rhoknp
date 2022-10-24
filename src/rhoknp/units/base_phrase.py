@@ -26,7 +26,7 @@ class BasePhrase(Unit):
     """基本句クラス．"""
 
     KNP_PAT = re.compile(
-        rf"^\+( (?P<pid>-1|\d+)(?P<dtype>[{''.join(e.value for e in DepType)}]))?( (?P<tags>(<[^>]+>)*))?$"
+        rf"^\+( (?P<pid>-1|\d+)(?P<dtype>[{''.join(e.value for e in DepType)}]))?( {FeatureDict.PAT.pattern})?$"
     )
     count = 0
 
@@ -229,8 +229,8 @@ class BasePhrase(Unit):
             raise ValueError(f"malformed line: {first_line}")
         parent_index = int(match.group("pid")) if match.group("pid") is not None else None
         dep_type = DepType(match.group("dtype")) if match.group("dtype") is not None else None
-        features = FeatureDict.from_fstring(match.group("tags") or "")
-        rels = RelTagList.from_fstring(match.group("tags") or "")
+        features = FeatureDict.from_fstring(match.group("feats") or "")
+        rels = RelTagList.from_fstring(match.group("feats") or "")
         base_phrase = cls(parent_index, dep_type, features, rels)
 
         morphemes: List[Morpheme] = []
