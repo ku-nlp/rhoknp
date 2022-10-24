@@ -147,6 +147,26 @@ class Pas:
         pas._arguments = copy.copy(self._arguments)
         pas._arguments[case] = copy.copy(args)
 
+        # Propagate arguments for coreferring predicates
+        if all(len(args) == 0 for args in pas._arguments.values()):
+            num_arguments = len(pas._arguments[case])
+            for coreferent in self.predicate.base_phrase.get_coreferents():
+                if coreferent.pas is None:
+                    continue
+                propagated_args = coreferent.pas._arguments[case]
+                if include_nonidentical is True:
+                    propagated_args += coreferent.pas._arguments[case + "≒"]
+                if include_optional is False:
+                    propagated_args = [arg for arg in propagated_args if arg.optional is False]
+                for arg in propagated_args:
+                    if isinstance(arg, EndophoraArgument):
+                        pas.add_argument(case, arg.base_phrase)
+                    else:
+                        assert isinstance(arg, ExophoraArgument)
+                        pas.add_special_argument(case, arg.exophora_referent, arg.eid)
+            if len(pas._arguments[case]) > num_arguments:
+                logger.warning(f"arguments propagated in {pas.sid}")
+
         sentence = self.predicate.base_phrase.sentence
         if relax is True and sentence.parent_unit is not None:
             entity_manager = sentence.document.entity_manager

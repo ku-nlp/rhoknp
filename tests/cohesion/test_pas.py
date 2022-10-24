@@ -402,3 +402,54 @@ def test_get_all_arguments() -> None:
     assert set(all_arguments.keys()) == {"ガ", "ヲ"}
     assert {str(arg) for arg in all_arguments["ガ"]} == {"不特定:人", "著者", "読者"}
     assert {str(arg) for arg in all_arguments["ヲ"]} == {"トスを"}
+
+
+def test_argument_propagation() -> None:
+    knp_text = textwrap.dedent(
+        """\
+        # S-ID:000-1 KNP:5.0-25425d33 DATE:2022/07/08 SCORE:60.00000
+        * 2D
+        + 2D
+        彼女 かのじょ 彼女 名詞 6 普通名詞 1 * 0 * 0
+        は は は 助詞 9 副助詞 2 * 0 * 0
+        * 2D
+        + 2D
+        ご飯 ごはん ご飯 名詞 6 普通名詞 1 * 0 * 0
+        を を を 助詞 9 格助詞 1 * 0 * 0
+        * -1D
+        + -1D <rel type="ガ" target="彼女" sid="000-1" id="0"/><rel type="ヲ" target="ご飯" sid="000-1" id="1"/>
+        食べた たべた 食べる 動詞 2 * 0 母音動詞 1 タ形 10
+        。 。 。 特殊 1 句点 1 * 0 * 0
+        EOS
+        # S-ID:000-2 KNP:5.0-25425d33 DATE:2022/07/08 SCORE:20.00000
+        * 1D
+        + 1D <rel type="=" target="食べた" sid="000-1" id="2"/>
+        食べた たべた 食べる 動詞 2 * 0 母音動詞 1 タ形 10
+        * 3D
+        + 3D
+        後 あと 後 名詞 6 副詞的名詞 9 * 0 * 0
+        * 3D
+        + 3D
+        大学 だいがく 大学 名詞 6 普通名詞 1 * 0 * 0
+        に に に 助詞 9 格助詞 1 * 0 * 0
+        * -1D
+        + -1D <rel type="ガ" target="彼女" sid="000-1" id="0"/><rel type="ニ" target="大学" sid="000-2" id="2"/>
+        行った いった 行く 動詞 2 * 0 子音動詞カ行促音便形 3 タ形 10
+        。 。 。 特殊 1 句点 1 * 0 * 0
+        EOS
+        """
+    )
+    doc = Document.from_knp(knp_text)
+    pas = doc.base_phrases[3].pas
+    assert pas is not None
+    assert pas.sid == "000-2"
+
+    # 彼女 ガ 食べた
+    argument = pas.get_arguments("ガ")[0]
+    assert isinstance(argument, EndophoraArgument)
+    assert argument.base_phrase == doc.base_phrases[0]
+
+    # ご飯 ヲ 食べた
+    argument = pas.get_arguments("ヲ")[0]
+    assert isinstance(argument, EndophoraArgument)
+    assert argument.base_phrase == doc.base_phrases[1]
