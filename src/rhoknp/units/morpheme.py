@@ -315,9 +315,8 @@ class Morpheme(Unit):
             homograph: 同形かどうかを表すフラグ．
         """
         assert "\n" not in jumanpp_line.strip("\n")
-        if (match := cls.JUMANPP_PAT.match(jumanpp_line)) is None:
-            if (match := cls.JUMANPP_PAT_REPEATED.match(jumanpp_line)) is None:
-                raise ValueError(f"malformed line: {jumanpp_line}")
+        if (match := cls.JUMANPP_PAT.match(jumanpp_line) or cls.JUMANPP_PAT_REPEATED.match(jumanpp_line)) is None:
+            raise ValueError(f"malformed line: {jumanpp_line}")
         surf = match.group("surf")
         attributes = match.group("attrs") and MorphemeAttributes.from_jumanpp(match.group("attrs"))
         semantics = SemanticsDict.from_sstring(match.group("sems") or "")
