@@ -272,6 +272,20 @@ JUMANPP_SNIPPETS = [
         "fstring": "",
         "canon": None,
     },
+    {
+        "jumanpp": """<(_ _)> <(_ _)> <(_ _)> 特殊 1 記号 5 * 0 * 0 "代表表記:顔文字/顔文字 顔文字"\n""",
+        "text": "<(_ _)>",
+        "surf": "<(_ _)>",
+        "reading": "<(_ _)>",
+        "lemma": "<(_ _)>",
+        "pos": "特殊",
+        "subpos": "記号",
+        "conjtype": "*",
+        "conjform": "*",
+        "sstring": '"代表表記:顔文字/顔文字 顔文字"',
+        "fstring": "",
+        "canon": "顔文字/顔文字",
+    },
 ]
 
 
