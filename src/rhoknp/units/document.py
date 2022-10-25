@@ -22,7 +22,7 @@ class Document(Unit):
         doc_id: 文書 ID．
     """
 
-    EOD_PAT = "EOD"
+    EOD = "EOD"
 
     count = 0
 
@@ -288,7 +288,7 @@ class Document(Unit):
             if line.strip() == "":
                 continue
             sentence_lines.append(line)
-            if line.strip() == Sentence.EOS_PAT:
+            if line.strip() == Sentence.EOS:
                 sentences.append(Sentence.from_jumanpp("\n".join(sentence_lines) + "\n", post_init=False))
                 sentence_lines = []
         document.sentences = sentences
@@ -351,7 +351,7 @@ class Document(Unit):
             if line.strip() == "":
                 continue
             sentence_lines.append(line)
-            if line.strip() == Sentence.EOS_PAT:
+            if line.strip() == Sentence.EOS:
                 sentences.append(Sentence.from_knp("\n".join(sentence_lines) + "\n", post_init=False))
                 sentence_lines = []
         document.sentences = sentences

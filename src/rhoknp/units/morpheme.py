@@ -56,14 +56,14 @@ class MorphemeAttributes:
 class Morpheme(Unit):
     """形態素クラス．"""
 
-    JUMANPP_PAT: ClassVar[re.Pattern] = re.compile(
+    PAT: ClassVar[re.Pattern] = re.compile(
         r"(?P<surf>^([^ ]+| ))"
         + rf"( (?P<attrs>{MorphemeAttributes.PAT.pattern}))"
         + rf"( {SemanticsDict.PAT.pattern})?"
         + rf"( {FeatureDict.PAT.pattern})?$"
     )
 
-    JUMANPP_PAT_REPEATED: ClassVar[re.Pattern] = re.compile(
+    PAT_REPEATED: ClassVar[re.Pattern] = re.compile(
         r"(?P<surf>.+) (?P<attrs>(?P=surf) (?P=surf) [^ ]+ \d+ [^ ]+ \d+ [^ ]+ \d+ [^ ]+ \d+)"
         + rf"( {SemanticsDict.PAT.pattern})?"
         + rf"( {FeatureDict.PAT.pattern})?$"
@@ -315,7 +315,7 @@ class Morpheme(Unit):
             homograph: 同形かどうかを表すフラグ．
         """
         assert "\n" not in jumanpp_line.strip("\n")
-        if (match := cls.JUMANPP_PAT.match(jumanpp_line) or cls.JUMANPP_PAT_REPEATED.match(jumanpp_line)) is None:
+        if (match := cls.PAT.match(jumanpp_line) or cls.PAT_REPEATED.match(jumanpp_line)) is None:
             raise ValueError(f"malformed line: {jumanpp_line}")
         surf = match.group("surf")
         attributes = match.group("attrs") and MorphemeAttributes.from_jumanpp(match.group("attrs"))
@@ -366,7 +366,7 @@ class Morpheme(Unit):
     @staticmethod
     def is_morpheme_line(line: str) -> bool:
         """形態素行なら True を返す．"""
-        return Morpheme.JUMANPP_PAT.match(line) is not None or Morpheme.JUMANPP_PAT_REPEATED.match(line) is not None
+        return Morpheme.PAT.match(line) is not None or Morpheme.PAT_REPEATED.match(line) is not None
 
     @staticmethod
     def is_homograph_line(line: str) -> bool:

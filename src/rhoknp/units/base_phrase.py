@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 class BasePhrase(Unit):
     """基本句クラス．"""
 
-    KNP_PAT = re.compile(
+    PAT = re.compile(
         rf"^\+( (?P<pid>-1|\d+)(?P<dtype>[{''.join(e.value for e in DepType)}]))?( {FeatureDict.PAT.pattern})?$"
     )
     count = 0
@@ -224,7 +224,7 @@ class BasePhrase(Unit):
             knp_text: KNP の解析結果．
         """
         first_line, *lines = knp_text.split("\n")
-        match = cls.KNP_PAT.match(first_line)
+        match = cls.PAT.match(first_line)
         if match is None:
             raise ValueError(f"malformed line: {first_line}")
         parent_index = int(match.group("pid")) if match.group("pid") is not None else None
@@ -361,4 +361,4 @@ class BasePhrase(Unit):
     @staticmethod
     def is_base_phrase_line(line: str) -> bool:
         """基本句行なら True を返す．"""
-        return BasePhrase.KNP_PAT.match(line) is not None
+        return BasePhrase.PAT.match(line) is not None

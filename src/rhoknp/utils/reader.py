@@ -25,7 +25,7 @@ def chunk_by_sentence(f: TextIO) -> Iterator[str]:
         if line.strip() == "":
             continue
         buffer.append(line)
-        if line.rstrip("\n") == Sentence.EOS_PAT:
+        if line.rstrip("\n") == Sentence.EOS:
             yield "".join(buffer)
             buffer = []
     if buffer:

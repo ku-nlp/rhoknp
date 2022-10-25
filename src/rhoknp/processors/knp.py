@@ -108,7 +108,7 @@ class KNP(Processor):
                 while self.is_available():
                     line = self._proc.stdout.readline()
                     knp_text += line
-                    if line.strip() == Sentence.EOS_PAT:
+                    if line.strip() == Sentence.EOS:
                         break
             return Document.from_knp(knp_text)
 
@@ -145,7 +145,7 @@ class KNP(Processor):
             while self.is_available():
                 line = self._proc.stdout.readline()
                 knp_text += line
-                if line.strip() == Sentence.EOS_PAT:
+                if line.strip() == Sentence.EOS:
                     break
             return Sentence.from_knp(knp_text)
 

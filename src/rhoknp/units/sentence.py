@@ -22,7 +22,7 @@ class Sentence(Unit):
         text: 文の文字列．
     """
 
-    EOS_PAT = "EOS"
+    EOS = "EOS"
     SID_PAT = re.compile(r"^(?P<sid>(?P<did>[a-zA-Z\d\-_]+?)(-(\d+))?)$")
     SID_PAT_KWDLC = re.compile(r"^(?P<sid>(?P<did>w\d{6}-\d{10})(-\d+){1,2})$")
     SID_PAT_WAC = re.compile(r"^(?P<sid>(?P<did>wiki\d{8})(-\d{2})(-\d{2})?)$")
@@ -315,7 +315,7 @@ class Sentence(Unit):
                 morphemes.append(Morpheme.from_jumanpp("\n".join(jumanpp_lines)))
                 jumanpp_lines = []
             jumanpp_lines.append(line)
-            if line.strip() == cls.EOS_PAT:
+            if line.strip() == cls.EOS:
                 break
         sentence.morphemes = morphemes
         if post_init is True:
@@ -372,7 +372,7 @@ class Sentence(Unit):
                 raise Exception(f"Error: {line}")
             if BasePhrase.is_base_phrase_line(line) and "節-区切" in line:
                 is_clause_end = True
-            if line.strip() == cls.EOS_PAT:
+            if line.strip() == cls.EOS:
                 if has_clause_boundary is True:
                     clauses.append(Clause.from_knp("\n".join(child_lines)))
                 else:
@@ -441,7 +441,7 @@ class Sentence(Unit):
         ret = ""
         if self.comment != "":
             ret += self.comment + "\n"
-        ret += "".join(morpheme.to_jumanpp() for morpheme in self.morphemes) + self.EOS_PAT + "\n"
+        ret += "".join(morpheme.to_jumanpp() for morpheme in self.morphemes) + self.EOS + "\n"
         return ret
 
     def to_knp(self) -> str:
@@ -454,7 +454,7 @@ class Sentence(Unit):
         if self.comment != "":
             ret += self.comment + "\n"
         ret += "".join(child.to_knp() for child in self._clauses or self.phrases)
-        ret += self.EOS_PAT + "\n"
+        ret += self.EOS + "\n"
         return ret
 
     def reparse(self) -> "Sentence":
