@@ -516,6 +516,17 @@ def test_homograph() -> None:
     assert homograph.fstring == ""
 
 
+def test_homograph_error() -> None:
+    jumanpp = textwrap.dedent(
+        """\
+        母 はは 母 名詞 6 普通名詞 1 * 0 * 0 "代表表記:母/はは 漢字読み:訓 カテゴリ:人 ドメイン:家庭・暮らし"
+        @
+        """
+    )
+    with pytest.raises(ValueError):
+        _ = Morpheme.from_jumanpp(jumanpp)
+
+
 def test_homograph_to_knp() -> None:
     knp = textwrap.dedent(
         """\
