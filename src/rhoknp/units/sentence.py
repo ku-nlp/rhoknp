@@ -309,14 +309,20 @@ class Sentence(Unit):
             if cls.is_comment_line(line):
                 sentence.comment = line
                 continue
-            elif Morpheme.is_homograph_line(line):
-                pass
-            elif jumanpp_lines:
-                morphemes.append(Morpheme.from_jumanpp("\n".join(jumanpp_lines)))
-                jumanpp_lines = []
-            jumanpp_lines.append(line)
+            if Morpheme.is_morpheme_line(line):
+                if jumanpp_lines:
+                    morphemes.append(Morpheme.from_jumanpp("\n".join(jumanpp_lines)))
+                    jumanpp_lines = []
+                jumanpp_lines.append(line)
+                continue
+            if Morpheme.is_homograph_line(line):
+                jumanpp_lines.append(line)
+                continue
             if line.strip() == cls.EOS:
+                if jumanpp_lines:
+                    morphemes.append(Morpheme.from_jumanpp("\n".join(jumanpp_lines)))
                 break
+            raise ValueError(f"malformed line: {line}")
         sentence.morphemes = morphemes
         if post_init is True:
             sentence.__post_init__()
@@ -369,7 +375,7 @@ class Sentence(Unit):
                 sentence.comment = line
                 continue
             if Phrase.is_phrase_line(line):
-                if is_clause_end is True:
+                if has_clause_boundary and is_clause_end and child_lines:
                     clauses.append(Clause.from_knp("\n".join(child_lines)))
                     child_lines = []
                     is_clause_end = False
@@ -387,7 +393,7 @@ class Sentence(Unit):
                 child_lines.append(line)
                 continue
             if line.strip() == cls.EOS:
-                if has_clause_boundary is True:
+                if has_clause_boundary:
                     clauses.append(Clause.from_knp("\n".join(child_lines)))
                 else:
                     phrases.append(Phrase.from_knp("\n".join(child_lines)))
