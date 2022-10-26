@@ -42,10 +42,10 @@ class MorphemeAttributes:
         """
         kwargs = {}
         match = cls.PAT.match(jumanpp_line) or cls.PAT_REPEATED.match(jumanpp_line)
-        assert match is not None, f"malformed line: {jumanpp_line}"
+        assert match is not None
         for field, value in zip(fields(cls), match.groups()):
             kwargs[field.name] = field.type(value)
-        assert len(kwargs) == len(fields(cls)), f"malformed line: {jumanpp_line}"
+        assert len(kwargs) == len(fields(cls))
         return cls(**kwargs)
 
     def to_jumanpp(self) -> str:
@@ -316,7 +316,7 @@ class Morpheme(Unit):
         """
         assert "\n" not in jumanpp_line.strip("\n")
         if (match := cls.PAT.match(jumanpp_line) or cls.PAT_REPEATED.match(jumanpp_line)) is None:
-            raise ValueError(f"malformed line: {jumanpp_line}")
+            raise ValueError(f"malformed morpheme line: {jumanpp_line}")
         surf = match.group("surf")
         attributes = match.group("attrs") and MorphemeAttributes.from_jumanpp(match.group("attrs"))
         semantics = SemanticsDict.from_sstring(match.group("sems") or "")

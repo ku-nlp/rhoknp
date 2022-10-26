@@ -226,7 +226,7 @@ class BasePhrase(Unit):
         first_line, *lines = knp_text.split("\n")
         match = cls.PAT.match(first_line)
         if match is None:
-            raise ValueError(f"malformed line: {first_line}")
+            raise ValueError(f"malformed base phrase line: {first_line}")
         parent_index = int(match.group("pid")) if match.group("pid") is not None else None
         dep_type = DepType(match.group("dtype")) if match.group("dtype") is not None else None
         features = FeatureDict.from_fstring(match.group("feats") or "")
