@@ -62,7 +62,7 @@ class Sentence(Unit):
         self.named_entities = []
         if self.need_knp is False:
             for base_phrase in self.base_phrases:
-                if fstring := base_phrase.features.get("NE", None):
+                if fstring := base_phrase.features.get("NE"):
                     assert isinstance(fstring, str)
                     candidate_morphemes = self.morphemes[: base_phrase.morphemes[-1].index + 1]
                     if named_entity := NamedEntity.from_fstring(fstring, candidate_morphemes):
@@ -127,7 +127,7 @@ class Sentence(Unit):
             AttributeError: 解析結果にアクセスできない場合．
         """
         if self._clauses is None:
-            raise AttributeError("not available before applying KNP")
+            raise AttributeError("clauses have not been set")
         return self._clauses
 
     @clauses.setter
@@ -152,7 +152,7 @@ class Sentence(Unit):
             return self._phrases
         elif self._clauses is not None:
             return [phrase for clause in self.clauses for phrase in clause.phrases]
-        raise AttributeError("not available before applying KNP")
+        raise AttributeError("phrases have not been set")
 
     @phrases.setter
     def phrases(self, phrases: List[Phrase]) -> None:
@@ -187,7 +187,7 @@ class Sentence(Unit):
             return [morpheme for clause in self.clauses for morpheme in clause.morphemes]
         elif self._phrases is not None:
             return [morpheme for phrase in self.phrases for morpheme in phrase.morphemes]
-        raise AttributeError("not available before applying Jumanpp")
+        raise AttributeError("morphemes have not been set")
 
     @morphemes.setter
     def morphemes(self, morphemes: List[Morpheme]) -> None:
@@ -419,6 +419,7 @@ class Sentence(Unit):
             Optional[str]: Sentence id if exists; otherwise, None.
             str: The rest of the comment line.
         """
+        assert comment.startswith("#")
         if match_sid := re.match(r"# S-ID: ?(\S*)( .+)?$", comment):
             sid_string = match_sid.group(1)
             match = (
@@ -433,7 +434,6 @@ class Sentence(Unit):
                 match.group("sid"),
                 match_sid.group(2).lstrip() if match_sid.group(2) else "",
             )
-        assert comment.startswith("#")
         return None, None, comment.lstrip("#").lstrip(" ")
 
     def to_raw_text(self) -> str:

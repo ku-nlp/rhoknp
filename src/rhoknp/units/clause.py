@@ -108,8 +108,7 @@ class Clause(Unit):
     @property
     def phrases(self) -> List[Phrase]:
         """文節のリスト．"""
-        if self._phrases is None:
-            raise AssertionError
+        assert self._phrases is not None
         return self._phrases
 
     @phrases.setter

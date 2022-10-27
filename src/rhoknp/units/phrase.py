@@ -122,8 +122,7 @@ class Phrase(Unit):
     @property
     def base_phrases(self) -> List[BasePhrase]:
         """基本句のリスト．"""
-        if self._base_phrases is None:
-            raise AssertionError
+        assert self._base_phrases is not None
         return self._base_phrases
 
     @base_phrases.setter
@@ -178,7 +177,7 @@ class Phrase(Unit):
         first_line, *lines = knp_text.split("\n")
         match = cls.PAT.match(first_line)
         if match is None:
-            raise ValueError(f"malformed line: {first_line}")
+            raise ValueError(f"malformed phrase line: {first_line}")
         parent_index = int(match.group("pid")) if match.group("pid") is not None else None
         dep_type = DepType(match.group("dtype")) if match.group("dtype") is not None else None
         features = FeatureDict.from_fstring(match.group("feats") or "")

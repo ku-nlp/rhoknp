@@ -410,6 +410,12 @@ def test_to_jumanpp(case: Dict[str, str]) -> None:
     assert morpheme.to_jumanpp() == case["jumanpp"]
 
 
+def test_to_jumanpp_error() -> None:
+    morpheme = Morpheme("テスト")
+    with pytest.raises(AttributeError):
+        _ = morpheme.to_jumanpp()
+
+
 @pytest.mark.parametrize("case", JUMANPP_SNIPPETS)
 @pytest.mark.parametrize(
     "attr",
@@ -516,17 +522,6 @@ def test_homograph() -> None:
     assert homograph.fstring == ""
 
 
-def test_homograph_error() -> None:
-    jumanpp = textwrap.dedent(
-        """\
-        母 はは 母 名詞 6 普通名詞 1 * 0 * 0 "代表表記:母/はは 漢字読み:訓 カテゴリ:人 ドメイン:家庭・暮らし"
-        @
-        """
-    )
-    with pytest.raises(ValueError):
-        _ = Morpheme.from_jumanpp(jumanpp)
-
-
 def test_homograph_to_knp() -> None:
     knp = textwrap.dedent(
         """\
@@ -559,3 +554,9 @@ def test_homograph_to_knp() -> None:
     assert len(sentence.morphemes[0].homographs) == 1
     assert sentence.morphemes[0].to_jumanpp() == jumanpp_homograph
     assert sentence.to_knp() == knp_homograph
+
+
+def test_to_knp_error() -> None:
+    morpheme = Morpheme("テスト")
+    with pytest.raises(AttributeError):
+        _ = morpheme.to_knp()
