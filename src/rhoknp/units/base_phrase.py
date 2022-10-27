@@ -3,7 +3,7 @@ import re
 from functools import cached_property
 from typing import TYPE_CHECKING, Any, List, Optional, Set
 
-from rhoknp.cohesion.coreference import Entity, EntityManager
+from rhoknp.cohesion.coreference import Entity
 from rhoknp.cohesion.exophora import ExophoraReferent
 from rhoknp.cohesion.pas import CaseInfoFormat, Pas
 from rhoknp.cohesion.predicate import Predicate
@@ -159,8 +159,7 @@ class BasePhrase(Unit):
     @property
     def morphemes(self) -> List[Morpheme]:
         """形態素のリスト．"""
-        if self._morphemes is None:
-            raise AssertionError
+        assert self._morphemes is not None
         return self._morphemes
 
     @morphemes.setter
@@ -278,8 +277,8 @@ class BasePhrase(Unit):
     def is_nonidentical_to(self, entity: Entity) -> bool:
         """エンティティに対して自身が nonidentical な場合に True を返す．
 
-        Raises:
-            AssertionError: 自身が参照しないエンティティだった場合．
+        Args:
+            entity: エンティティ．
         """
         if entity in self.entities:
             return False
@@ -288,7 +287,12 @@ class BasePhrase(Unit):
             return True
 
     def add_entity(self, entity: Entity, nonidentical: bool = False) -> None:
-        """エンティティを追加．"""
+        """エンティティを追加．
+
+        Args:
+            entity: 追加するエンティティ．
+            nonidentical: nonidentical なメンションなら True．
+        """
         if nonidentical:
             self.entities_nonidentical.add(entity)
         else:
@@ -297,7 +301,7 @@ class BasePhrase(Unit):
 
     def _add_pas(self, rel: RelTag) -> None:
         """述語項構造を追加．"""
-        entity_manager: EntityManager = self.document.entity_manager
+        entity_manager = self.document.entity_manager
         assert self.pas is not None
         if rel.sid is not None:
             if (arg_base_phrase := self._get_target_base_phrase(rel)) is None:
@@ -315,7 +319,7 @@ class BasePhrase(Unit):
 
     def _add_coreference(self, rel: RelTag) -> None:
         """共参照関係を追加．"""
-        entity_manager: EntityManager = self.document.entity_manager
+        entity_manager = self.document.entity_manager
         # create source entity
         if not self.entities:
             self.add_entity(entity_manager.get_or_create_entity())

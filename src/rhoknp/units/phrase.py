@@ -122,8 +122,7 @@ class Phrase(Unit):
     @property
     def base_phrases(self) -> List[BasePhrase]:
         """基本句のリスト．"""
-        if self._base_phrases is None:
-            raise AssertionError
+        assert self._base_phrases is not None
         return self._base_phrases
 
     @base_phrases.setter

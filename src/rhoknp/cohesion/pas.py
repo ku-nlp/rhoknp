@@ -100,8 +100,7 @@ class Pas:
                 arg_base_phrase = sentence.base_phrases[tid]
                 assert surf in arg_base_phrase.text
                 pas.add_argument(case, arg_base_phrase, arg_type=arg_type)
-            else:
-                assert format_ == CaseInfoFormat.PAS
+            elif format_ == CaseInfoFormat.PAS:
                 sdist, tid, eid = int(fields[0]), int(fields[1]), int(fields[2])
                 if arg_type == ArgumentType.EXOPHORA:
                     pas.add_special_argument(case, surf, eid)
@@ -118,6 +117,8 @@ class Pas:
                     arg_base_phrase = sentence.base_phrases[tid]
                     assert surf in arg_base_phrase.text
                     pas.add_argument(case, arg_base_phrase)
+            else:
+                raise AssertionError  # unreachable
         return pas
 
     def get_arguments(
@@ -153,9 +154,10 @@ class Pas:
             for arg in args:
                 if isinstance(arg, ExophoraArgument):
                     entities = {entity_manager[arg.eid]}
-                else:
-                    assert isinstance(arg, EndophoraArgument)
+                elif isinstance(arg, EndophoraArgument):
                     entities = arg.base_phrase.entities_all if include_nonidentical else arg.base_phrase.entities
+                else:
+                    raise AssertionError  # unreachable
                 for entity in entities:
                     if entity.exophora_referent is not None:
                         pas.add_special_argument(case, entity.exophora_referent, entity.eid)

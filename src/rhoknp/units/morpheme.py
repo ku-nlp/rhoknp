@@ -216,7 +216,7 @@ class Morpheme(Unit):
     @property
     def canon(self) -> Optional[str]:
         """代表表記．"""
-        canon = self.semantics.get("代表表記", None)
+        canon = self.semantics.get("代表表記")
         assert canon is None or isinstance(canon, str)
         return canon
 
@@ -301,7 +301,7 @@ class Morpheme(Unit):
         first_line, *lines = jumanpp_text.rstrip().split("\n")
         morpheme = cls._from_jumanpp_line(first_line)
         for line in lines:
-            assert line.startswith("@ ")
+            assert cls.is_homograph_line(line)
             homograph = cls._from_jumanpp_line(line[2:], homograph=True)
             morpheme.homographs.append(homograph)
         return morpheme
@@ -314,7 +314,6 @@ class Morpheme(Unit):
             jumanpp_line: Juman++ の解析結果．
             homograph: 同形かどうかを表すフラグ．
         """
-        assert "\n" not in jumanpp_line.strip("\n")
         if (match := cls.PAT.match(jumanpp_line) or cls.PAT_REPEATED.match(jumanpp_line)) is None:
             raise ValueError(f"malformed morpheme line: {jumanpp_line}")
         surf = match.group("surf")
@@ -326,8 +325,9 @@ class Morpheme(Unit):
     def to_jumanpp(self) -> str:
         """Juman++ フォーマットに変換．"""
         ret = self.text
-        if self.attributes:
-            ret += f" {self.attributes.to_jumanpp()}"
+        if self.attributes is None:
+            raise AttributeError("attributes have not been set")
+        ret += f" {self.attributes.to_jumanpp()}"
         if self.semantics or self.semantics.is_nil is True:
             ret += f" {self.semantics.to_sstring()}"
         if self.features:
@@ -340,13 +340,14 @@ class Morpheme(Unit):
     def to_knp(self) -> str:
         """KNP フォーマットに変換．"""
         ret = self.text
-        if self.attributes:
-            ret += f" {self.attributes.to_jumanpp()}"
+        if self.attributes is None:
+            raise AttributeError("attributes have not been set")
+        ret += f" {self.attributes.to_jumanpp()}"
         if self.semantics or self.semantics.is_nil is True:
             ret += f" {self.semantics.to_sstring()}"
         features = FeatureDict(self.features)
         for homograph in self.homographs:
-            assert homograph.attributes is not None, "homographs must have attributes"
+            assert homograph.attributes is not None
             alt_feature_key = "ALT-{}-{}-{}-{}-{}-{}-{}-{}".format(
                 homograph.surf,
                 homograph.reading,

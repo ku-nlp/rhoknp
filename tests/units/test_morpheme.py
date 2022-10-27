@@ -410,6 +410,12 @@ def test_to_jumanpp(case: Dict[str, str]) -> None:
     assert morpheme.to_jumanpp() == case["jumanpp"]
 
 
+def test_to_jumanpp_error() -> None:
+    morpheme = Morpheme("テスト")
+    with pytest.raises(AttributeError):
+        _ = morpheme.to_jumanpp()
+
+
 @pytest.mark.parametrize("case", JUMANPP_SNIPPETS)
 @pytest.mark.parametrize(
     "attr",
@@ -548,3 +554,9 @@ def test_homograph_to_knp() -> None:
     assert len(sentence.morphemes[0].homographs) == 1
     assert sentence.morphemes[0].to_jumanpp() == jumanpp_homograph
     assert sentence.to_knp() == knp_homograph
+
+
+def test_to_knp_error() -> None:
+    morpheme = Morpheme("テスト")
+    with pytest.raises(AttributeError):
+        _ = morpheme.to_knp()
