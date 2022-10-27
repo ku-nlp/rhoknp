@@ -309,14 +309,20 @@ class Sentence(Unit):
             if cls.is_comment_line(line):
                 sentence.comment = line
                 continue
-            elif Morpheme.is_homograph_line(line):
-                pass
-            elif jumanpp_lines:
-                morphemes.append(Morpheme.from_jumanpp("\n".join(jumanpp_lines)))
-                jumanpp_lines = []
-            jumanpp_lines.append(line)
+            if Morpheme.is_morpheme_line(line):
+                if jumanpp_lines:
+                    morphemes.append(Morpheme.from_jumanpp("\n".join(jumanpp_lines)))
+                    jumanpp_lines = []
+                jumanpp_lines.append(line)
+                continue
+            if Morpheme.is_homograph_line(line):
+                jumanpp_lines.append(line)
+                continue
             if line.strip() == cls.EOS:
+                if jumanpp_lines:
+                    morphemes.append(Morpheme.from_jumanpp("\n".join(jumanpp_lines)))
                 break
+            raise ValueError(f"malformed line: {line}")
         sentence.morphemes = morphemes
         if post_init is True:
             sentence.__post_init__()
@@ -368,25 +374,31 @@ class Sentence(Unit):
             if cls.is_comment_line(line):
                 sentence.comment = line
                 continue
-            if line.startswith(";;"):
-                raise Exception(f"Error: {line}")
-            if BasePhrase.is_base_phrase_line(line) and "節-区切" in line:
-                is_clause_end = True
-            if line.strip() == cls.EOS:
-                if has_clause_boundary is True:
-                    clauses.append(Clause.from_knp("\n".join(child_lines)))
-                else:
-                    phrases.append(Phrase.from_knp("\n".join(child_lines)))
-                break
             if Phrase.is_phrase_line(line):
-                if is_clause_end is True:
+                if has_clause_boundary and is_clause_end and child_lines:
                     clauses.append(Clause.from_knp("\n".join(child_lines)))
                     child_lines = []
                     is_clause_end = False
                 elif has_clause_boundary is False and child_lines:
                     phrases.append(Phrase.from_knp("\n".join(child_lines)))
                     child_lines = []
-            child_lines.append(line)
+                child_lines.append(line)
+                continue
+            if BasePhrase.is_base_phrase_line(line):
+                if "節-区切" in line:
+                    is_clause_end = True
+                child_lines.append(line)
+                continue
+            if Morpheme.is_morpheme_line(line) or Morpheme.is_homograph_line(line):
+                child_lines.append(line)
+                continue
+            if line.strip() == cls.EOS:
+                if has_clause_boundary:
+                    clauses.append(Clause.from_knp("\n".join(child_lines)))
+                else:
+                    phrases.append(Phrase.from_knp("\n".join(child_lines)))
+                break
+            raise ValueError(f"malformed line: {line}")
         if has_clause_boundary is True:
             sentence.clauses = clauses
         else:
