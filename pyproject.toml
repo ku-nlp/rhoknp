@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "rhoknp"
-version = "0.4.5"
+version = "0.4.6"
 description = "Yet another Python binding for Juman++/KNP/KWJA"
 license = "MIT"
 authors = [
