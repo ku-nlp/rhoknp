@@ -17,9 +17,7 @@ class KWJA(Processor):
         options: KWJA のオプション．
 
     Example:
-
         >>> from rhoknp import KWJA
-        <BLANKLINE>
         >>> kwja = KWJA()
         >>> document = kwja.apply("電気抵抗率は電気の通しにくさを表す物性値である。")
 
@@ -68,12 +66,12 @@ class KWJA(Processor):
 
         with self._lock:
             self._proc.stdin.write(document.text.rstrip("\n") + "\n")  # TODO: Keep the sentence IDs
-            self._proc.stdin.write(Document.EOD_PAT + "\n")
+            self._proc.stdin.write(Document.EOD + "\n")
             self._proc.stdin.flush()
             knp_text = ""
             while self.is_available():
                 line = self._proc.stdout.readline()
-                if line.strip() == Document.EOD_PAT:
+                if line.strip() == Document.EOD:
                     break
                 knp_text += line
             return Document.from_knp(knp_text)
@@ -96,12 +94,12 @@ class KWJA(Processor):
         with self._lock:
             self._proc.stdout.flush()
             self._proc.stdin.write(sentence.text.rstrip("\n") + "\n")  # TODO: Keep the sentence ID
-            self._proc.stdin.write(Document.EOD_PAT + "\n")
+            self._proc.stdin.write(Document.EOD + "\n")
             self._proc.stdin.flush()
             knp_text = ""
             while self.is_available():
                 line = self._proc.stdout.readline()
-                if line.strip() == Document.EOD_PAT:
+                if line.strip() == Document.EOD:
                     break
                 knp_text += line
             return Sentence.from_knp(knp_text)

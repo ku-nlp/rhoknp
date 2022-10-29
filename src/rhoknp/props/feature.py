@@ -8,11 +8,11 @@ logger = logging.getLogger(__name__)
 class FeatureDict(Dict[str, Union[str, bool]]):
     """文節，基本句，形態素の素性情報を表すクラス．"""
 
-    PAT = re.compile(r"(?P<feats>(<[^>]+>)*)")
+    PAT = re.compile(r'(?P<feats>(<([^>"]|"[^"]*?")+>)*)')
     IGNORE_TAG_PREFIXES = {"rel "}
     FEATURE_PAT = re.compile(rf"<(?!({'|'.join(IGNORE_TAG_PREFIXES)}))(?P<key>([^:\"]|\".*?\")+?)(:(?P<value>.+?))?>")
 
-    def __setitem__(self, key, value) -> None:
+    def __setitem__(self, key: str, value: Union[str, bool]) -> None:
         if key == "rel":
             logger.warning(
                 f"Adding 'rel' to {self.__class__.__name__} is not supported and was ignored. Instead, add a RelTag "
@@ -24,7 +24,8 @@ class FeatureDict(Dict[str, Union[str, bool]]):
     @classmethod
     def from_fstring(cls, fstring: str) -> "FeatureDict":
         """素性文字列をパースして辞書型に変換する．
-        e.g., "<正規化代表表記:遅れる/おくれる>" -> {"正規化代表表記": "遅れる/おくれる"}
+
+        例："<正規化代表表記:遅れる/おくれる>" -> {"正規化代表表記": "遅れる/おくれる"}
 
         Args:
             fstring: KNP 形式における素性文字列．

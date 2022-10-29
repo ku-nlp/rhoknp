@@ -1,5 +1,5 @@
 import re
-from typing import Dict, Union
+from typing import Dict, Optional, Union
 
 
 class SemanticsDict(Dict[str, Union[str, bool]]):
@@ -9,7 +9,7 @@ class SemanticsDict(Dict[str, Union[str, bool]]):
     PAT = re.compile(rf'(?P<sems>("([^"]|\\")+?")|{NIL})')
     SEM_PAT = re.compile(r"(?P<key>[^:\s]+)(:(?P<value>\S+))?(\s|$)")
 
-    def __init__(self, semantics: Dict[str, Union[str, bool]] = None, is_nil: bool = False):
+    def __init__(self, semantics: Optional[Dict[str, Union[str, bool]]] = None, is_nil: bool = False) -> None:
         if semantics is None:
             semantics = {}
         super().__init__(semantics)
@@ -18,7 +18,8 @@ class SemanticsDict(Dict[str, Union[str, bool]]):
     @classmethod
     def from_sstring(cls, sstring: str) -> "SemanticsDict":
         """意味情報文字列をパースして辞書型に変換する．
-        e.g., "\"代表表記:日本/にほん 地名:国\"" -> {"代表表記": "日本/にほん", "地名": "国"}
+
+        例："代表表記:日本/にほん 地名:国" -> {"代表表記": "日本/にほん", "地名": "国"}
 
         Args:
             sstring: KNP 形式における意味情報文字列．

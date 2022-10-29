@@ -19,8 +19,8 @@ class Entity:
     """
 
     def __init__(self, eid: int, exophora_referent: Optional[ExophoraReferent] = None) -> None:
-        self.eid = eid  #: エンティティ ID
-        self.exophora_referent = exophora_referent  #: 外界照応の照応先．対応するものがなければ None.
+        self.eid = eid  #: エンティティ ID．
+        self.exophora_referent = exophora_referent  #: 外界照応の照応先．対応するものがなければ None．
         self.mentions: Set["BasePhrase"] = set()  #: このエンティティを参照するメンションの集合．
         self.mentions_nonidentical: Set["BasePhrase"] = set()  #: このエンティティを≒関係で参照するメンションの集合．
 
@@ -34,7 +34,7 @@ class Entity:
 
         Args:
             mention: 追加対象のメンション．
-            nonidentical: メンションが nonidentical ("≒" 付きでアノテーションされている) なら True．
+            nonidentical: メンションが nonidentical（"≒" 付きでアノテーションされている）なら True．
 
         .. note::
             identical なメンションが追加されたとき，すでに nonidentical なメンションとして登録されていたら，
@@ -82,14 +82,14 @@ class Entity:
             items.append(repr(self.exophora_referent))
         return f"<{self.__module__}.{self.__class__.__name__}: {', '.join(items)}>"
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(self.eid)
 
 
 class EntityManager:
     """文書全体のエンティティを管理．"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.entities: List[Entity] = []  #: エンティティのリスト．
 
     def get_or_create_entity(
@@ -97,10 +97,10 @@ class EntityManager:
     ) -> Entity:
         """自身が参照するエンティティを作成．
 
-        exophora_referent が singleton entity だった場合を除き、新しく Entity のインスタンスを作成して返す．
-        singleton entity とは、「著者」や「不特定:人１」などの文書中に必ず一つしか存在しないような entity．
-        一方で、「不特定:人」や「不特定:物」は複数存在しうるので singleton entity ではない．
-        eid を指定しない場合、最後に作成した entity の次の eid を選択．
+        exophora_referent が singleton entity だった場合を除き，新しく Entity のインスタンスを作成して返す．
+        singleton entity とは，「著者」や「不特定:人１」などの文書中に必ず一つしか存在しないような entity．
+        一方で，「不特定:人」や「不特定:物」は複数存在しうるので singleton entity ではない．
+        eid を指定しない場合，最後に作成した entity の次の eid を選択．
 
         Args:
             exophora_referent: 外界照応における照応先．対応するものがなければ None．
@@ -111,7 +111,7 @@ class EntityManager:
         """
         if exophora_referent is not None and exophora_referent.is_singleton is True:
             entities = [e for e in self.entities if exophora_referent == e.exophora_referent]
-            # すでに singleton entity が存在した場合、新しい entity は作らずにその entity を返す
+            # すでに singleton entity が存在した場合，新しい entity は作らずにその entity を返す
             if entities:
                 assert len(entities) == 1  # singleton entity が1つしかないことを保証
                 return entities[0]
@@ -136,9 +136,9 @@ class EntityManager:
     ) -> None:
         """2つのエンティティをマージ．
 
-        source_mention と source_entity, target_mention と target_entity の間には mention が張られているが、
-        source と target 間には張られていないので、add_mention する．
-        source_entity と target_entity が同一のエンティティであり、exophor も同じか片方が None ならば target_entity の方を削除する．
+        source_mention と source_entity, target_mention と target_entity の間には mention が張られているが，
+        source と target 間には張られていないので，add_mention する．
+        source_entity と target_entity が同一のエンティティであり，exophor も同じか片方が None ならば target_entity の方を削除する．
 
         Args:
             source_mention: ソース側メンション．
@@ -163,7 +163,7 @@ class EntityManager:
         if target_mention is not None:
             source_entity.add_mention(target_mention, nonidentical=(nonidentical or nonidentical_src))
         target_entity.add_mention(source_mention, nonidentical=(nonidentical or nonidentical_tgt))
-        # source_entity と target_entity が同一でない可能性が捨てきれない場合、target_entity は削除しない
+        # source_entity と target_entity が同一でない可能性が捨てきれない場合，target_entity は削除しない
         if nonidentical_src or nonidentical or nonidentical_tgt:
             return
         # source_entity と target_entity が同一でも exophor が異なれば target_entity は削除しない

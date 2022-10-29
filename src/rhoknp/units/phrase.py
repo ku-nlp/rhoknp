@@ -1,6 +1,6 @@
 import re
 from functools import cached_property
-from typing import TYPE_CHECKING, List, Optional, Union
+from typing import TYPE_CHECKING, Any, List, Optional, Union
 
 from rhoknp.props.dependency import DepType
 from rhoknp.props.feature import FeatureDict
@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 class Phrase(Unit):
     """文節クラス．"""
 
-    KNP_PAT = re.compile(rf"^\*( (?P<pid>-1|\d+)(?P<dtype>[DPAI]))?( {FeatureDict.PAT.pattern})?$")
+    PAT = re.compile(rf"^\*( (?P<pid>-1|\d+)(?P<dtype>[DPAI]))?( {FeatureDict.PAT.pattern})?$")
     count = 0
 
     def __init__(
@@ -41,6 +41,13 @@ class Phrase(Unit):
 
         self.index = self.count  #: 文内におけるインデックス．
         Phrase.count += 1
+
+    def __eq__(self, other: Any) -> bool:
+        if isinstance(other, type(self)) is False:
+            return False
+        if self.parent_unit != other.parent_unit:
+            return False
+        return self.index == other.index
 
     @cached_property
     def global_index(self) -> int:
@@ -115,8 +122,7 @@ class Phrase(Unit):
     @property
     def base_phrases(self) -> List[BasePhrase]:
         """基本句のリスト．"""
-        if self._base_phrases is None:
-            raise AssertionError
+        assert self._base_phrases is not None
         return self._base_phrases
 
     @base_phrases.setter
@@ -169,9 +175,9 @@ class Phrase(Unit):
             knp_text: KNP の解析結果．
         """
         first_line, *lines = knp_text.split("\n")
-        match = cls.KNP_PAT.match(first_line)
+        match = cls.PAT.match(first_line)
         if match is None:
-            raise ValueError(f"malformed line: {first_line}")
+            raise ValueError(f"malformed phrase line: {first_line}")
         parent_index = int(match.group("pid")) if match.group("pid") is not None else None
         dep_type = DepType(match.group("dtype")) if match.group("dtype") is not None else None
         features = FeatureDict.from_fstring(match.group("feats") or "")
@@ -206,4 +212,4 @@ class Phrase(Unit):
     @staticmethod
     def is_phrase_line(line: str) -> bool:
         """文節行なら True を返す．"""
-        return Phrase.KNP_PAT.match(line) is not None
+        return Phrase.PAT.match(line) is not None

@@ -272,6 +272,20 @@ JUMANPP_SNIPPETS = [
         "fstring": "",
         "canon": None,
     },
+    {
+        "jumanpp": """<(_ _)> <(_ _)> <(_ _)> 特殊 1 記号 5 * 0 * 0 "代表表記:顔文字/顔文字 顔文字"\n""",
+        "text": "<(_ _)>",
+        "surf": "<(_ _)>",
+        "reading": "<(_ _)>",
+        "lemma": "<(_ _)>",
+        "pos": "特殊",
+        "subpos": "記号",
+        "conjtype": "*",
+        "conjform": "*",
+        "sstring": '"代表表記:顔文字/顔文字 顔文字"',
+        "fstring": "",
+        "canon": "顔文字/顔文字",
+    },
 ]
 
 
@@ -394,6 +408,12 @@ def test_from_jumanpp_error() -> None:
 def test_to_jumanpp(case: Dict[str, str]) -> None:
     morpheme = Morpheme.from_jumanpp(case["jumanpp"])
     assert morpheme.to_jumanpp() == case["jumanpp"]
+
+
+def test_to_jumanpp_error() -> None:
+    morpheme = Morpheme("テスト")
+    with pytest.raises(AttributeError):
+        _ = morpheme.to_jumanpp()
 
 
 @pytest.mark.parametrize("case", JUMANPP_SNIPPETS)
@@ -534,3 +554,9 @@ def test_homograph_to_knp() -> None:
     assert len(sentence.morphemes[0].homographs) == 1
     assert sentence.morphemes[0].to_jumanpp() == jumanpp_homograph
     assert sentence.to_knp() == knp_homograph
+
+
+def test_to_knp_error() -> None:
+    morpheme = Morpheme("テスト")
+    with pytest.raises(AttributeError):
+        _ = morpheme.to_knp()

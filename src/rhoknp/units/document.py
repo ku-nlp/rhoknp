@@ -22,7 +22,7 @@ class Document(Unit):
         doc_id: 文書 ID．
     """
 
-    EOD_PAT = "EOD"
+    EOD = "EOD"
 
     count = 0
 
@@ -54,6 +54,11 @@ class Document(Unit):
                 logger.warning(
                     f"'doc_id' is not consistent; use 'doc_id' extracted from the first sentence: {self.doc_id}."
                 )
+
+    def __eq__(self, other: Any) -> bool:
+        if isinstance(other, Document) is False:
+            return False
+        return self.doc_id == other.doc_id and self.text == other.text
 
     @property
     def parent_unit(self) -> None:
@@ -169,9 +174,7 @@ class Document(Unit):
             text: 文書の生テキスト．
 
         Example:
-
             >>> from rhoknp import Document
-            <BLANKLINE>
             >>> text = "天気が良かったので散歩した。途中で先生に会った。"
             >>> doc = Document.from_raw_text(text)
         """
@@ -187,9 +190,7 @@ class Document(Unit):
             text: 一行一文形式に整形された文書のテキスト．
 
         Example:
-
             >>> from rhoknp import Document
-            <BLANKLINE>
             >>> sents = \"\"\"
             ... # S-ID:1
             ... 天気が良かったので散歩した。
@@ -224,9 +225,7 @@ class Document(Unit):
             sentences: 文（文の文字列）のリスト．
 
         Example:
-
             >>> from rhoknp import Document
-            <BLANKLINE>
             >>> sents = ["天気が良かったので散歩した。", "途中で先生に会った。"]
             >>> doc = Document.from_sentences(sents)
         """
@@ -259,7 +258,6 @@ class Document(Unit):
         Example:
 
             >>> from rhoknp import Document
-            <BLANKLINE>
             >>> jumanpp_text = \"\"\"
             ... # S-ID:1
             ... 天気 てんき 天気 名詞 6 普通名詞 1 * 0 * 0 "代表表記:天気/てんき カテゴリ:抽象物"
@@ -290,7 +288,7 @@ class Document(Unit):
             if line.strip() == "":
                 continue
             sentence_lines.append(line)
-            if line.strip() == Sentence.EOS_PAT:
+            if line.strip() == Sentence.EOS:
                 sentences.append(Sentence.from_jumanpp("\n".join(sentence_lines) + "\n", post_init=False))
                 sentence_lines = []
         document.sentences = sentences
@@ -310,7 +308,6 @@ class Document(Unit):
         Example:
 
             >>> from rhoknp import Document
-            <BLANKLINE>
             >>> knp_text = \"\"\"
             ... # S-ID:1
             ... * 1D
@@ -354,7 +351,7 @@ class Document(Unit):
             if line.strip() == "":
                 continue
             sentence_lines.append(line)
-            if line.strip() == Sentence.EOS_PAT:
+            if line.strip() == Sentence.EOS:
                 sentences.append(Sentence.from_knp("\n".join(sentence_lines) + "\n", post_init=False))
                 sentence_lines = []
         document.sentences = sentences
@@ -400,8 +397,3 @@ class Document(Unit):
             AttributeError: 解析結果にアクセスできない場合．
         """
         return "".join(sentence.to_knp() for sentence in self.sentences)
-
-    def __eq__(self, other: Any) -> bool:
-        if isinstance(other, Document) is False:
-            return False
-        return self.doc_id == other.doc_id and self.text == other.text

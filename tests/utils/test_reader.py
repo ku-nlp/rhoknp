@@ -186,10 +186,14 @@ def test_chunk_by_document(case: Dict[str, Any]) -> None:
     assert actual == case["documents"]
 
 
-@pytest.mark.parametrize("doc_id_format", ["ERROR", 1])
-def test_chunk_by_document_error(doc_id_format: Any) -> None:
+def test_chunk_by_document_value_error() -> None:
     with pytest.raises(ValueError):
-        _ = list(chunk_by_document(StringIO(""), doc_id_format=doc_id_format))  # noqa
+        _ = list(chunk_by_document(StringIO(""), doc_id_format="ERROR"))  # type: ignore
+
+
+def test_chunk_by_document_type_error() -> None:
+    with pytest.raises(TypeError):
+        _ = list(chunk_by_document(StringIO(""), doc_id_format=1))  # type: ignore
 
 
 @pytest.mark.parametrize(

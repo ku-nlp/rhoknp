@@ -228,6 +228,41 @@ CASES = [
         ),
         "sid": "1",
     },
+    {
+        "raw_text": r";;",
+        "line_by_line_text": textwrap.dedent(
+            """\
+            # S-ID:1
+            ;;
+            """
+        ),
+        "jumanpp": textwrap.dedent(
+            """\
+            # S-ID:1
+            ;; ;; ;; 特殊 1 記号 5 * 0 * 0 <用言表記先頭>
+            EOS
+            """
+        ),
+        "knp": textwrap.dedent(
+            """\
+            # S-ID:1
+            * -1D
+            + -1D <節-区切><節-主辞>
+            ;; ;; ;; 特殊 1 記号 5 * 0 * 0 <用言表記先頭>
+            EOS
+            """
+        ),
+        "knp_with_no_clause_tag": textwrap.dedent(
+            """\
+            # S-ID:1
+            * -1D
+            + -1D
+            ;; ;; ;; 特殊 1 記号 5 * 0 * 0 <用言表記先頭>
+            EOS
+            """
+        ),
+        "sid": "1",
+    },
 ]
 
 
@@ -326,7 +361,7 @@ def test_from_knp_empty_line():
 
 
 def test_from_knp_invalid_input():
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         _ = Sentence.from_knp(
             textwrap.dedent(
                 """\

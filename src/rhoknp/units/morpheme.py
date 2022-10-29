@@ -1,7 +1,7 @@
 import re
 from dataclasses import astuple, dataclass, fields
 from functools import cached_property
-from typing import TYPE_CHECKING, ClassVar, List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Any, ClassVar, List, Optional, Tuple, Union
 
 from rhoknp.props.feature import FeatureDict
 from rhoknp.props.semantics import SemanticsDict
@@ -20,6 +20,7 @@ class MorphemeAttributes:
     """形態素の属性クラス．"""
 
     PAT = re.compile(r"([^ ]+| ) ([^ ]+| ) ([^ ]+) (\d+) ([^ ]+) (\d+) ([^ ]+) (\d+) ([^ ]+) (\d+)")
+    PAT_REPEATED = re.compile(r"(?P<pat>.+) ((?P=pat)) ([^ ]+) (\d+) ([^ ]+) (\d+) ([^ ]+) (\d+) ([^ ]+) (\d+)")
 
     reading: str  #: 読み．
     lemma: str  #: 原形．
@@ -40,11 +41,11 @@ class MorphemeAttributes:
             jumanpp_line: Juman++ の解析結果．
         """
         kwargs = {}
-        match = cls.PAT.match(jumanpp_line)
-        assert match is not None, f"malformed line: {jumanpp_line}"
+        match = cls.PAT.match(jumanpp_line) or cls.PAT_REPEATED.match(jumanpp_line)
+        assert match is not None
         for field, value in zip(fields(cls), match.groups()):
             kwargs[field.name] = field.type(value)
-        assert len(kwargs) == len(fields(cls)), f"malformed line: {jumanpp_line}"
+        assert len(kwargs) == len(fields(cls))
         return cls(**kwargs)
 
     def to_jumanpp(self) -> str:
@@ -55,9 +56,15 @@ class MorphemeAttributes:
 class Morpheme(Unit):
     """形態素クラス．"""
 
-    JUMANPP_PAT: ClassVar[re.Pattern] = re.compile(
+    PAT: ClassVar[re.Pattern] = re.compile(
         r"(?P<surf>^([^ ]+| ))"
         + rf"( (?P<attrs>{MorphemeAttributes.PAT.pattern}))"
+        + rf"( {SemanticsDict.PAT.pattern})?"
+        + rf"( {FeatureDict.PAT.pattern})?$"
+    )
+
+    PAT_REPEATED: ClassVar[re.Pattern] = re.compile(
+        r"(?P<surf>.+) (?P<attrs>(?P=surf) (?P=surf) [^ ]+ \d+ [^ ]+ \d+ [^ ]+ \d+ [^ ]+ \d+)"
         + rf"( {SemanticsDict.PAT.pattern})?"
         + rf"( {FeatureDict.PAT.pattern})?$"
     )
@@ -71,7 +78,7 @@ class Morpheme(Unit):
         semantics: Optional[SemanticsDict] = None,
         features: Optional[FeatureDict] = None,
         homograph: bool = False,
-    ):
+    ) -> None:
         super().__init__()
         self.text = text
 
@@ -87,6 +94,13 @@ class Morpheme(Unit):
         self.index = self.count  #: 文内におけるインデックス．
         if homograph is False:
             Morpheme.count += 1
+
+    def __eq__(self, other: Any) -> bool:
+        if isinstance(other, type(self)) is False:
+            return False
+        if self.parent_unit != other.parent_unit:
+            return False
+        return self.index == other.index
 
     @cached_property
     def global_index(self) -> int:
@@ -202,7 +216,7 @@ class Morpheme(Unit):
     @property
     def canon(self) -> Optional[str]:
         """代表表記．"""
-        canon = self.semantics.get("代表表記", None)
+        canon = self.semantics.get("代表表記")
         assert canon is None or isinstance(canon, str)
         return canon
 
@@ -287,7 +301,7 @@ class Morpheme(Unit):
         first_line, *lines = jumanpp_text.rstrip().split("\n")
         morpheme = cls._from_jumanpp_line(first_line)
         for line in lines:
-            assert line.startswith("@ ")
+            assert cls.is_homograph_line(line)
             homograph = cls._from_jumanpp_line(line[2:], homograph=True)
             morpheme.homographs.append(homograph)
         return morpheme
@@ -300,9 +314,8 @@ class Morpheme(Unit):
             jumanpp_line: Juman++ の解析結果．
             homograph: 同形かどうかを表すフラグ．
         """
-        assert "\n" not in jumanpp_line.strip("\n")
-        if (match := cls.JUMANPP_PAT.match(jumanpp_line)) is None:
-            raise ValueError(f"malformed line: {jumanpp_line}")
+        if (match := cls.PAT.match(jumanpp_line) or cls.PAT_REPEATED.match(jumanpp_line)) is None:
+            raise ValueError(f"malformed morpheme line: {jumanpp_line}")
         surf = match.group("surf")
         attributes = match.group("attrs") and MorphemeAttributes.from_jumanpp(match.group("attrs"))
         semantics = SemanticsDict.from_sstring(match.group("sems") or "")
@@ -312,8 +325,9 @@ class Morpheme(Unit):
     def to_jumanpp(self) -> str:
         """Juman++ フォーマットに変換．"""
         ret = self.text
-        if self.attributes:
-            ret += f" {self.attributes.to_jumanpp()}"
+        if self.attributes is None:
+            raise AttributeError("attributes have not been set")
+        ret += f" {self.attributes.to_jumanpp()}"
         if self.semantics or self.semantics.is_nil is True:
             ret += f" {self.semantics.to_sstring()}"
         if self.features:
@@ -326,13 +340,14 @@ class Morpheme(Unit):
     def to_knp(self) -> str:
         """KNP フォーマットに変換．"""
         ret = self.text
-        if self.attributes:
-            ret += f" {self.attributes.to_jumanpp()}"
+        if self.attributes is None:
+            raise AttributeError("attributes have not been set")
+        ret += f" {self.attributes.to_jumanpp()}"
         if self.semantics or self.semantics.is_nil is True:
             ret += f" {self.semantics.to_sstring()}"
         features = FeatureDict(self.features)
         for homograph in self.homographs:
-            assert homograph.attributes is not None, "homographs must have attributes"
+            assert homograph.attributes is not None
             alt_feature_key = "ALT-{}-{}-{}-{}-{}-{}-{}-{}".format(
                 homograph.surf,
                 homograph.reading,
@@ -352,7 +367,7 @@ class Morpheme(Unit):
     @staticmethod
     def is_morpheme_line(line: str) -> bool:
         """形態素行なら True を返す．"""
-        return Morpheme.JUMANPP_PAT.match(line) is not None
+        return Morpheme.PAT.match(line) is not None or Morpheme.PAT_REPEATED.match(line) is not None
 
     @staticmethod
     def is_homograph_line(line: str) -> bool:

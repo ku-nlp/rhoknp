@@ -22,7 +22,7 @@ class Sentence(Unit):
         text: 文の文字列．
     """
 
-    EOS_PAT = "EOS"
+    EOS = "EOS"
     SID_PAT = re.compile(r"^(?P<sid>(?P<did>[a-zA-Z\d\-_]+?)(-(\d+))?)$")
     SID_PAT_KWDLC = re.compile(r"^(?P<sid>(?P<did>w\d{6}-\d{10})(-\d+){1,2})$")
     SID_PAT_WAC = re.compile(r"^(?P<sid>(?P<did>wiki\d{8})(-\d{2})(-\d{2})?)$")
@@ -62,11 +62,16 @@ class Sentence(Unit):
         self.named_entities = []
         if self.need_knp is False:
             for base_phrase in self.base_phrases:
-                if fstring := base_phrase.features.get("NE", None):
+                if fstring := base_phrase.features.get("NE"):
                     assert isinstance(fstring, str)
                     candidate_morphemes = self.morphemes[: base_phrase.morphemes[-1].index + 1]
                     if named_entity := NamedEntity.from_fstring(fstring, candidate_morphemes):
                         self.named_entities.append(named_entity)
+
+    def __eq__(self, other: Any) -> bool:
+        if isinstance(other, Sentence) is False:
+            return False
+        return self.sid == other.sid and self.text == other.text
 
     @property
     def global_index(self) -> int:
@@ -122,7 +127,7 @@ class Sentence(Unit):
             AttributeError: 解析結果にアクセスできない場合．
         """
         if self._clauses is None:
-            raise AttributeError("not available before applying KNP")
+            raise AttributeError("clauses have not been set")
         return self._clauses
 
     @clauses.setter
@@ -147,7 +152,7 @@ class Sentence(Unit):
             return self._phrases
         elif self._clauses is not None:
             return [phrase for clause in self.clauses for phrase in clause.phrases]
-        raise AttributeError("not available before applying KNP")
+        raise AttributeError("phrases have not been set")
 
     @phrases.setter
     def phrases(self, phrases: List[Phrase]) -> None:
@@ -182,7 +187,7 @@ class Sentence(Unit):
             return [morpheme for clause in self.clauses for morpheme in clause.morphemes]
         elif self._phrases is not None:
             return [morpheme for phrase in self.phrases for morpheme in phrase.morphemes]
-        raise AttributeError("not available before applying Jumanpp")
+        raise AttributeError("morphemes have not been set")
 
     @morphemes.setter
     def morphemes(self, morphemes: List[Morpheme]) -> None:
@@ -250,9 +255,7 @@ class Sentence(Unit):
             post_init: インスタンス作成後の追加処理を行うなら True．
 
         Example:
-
             >>> from rhoknp import Sentence
-            <BLANKLINE>
             >>> text = "天気が良かったので散歩した。"
             >>> sent = Sentence(text)
         """
@@ -284,7 +287,6 @@ class Sentence(Unit):
         Example:
 
             >>> from rhoknp import Sentence
-            <BLANKLINE>
             >>> jumanpp_text = \"\"\"
             ... # S-ID:1
             ... 天気 てんき 天気 名詞 6 普通名詞 1 * 0 * 0 "代表表記:天気/てんき カテゴリ:抽象物"
@@ -307,14 +309,20 @@ class Sentence(Unit):
             if cls.is_comment_line(line):
                 sentence.comment = line
                 continue
-            elif Morpheme.is_homograph_line(line):
-                pass
-            elif jumanpp_lines:
-                morphemes.append(Morpheme.from_jumanpp("\n".join(jumanpp_lines)))
-                jumanpp_lines = []
-            jumanpp_lines.append(line)
-            if line.strip() == cls.EOS_PAT:
+            if Morpheme.is_morpheme_line(line):
+                if jumanpp_lines:
+                    morphemes.append(Morpheme.from_jumanpp("\n".join(jumanpp_lines)))
+                    jumanpp_lines = []
+                jumanpp_lines.append(line)
+                continue
+            if Morpheme.is_homograph_line(line):
+                jumanpp_lines.append(line)
+                continue
+            if line.strip() == cls.EOS:
+                if jumanpp_lines:
+                    morphemes.append(Morpheme.from_jumanpp("\n".join(jumanpp_lines)))
                 break
+            raise ValueError(f"malformed line: {line}")
         sentence.morphemes = morphemes
         if post_init is True:
             sentence.__post_init__()
@@ -334,7 +342,6 @@ class Sentence(Unit):
         Example:
 
             >>> from rhoknp import Sentence
-            <BLANKLINE>
             >>> knp_text = \"\"\"
             ... # S-ID:1
             ... * 1D
@@ -367,25 +374,31 @@ class Sentence(Unit):
             if cls.is_comment_line(line):
                 sentence.comment = line
                 continue
-            if line.startswith(";;"):
-                raise Exception(f"Error: {line}")
-            if BasePhrase.is_base_phrase_line(line) and "節-区切" in line:
-                is_clause_end = True
-            if line.strip() == cls.EOS_PAT:
-                if has_clause_boundary is True:
-                    clauses.append(Clause.from_knp("\n".join(child_lines)))
-                else:
-                    phrases.append(Phrase.from_knp("\n".join(child_lines)))
-                break
             if Phrase.is_phrase_line(line):
-                if is_clause_end is True:
+                if has_clause_boundary and is_clause_end and child_lines:
                     clauses.append(Clause.from_knp("\n".join(child_lines)))
                     child_lines = []
                     is_clause_end = False
                 elif has_clause_boundary is False and child_lines:
                     phrases.append(Phrase.from_knp("\n".join(child_lines)))
                     child_lines = []
-            child_lines.append(line)
+                child_lines.append(line)
+                continue
+            if BasePhrase.is_base_phrase_line(line):
+                if "節-区切" in line:
+                    is_clause_end = True
+                child_lines.append(line)
+                continue
+            if Morpheme.is_morpheme_line(line) or Morpheme.is_homograph_line(line):
+                child_lines.append(line)
+                continue
+            if line.strip() == cls.EOS:
+                if has_clause_boundary:
+                    clauses.append(Clause.from_knp("\n".join(child_lines)))
+                else:
+                    phrases.append(Phrase.from_knp("\n".join(child_lines)))
+                break
+            raise ValueError(f"malformed line: {line}")
         if has_clause_boundary is True:
             sentence.clauses = clauses
         else:
@@ -406,6 +419,7 @@ class Sentence(Unit):
             Optional[str]: Sentence id if exists; otherwise, None.
             str: The rest of the comment line.
         """
+        assert comment.startswith("#")
         if match_sid := re.match(r"# S-ID: ?(\S*)( .+)?$", comment):
             sid_string = match_sid.group(1)
             match = (
@@ -420,7 +434,6 @@ class Sentence(Unit):
                 match.group("sid"),
                 match_sid.group(2).lstrip() if match_sid.group(2) else "",
             )
-        assert comment.startswith("#")
         return None, None, comment.lstrip("#").lstrip(" ")
 
     def to_raw_text(self) -> str:
@@ -440,7 +453,7 @@ class Sentence(Unit):
         ret = ""
         if self.comment != "":
             ret += self.comment + "\n"
-        ret += "".join(morpheme.to_jumanpp() for morpheme in self.morphemes) + self.EOS_PAT + "\n"
+        ret += "".join(morpheme.to_jumanpp() for morpheme in self.morphemes) + self.EOS + "\n"
         return ret
 
     def to_knp(self) -> str:
@@ -453,7 +466,7 @@ class Sentence(Unit):
         if self.comment != "":
             ret += self.comment + "\n"
         ret += "".join(child.to_knp() for child in self._clauses or self.phrases)
-        ret += self.EOS_PAT + "\n"
+        ret += self.EOS + "\n"
         return ret
 
     def reparse(self) -> "Sentence":
@@ -468,11 +481,14 @@ class Sentence(Unit):
             return Sentence.from_jumanpp(self.to_jumanpp())
         return Sentence.from_raw_text(self.to_raw_text())
 
-    def __eq__(self, other: Any) -> bool:
-        if isinstance(other, Sentence) is False:
-            return False
-        return self.sid == other.sid and self.text == other.text
-
     @staticmethod
     def is_comment_line(line: str) -> bool:
+        """コメント行なら True を返す．
+
+        Args:
+            line: 解析結果の一行．
+
+        .. note::
+            JUMAN/KNP では # から始まる行がコメントとみなされる．
+        """
         return line.startswith("#") and not Morpheme.is_morpheme_line(line)

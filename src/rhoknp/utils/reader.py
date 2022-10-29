@@ -8,16 +8,14 @@ logger = logging.getLogger(__name__)
 
 
 def chunk_by_sentence(f: TextIO) -> Iterator[str]:
-    """ファイルを文ごとに分割するジェネレータ．
+    """解析結果ファイルを文ごとに分割するジェネレータ．
 
     Args:
         f: 分割するファイル．
 
     Examples:
-
         >>> from rhoknp.units import Sentence
         >>> from rhoknp.utils.reader import chunk_by_sentence
-        <BLANKLINE>
         >>> with open("example.knp") as f:
         ...     for knp in chunk_by_sentence(f):
         ...         sentence = Sentence.from_knp(knp)
@@ -27,7 +25,7 @@ def chunk_by_sentence(f: TextIO) -> Iterator[str]:
         if line.strip() == "":
             continue
         buffer.append(line)
-        if line.strip() == Sentence.EOS_PAT:
+        if line.rstrip("\n") == Sentence.EOS:
             yield "".join(buffer)
             buffer = []
     if buffer:
@@ -37,19 +35,17 @@ def chunk_by_sentence(f: TextIO) -> Iterator[str]:
 def chunk_by_document(
     f: TextIO, doc_id_format: Union[Literal["default", "kwdlc", "wac"], Callable] = "default"
 ) -> Iterator[str]:
-    """ファイルを文書ごとに分割するジェネレータ．
+    """解析結果ファイルを文書ごとに分割するジェネレータ．
 
     Args:
         f: 分割するファイル．
         doc_id_format: 文書IDのフォーマット．
 
     Examples:
-
         >>> from rhoknp.units import Document
         >>> from rhoknp.utils.reader import chunk_by_document
-        <BLANKLINE>
         >>> with open("example.knp") as f:
-        ...     for knp in chunk_by_document():
+        ...     for knp in chunk_by_document(f):
         ...         document = Document.from_knp(knp)
 
     .. note::
@@ -65,7 +61,7 @@ def chunk_by_document(
         例えば default 相当の処理を行うには以下のような関数を渡す．
 
             >>> def default_doc_id_format(line: str) -> str:
-            ...     return line.lstrip("# S-ID:").split("-")[0]
+            ...     return line.lstrip("# S-ID:").rsplit("-", maxsplit=1)[0]
     """
     if isinstance(doc_id_format, str):
         if doc_id_format == "default":
@@ -79,7 +75,7 @@ def chunk_by_document(
     elif callable(doc_id_format):
         extract_doc_id = doc_id_format
     else:
-        raise ValueError(f"Invalid doc_id_format: {doc_id_format}")
+        raise TypeError(f"Invalid doc_id_format: {doc_id_format}")
 
     prev_doc_id: Optional[str] = None
     buffer: List[str] = []

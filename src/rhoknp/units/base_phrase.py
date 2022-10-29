@@ -1,9 +1,9 @@
 import logging
 import re
 from functools import cached_property
-from typing import TYPE_CHECKING, List, Optional, Set
+from typing import TYPE_CHECKING, Any, List, Optional, Set
 
-from rhoknp.cohesion.coreference import Entity, EntityManager
+from rhoknp.cohesion.coreference import Entity
 from rhoknp.cohesion.exophora import ExophoraReferent
 from rhoknp.cohesion.pas import CaseInfoFormat, Pas
 from rhoknp.cohesion.predicate import Predicate
@@ -25,8 +25,8 @@ logger = logging.getLogger(__name__)
 class BasePhrase(Unit):
     """基本句クラス．"""
 
-    KNP_PAT = re.compile(
-        rf"^\+( (?P<pid>-1|\d+)(?P<dtype>[{''.join(e.value for e in DepType)}]))?( (?P<tags>(<[^>]+>)*))?$"
+    PAT = re.compile(
+        rf"^\+( (?P<pid>-1|\d+)(?P<dtype>[{''.join(e.value for e in DepType)}]))?( {FeatureDict.PAT.pattern})?$"
     )
     count = 0
 
@@ -36,7 +36,7 @@ class BasePhrase(Unit):
         dep_type: Optional[DepType],
         features: Optional[FeatureDict] = None,
         rels: Optional[RelTagList] = None,
-    ):
+    ) -> None:
         super().__init__()
 
         # parent unit
@@ -82,6 +82,13 @@ class BasePhrase(Unit):
                 self._add_pas(rel)
             elif rel.type in COREF_TYPES and rel.mode in (None, RelMode.AND):  # ignore "OR" and "?"
                 self._add_coreference(rel)
+
+    def __eq__(self, other: Any) -> bool:
+        if isinstance(other, type(self)) is False:
+            return False
+        if self.parent_unit != other.parent_unit:
+            return False
+        return self.index == other.index
 
     @cached_property
     def global_index(self) -> int:
@@ -152,8 +159,7 @@ class BasePhrase(Unit):
     @property
     def morphemes(self) -> List[Morpheme]:
         """形態素のリスト．"""
-        if self._morphemes is None:
-            raise AssertionError
+        assert self._morphemes is not None
         return self._morphemes
 
     @morphemes.setter
@@ -217,13 +223,13 @@ class BasePhrase(Unit):
             knp_text: KNP の解析結果．
         """
         first_line, *lines = knp_text.split("\n")
-        match = cls.KNP_PAT.match(first_line)
+        match = cls.PAT.match(first_line)
         if match is None:
-            raise ValueError(f"malformed line: {first_line}")
+            raise ValueError(f"malformed base phrase line: {first_line}")
         parent_index = int(match.group("pid")) if match.group("pid") is not None else None
         dep_type = DepType(match.group("dtype")) if match.group("dtype") is not None else None
-        features = FeatureDict.from_fstring(match.group("tags") or "")
-        rels = RelTagList.from_fstring(match.group("tags") or "")
+        features = FeatureDict.from_fstring(match.group("feats") or "")
+        rels = RelTagList.from_fstring(match.group("feats") or "")
         base_phrase = cls(parent_index, dep_type, features, rels)
 
         morphemes: List[Morpheme] = []
@@ -271,8 +277,8 @@ class BasePhrase(Unit):
     def is_nonidentical_to(self, entity: Entity) -> bool:
         """エンティティに対して自身が nonidentical な場合に True を返す．
 
-        Raises:
-            AssertionError: 自身が参照しないエンティティだった場合．
+        Args:
+            entity: エンティティ．
         """
         if entity in self.entities:
             return False
@@ -281,7 +287,12 @@ class BasePhrase(Unit):
             return True
 
     def add_entity(self, entity: Entity, nonidentical: bool = False) -> None:
-        """エンティティを追加．"""
+        """エンティティを追加．
+
+        Args:
+            entity: 追加するエンティティ．
+            nonidentical: nonidentical なメンションなら True．
+        """
         if nonidentical:
             self.entities_nonidentical.add(entity)
         else:
@@ -290,7 +301,7 @@ class BasePhrase(Unit):
 
     def _add_pas(self, rel: RelTag) -> None:
         """述語項構造を追加．"""
-        entity_manager: EntityManager = self.document.entity_manager
+        entity_manager = self.document.entity_manager
         assert self.pas is not None
         if rel.sid is not None:
             if (arg_base_phrase := self._get_target_base_phrase(rel)) is None:
@@ -308,7 +319,7 @@ class BasePhrase(Unit):
 
     def _add_coreference(self, rel: RelTag) -> None:
         """共参照関係を追加．"""
-        entity_manager: EntityManager = self.document.entity_manager
+        entity_manager = self.document.entity_manager
         # create source entity
         if not self.entities:
             self.add_entity(entity_manager.get_or_create_entity())
@@ -354,4 +365,4 @@ class BasePhrase(Unit):
     @staticmethod
     def is_base_phrase_line(line: str) -> bool:
         """基本句行なら True を返す．"""
-        return BasePhrase.KNP_PAT.match(line) is not None
+        return BasePhrase.PAT.match(line) is not None

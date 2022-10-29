@@ -8,6 +8,35 @@ class Processor(ABC):
     """解析器の基底クラス．"""
 
     @overload
+    def __call__(self, text: str) -> Document:
+        ...
+
+    @overload
+    def __call__(self, text: Sentence) -> Sentence:
+        ...
+
+    @overload
+    def __call__(self, text: Document) -> Document:
+        ...
+
+    def __call__(self, text: Union[str, Sentence, Document]) -> Union[Document, Sentence]:
+        """テキストに解析器を適用する．
+
+        Args:
+            text: 解析するテキスト．
+
+        Raises:
+            TypeError: textの型がstr, Sentence, Document以外の場合．
+
+        .. note::
+            このメソッドは引数の型に応じて ``apply_to_document`` または ``apply_to_sentence`` を呼び出す．
+            引数の型が ``str`` の場合は ``apply_to_document`` を呼び出す．
+            引数の型が ``Sentence`` の場合は ``apply_to_sentence`` を呼び出す．
+            引数の型が ``Document`` の場合は ``apply_to_document`` を呼び出す．
+        """
+        return self.apply(text)
+
+    @overload
     def apply(self, text: str) -> Document:
         ...
 

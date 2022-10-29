@@ -20,9 +20,7 @@ class Jumanpp(Processor):
             未設定なら RegexSenter を使って文分割する．
 
     Example:
-
         >>> from rhoknp import Jumanpp
-        <BLANKLINE>
         >>> jumanpp = Jumanpp()
         >>> document = jumanpp.apply("電気抵抗率は電気の通しにくさを表す物性値である。")
 
@@ -92,7 +90,7 @@ class Jumanpp(Processor):
                 while self.is_available():
                     line = self._proc.stdout.readline()
                     jumanpp_text += line
-                    if line.strip() == Sentence.EOS_PAT:
+                    if line.strip() == Sentence.EOS:
                         break
             return Document.from_jumanpp(jumanpp_text)
 
@@ -118,7 +116,7 @@ class Jumanpp(Processor):
             while self.is_available():
                 line = self._proc.stdout.readline()
                 jumanpp_text += line
-                if line.strip() == Sentence.EOS_PAT:
+                if line.strip() == Sentence.EOS:
                     break
             return Sentence.from_jumanpp(jumanpp_text)
 
