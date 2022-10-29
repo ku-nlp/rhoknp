@@ -42,7 +42,7 @@ rhoknp = "rhoknp.cli:app"
 
 [tool.black]
 line-length = 120
-target-version = ["py38", "py39", "py310", "py311"]
+target-version = ["py38", "py39", "py310"]  # py311 is not supported yet
 
 [tool.isort]
 line_length = 120
