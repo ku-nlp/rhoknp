@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 class MorphemeAttributes:
     """形態素の属性クラス．"""
 
-    PAT = re.compile(r"([^ ]+| ) ([^ ]+| ) ([^ ]+) (\d+) ([^ ]+) (\d+) ([^ ]+) (\d+) ([^ ]+) (\d+)")
+    PAT = re.compile(r"([^ ]+| [^ ]*) ([^ ]+| [^ ]*) ([^ ]+) (\d+) ([^ ]+) (\d+) ([^ ]+) (\d+) ([^ ]+) (\d+)")
     PAT_REPEATED = re.compile(r"(?P<pat>.+) ((?P=pat)) ([^ ]+) (\d+) ([^ ]+) (\d+) ([^ ]+) (\d+) ([^ ]+) (\d+)")
 
     reading: str  #: 読み．
@@ -57,7 +57,7 @@ class Morpheme(Unit):
     """形態素クラス．"""
 
     PAT: ClassVar[re.Pattern] = re.compile(
-        r"(?P<surf>^([^ ]+| ))"
+        r"(?P<surf>^([^ ]+| [^ ]*))"
         + rf"( (?P<attrs>{MorphemeAttributes.PAT.pattern}))"
         + rf"( {SemanticsDict.PAT.pattern})?"
         + rf"( {FeatureDict.PAT.pattern})?$"
