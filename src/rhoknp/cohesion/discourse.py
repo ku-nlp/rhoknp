@@ -144,7 +144,7 @@ class DiscourseRelation:
         if head is None:
             return None
         return cls(
-            sid=modifier.sentence.sid if modifier.sentence.sid is not None else str(modifier.sentence.index),
+            sid=modifier.sentence.sid,
             base_phrase_index=head.end.index,
             label=label,
             tag=tag,

@@ -46,7 +46,7 @@ class Sentence(Unit):
         self._phrases: Optional[List[Phrase]] = None
         self._morphemes: Optional[List[Morpheme]] = None
 
-        self.sid: Optional[str] = None
+        self._sid: Optional[str] = None
         self.doc_id: Optional[str] = None
         self.misc_comment: str = ""
 
@@ -71,7 +71,27 @@ class Sentence(Unit):
     def __eq__(self, other: Any) -> bool:
         if isinstance(other, Sentence) is False:
             return False
-        return self.sid == other.sid and self.text == other.text
+        return self._sid == other._sid and self.text == other.text
+
+    @property
+    def sid(self) -> str:
+        """文 ID．
+
+        Raises:
+            AttributeError: 文 IDにアクセスできない場合．
+        """
+        if self._sid is None:
+            raise AttributeError("sid has not been set")
+        return self._sid
+
+    @sid.setter
+    def sid(self, sid: str) -> None:
+        """文 ID．
+
+        Args:
+            sid: 文 ID．
+        """
+        self._sid = sid
 
     @property
     def global_index(self) -> int:
@@ -204,7 +224,7 @@ class Sentence(Unit):
     def comment(self) -> str:
         """コメント行．"""
         ret = ""
-        if sid := self.sid:
+        if sid := self._sid:
             ret += f"S-ID:{sid} "
         if misc := self.misc_comment:
             ret += f"{misc} "
