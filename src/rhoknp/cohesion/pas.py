@@ -118,7 +118,7 @@ class Pas:
                     assert surf in arg_base_phrase.text
                     pas.add_argument(case, arg_base_phrase)
             else:
-                raise AssertionError  # unreachable
+                raise ValueError(f"invalid format: {format_}")
         return pas
 
     def get_arguments(
@@ -157,7 +157,7 @@ class Pas:
                 elif isinstance(arg, EndophoraArgument):
                     entities = arg.base_phrase.entities_all if include_nonidentical else arg.base_phrase.entities
                 else:
-                    raise AssertionError  # unreachable
+                    raise TypeError(f"invalid argument type: {type(arg)}")
                 for entity in entities:
                     if entity.exophora_referent is not None:
                         pas.add_special_argument(case, entity.exophora_referent, entity.eid)
