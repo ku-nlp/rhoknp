@@ -40,7 +40,7 @@ class Document(Unit):
         self.index = self.count
         Document.count += 1
 
-        self.doc_id: Optional[str] = doc_id
+        self._doc_id: Optional[str] = doc_id
 
         self.entity_manager = EntityManager()
 
@@ -49,16 +49,16 @@ class Document(Unit):
 
         # Set doc_id.
         if self.need_senter is False and len(self.sentences) > 0:
-            self.doc_id = self.sentences[0].doc_id
-            if not all(sentence.doc_id == self.doc_id for sentence in self.sentences):
+            self._doc_id = self.sentences[0].doc_id
+            if not all(sentence.doc_id == self._doc_id for sentence in self.sentences):
                 logger.warning(
-                    f"'doc_id' is not consistent; use 'doc_id' extracted from the first sentence: {self.doc_id}."
+                    f"'doc_id' is not consistent; use 'doc_id' extracted from the first sentence: {self._doc_id}."
                 )
 
     def __eq__(self, other: Any) -> bool:
         if isinstance(other, Document) is False:
             return False
-        return self.doc_id == other.doc_id and self.text == other.text
+        return self._doc_id == other._doc_id and self.text == other.text
 
     @property
     def parent_unit(self) -> None:
@@ -69,6 +69,26 @@ class Document(Unit):
     def child_units(self) -> Optional[List[Sentence]]:
         """下位の言語単位（文）のリスト．解析結果にアクセスできないなら None．"""
         return self._sentences
+
+    @property
+    def doc_id(self) -> str:
+        """文書 ID．
+
+        Raises:
+            AttributeError: 文書 IDにアクセスできない場合．
+        """
+        if self._doc_id is None:
+            raise AttributeError("doc_id has not been set")
+        return self._doc_id
+
+    @doc_id.setter
+    def doc_id(self, doc_id: str) -> None:
+        """文書 ID．
+
+        Args:
+            doc_id: 文書 ID．
+        """
+        self._doc_id = doc_id
 
     @property
     def sentences(self) -> List[Sentence]:
