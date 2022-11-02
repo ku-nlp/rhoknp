@@ -96,9 +96,10 @@ class Pas:
                         logger.warning(f"sentence index out of range: {sentence_index} in {base_phrase.sentence.sid}")
                         continue
                     sentence = base_phrase.document.sentences[sentence_index]
-                assert sentence.sid == sid
+                assert sentence.sid == sid, f"sentence id mismatch: '{sentence.sid}' vs '{sid}'"
                 arg_base_phrase = sentence.base_phrases[tid]
-                assert surf in arg_base_phrase.text
+                if surf not in arg_base_phrase.text:
+                    logger.warning(f"surface mismatch ({sid}): '{surf}' vs '{arg_base_phrase.text}'")
                 pas.add_argument(case, arg_base_phrase, arg_type=arg_type)
             elif format_ == CaseInfoFormat.PAS:
                 sdist, tid, eid = int(fields[0]), int(fields[1]), int(fields[2])
@@ -115,7 +116,8 @@ class Pas:
                             continue
                         sentence = base_phrase.document.sentences[sentence_index]
                     arg_base_phrase = sentence.base_phrases[tid]
-                    assert surf in arg_base_phrase.text
+                    if surf not in arg_base_phrase.text:
+                        logger.warning(f"surface mismatch ({sentence.sid}): '{surf}' vs '{arg_base_phrase.text}'")
                     pas.add_argument(case, arg_base_phrase)
             else:
                 raise ValueError(f"invalid format: {format_}")
