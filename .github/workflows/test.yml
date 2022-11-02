@@ -31,7 +31,7 @@ jobs:
       - name: Add path for Python packages
         run: echo "$HOME/.local/bin" >> $GITHUB_PATH
       - name: Install dependencies
-        run: poetry install --no-interaction --with test
+        run: poetry install --no-interaction --without dev,docs
       - name: Run tests
         run: poetry run pytest --cov=./ --cov-report=xml -v ./tests
       - name: Upload coverage to Codecov
