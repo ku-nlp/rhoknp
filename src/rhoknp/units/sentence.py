@@ -74,26 +74,6 @@ class Sentence(Unit):
         return self._sid == other._sid and self.text == other.text
 
     @property
-    def sid(self) -> str:
-        """文 ID．
-
-        Raises:
-            AttributeError: 文 IDにアクセスできない場合．
-        """
-        if self._sid is None:
-            raise AttributeError("sid has not been set")
-        return self._sid
-
-    @sid.setter
-    def sid(self, sid: str) -> None:
-        """文 ID．
-
-        Args:
-            sid: 文 ID．
-        """
-        self._sid = sid
-
-    @property
     def global_index(self) -> int:
         """文書全体におけるインデックス．"""
         return self.index
@@ -118,6 +98,26 @@ class Sentence(Unit):
         elif self._morphemes is not None:
             return self._morphemes
         return None
+
+    @property
+    def sid(self) -> str:
+        """文 ID．
+
+        Raises:
+            AttributeError: 文 IDにアクセスできない場合．
+        """
+        if self._sid is None:
+            raise AttributeError("sid has not been set")
+        return self._sid
+
+    @sid.setter
+    def sid(self, sid: str) -> None:
+        """文 ID．
+
+        Args:
+            sid: 文 ID．
+        """
+        self._sid = sid
 
     @property
     def document(self) -> "Document":
