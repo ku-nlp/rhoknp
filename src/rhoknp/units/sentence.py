@@ -47,7 +47,7 @@ class Sentence(Unit):
         self._morphemes: Optional[List[Morpheme]] = None
 
         self._sid: Optional[str] = None
-        self.doc_id: Optional[str] = None
+        self._doc_id: Optional[str] = None
         self.misc_comment: str = ""
 
         self.named_entities: List[NamedEntity] = []
@@ -98,6 +98,26 @@ class Sentence(Unit):
         elif self._morphemes is not None:
             return self._morphemes
         return None
+
+    @property
+    def doc_id(self) -> str:
+        """文書 ID．
+
+        Raises:
+            AttributeError: 文書 IDにアクセスできない場合．
+        """
+        if self._doc_id is None:
+            raise AttributeError("doc_id has not been set")
+        return self._doc_id
+
+    @doc_id.setter
+    def doc_id(self, doc_id: str) -> None:
+        """文書 ID．
+
+        Args:
+            doc_id: 文書 ID．
+        """
+        self._doc_id = doc_id
 
     @property
     def sid(self) -> str:

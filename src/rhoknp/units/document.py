@@ -49,8 +49,16 @@ class Document(Unit):
 
         # Set doc_id.
         if self.need_senter is False and len(self.sentences) > 0:
-            self._doc_id = self.sentences[0].doc_id
-            if not all(sentence.doc_id == self._doc_id for sentence in self.sentences):
+            doc_ids = []
+            for sentence in self.sentences:
+                doc_id: Optional[str] = None
+                try:
+                    doc_id = sentence.doc_id
+                except AttributeError:
+                    pass
+                doc_ids.append(doc_id)
+            self._doc_id = doc_ids[0]
+            if not all(doc_id == self._doc_id for doc_id in doc_ids):
                 logger.warning(
                     f"'doc_id' is not consistent; use 'doc_id' extracted from the first sentence: {self._doc_id}."
                 )
