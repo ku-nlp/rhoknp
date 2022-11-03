@@ -10,6 +10,7 @@ from rhoknp.cohesion.predicate import Predicate
 from rhoknp.cohesion.rel import CASE_TYPES, COREF_TYPES, RelMode, RelTag, RelTagList
 from rhoknp.props.dependency import DepType
 from rhoknp.props.feature import FeatureDict
+from rhoknp.props.memo import MemoTag
 from rhoknp.units.morpheme import Morpheme
 from rhoknp.units.unit import Unit
 
@@ -36,6 +37,7 @@ class BasePhrase(Unit):
         dep_type: Optional[DepType],
         features: Optional[FeatureDict] = None,
         rel_tags: Optional[RelTagList] = None,
+        memo_tag: Optional[MemoTag] = None,
     ) -> None:
         super().__init__()
 
@@ -49,6 +51,7 @@ class BasePhrase(Unit):
         self.dep_type: Optional[DepType] = dep_type  #: 係り受けの種類．
         self.features: FeatureDict = features or FeatureDict()  #: 素性．
         self.rel_tags: RelTagList = rel_tags or RelTagList()  #: 基本句間関係．
+        self.memo_tag: MemoTag = memo_tag or MemoTag()  #: タグ付けメモ．
         self.pas: Optional["Pas"] = None  #: 述語項構造．
         self.entities: Set[Entity] = set()  #: 参照しているエンティティ．
         self.entities_nonidentical: Set[Entity] = set()  #: ≒で参照しているエンティティ．
@@ -230,7 +233,8 @@ class BasePhrase(Unit):
         dep_type = DepType(match.group("dtype")) if match.group("dtype") is not None else None
         features = FeatureDict.from_fstring(match.group("feats") or "")
         rel_tags = RelTagList.from_fstring(match.group("feats") or "")
-        base_phrase = cls(parent_index, dep_type, features, rel_tags)
+        memo_tag = MemoTag.from_fstring(match.group("feats") or "")
+        base_phrase = cls(parent_index, dep_type, features, rel_tags, memo_tag)
 
         morphemes: List[Morpheme] = []
         for line in lines:
@@ -246,9 +250,11 @@ class BasePhrase(Unit):
         if self.parent_index is not None:
             assert self.dep_type is not None
             ret += f" {self.parent_index}{self.dep_type.value}"
-        if self.rel_tags or self.features:
+        if self.rel_tags or self.memo_tag or self.features:
             ret += " "
             ret += self.rel_tags.to_fstring()
+            if self.memo_tag:
+                ret += self.memo_tag.to_fstring()
             ret += self.features.to_fstring()
         ret += "\n"
         ret += "".join(morpheme.to_knp() for morpheme in self.morphemes)
