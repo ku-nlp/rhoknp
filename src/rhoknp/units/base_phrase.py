@@ -35,7 +35,7 @@ class BasePhrase(Unit):
         parent_index: Optional[int],
         dep_type: Optional[DepType],
         features: Optional[FeatureDict] = None,
-        rels: Optional[RelTagList] = None,
+        rel_tags: Optional[RelTagList] = None,
     ) -> None:
         super().__init__()
 
@@ -48,7 +48,7 @@ class BasePhrase(Unit):
         self.parent_index: Optional[int] = parent_index  #: 係り先の基本句の文内におけるインデックス．
         self.dep_type: Optional[DepType] = dep_type  #: 係り受けの種類．
         self.features: FeatureDict = features or FeatureDict()  #: 素性．
-        self.rels: RelTagList = rels or RelTagList()  #: 基本句間関係．
+        self.rel_tags: RelTagList = rel_tags or RelTagList()  #: 基本句間関係．
         self.pas: Optional["Pas"] = None  #: 述語項構造．
         self.entities: Set[Entity] = set()  #: 参照しているエンティティ．
         self.entities_nonidentical: Set[Entity] = set()  #: ≒で参照しているエンティティ．
@@ -75,13 +75,13 @@ class BasePhrase(Unit):
         # Parse the rel tag if this unit is a piece of a document.
         if self.sentence.has_document is False:
             return
-        for rel in self.rels:
-            if rel.sid == "":
-                rel.sid = self.sentence.sid
-            if rel.type in CASE_TYPES:
-                self._add_pas(rel)
-            elif rel.type in COREF_TYPES and rel.mode in (None, RelMode.AND):  # ignore "OR" and "?"
-                self._add_coreference(rel)
+        for rel_tag in self.rel_tags:
+            if rel_tag.sid == "":
+                rel_tag.sid = self.sentence.sid
+            if rel_tag.type in CASE_TYPES:
+                self._add_pas(rel_tag)
+            elif rel_tag.type in COREF_TYPES and rel_tag.mode in (None, RelMode.AND):  # ignore "OR" and "?"
+                self._add_coreference(rel_tag)
 
     def __eq__(self, other: Any) -> bool:
         if isinstance(other, type(self)) is False:
@@ -229,8 +229,8 @@ class BasePhrase(Unit):
         parent_index = int(match.group("pid")) if match.group("pid") is not None else None
         dep_type = DepType(match.group("dtype")) if match.group("dtype") is not None else None
         features = FeatureDict.from_fstring(match.group("feats") or "")
-        rels = RelTagList.from_fstring(match.group("feats") or "")
-        base_phrase = cls(parent_index, dep_type, features, rels)
+        rel_tags = RelTagList.from_fstring(match.group("feats") or "")
+        base_phrase = cls(parent_index, dep_type, features, rel_tags)
 
         morphemes: List[Morpheme] = []
         for line in lines:
@@ -246,9 +246,9 @@ class BasePhrase(Unit):
         if self.parent_index is not None:
             assert self.dep_type is not None
             ret += f" {self.parent_index}{self.dep_type.value}"
-        if self.rels or self.features:
+        if self.rel_tags or self.features:
             ret += " "
-            ret += self.rels.to_fstring()
+            ret += self.rel_tags.to_fstring()
             ret += self.features.to_fstring()
         ret += "\n"
         ret += "".join(morpheme.to_knp() for morpheme in self.morphemes)

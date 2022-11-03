@@ -16,7 +16,7 @@ class FeatureDict(Dict[str, Union[str, bool]]):
         if key == "rel":
             logger.warning(
                 f"Adding 'rel' to {self.__class__.__name__} is not supported and was ignored. Instead, add a RelTag "
-                f"object to BasePhrase.rels and call Document.reparse()."
+                f"object to BasePhrase.rel_tags and call Document.reparse()."
             )
             return
         super().__setitem__(key, value)
