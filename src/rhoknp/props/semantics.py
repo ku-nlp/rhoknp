@@ -6,7 +6,7 @@ class SemanticsDict(Dict[str, Union[str, bool]]):
     """形態素の意味情報を表すクラス．"""
 
     NIL = "NIL"
-    PAT = re.compile(rf'(?P<sems>("([^"]|\\")+?")|{NIL})')
+    PAT = re.compile(rf'(?P<sems>("([^\\"]|\\"|\\(?!"))+?")|{NIL})')
     SEM_PAT = re.compile(r"(?P<key>[^:\s]+)(:(?P<value>\S+))?(\s|$)")
 
     def __init__(self, semantics: Optional[Dict[str, Union[str, bool]]] = None, is_nil: bool = False) -> None:
@@ -25,10 +25,12 @@ class SemanticsDict(Dict[str, Union[str, bool]]):
             sstring: KNP 形式における意味情報文字列．
         """
         is_nil = sstring == cls.NIL
-        semantics = {}
+        semantics: Dict[str, Union[str, bool]] = {}
         if not is_nil:
             for match in cls.SEM_PAT.finditer(sstring.strip('"')):
-                semantics[match.group("key")] = match.group("value") or True
+                semantics[match.group("key").replace(r"\"", '"')] = (
+                    match.group("value").replace(r"\"", '"') if match.group("value") else True
+                )
         return cls(semantics, is_nil)
 
     def to_sstring(self) -> str:
@@ -39,8 +41,9 @@ class SemanticsDict(Dict[str, Union[str, bool]]):
 
     @staticmethod
     def _item_to_sstring(key: str, value: Union[str, bool]) -> str:
-        if value is False:
-            return ""
-        if value is True:
-            return f"{key}"
-        return f"{key}:{value}"
+        escaped_key = key.replace('"', r"\"")
+        if isinstance(value, bool):
+            return escaped_key if value else ""
+        else:
+            escaped_value = value.replace('"', r"\"")
+            return f"{escaped_key}:{escaped_value}"
