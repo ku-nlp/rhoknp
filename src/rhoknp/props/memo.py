@@ -14,7 +14,7 @@ class MemoTag:
     def from_fstring(cls, fstring: str) -> "MemoTag":
         """KNP における素性文字列からオブジェクトを作成．"""
         match = cls.PAT.search(fstring)
-        memo_tag = MemoTag(text=match.group("text") if match is not None else "")
+        memo_tag = MemoTag(text=match["text"] if match is not None else "")
         return memo_tag
 
     def to_fstring(self) -> str:

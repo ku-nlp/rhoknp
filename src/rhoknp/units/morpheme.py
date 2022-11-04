@@ -316,10 +316,10 @@ class Morpheme(Unit):
         """
         if (match := cls.PAT.match(jumanpp_line) or cls.PAT_REPEATED.match(jumanpp_line)) is None:
             raise ValueError(f"malformed morpheme line: {jumanpp_line}")
-        surf = match.group("surf")
-        attributes = match.group("attrs") and MorphemeAttributes.from_jumanpp(match.group("attrs"))
-        semantics = SemanticsDict.from_sstring(match.group("sems") or "")
-        features = FeatureDict.from_fstring(match.group("feats") or "")
+        surf = match["surf"]
+        attributes = match["attrs"] and MorphemeAttributes.from_jumanpp(match["attrs"])
+        semantics = SemanticsDict.from_sstring(match["sems"] or "")
+        features = FeatureDict.from_fstring(match["feats"] or "")
         return cls(surf, attributes, semantics, features, homograph=homograph)
 
     def to_jumanpp(self) -> str:

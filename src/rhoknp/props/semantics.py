@@ -28,8 +28,8 @@ class SemanticsDict(Dict[str, Union[str, bool]]):
         semantics: Dict[str, Union[str, bool]] = {}
         if not is_nil:
             for match in cls.SEM_PAT.finditer(sstring.strip('"')):
-                semantics[match.group("key").replace(r"\"", '"')] = (
-                    match.group("value").replace(r"\"", '"') if match.group("value") else True
+                semantics[match["key"].replace(r"\"", '"')] = (
+                    match["value"].replace(r"\"", '"') if match["value"] else True
                 )
         return cls(semantics, is_nil)
 

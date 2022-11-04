@@ -38,7 +38,7 @@ class FeatureDict(Dict[str, Union[str, bool]]):
         """
         features = {}
         for match in cls.FEATURE_PAT.finditer(fstring):
-            features[match.group("key")] = match.group("value") or True
+            features[match["key"]] = match["value"] or True
         return cls(features)
 
     def to_fstring(self) -> str:

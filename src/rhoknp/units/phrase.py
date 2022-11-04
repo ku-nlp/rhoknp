@@ -178,9 +178,9 @@ class Phrase(Unit):
         match = cls.PAT.match(first_line)
         if match is None:
             raise ValueError(f"malformed phrase line: {first_line}")
-        parent_index = int(match.group("pid")) if match.group("pid") is not None else None
-        dep_type = DepType(match.group("dtype")) if match.group("dtype") is not None else None
-        features = FeatureDict.from_fstring(match.group("feats") or "")
+        parent_index = int(match["pid"]) if match["pid"] is not None else None
+        dep_type = DepType(match["dtype"]) if match["dtype"] is not None else None
+        features = FeatureDict.from_fstring(match["feats"] or "")
         phrase = cls(parent_index, dep_type, features)
 
         base_phrases: List[BasePhrase] = []

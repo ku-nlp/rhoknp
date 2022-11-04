@@ -135,7 +135,7 @@ class DiscourseRelation:
         match = cls.CLAUSE_FUNCTION_PAT.match(fstring)
         if match is None:
             return None
-        label = match.group("label")
+        label = match["label"]
         if not DiscourseRelationTag.has_value(label):
             return None
         tag = DiscourseRelationTag(label)
@@ -165,9 +165,9 @@ class DiscourseRelation:
         if match is None:
             logger.warning(f"'{fstring}' is not a valid discourse relation fstring")
             return None
-        sid = match.group("sid")
-        base_phrase_index = int(match.group("base_phrase_index"))
-        tag = match.group("tag")
+        sid = match["sid"]
+        base_phrase_index = int(match["base_phrase_index"])
+        tag = match["tag"]
         if not DiscourseRelationTag.has_value(tag):
             logger.warning(f"unknown discourse relation label '{tag}' found")
             return None

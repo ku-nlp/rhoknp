@@ -497,7 +497,7 @@ class Sentence(Unit):
         """
         assert comment.startswith("#")
         if match_sid := re.match(r"# S-ID: ?(\S*)( .+)?$", comment):
-            sid_string = match_sid.group(1)
+            sid_string = match_sid[1]
             match = (
                 Sentence.SID_PAT_KWDLC.match(sid_string)
                 or Sentence.SID_PAT_WAC.match(sid_string)
@@ -506,9 +506,9 @@ class Sentence(Unit):
             if match is None:
                 raise ValueError(f"unsupported S-ID format: {sid_string}")
             return (
-                match.group("did"),
-                match.group("sid"),
-                match_sid.group(2).lstrip() if match_sid.group(2) else "",
+                match["did"],
+                match["sid"],
+                match_sid[2].lstrip() if match_sid[2] else "",
             )
         return None, None, comment.lstrip("#").lstrip(" ")
 

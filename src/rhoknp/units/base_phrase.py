@@ -229,11 +229,11 @@ class BasePhrase(Unit):
         match = cls.PAT.match(first_line)
         if match is None:
             raise ValueError(f"malformed base phrase line: {first_line}")
-        parent_index = int(match.group("pid")) if match.group("pid") is not None else None
-        dep_type = DepType(match.group("dtype")) if match.group("dtype") is not None else None
-        features = FeatureDict.from_fstring(match.group("feats") or "")
-        rel_tags = RelTagList.from_fstring(match.group("feats") or "")
-        memo_tag = MemoTag.from_fstring(match.group("feats") or "")
+        parent_index = int(match["pid"]) if match["pid"] is not None else None
+        dep_type = DepType(match["dtype"]) if match["dtype"] is not None else None
+        features = FeatureDict.from_fstring(match["feats"] or "")
+        rel_tags = RelTagList.from_fstring(match["feats"] or "")
+        memo_tag = MemoTag.from_fstring(match["feats"] or "")
         base_phrase = cls(parent_index, dep_type, features, rel_tags, memo_tag)
 
         morphemes: List[Morpheme] = []

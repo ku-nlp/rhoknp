@@ -73,15 +73,15 @@ class Pas:
             logger.warning(f"invalid tag format: '{fstring}' is ignored")
             return cls(Predicate(base_phrase))
 
-        cfid = match.group(1) + ":" + match.group(2)
+        cfid = match[1] + ":" + match[2]
         predicate = Predicate(unit=base_phrase, cfid=cfid)
 
-        if match.group(3) is None:  # <述語項構造:束の間/つかのま:判0> など
+        if match[3] is None:  # <述語項構造:束の間/つかのま:判0> など
             return cls(predicate)
 
         pas = cls(predicate)
-        for match_arg in cls.ARGUMENT_PAT.finditer(match.group("args")):
-            case, case_flag, surf, *fields = match_arg.group(0).split("/")
+        for match_arg in cls.ARGUMENT_PAT.finditer(match["args"]):
+            case, case_flag, surf, *fields = match_arg[0].split("/")
             if case_flag in ("U", "-"):
                 continue
             arg_type = ArgumentType(case_flag)

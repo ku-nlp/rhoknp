@@ -99,12 +99,12 @@ def _extract_doc_id(pat: re.Pattern) -> Callable[[str], Optional[str]]:
 
     def extract_doc_id(line: str) -> Optional[str]:
         if match_sid := re.match(r"# S-ID: ?(\S*)( .+)?$", line):
-            sid_string = match_sid.group(1)
+            sid_string = match_sid[1]
             match = pat.match(sid_string)
             if match is None:
                 logger.warning(f"Invalid S-ID: {sid_string}")
                 return None
-            return match.group("did")
+            return match["did"]
         return None
 
     return extract_doc_id

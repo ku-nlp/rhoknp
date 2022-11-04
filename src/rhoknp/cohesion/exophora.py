@@ -36,9 +36,9 @@ class ExophoraReferent:
             self.type = ExophoraReferentType.OTHER
             self._other_text = text
         else:
-            if index := match.group("index"):
+            if index := match["index"]:
                 self.index = int(index)
-            self.type = ExophoraReferentType(match.group("type"))
+            self.type = ExophoraReferentType(match["type"])
 
     @property
     def text(self) -> str:
