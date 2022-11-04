@@ -94,8 +94,8 @@ class RelTag:
     """関係タグ付きコーパスにおける <rel> タグを表すクラス．"""
 
     PAT: ClassVar[re.Pattern] = re.compile(
-        r'<rel type="(?P<type>\S+?)"( mode="(?P<mode>[^>]+?)")? target="(?P<target>.+?)"( sid="(?P<sid>.*?)" '
-        r'id="(?P<id>\d+?)")?/>'
+        r'<rel type="(?P<type>\S+?)"( mode="(?P<mode>\S+?)")? target="(?P<target>.+?)"'
+        r'( sid="(?P<sid>.*?)" id="(?P<id>\d+?)")?/>'
     )
     type: str
     target: str
@@ -108,7 +108,8 @@ class RelTag:
         ret = f'<rel type="{self.type}"'
         if self.mode is not None:
             ret += f' mode="{self.mode.value}"'
-        ret += f' target="{self.target}"'
+        target = self.target.replace('"', r"\"")  # escape double quotes
+        ret += f' target="{target}"'
         if self.sid is not None:
             assert self.base_phrase_index is not None
             ret += f' sid="{self.sid}" id="{self.base_phrase_index}"'
@@ -127,7 +128,7 @@ class RelTagList(List[RelTag]):
             rel_tags.append(
                 RelTag(
                     type=match["type"],
-                    target=match["target"],
+                    target=match["target"].replace(r"\"", '"'),  # unescape double quotes
                     sid=match["sid"],
                     base_phrase_index=int(match["id"]) if match["id"] else None,
                     mode=RelMode(match["mode"]) if match["mode"] else None,

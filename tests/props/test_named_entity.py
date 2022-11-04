@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from rhoknp import Document
+from rhoknp import Document, Morpheme
 from rhoknp.props import NamedEntity, NamedEntityCategory
 
 
@@ -27,3 +27,12 @@ def test_from_fstring_malformed_line() -> None:
     fstring = "MALFORMED LINE"
     ne = NamedEntity.from_fstring(fstring, [])
     assert ne is None
+
+
+def test_double_quote() -> None:
+    fstring = r"ORGANIZATION:ダブル\"クオート\""
+    ne = NamedEntity.from_fstring(fstring, [Morpheme('ダブル"'), Morpheme('クオート"')])
+    assert ne is not None
+    assert ne.category == NamedEntityCategory.ORGANIZATION
+    assert str(ne) == 'ダブル"クオート"'
+    assert ne.to_fstring() == f"<NE:{fstring}>"
