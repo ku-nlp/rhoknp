@@ -743,12 +743,14 @@ def test_id_kwdlc() -> None:
     doc_id = "w201106-0000060050"
     doc = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text())
     assert doc.doc_id == doc_id
+    assert doc.did == doc_id
 
 
 def test_id_wac() -> None:
     doc_id = "wiki00100176"
     doc = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text())
     assert doc.doc_id == doc_id
+    assert doc.did == doc_id
 
 
 def test_eq() -> None:

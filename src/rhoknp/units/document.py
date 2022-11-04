@@ -99,6 +99,24 @@ class Document(Unit):
         self._doc_id = doc_id
 
     @property
+    def did(self) -> str:
+        """文書 ID（doc_id のエイリアス）．
+
+        Raises:
+            AttributeError: 文書 IDにアクセスできない場合．
+        """
+        return self.doc_id
+
+    @did.setter
+    def did(self, did: str) -> None:
+        """文書 ID（doc_id のエイリアス）．
+
+        Args:
+            did: 文書 ID．
+        """
+        self.doc_id = did
+
+    @property
     def sentences(self) -> List[Sentence]:
         """文のリスト．
 

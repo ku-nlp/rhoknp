@@ -612,8 +612,10 @@ def test_id_kwdlc():
             """
         )
     )
+    assert sent.sent_id == "w201106-0000060050-1"
     assert sent.sid == "w201106-0000060050-1"
     assert sent.doc_id == "w201106-0000060050"
+    assert sent.did == "w201106-0000060050"
 
 
 @pytest.mark.parametrize("case", CASES)

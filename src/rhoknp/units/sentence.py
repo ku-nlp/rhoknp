@@ -46,7 +46,7 @@ class Sentence(Unit):
         self._phrases: Optional[List[Phrase]] = None
         self._morphemes: Optional[List[Morpheme]] = None
 
-        self._sid: Optional[str] = None
+        self._sent_id: Optional[str] = None
         self._doc_id: Optional[str] = None
         self.misc_comment: str = ""
 
@@ -71,7 +71,7 @@ class Sentence(Unit):
     def __eq__(self, other: Any) -> bool:
         if isinstance(other, Sentence) is False:
             return False
-        return self._sid == other._sid and self.text == other.text
+        return self._sent_id == other._sent_id and self.text == other.text
 
     @property
     def global_index(self) -> int:
@@ -120,24 +120,60 @@ class Sentence(Unit):
         self._doc_id = doc_id
 
     @property
-    def sid(self) -> str:
+    def did(self) -> str:
+        """文書 ID（doc_id のエイリアス）．
+
+        Raises:
+            AttributeError: 文書 IDにアクセスできない場合．
+        """
+        return self.doc_id
+
+    @did.setter
+    def did(self, did: str) -> None:
+        """文書 ID（doc_id のエイリアス）．
+
+        Args:
+            did: 文書 ID．
+        """
+        self.doc_id = did
+
+    @property
+    def sent_id(self) -> str:
         """文 ID．
 
         Raises:
             AttributeError: 文 IDにアクセスできない場合．
         """
-        if self._sid is None:
+        if self._sent_id is None:
             raise AttributeError("sid has not been set")
-        return self._sid
+        return self._sent_id
 
-    @sid.setter
-    def sid(self, sid: str) -> None:
+    @sent_id.setter
+    def sent_id(self, sid: str) -> None:
         """文 ID．
 
         Args:
             sid: 文 ID．
         """
-        self._sid = sid
+        self._sent_id = sid
+
+    @property
+    def sid(self) -> str:
+        """文 ID（sent_id のエイリアス）．
+
+        Raises:
+            AttributeError: 文 IDにアクセスできない場合．
+        """
+        return self.sent_id
+
+    @sid.setter
+    def sid(self, sid: str) -> None:
+        """文 ID（sent_id のエイリアス）．
+
+        Args:
+            sid: 文 ID．
+        """
+        self.sent_id = sid
 
     @property
     def document(self) -> "Document":
@@ -244,7 +280,7 @@ class Sentence(Unit):
     def comment(self) -> str:
         """コメント行．"""
         ret = ""
-        if sid := self._sid:
+        if sid := self._sent_id:
             ret += f"S-ID:{sid} "
         if misc := self.misc_comment:
             ret += f"{misc} "
