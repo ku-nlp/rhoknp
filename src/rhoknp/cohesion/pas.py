@@ -115,6 +115,9 @@ class Pas:
                             )
                             continue
                         sentence = base_phrase.document.sentences[sentence_index]
+                    if not 0 <= tid < len(sentence.base_phrases):
+                        logger.warning(f"{sentence.sid}: tag id out of range: {tid}")
+                        continue
                     arg_base_phrase = sentence.base_phrases[tid]
                     if surf not in arg_base_phrase.text:
                         logger.warning(f"surface mismatch ({sentence.sid}): '{surf}' vs '{arg_base_phrase.text}'")
