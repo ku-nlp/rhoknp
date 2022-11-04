@@ -27,8 +27,8 @@ class ArgumentType(Enum):
 class BaseArgument(ABC):
     """項の基底クラス．"""
 
-    def __init__(self, arg_type: ArgumentType) -> None:
-        self.type = arg_type
+    def __init__(self, arg_type: Optional[ArgumentType] = None) -> None:
+        self.type: Optional[ArgumentType] = arg_type
         self.optional = False
         self._pas: Optional["Pas"] = None
 
@@ -74,7 +74,7 @@ class EndophoraArgument(BaseArgument):
         arg_type: 項のタイプ．
     """
 
-    def __init__(self, base_phrase: "BasePhrase", arg_type: ArgumentType) -> None:
+    def __init__(self, base_phrase: "BasePhrase", arg_type: Optional[ArgumentType]) -> None:
         super().__init__(arg_type)
         self.base_phrase = base_phrase  #: 項の核となる基本句．
 
