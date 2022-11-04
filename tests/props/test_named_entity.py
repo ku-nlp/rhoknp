@@ -35,3 +35,4 @@ def test_double_quote() -> None:
     assert ne is not None
     assert ne.category == NamedEntityCategory.ORGANIZATION
     assert str(ne) == 'ダブル"クオート"'
+    assert ne.to_fstring() == f"<NE:{fstring}>"
