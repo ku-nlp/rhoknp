@@ -9,7 +9,7 @@ class FeatureDict(Dict[str, Union[str, bool]]):
     """文節，基本句，形態素の素性情報を表すクラス．"""
 
     PAT = re.compile(r'(?P<feats>(<([^>"]|"[^"]*?")+>)*)')
-    IGNORE_TAG_PREFIXES = {"rel "}
+    IGNORE_TAG_PREFIXES = {"rel ", "memo "}
     FEATURE_PAT = re.compile(rf"<(?!({'|'.join(IGNORE_TAG_PREFIXES)}))(?P<key>([^:\"]|\".*?\")+?)(:(?P<value>.+?))?>")
 
     def __setitem__(self, key: str, value: Union[str, bool]) -> None:
@@ -17,6 +17,12 @@ class FeatureDict(Dict[str, Union[str, bool]]):
             logger.warning(
                 f"Adding 'rel' to {self.__class__.__name__} is not supported and was ignored. Instead, add a RelTag "
                 f"object to BasePhrase.rel_tags and call Document.reparse()."
+            )
+            return
+        if key == "memo":
+            logger.warning(
+                f"Adding 'memo' to {self.__class__.__name__} is not supported and was ignored. Instead, set a MemoTag "
+                f"object to BasePhrase.memo_tag."
             )
             return
         super().__setitem__(key, value)

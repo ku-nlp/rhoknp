@@ -7,4 +7,5 @@ rhoknp.props.dependency
 rhoknp.props.feature
 rhoknp.props.semantics
 rhoknp.props.named_entity
+rhoknp.props.memo
 ```
