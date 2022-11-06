@@ -39,16 +39,19 @@ class Clause(Unit):
 
         # Find discourse relations.
         # TODO: Use forward/backward clause function
-        self.discourse_relations = []
+        explicit_discourse_relations = []
         for key in self.end.features:
             if key.startswith("節-機能"):
                 if discourse_relation := DiscourseRelation.from_clause_function_fstring(key, modifier=self):
-                    self.discourse_relations.append(discourse_relation)
+                    explicit_discourse_relations.append(discourse_relation)
+        implicit_discourse_relations = []
         if values := self.end.features.get("談話関係", None):
             assert isinstance(values, str)
             for value in values.split(";"):
                 if discourse_relation := DiscourseRelation.from_discourse_relation_fstring(value, modifier=self):
-                    self.discourse_relations.append(discourse_relation)
+                    if discourse_relation not in explicit_discourse_relations:
+                        implicit_discourse_relations.append(discourse_relation)
+        self.discourse_relations = explicit_discourse_relations + implicit_discourse_relations
 
     def __eq__(self, other: Any) -> bool:
         if isinstance(other, type(self)) is False:

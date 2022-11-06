@@ -2,7 +2,7 @@ import logging
 import re
 from dataclasses import dataclass
 from enum import Enum
-from typing import TYPE_CHECKING, ClassVar, Optional
+from typing import TYPE_CHECKING, Any, ClassVar, Optional
 
 if TYPE_CHECKING:
     from rhoknp import Clause, Sentence
@@ -120,6 +120,11 @@ class DiscourseRelation:
     modifier: "Clause"  #: 修飾節．
     head: "Clause"  #: 主辞節．
     explicit: bool = False  #: 明示的な談話関係ならTrue．．
+
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, DiscourseRelation):
+            return False
+        return self.label == other.label and self.modifier == other.modifier and self.head == other.head
 
     @classmethod
     def from_clause_function_fstring(cls, fstring: str, modifier: "Clause") -> Optional["DiscourseRelation"]:
