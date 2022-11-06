@@ -1,4 +1,4 @@
-# rhoknp: Yet another Python binding for Juman++/KNP
+# rhoknp: Yet another Python binding for Juman++/KNP/KWJA
 
 [![License Badge](http://img.shields.io/badge/license-MIT-blue.svg)](https://pypi.org/project/rhoknp/)
 [![Wheel Support Badge](https://img.shields.io/pypi/v/rhoknp?style=flat-square)](https://pypi.org/project/rhoknp/)

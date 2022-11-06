@@ -225,3 +225,31 @@ def test_invalid_clause_function():
     document = Document.from_knp(knp_text)
     assert len(document.clauses[0].discourse_relations) == 0
     assert len(document.clauses[1].discourse_relations) == 0
+
+
+def test_both():
+    knp_text = textwrap.dedent(
+        """\
+        # S-ID:1
+        * 1D
+        + 1D
+        風 かぜ 風 名詞 6 普通名詞 1 * 0 * 0 "代表表記:風/かぜ カテゴリ:抽象物 漢字読み:訓"
+        が が が 助詞 9 格助詞 1 * 0 * 0 NIL <かな漢字><ひらがな><付属>
+        * 3D
+        + 4D <節-区切><節-主辞><節-機能-条件><談話関係:1/4/条件>
+        吹いたら ふいたら 吹く 動詞 2 * 0 子音動詞カ行 2 タ系条件形 13 "代表表記:吹く/ふく 補文ト"
+        * 3D
+        + 3D
+        桶 おけ 桶 名詞 6 普通名詞 1 * 0 * 0 "代表表記:桶/おけ ドメイン:家庭・暮らし カテゴリ:人工物-その他"
+        + 4D
+        屋 や 屋 名詞 6 普通名詞 1 * 0 * 0 "代表表記:屋/や カテゴリ:場所-施設 漢字読み:訓"
+        が が が 助詞 9 格助詞 1 * 0 * 0 NIL
+        * -1D
+        + -1D <節-区切><節-主辞>
+        儲かる もうかる 儲かる 動詞 2 * 0 子音動詞ラ行 10 基本形 2 "代表表記:儲かる/もうかる ドメイン:ビジネス 自他動詞:他:儲ける/もうける"
+        。 。 。 特殊 1 句点 1 * 0 * 0 NIL
+        EOS
+        """
+    )
+    document = Document.from_knp(knp_text)
+    assert len(document.clauses[0].discourse_relations) == 1

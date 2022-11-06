@@ -33,8 +33,6 @@ class Predicate:
         """文 ID．"""
         if self.unit.sentence is None:
             raise AttributeError("sentence has not been set")
-        if self.unit.sentence.sid is None:
-            raise AttributeError(f"sid of sentence: {repr(self.unit.sentence)} has not been set")
         return self.unit.sentence.sid
 
     @property

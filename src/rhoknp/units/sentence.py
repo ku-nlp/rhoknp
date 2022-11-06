@@ -46,8 +46,8 @@ class Sentence(Unit):
         self._phrases: Optional[List[Phrase]] = None
         self._morphemes: Optional[List[Morpheme]] = None
 
-        self.sid: Optional[str] = None
-        self.doc_id: Optional[str] = None
+        self._sent_id: Optional[str] = None
+        self._doc_id: Optional[str] = None
         self.misc_comment: str = ""
 
         self.named_entities: List[NamedEntity] = []
@@ -71,7 +71,7 @@ class Sentence(Unit):
     def __eq__(self, other: Any) -> bool:
         if isinstance(other, Sentence) is False:
             return False
-        return self.sid == other.sid and self.text == other.text
+        return self._sent_id == other._sent_id and self.text == other.text
 
     @property
     def global_index(self) -> int:
@@ -98,6 +98,82 @@ class Sentence(Unit):
         elif self._morphemes is not None:
             return self._morphemes
         return None
+
+    @property
+    def doc_id(self) -> str:
+        """文書 ID．
+
+        Raises:
+            AttributeError: 文書 IDにアクセスできない場合．
+        """
+        if self._doc_id is None:
+            raise AttributeError("doc_id has not been set")
+        return self._doc_id
+
+    @doc_id.setter
+    def doc_id(self, doc_id: str) -> None:
+        """文書 ID．
+
+        Args:
+            doc_id: 文書 ID．
+        """
+        self._doc_id = doc_id
+
+    @property
+    def did(self) -> str:
+        """文書 ID（doc_id のエイリアス）．
+
+        Raises:
+            AttributeError: 文書 IDにアクセスできない場合．
+        """
+        return self.doc_id
+
+    @did.setter
+    def did(self, did: str) -> None:
+        """文書 ID（doc_id のエイリアス）．
+
+        Args:
+            did: 文書 ID．
+        """
+        self.doc_id = did
+
+    @property
+    def sent_id(self) -> str:
+        """文 ID．
+
+        Raises:
+            AttributeError: 文 IDにアクセスできない場合．
+        """
+        if self._sent_id is None:
+            raise AttributeError("sid has not been set")
+        return self._sent_id
+
+    @sent_id.setter
+    def sent_id(self, sid: str) -> None:
+        """文 ID．
+
+        Args:
+            sid: 文 ID．
+        """
+        self._sent_id = sid
+
+    @property
+    def sid(self) -> str:
+        """文 ID（sent_id のエイリアス）．
+
+        Raises:
+            AttributeError: 文 IDにアクセスできない場合．
+        """
+        return self.sent_id
+
+    @sid.setter
+    def sid(self, sid: str) -> None:
+        """文 ID（sent_id のエイリアス）．
+
+        Args:
+            sid: 文 ID．
+        """
+        self.sent_id = sid
 
     @property
     def document(self) -> "Document":
@@ -204,7 +280,7 @@ class Sentence(Unit):
     def comment(self) -> str:
         """コメント行．"""
         ret = ""
-        if sid := self.sid:
+        if sid := self._sent_id:
             ret += f"S-ID:{sid} "
         if misc := self.misc_comment:
             ret += f"{misc} "
@@ -421,7 +497,7 @@ class Sentence(Unit):
         """
         assert comment.startswith("#")
         if match_sid := re.match(r"# S-ID: ?(\S*)( .+)?$", comment):
-            sid_string = match_sid.group(1)
+            sid_string = match_sid[1]
             match = (
                 Sentence.SID_PAT_KWDLC.match(sid_string)
                 or Sentence.SID_PAT_WAC.match(sid_string)
@@ -430,9 +506,9 @@ class Sentence(Unit):
             if match is None:
                 raise ValueError(f"unsupported S-ID format: {sid_string}")
             return (
-                match.group("did"),
-                match.group("sid"),
-                match_sid.group(2).lstrip() if match_sid.group(2) else "",
+                match["did"],
+                match["sid"],
+                match_sid[2].lstrip() if match_sid[2] else "",
             )
         return None, None, comment.lstrip("#").lstrip(" ")
 

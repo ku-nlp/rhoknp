@@ -2,7 +2,7 @@ import logging
 import re
 from dataclasses import dataclass
 from enum import Enum
-from typing import TYPE_CHECKING, ClassVar, Optional
+from typing import TYPE_CHECKING, Any, ClassVar, Optional
 
 if TYPE_CHECKING:
     from rhoknp import Clause, Sentence
@@ -121,6 +121,11 @@ class DiscourseRelation:
     head: "Clause"  #: 主辞節．
     explicit: bool = False  #: 明示的な談話関係ならTrue．．
 
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, DiscourseRelation):
+            return False
+        return self.label == other.label and self.modifier == other.modifier and self.head == other.head
+
     @classmethod
     def from_clause_function_fstring(cls, fstring: str, modifier: "Clause") -> Optional["DiscourseRelation"]:
         """節機能を表す素性文字列から初期化．
@@ -135,7 +140,7 @@ class DiscourseRelation:
         match = cls.CLAUSE_FUNCTION_PAT.match(fstring)
         if match is None:
             return None
-        label = match.group("label")
+        label = match["label"]
         if not DiscourseRelationTag.has_value(label):
             return None
         tag = DiscourseRelationTag(label)
@@ -144,7 +149,7 @@ class DiscourseRelation:
         if head is None:
             return None
         return cls(
-            sid=modifier.sentence.sid if modifier.sentence.sid is not None else str(modifier.sentence.index),
+            sid=modifier.sentence.sid,
             base_phrase_index=head.end.index,
             label=label,
             tag=tag,
@@ -165,9 +170,9 @@ class DiscourseRelation:
         if match is None:
             logger.warning(f"'{fstring}' is not a valid discourse relation fstring")
             return None
-        sid = match.group("sid")
-        base_phrase_index = int(match.group("base_phrase_index"))
-        tag = match.group("tag")
+        sid = match["sid"]
+        base_phrase_index = int(match["base_phrase_index"])
+        tag = match["tag"]
         if not DiscourseRelationTag.has_value(tag):
             logger.warning(f"unknown discourse relation label '{tag}' found")
             return None

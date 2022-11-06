@@ -286,6 +286,20 @@ JUMANPP_SNIPPETS = [
         "fstring": "",
         "canon": "顔文字/顔文字",
     },
+    {
+        "jumanpp": """ PUMP パンプ  PUMP 未定義語 15 その他 1 * 0 * 0\n""",
+        "text": " PUMP",
+        "surf": " PUMP",
+        "reading": "パンプ",
+        "lemma": " PUMP",
+        "pos": "未定義語",
+        "subpos": "その他",
+        "conjtype": "*",
+        "conjform": "*",
+        "sstring": "",
+        "fstring": "",
+        "canon": None,
+    },
 ]
 
 

@@ -14,11 +14,11 @@ jobs:
         with:
           python-version: "3.9"
       - name: Install Poetry
-        uses: abatilo/actions-poetry@v2
-        with:
-          poetry-version: "1.2.2"
+        run: pipx install poetry
+      - name: Add path for Python packages
+        run: echo "$HOME/.local/bin" >> $GITHUB_PATH
       - name: Install dependencies
-        run: poetry install --no-interaction
+        run: poetry install --no-interaction --only main
       - name: Build package
         run: poetry build
 

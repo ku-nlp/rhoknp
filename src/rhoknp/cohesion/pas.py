@@ -73,15 +73,15 @@ class Pas:
             logger.warning(f"invalid tag format: '{fstring}' is ignored")
             return cls(Predicate(base_phrase))
 
-        cfid = match.group(1) + ":" + match.group(2)
+        cfid = match[1] + ":" + match[2]
         predicate = Predicate(unit=base_phrase, cfid=cfid)
 
-        if match.group(3) is None:  # <述語項構造:束の間/つかのま:判0> など
+        if match[3] is None:  # <述語項構造:束の間/つかのま:判0> など
             return cls(predicate)
 
         pas = cls(predicate)
-        for match_arg in cls.ARGUMENT_PAT.finditer(match.group("args")):
-            case, case_flag, surf, *fields = match_arg.group(0).split("/")
+        for match_arg in cls.ARGUMENT_PAT.finditer(match["args"]):
+            case, case_flag, surf, *fields = match_arg[0].split("/")
             if case_flag in ("U", "-"):
                 continue
             arg_type = ArgumentType(case_flag)
@@ -96,9 +96,10 @@ class Pas:
                         logger.warning(f"sentence index out of range: {sentence_index} in {base_phrase.sentence.sid}")
                         continue
                     sentence = base_phrase.document.sentences[sentence_index]
-                assert sentence.sid == sid
+                assert sentence.sid == sid, f"sentence id mismatch: '{sentence.sid}' vs '{sid}'"
                 arg_base_phrase = sentence.base_phrases[tid]
-                assert surf in arg_base_phrase.text
+                if surf not in arg_base_phrase.text:
+                    logger.warning(f"surface mismatch ({sid}): '{surf}' vs '{arg_base_phrase.text}'")
                 pas.add_argument(case, arg_base_phrase, arg_type=arg_type)
             elif format_ == CaseInfoFormat.PAS:
                 sdist, tid, eid = int(fields[0]), int(fields[1]), int(fields[2])
@@ -114,11 +115,15 @@ class Pas:
                             )
                             continue
                         sentence = base_phrase.document.sentences[sentence_index]
+                    if not 0 <= tid < len(sentence.base_phrases):
+                        logger.warning(f"{sentence.sid}: tag id out of range: {tid}")
+                        continue
                     arg_base_phrase = sentence.base_phrases[tid]
-                    assert surf in arg_base_phrase.text
+                    if surf not in arg_base_phrase.text:
+                        logger.warning(f"surface mismatch ({sentence.sid}): '{surf}' vs '{arg_base_phrase.text}'")
                     pas.add_argument(case, arg_base_phrase)
             else:
-                raise AssertionError  # unreachable
+                raise ValueError(f"invalid format: {format_}")
         return pas
 
     def get_arguments(
@@ -157,7 +162,7 @@ class Pas:
                 elif isinstance(arg, EndophoraArgument):
                     entities = arg.base_phrase.entities_all if include_nonidentical else arg.base_phrase.entities
                 else:
-                    raise AssertionError  # unreachable
+                    raise TypeError(f"invalid argument type: {type(arg)}")
                 for entity in entities:
                     if entity.exophora_referent is not None:
                         pas.add_special_argument(case, entity.exophora_referent, entity.eid)
@@ -249,7 +254,9 @@ class Pas:
             logger.info(f"marked {arg} as optional in {self.sid}")
 
     @staticmethod
-    def _get_arg_type(predicate: Predicate, arg_base_phrase: "BasePhrase", case: str) -> ArgumentType:
+    def _get_arg_type(predicate: Predicate, arg_base_phrase: "BasePhrase", case: str) -> Optional[ArgumentType]:
+        if predicate.base_phrase.parent_index is None:
+            return None
         if arg_base_phrase in predicate.base_phrase.children:
             dep_case = arg_base_phrase.features.get("係", "")
             assert isinstance(dep_case, str)

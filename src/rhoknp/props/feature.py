@@ -8,15 +8,21 @@ logger = logging.getLogger(__name__)
 class FeatureDict(Dict[str, Union[str, bool]]):
     """文節，基本句，形態素の素性情報を表すクラス．"""
 
-    PAT = re.compile(r'(?P<feats>(<([^>"]|"[^"]*?")+>)*)')
-    IGNORE_TAG_PREFIXES = {"rel "}
+    PAT = re.compile(r'(?P<feats>(<([^>"]|\\"|"([^\\"]|\\"|\\(?!"))*?")+>)*)')
+    IGNORE_TAG_PREFIXES = {"rel ", "memo "}
     FEATURE_PAT = re.compile(rf"<(?!({'|'.join(IGNORE_TAG_PREFIXES)}))(?P<key>([^:\"]|\".*?\")+?)(:(?P<value>.+?))?>")
 
     def __setitem__(self, key: str, value: Union[str, bool]) -> None:
         if key == "rel":
             logger.warning(
                 f"Adding 'rel' to {self.__class__.__name__} is not supported and was ignored. Instead, add a RelTag "
-                f"object to BasePhrase.rels and call Document.reparse()."
+                f"object to BasePhrase.rel_tags and call Document.reparse()."
+            )
+            return
+        if key == "memo":
+            logger.warning(
+                f"Adding 'memo' to {self.__class__.__name__} is not supported and was ignored. Instead, set a MemoTag "
+                f"object to BasePhrase.memo_tag."
             )
             return
         super().__setitem__(key, value)
@@ -32,7 +38,7 @@ class FeatureDict(Dict[str, Union[str, bool]]):
         """
         features = {}
         for match in cls.FEATURE_PAT.finditer(fstring):
-            features[match.group("key")] = match.group("value") or True
+            features[match["key"]] = match["value"] or True
         return cls(features)
 
     def to_fstring(self) -> str:

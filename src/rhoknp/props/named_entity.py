@@ -57,11 +57,11 @@ class NamedEntity:
         if match is None:
             logger.warning(f"{fstring} is not a valid NE fstring")
             return None
-        category = match.group("cat")
+        category: str = match["cat"]
         if not NamedEntityCategory.has_value(category):
             logger.warning(f"{candidate_morphemes[0].sentence.sid}: unknown NE category: {category}")
             return None
-        name = match.group("name")
+        name: str = match["name"].replace(r"\"", '"')
         if (span := cls._find_morpheme_span(name, candidate_morphemes)) is None:
             logger.warning(f"{candidate_morphemes[0].sentence.sid}: morpheme span of '{name}' not found")
             return None
@@ -69,7 +69,8 @@ class NamedEntity:
 
     def to_fstring(self) -> str:
         """素性文字列に変換．"""
-        return f"<NE:{self.category.value}:{self.text}>"
+        escaped_text = self.text.replace('"', r"\"")
+        return f"<NE:{self.category.value}:{escaped_text}>"
 
     @staticmethod
     def _find_morpheme_span(name: str, candidates: List["Morpheme"]) -> Optional[range]:

@@ -38,7 +38,7 @@ with open("result.knp", "rt") as f:
 
 # Perform language analysis by KWJA
 kwja = rhoknp.KWJA()
-sentence = kwja.apply_to_sentence(sentence)  # or knp.apply_to_sentence("電気抵抗率は...")
+sentence = kwja.apply_to_sentence(sentence)  # or kwja.apply_to_sentence("電気抵抗率は...")
 ```
 
 ## Requirements
@@ -163,10 +163,9 @@ For more information, explore the [examples](./examples) and [documentation](htt
 
 ## Main differences from [pyknp](https://github.com/ku-nlp/pyknp/)
 
-- **Support document-level language analysis**: *rhoknp* can load and instantiate the result of document-level language analysis: i.e., cohesion analysis and discourse relation analysis.
-- **Strictly type-aware**: *rhoknp* is thoroughly annotated with type annotations. Efficient development is possible with the help of an IDE.
+- **Support for document-level language analysis**: *rhoknp* can load and instantiate the result of document-level language analysis (i.e., cohesion analysis and discourse relation analysis).
+- **Strictly type-aware**: *rhoknp* is thoroughly annotated with type annotations.
 - **Extensive test suite**: *rhoknp* is tested with an extensive test suite. See the code coverage at [Codecov](https://app.codecov.io/gh/ku-nlp/rhoknp).
-- **Support Python3.8+ only**
 
 ## License
 
