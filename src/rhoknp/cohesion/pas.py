@@ -254,9 +254,9 @@ class Pas:
             logger.info(f"marked {arg} as optional in {self.sid}")
 
     @staticmethod
-    def _get_arg_type(predicate: Predicate, arg_base_phrase: "BasePhrase", case: str) -> Optional[ArgumentType]:
+    def _get_arg_type(predicate: Predicate, arg_base_phrase: "BasePhrase", case: str) -> ArgumentType:
         if predicate.base_phrase.parent_index is None:
-            return None
+            return ArgumentType.UNASSIGNED
         if arg_base_phrase in predicate.base_phrase.children:
             dep_case = arg_base_phrase.features.get("係", "")
             assert isinstance(dep_case, str)

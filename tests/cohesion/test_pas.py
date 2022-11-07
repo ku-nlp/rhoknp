@@ -122,13 +122,13 @@ CASES = [
         "cfid": "行く/いく:動12",
         "arguments": {
             "ガ": {
-                ("彼は", 0, None),
+                ("彼は", 0, ArgumentType.UNASSIGNED),
             },
             "ニ": {
                 ("著者", -1, ArgumentType.EXOPHORA),
             },
             "ヘ": {
-                ("大学へ", 3, None),
+                ("大学へ", 3, ArgumentType.UNASSIGNED),
             },
         },
     },
