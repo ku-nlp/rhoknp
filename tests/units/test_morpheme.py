@@ -356,6 +356,28 @@ def test_num_sentence_jumanpp(case: Dict[str, str]) -> None:
 
 
 @pytest.mark.parametrize("case", CASES)
+def test_parent_unit_sentence(case: Dict[str, str]) -> None:
+    doc = Document.from_jumanpp(case["jumanpp"])
+    for sentence in doc.sentences:
+        for morpheme in sentence.morphemes:
+            assert morpheme.parent_unit == sentence
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_parent_unit_base_phrase(case: Dict[str, str]) -> None:
+    doc = Document.from_knp(case["knp"])
+    for base_phrase in doc.base_phrases:
+        for morpheme in base_phrase.morphemes:
+            assert morpheme.parent_unit == base_phrase
+
+
+@pytest.mark.parametrize("case", JUMANPP_SNIPPETS)
+def test_parent_unit_none(case: Dict[str, str]) -> None:
+    morpheme = Morpheme.from_jumanpp(case["jumanpp"])
+    assert morpheme.parent_unit is None
+
+
+@pytest.mark.parametrize("case", CASES)
 def test_parent_document_knp(case: Dict[str, str]) -> None:
     doc = Document.from_knp(case["knp"])
     assert [morpheme.parent.index if morpheme.parent else -1 for morpheme in doc.morphemes] == case["parent_ids"]
