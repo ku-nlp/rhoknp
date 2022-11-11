@@ -14,7 +14,7 @@ keywords = ["NLP"]
 
 [tool.poetry.dependencies]
 python = ">=3.8,<3.12"
-typer = "^0.6.1"
+typer = ">=0.6.1,<0.8"
 PyYAML = "^6.0"
 
 [tool.poetry.group.dev]
