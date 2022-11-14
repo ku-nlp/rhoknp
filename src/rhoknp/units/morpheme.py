@@ -317,7 +317,7 @@ class Morpheme(Unit):
         if (match := cls.PAT.match(jumanpp_line) or cls.PAT_REPEATED.match(jumanpp_line)) is None:
             raise ValueError(f"malformed morpheme line: {jumanpp_line}")
         surf = match["surf"]
-        attributes = match["attrs"] and MorphemeAttributes.from_jumanpp(match["attrs"])
+        attributes = MorphemeAttributes.from_jumanpp(match["attrs"]) if match["attrs"] is not None else None
         semantics = SemanticsDict.from_sstring(match["sems"] or "")
         features = FeatureDict.from_fstring(match["feats"] or "")
         return cls(surf, attributes, semantics, features, homograph=homograph)
