@@ -30,7 +30,8 @@ class Pas:
         predicate: 述語．
     """
 
-    ARGUMENT_PAT = re.compile(r"([^/;]+/[CNODEU-]/[^/]+/(-?\d*)/(-?\d*)/[^/;]+)")  # matches for "ガ/N/彼/0/0/5"
+    # matches for "ガ/N/彼/0/0/5"
+    ARGUMENT_PAT = re.compile(rf"([^/;]+/[{''.join(e.value for e in ArgumentType)}-]/[^/]+/(-?\d*)/(-?\d*)/[^/;]+)")
 
     def __init__(self, predicate: Predicate) -> None:
         self._predicate = predicate
