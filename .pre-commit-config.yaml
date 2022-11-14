@@ -26,6 +26,7 @@ repos:
       - id: mypy
         additional_dependencies:
           - types-PyYAML
+          - typer==0.7.0
   - repo: https://github.com/asottile/pyupgrade
     rev: v3.2.2
     hooks:
