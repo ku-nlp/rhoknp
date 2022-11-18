@@ -69,5 +69,4 @@ class ExophoraReferent:
             return False
         if self.type == ExophoraReferentType.OTHER:
             return self._other_text == other._other_text
-        else:
-            return self.index == other.index
+        return self.index == other.index
