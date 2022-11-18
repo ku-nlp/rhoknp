@@ -3,6 +3,9 @@ name: Test
 on:
   [ push, pull_request, workflow_dispatch ]
 
+env:
+  KWJA_VERSION: 1.2.2
+
 jobs:
   test:
     name: Run tests with pytest
@@ -18,7 +21,7 @@ jobs:
       - name: Install required apt packages
         run: |
           apt update -y
-          apt install -y curl libsqlite3-dev gcc libffi-dev
+          apt install -y curl build-essential libsqlite3-dev libffi-dev
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
@@ -32,6 +35,11 @@ jobs:
         run: echo "$HOME/.local/bin" >> $GITHUB_PATH
       - name: Install dependencies
         run: poetry install --no-interaction --without dev,docs
+      - name: Cache KWJA checkpoints
+        uses: actions/cache@v3
+        with:
+          path: /tmp/kwja
+          key: kwja-${{ env.KWJA_VERSION }}
       - name: Run tests with KWJA
         if: ${{ matrix.python-version != 3.11 }}
         run: |
