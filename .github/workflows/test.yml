@@ -21,7 +21,7 @@ jobs:
       - name: Install required apt packages
         run: |
           apt update -y
-          apt install -y curl build-essential libsqlite3-dev libffi-dev python3-dev
+          apt install -y curl build-essential libsqlite3-dev libffi-dev
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
@@ -40,6 +40,9 @@ jobs:
         with:
           path: /tmp/kwja
           key: kwja-${{ env.KWJA_VERSION }}
+      - name: debug
+        run: |
+          python3 -m sysconfig
       - name: Run tests with KWJA
         if: ${{ matrix.python-version != 3.11 }}
         run: |
