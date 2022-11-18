@@ -1,8 +1,8 @@
 import io
 import textwrap
 
+from rhoknp.cli.show import draw_tree, sprint_tree
 from rhoknp.units import Sentence
-from rhoknp.utils import draw_tree, sprint_tree
 
 knp = textwrap.dedent(
     """\
