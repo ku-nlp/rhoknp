@@ -1,6 +1,16 @@
 import pytest
 
-from rhoknp import KWJA
+from rhoknp import KWJA, Document, Sentence
+
+
+def test_apply() -> None:
+    kwja = KWJA()
+    text = "外国人参政権"
+    assert isinstance(kwja.apply(text), Document)
+    assert isinstance(kwja.apply(Document.from_raw_text(text)), Document)
+    assert isinstance(kwja.apply(Sentence.from_raw_text(text)), Sentence)
+    with pytest.raises(TypeError):
+        kwja.apply(1)  # type: ignore
 
 
 @pytest.mark.parametrize(
@@ -15,70 +25,26 @@ from rhoknp import KWJA
         # "これは\rどう",  # carriage return  # TODO
     ],
 )
-def test_kwja_apply(text: str) -> None:
-    kwja = KWJA(options=["--text"])
-    sent = kwja.apply(text)
-    assert sent.text == text.replace(" ", "　").replace('"', "”")
-
-
-@pytest.mark.parametrize(
-    "text",
-    [
-        "外国人参政権",
-        "望遠鏡で泳いでいる少女を見た。",
-        "エネルギーを素敵にENEOS",  # EOS
-        # "Canon EOS 80D買った",  # EOS  # TODO
-        # '"最高"の気分',  # double quotes  # TODO
-        "&lt;tag&gt;\\エス'ケープ",  # escape
-        # "これは\rどう",  # carriage return  # TODO
-    ],
-)
-def test_kwja_apply_to_document(text: str) -> None:
-    kwja = KWJA(options=["--text"])
-    doc = kwja.apply_to_document(text)
-    assert doc.text == text.replace(" ", "　").replace('"', "”")
-
-
-def test_kwja_batch_apply() -> None:
-    texts = [
-        "外国人参政権",
-        "望遠鏡で泳いでいる少女を見た。",
-        "エネルギーを素敵にENEOS",
-    ]
+def test_apply_to_sentence(text: str) -> None:
     kwja = KWJA()
-    sents = kwja.batch_apply(texts)
-    assert [sent.text for sent in sents] == [text.replace(" ", "　").replace('"', "”") for text in texts]
-
-    # parallel
-    sents = kwja.batch_apply(texts, processes=2)
-    assert [sent.text for sent in sents] == [text.replace(" ", "　").replace('"', "”") for text in texts]
-
-    sents = kwja.batch_apply(texts, processes=4)
-    assert [sent.text for sent in sents] == [text.replace(" ", "　").replace('"', "”") for text in texts]
+    sent = kwja.apply_to_sentence(text)
+    assert sent.text == text
 
 
-def test_kwja_batch_apply_to_documents() -> None:
-    texts = [
-        "外国人参政権",
-        "望遠鏡で泳いでいる少女を見た。",
-        "エネルギーを素敵にENEOS",
-    ]
+def test_is_available() -> None:
     kwja = KWJA()
-    docs = kwja.batch_apply_to_documents(texts)
-    assert [doc.text for doc in docs] == [text.replace(" ", "　").replace('"', "”") for text in texts]
+    assert kwja.is_available() is True
 
-    # parallel
-    docs = kwja.batch_apply_to_documents(texts, processes=2)
-    assert [doc.text for doc in docs] == [text.replace(" ", "　").replace('"', "”") for text in texts]
+    kwja = KWJA("kwjaa")
+    assert kwja.is_available() is False
 
-    docs = kwja.batch_apply_to_documents(texts, processes=4)
-    assert [doc.text for doc in docs] == [text.replace(" ", "　").replace('"', "”") for text in texts]
+    with pytest.raises(RuntimeError):
+        _ = kwja.apply_to_sentence("test")
 
-
-def test_kwja_is_available() -> None:
-    pass  # TODO
+    with pytest.raises(RuntimeError):
+        _ = kwja.apply_to_document("test")
 
 
-def test_kwja_repr() -> None:
+def test_repr() -> None:
     kwja = KWJA(options=["--text"])
     assert repr(kwja) == "KWJA(executable='kwja', options=['--text'])"
