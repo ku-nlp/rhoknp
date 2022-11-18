@@ -313,7 +313,7 @@ class Morpheme(Unit):
         if (match := cls.PAT.match(jumanpp_line) or cls.PAT_REPEATED.match(jumanpp_line)) is None:
             raise ValueError(f"malformed morpheme line: {jumanpp_line}")
         surf = match["surf"]
-        attributes = MorphemeAttributes.from_jumanpp(match["attrs"]) if match["attrs"] is not None else None
+        attributes = MorphemeAttributes.from_jumanpp(match["attrs"])
         semantics = SemanticsDict.from_sstring(match["sems"] or "")
         features = FeatureDict.from_fstring(match["feats"] or "")
         return cls(surf, attributes, semantics, features, homograph=homograph)
@@ -335,8 +335,7 @@ class Morpheme(Unit):
     def to_knp(self) -> str:
         """KNP フォーマットに変換．"""
         ret = self.text
-        if self.attributes is None:
-            raise AttributeError("attributes have not been set")
+        assert self.attributes is not None
         ret += f" {self.attributes.to_jumanpp()}"
         if self.semantics or self.semantics.is_nil is True:
             ret += f" {self.semantics.to_sstring()}"

@@ -1,7 +1,5 @@
 import textwrap
 
-import pytest
-
 from rhoknp.cohesion import ArgumentType, EndophoraArgument, ExophoraArgument, ExophoraReferent
 from rhoknp.units import BasePhrase
 
@@ -9,9 +7,9 @@ from rhoknp.units import BasePhrase
 def test_endophora_argument() -> None:
     knp = textwrap.dedent(
         """\
-        + 4D <SM-主体><SM-人><BGH:彼/かれ><文頭><ハ><助詞><体言><一文字漢字><係:未格><提題><区切:3-5><主題表現><格要素><連用要素><名詞項候補><先行詞候補><人称代名詞><正規化代表表記:彼/かれ><主辞代表表記:彼/かれ><解析格:ガ>
-        彼 かれ 彼 名詞 6 普通名詞 1 * 0 * 0 "代表表記:彼/かれ カテゴリ:人 漢字読み:訓" <代表表記:彼/かれ><カテゴリ:人><漢字読み:訓><正規化代表表記:彼/かれ><漢字><かな漢字><名詞相当語><文頭><自立><内容語><タグ単位始><文節始><文節主辞>
-        は は は 助詞 9 副助詞 2 * 0 * 0 NIL <かな漢字><ひらがな><付属>
+        + 4D
+        彼 かれ 彼 名詞 6 普通名詞 1 * 0 * 0
+        は は は 助詞 9 副助詞 2 * 0 * 0 NIL
         """
     )
     base_phrase = BasePhrase.from_knp(knp)
@@ -25,11 +23,8 @@ def test_endophora_argument() -> None:
     assert repr(argument) == "<rhoknp.cohesion.argument.EndophoraArgument: '彼は'>"
     assert str(argument) == base_phrase.text
     assert argument != "test"
-    assert argument == EndophoraArgument(
-        base_phrase, arg_type=ArgumentType.EXOPHORA
-    )  # TODO: consider whether this is expected
-    with pytest.raises(AttributeError):
-        _ = argument.pas
+    # TODO: consider whether this is expected behavior
+    assert argument == EndophoraArgument(base_phrase, arg_type=ArgumentType.EXOPHORA)
 
 
 def test_exophora_argument() -> None:
@@ -42,5 +37,3 @@ def test_exophora_argument() -> None:
     assert str(argument) == "不特定:人"
     assert argument != "test"
     assert argument == ExophoraArgument(exophora_referent, eid=1)  # TODO: consider whether this is expected
-    with pytest.raises(AttributeError):
-        _ = argument.pas
