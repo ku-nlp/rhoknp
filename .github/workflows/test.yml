@@ -25,7 +25,7 @@ jobs:
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: ${{ matrix.python-version }}-dev
       - name: Install Poetry
         run: |
           python3 -m pip install --user pipx
@@ -43,7 +43,7 @@ jobs:
       - name: Run tests with KWJA
         if: ${{ matrix.python-version != 3.11 }}
         run: |
-          pipx install kwja
+          pipx install kwja==${{ env.KWJA_VERSION }}
           export KWJA_CACHE_DIR=/tmp/kwja
           poetry run pytest --cov=./ --cov-report=xml -v ./tests
       - name: Run tests without KWJA
