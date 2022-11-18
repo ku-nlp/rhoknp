@@ -265,33 +265,21 @@ class Morpheme(Unit):
         surf = match["surf"]
         match_attr = cls._ATTRIBUTE_PAT.match(match["attrs"]) or cls._ATTRIBUTE_PAT_REPEATED.match(match["attrs"])
         assert match_attr is not None
-        (
-            reading,
-            lemma,
-            pos,
-            pos_id,
-            subpos,
-            subpos_id,
-            conjtype,
-            conjtype_id,
-            conjform,
-            conjform_id,
-        ) = match_attr.groups()
-
+        attributes = match_attr.groups()
         semantics = SemanticsDict.from_sstring(match["sems"] or "")
         features = FeatureDict.from_fstring(match["feats"] or "")
         return cls(
             surf,
-            reading,
-            lemma,
-            pos,
-            int(pos_id),
-            subpos,
-            int(subpos_id),
-            conjtype,
-            int(conjtype_id),
-            conjform,
-            int(conjform_id),
+            attributes[0],
+            attributes[1],
+            attributes[2],
+            int(attributes[3]),
+            attributes[4],
+            int(attributes[5]),
+            attributes[6],
+            int(attributes[7]),
+            attributes[8],
+            int(attributes[9]),
             semantics,
             features,
             homograph=homograph,
