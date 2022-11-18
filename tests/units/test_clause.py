@@ -236,6 +236,14 @@ def test_document(case: Dict[str, str]) -> None:
         assert clause.document == doc
 
 
+@pytest.mark.parametrize("case", KNP_SNIPPETS)
+def test_document_error(case: Dict[str, str]) -> None:
+    sent = Sentence.from_knp(case["knp"])
+    for clause in sent.clauses:
+        with pytest.raises(AttributeError):
+            _ = clause.document
+
+
 @pytest.mark.parametrize("case", CASES)
 def test_sentence(case: Dict[str, str]) -> None:
     sent = Sentence.from_knp(case["knp"])
@@ -294,20 +302,6 @@ def test_to_knp(case: Dict[str, str]) -> None:
 def test_text(case: Dict[str, str]) -> None:
     clause = Clause.from_knp(case["knp"])
     assert clause.text == case["text"]
-
-
-@pytest.mark.parametrize("case", KNP_SNIPPETS)
-def test_document_error(case: Dict[str, str]) -> None:
-    with pytest.raises(AttributeError):
-        clause = Clause.from_knp(case["knp"])
-        _ = clause.document
-
-
-@pytest.mark.parametrize("case", KNP_SNIPPETS)
-def test_sentence_error(case: Dict[str, str]) -> None:
-    with pytest.raises(AttributeError):
-        clause = Clause.from_knp(case["knp"])
-        _ = clause.sentence
 
 
 @pytest.mark.parametrize("case", KNP_SNIPPETS)

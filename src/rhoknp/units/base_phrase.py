@@ -123,11 +123,7 @@ class BasePhrase(Unit):
 
     @property
     def sentence(self) -> "Sentence":
-        """文．
-
-        Raises:
-            AttributeError: 解析結果にアクセスできない場合．
-        """
+        """文．"""
         return self.phrase.sentence
 
     @property
@@ -141,13 +137,8 @@ class BasePhrase(Unit):
 
     @property
     def phrase(self) -> "Phrase":
-        """文節．
-
-        Raises:
-            AttributeError: 解析結果にアクセスできない場合．
-        """
-        if self._phrase is None:
-            raise AttributeError("phrase has not been set")
+        """文節．"""
+        assert self._phrase is not None
         return self._phrase
 
     @phrase.setter

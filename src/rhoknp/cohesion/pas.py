@@ -163,7 +163,7 @@ class Pas:
                 elif isinstance(arg, EndophoraArgument):
                     entities = arg.base_phrase.entities_all if include_nonidentical else arg.base_phrase.entities
                 else:
-                    raise TypeError(f"invalid argument type: {type(arg)}")
+                    raise AssertionError
                 for entity in entities:
                     if entity.exophora_referent is not None:
                         pas.add_special_argument(case, entity.exophora_referent, entity.eid)

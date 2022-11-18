@@ -13,7 +13,7 @@ def test_predicate() -> None:
     predicate = Predicate(phrase, cfid="行く/いく:動12")
     assert predicate.unit == phrase
     assert predicate.cfid == "行く/いく:動12"
-    with pytest.raises(AttributeError):
+    with pytest.raises(AssertionError):
         _ = predicate.sid
     with pytest.raises(AttributeError):
         _ = predicate.pas

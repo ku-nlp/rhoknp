@@ -140,11 +140,7 @@ class Morpheme(Unit):
 
     @property
     def sentence(self) -> "Sentence":
-        """文．
-
-        Raises:
-            AttributeError: 解析結果にアクセスできない場合．
-        """
+        """文．"""
         return self._sentence or self.base_phrase.sentence
 
     @sentence.setter
@@ -182,7 +178,7 @@ class Morpheme(Unit):
             AttributeError: 解析結果にアクセスできない場合．
         """
         if self._base_phrase is None:
-            raise AttributeError("not available before applying KNP")
+            raise AttributeError("base_phrase has not been set")
         return self._base_phrase
 
     @base_phrase.setter
@@ -202,15 +198,13 @@ class Morpheme(Unit):
     @property
     def reading(self) -> str:
         """読み．"""
-        if self.attributes is None:
-            raise AttributeError("attributes have not been set")
+        assert self.attributes is not None
         return self.attributes.reading
 
     @property
     def lemma(self) -> str:
         """原形．"""
-        if self.attributes is None:
-            raise AttributeError("attributes have not been set")
+        assert self.attributes is not None
         return self.attributes.lemma
 
     @property
@@ -223,29 +217,25 @@ class Morpheme(Unit):
     @property
     def pos(self) -> str:
         """品詞．"""
-        if self.attributes is None:
-            raise AttributeError("attributes have not been set")
+        assert self.attributes is not None
         return self.attributes.pos
 
     @property
     def subpos(self) -> str:
         """品詞細分類．"""
-        if self.attributes is None:
-            raise AttributeError("attributes have not been set")
+        assert self.attributes is not None
         return self.attributes.subpos
 
     @property
     def conjtype(self) -> str:
         """活用型．"""
-        if self.attributes is None:
-            raise AttributeError("attributes have not been set")
+        assert self.attributes is not None
         return self.attributes.conjtype
 
     @property
     def conjform(self) -> str:
         """活用形．"""
-        if self.attributes is None:
-            raise AttributeError("attributes have not been set")
+        assert self.attributes is not None
         return self.attributes.conjform
 
     @property
@@ -297,6 +287,9 @@ class Morpheme(Unit):
 
         Args:
             jumanpp_text: Juman++ の解析結果．
+
+        Raises:
+            ValueError: 解析結果読み込み中にエラーが発生した場合．
         """
         first_line, *lines = jumanpp_text.rstrip().split("\n")
         morpheme = cls._from_jumanpp_line(first_line)
@@ -313,6 +306,9 @@ class Morpheme(Unit):
         Args:
             jumanpp_line: Juman++ の解析結果．
             homograph: 同形かどうかを表すフラグ．
+
+        Raises:
+            ValueError: 解析結果読み込み中にエラーが発生した場合．
         """
         if (match := cls.PAT.match(jumanpp_line) or cls.PAT_REPEATED.match(jumanpp_line)) is None:
             raise ValueError(f"malformed morpheme line: {jumanpp_line}")
@@ -325,8 +321,7 @@ class Morpheme(Unit):
     def to_jumanpp(self) -> str:
         """Juman++ フォーマットに変換．"""
         ret = self.text
-        if self.attributes is None:
-            raise AttributeError("attributes have not been set")
+        assert self.attributes is not None
         ret += f" {self.attributes.to_jumanpp()}"
         if self.semantics or self.semantics.is_nil is True:
             ret += f" {self.semantics.to_sstring()}"

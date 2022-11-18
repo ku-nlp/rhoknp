@@ -83,11 +83,7 @@ class Phrase(Unit):
 
     @property
     def sentence(self) -> "Sentence":
-        """文．
-
-        Raises:
-            AttributeError: 解析結果にアクセスできない場合．
-        """
+        """文．"""
         return self._sentence or self.clause.sentence
 
     @sentence.setter
@@ -138,11 +134,7 @@ class Phrase(Unit):
 
     @property
     def morphemes(self) -> List[Morpheme]:
-        """形態素のリスト．
-
-        Raises:
-            AttributeError: 解析結果にアクセスできない場合．
-        """
+        """形態素のリスト．"""
         return [morpheme for base_phrase in self.base_phrases for morpheme in base_phrase.morphemes]
 
     @property
@@ -173,6 +165,9 @@ class Phrase(Unit):
 
         Args:
             knp_text: KNP の解析結果．
+
+        Raises:
+            ValueError: 解析結果読み込み中にエラーが発生した場合．
         """
         first_line, *lines = knp_text.split("\n")
         match = cls.PAT.match(first_line)

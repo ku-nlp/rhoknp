@@ -124,7 +124,7 @@ class Document(Unit):
             AttributeError: 解析結果にアクセスできない場合．
         """
         if self._sentences is None:
-            raise AttributeError("not available before applying a sentence splitter")
+            raise AttributeError("sentences have not been set")
         return self._sentences
 
     @sentences.setter
@@ -299,7 +299,7 @@ class Document(Unit):
             jumanpp_text: Juman++ の解析結果．
 
         Raises:
-            Exception: 解析結果読み込み中にエラーが発生した場合．
+            ValueError: 解析結果読み込み中にエラーが発生した場合．
 
         Example:
 
@@ -349,7 +349,7 @@ class Document(Unit):
             knp_text: KNP の解析結果．
 
         Raises:
-            Exception: 解析結果読み込み中にエラーが発生した場合．
+            ValueError: 解析結果読み込み中にエラーが発生した場合．
 
         Example:
 
