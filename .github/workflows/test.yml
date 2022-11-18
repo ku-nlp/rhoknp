@@ -32,8 +32,16 @@ jobs:
         run: echo "$HOME/.local/bin" >> $GITHUB_PATH
       - name: Install dependencies
         run: poetry install --no-interaction --without dev,docs
-      - name: Run tests
-        run: poetry run pytest --cov=./ --cov-report=xml -v ./tests
+      - name: Run tests with KWJA
+        if: ${{ matrix.python-version != 3.11 }}
+        run: |
+          pipx install kwja
+          export KWJA_CACHE_DIR=/tmp/kwja
+          poetry run pytest --cov=./ --cov-report=xml -v ./tests
+      - name: Run tests without KWJA
+        if: ${{ matrix.python-version == 3.11 }}
+        run: |
+          poetry run pytest --cov=./ --cov-report=xml -v --ignore ./tests/processors/test_kwja.py ./tests
       - name: Upload coverage to Codecov
         if: ${{ matrix.python-version == 3.9 }}
         uses: codecov/codecov-action@v3
