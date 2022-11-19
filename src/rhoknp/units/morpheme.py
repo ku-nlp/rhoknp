@@ -1,5 +1,4 @@
 import re
-from dataclasses import astuple, dataclass, fields
 from functools import cached_property
 from typing import TYPE_CHECKING, Any, ClassVar, List, Optional, Tuple, Union
 
@@ -15,50 +14,19 @@ if TYPE_CHECKING:
     from rhoknp.units.sentence import Sentence
 
 
-@dataclass
-class MorphemeAttributes:
-    """形態素の属性クラス．"""
-
-    PAT = re.compile(r"([^ ]+| [^ ]*) ([^ ]+| [^ ]*) ([^ ]+) (\d+) ([^ ]+) (\d+) ([^ ]+) (\d+) ([^ ]+) (\d+)")
-    PAT_REPEATED = re.compile(r"(?P<pat>.+) ((?P=pat)) ([^ ]+) (\d+) ([^ ]+) (\d+) ([^ ]+) (\d+) ([^ ]+) (\d+)")
-
-    reading: str  #: 読み．
-    lemma: str  #: 原形．
-    pos: str  #: 品詞．
-    pos_id: int  #: 品詞ID．
-    subpos: str  #: 品詞細分類．
-    subpos_id: int  #: 品詞細分類ID．
-    conjtype: str  #: 活用型．
-    conjtype_id: int  #: 活用型ID．
-    conjform: str  #: 活用形ID．
-    conjform_id: int  #: 活用形ID．
-
-    @classmethod
-    def from_jumanpp(cls, jumanpp_line: str) -> "MorphemeAttributes":
-        """形態素の属性クラスのインスタンスを Juman++ の解析結果から初期化．
-
-        Args:
-            jumanpp_line: Juman++ の解析結果．
-        """
-        kwargs = {}
-        match = cls.PAT.match(jumanpp_line) or cls.PAT_REPEATED.match(jumanpp_line)
-        assert match is not None
-        for field, value in zip(fields(cls), match.groups()):
-            kwargs[field.name] = field.type(value)
-        assert len(kwargs) == len(fields(cls))
-        return cls(**kwargs)
-
-    def to_jumanpp(self) -> str:
-        """Juman++ フォーマットに変換．"""
-        return " ".join(str(item) for item in astuple(self))
-
-
 class Morpheme(Unit):
     """形態素クラス．"""
 
+    _ATTRIBUTE_PAT = re.compile(
+        r"([^ ]+| [^ ]*) ([^ ]+| [^ ]*) ([^ ]+) (\d+) ([^ ]+) (\d+) ([^ ]+) (\d+) ([^ ]+) (\d+)"
+    )
+    _ATTRIBUTE_PAT_REPEATED = re.compile(
+        r"(?P<pat>.+) ((?P=pat)) ([^ ]+) (\d+) ([^ ]+) (\d+) ([^ ]+) (\d+) ([^ ]+) (\d+)"
+    )
+
     PAT: ClassVar[re.Pattern] = re.compile(
         r"(?P<surf>^([^ ]+| [^ ]*))"
-        + rf"( (?P<attrs>{MorphemeAttributes.PAT.pattern}))"
+        + rf"( (?P<attrs>{_ATTRIBUTE_PAT.pattern}))"
         + rf"( {SemanticsDict.PAT.pattern})?"
         + rf"( {FeatureDict.PAT.pattern})?$"
     )
@@ -74,19 +42,37 @@ class Morpheme(Unit):
     def __init__(
         self,
         text: str,
-        attributes: Optional[MorphemeAttributes] = None,
+        reading: str,
+        lemma: str,
+        pos: str,
+        pos_id: int,
+        subpos: str,
+        subpos_id: int,
+        conjtype: str,
+        conjtype_id: int,
+        conjform: str,
+        conjform_id: int,
         semantics: Optional[SemanticsDict] = None,
         features: Optional[FeatureDict] = None,
         homograph: bool = False,
     ) -> None:
         super().__init__()
         self.text = text
+        self.reading = reading  #: 読み．
+        self.lemma = lemma  #: 原形．
+        self.pos = pos  #: 品詞．
+        self.pos_id = pos_id  #: 品詞ID．
+        self.subpos = subpos  #: 品詞細分類．
+        self.subpos_id = subpos_id  #: 品詞細分類ID．
+        self.conjtype = conjtype  #: 活用型．
+        self.conjtype_id = conjtype_id  #: 活用型ID．
+        self.conjform = conjform  #: 活用形ID．
+        self.conjform_id = conjform_id  #: 活用形ID．
 
         # parent unit
         self._base_phrase: Optional["BasePhrase"] = None
         self._sentence: Optional["Sentence"] = None
 
-        self.attributes: Optional[MorphemeAttributes] = attributes
         self.semantics: SemanticsDict = semantics if semantics is not None else SemanticsDict()  #: 辞書に記載の意味情報．
         self.features: FeatureDict = features if features is not None else FeatureDict()  #: 素性．
         self.homographs: List["Morpheme"] = []  #: 同形の形態素のリスト．
@@ -196,47 +182,11 @@ class Morpheme(Unit):
         return self.text
 
     @property
-    def reading(self) -> str:
-        """読み．"""
-        assert self.attributes is not None
-        return self.attributes.reading
-
-    @property
-    def lemma(self) -> str:
-        """原形．"""
-        assert self.attributes is not None
-        return self.attributes.lemma
-
-    @property
     def canon(self) -> Optional[str]:
         """代表表記．"""
         canon = self.semantics.get("代表表記")
         assert canon is None or isinstance(canon, str)
         return canon
-
-    @property
-    def pos(self) -> str:
-        """品詞．"""
-        assert self.attributes is not None
-        return self.attributes.pos
-
-    @property
-    def subpos(self) -> str:
-        """品詞細分類．"""
-        assert self.attributes is not None
-        return self.attributes.subpos
-
-    @property
-    def conjtype(self) -> str:
-        """活用型．"""
-        assert self.attributes is not None
-        return self.attributes.conjtype
-
-    @property
-    def conjform(self) -> str:
-        """活用形．"""
-        assert self.attributes is not None
-        return self.attributes.conjform
 
     @property
     def sstring(self) -> str:
@@ -313,16 +263,32 @@ class Morpheme(Unit):
         if (match := cls.PAT.match(jumanpp_line) or cls.PAT_REPEATED.match(jumanpp_line)) is None:
             raise ValueError(f"malformed morpheme line: {jumanpp_line}")
         surf = match["surf"]
-        attributes = MorphemeAttributes.from_jumanpp(match["attrs"])
+        match_attr = cls._ATTRIBUTE_PAT.match(match["attrs"]) or cls._ATTRIBUTE_PAT_REPEATED.match(match["attrs"])
+        assert match_attr is not None
+        attributes = match_attr.groups()
         semantics = SemanticsDict.from_sstring(match["sems"] or "")
         features = FeatureDict.from_fstring(match["feats"] or "")
-        return cls(surf, attributes, semantics, features, homograph=homograph)
+        return cls(
+            surf,
+            attributes[0],
+            attributes[1],
+            attributes[2],
+            int(attributes[3]),
+            attributes[4],
+            int(attributes[5]),
+            attributes[6],
+            int(attributes[7]),
+            attributes[8],
+            int(attributes[9]),
+            semantics,
+            features,
+            homograph=homograph,
+        )
 
     def to_jumanpp(self) -> str:
         """Juman++ フォーマットに変換．"""
         ret = self.text
-        assert self.attributes is not None
-        ret += f" {self.attributes.to_jumanpp()}"
+        ret += f" {self.reading} {self.lemma} {self.pos} {self.pos_id} {self.subpos} {self.subpos_id} {self.conjtype} {self.conjtype_id} {self.conjform} {self.conjform_id}"
         if self.semantics or self.semantics.is_nil is True:
             ret += f" {self.semantics.to_sstring()}"
         if self.features:
@@ -335,21 +301,19 @@ class Morpheme(Unit):
     def to_knp(self) -> str:
         """KNP フォーマットに変換．"""
         ret = self.text
-        assert self.attributes is not None
-        ret += f" {self.attributes.to_jumanpp()}"
+        ret += f" {self.reading} {self.lemma} {self.pos} {self.pos_id} {self.subpos} {self.subpos_id} {self.conjtype} {self.conjtype_id} {self.conjform} {self.conjform_id}"
         if self.semantics or self.semantics.is_nil is True:
             ret += f" {self.semantics.to_sstring()}"
         features = FeatureDict(self.features)
         for homograph in self.homographs:
-            assert homograph.attributes is not None
             alt_feature_key = "ALT-{}-{}-{}-{}-{}-{}-{}-{}".format(
                 homograph.surf,
                 homograph.reading,
                 homograph.lemma,
-                homograph.attributes.pos_id,
-                homograph.attributes.subpos_id,
-                homograph.attributes.conjtype_id,
-                homograph.attributes.conjform_id,
+                homograph.pos_id,
+                homograph.subpos_id,
+                homograph.conjtype_id,
+                homograph.conjform_id,
                 homograph.semantics.to_sstring(),
             )
             features[alt_feature_key] = True
