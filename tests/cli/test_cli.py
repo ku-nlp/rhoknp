@@ -45,6 +45,7 @@ def test_show():
     doc = Document.from_knp(knp)
     with tempfile.NamedTemporaryFile("wt") as f:
         f.write(doc.to_knp())
+        f.flush()
         result = runner.invoke(app, ["show", f.name])
         assert result.exit_code == 0
 
@@ -58,6 +59,7 @@ def test_stats():
     doc = Document.from_knp(knp)
     with tempfile.NamedTemporaryFile("wt") as f:
         f.write(doc.to_knp())
+        f.flush()
         result = runner.invoke(app, ["stats", f.name])
         assert result.exit_code == 0
 
