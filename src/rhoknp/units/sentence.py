@@ -380,7 +380,7 @@ class Sentence(Unit):
         morphemes: List[Morpheme] = []
         jumanpp_lines: List[str] = []
         for line in jumanpp_text.split("\n"):
-            if not line.strip():
+            if line.strip() == "":
                 continue
             if cls.is_comment_line(line):
                 sentence.comment = line
@@ -445,7 +445,7 @@ class Sentence(Unit):
         child_lines: List[str] = []
         is_clause_end = False
         for line in lines:
-            if not line.strip():
+            if line.strip() == "":
                 continue
             if cls.is_comment_line(line):
                 sentence.comment = line

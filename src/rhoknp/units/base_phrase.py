@@ -229,7 +229,7 @@ class BasePhrase(Unit):
 
         morphemes: List[Morpheme] = []
         for line in lines:
-            if not line.strip():
+            if line.strip() == "":
                 continue
             morphemes.append(Morpheme.from_jumanpp(line))
         base_phrase.morphemes = morphemes

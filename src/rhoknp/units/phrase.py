@@ -181,7 +181,7 @@ class Phrase(Unit):
         base_phrases: List[BasePhrase] = []
         base_phrase_lines: List[str] = []
         for line in lines:
-            if not line.strip():
+            if line.strip() == "":
                 continue
             if BasePhrase.is_base_phrase_line(line) and base_phrase_lines:
                 base_phrases.append(BasePhrase.from_knp("\n".join(base_phrase_lines)))
