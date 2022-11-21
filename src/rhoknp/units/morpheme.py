@@ -17,6 +17,20 @@ if TYPE_CHECKING:
 class Morpheme(Unit):
     """形態素クラス．"""
 
+    _ATTRIBUTES = (
+        "surf",
+        "reading",
+        "lemma",
+        "pos",
+        "pos_id",
+        "subpos",
+        "subpos_id",
+        "conjtype",
+        "conjtype_id",
+        "conjform",
+        "conjform_id",
+    )
+
     _ATTRIBUTE_PAT = re.compile(
         r"([^ ]+| [^ ]*) ([^ ]+| [^ ]*) ([^ ]+) (\d+) ([^ ]+) (\d+) ([^ ]+) (\d+) ([^ ]+) (\d+)"
     )
@@ -287,8 +301,7 @@ class Morpheme(Unit):
 
     def to_jumanpp(self) -> str:
         """Juman++ フォーマットに変換．"""
-        ret = self.text
-        ret += f" {self.reading} {self.lemma} {self.pos} {self.pos_id} {self.subpos} {self.subpos_id} {self.conjtype} {self.conjtype_id} {self.conjform} {self.conjform_id}"
+        ret = " ".join(str(getattr(self, attr)) for attr in self._ATTRIBUTES)
         if self.semantics or self.semantics.is_nil is True:
             ret += f" {self.semantics.to_sstring()}"
         if self.features:
@@ -300,11 +313,10 @@ class Morpheme(Unit):
 
     def to_knp(self) -> str:
         """KNP フォーマットに変換．"""
-        ret = self.text
-        ret += f" {self.reading} {self.lemma} {self.pos} {self.pos_id} {self.subpos} {self.subpos_id} {self.conjtype} {self.conjtype_id} {self.conjform} {self.conjform_id}"
+        ret = " ".join(str(getattr(self, attr)) for attr in self._ATTRIBUTES)
         if self.semantics or self.semantics.is_nil is True:
             ret += f" {self.semantics.to_sstring()}"
-        features = FeatureDict(self.features)
+        features = FeatureDict(self.features)  # deep copy
         for homograph in self.homographs:
             alt_feature_key = "ALT-{}-{}-{}-{}-{}-{}-{}-{}".format(
                 homograph.surf,
