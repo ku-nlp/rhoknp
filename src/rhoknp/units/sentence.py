@@ -361,7 +361,6 @@ class Sentence(Unit):
             ValueError: 解析結果読み込み中にエラーが発生した場合．
 
         Example:
-
             >>> from rhoknp import Sentence
             >>> jumanpp_text = \"\"\"
             ... # S-ID:1
@@ -416,7 +415,6 @@ class Sentence(Unit):
             ValueError: 解析結果読み込み中にエラーが発生した場合．
 
         Example:
-
             >>> from rhoknp import Sentence
             >>> knp_text = \"\"\"
             ... # S-ID:1

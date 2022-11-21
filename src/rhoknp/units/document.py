@@ -19,7 +19,6 @@ class Document(Unit):
 
     Args:
         text: 文書の文字列．
-        doc_id: 文書 ID．
     """
 
     EOD = "EOD"
@@ -302,7 +301,6 @@ class Document(Unit):
             ValueError: 解析結果読み込み中にエラーが発生した場合．
 
         Example:
-
             >>> from rhoknp import Document
             >>> jumanpp_text = \"\"\"
             ... # S-ID:1
@@ -352,7 +350,6 @@ class Document(Unit):
             ValueError: 解析結果読み込み中にエラーが発生した場合．
 
         Example:
-
             >>> from rhoknp import Document
             >>> knp_text = \"\"\"
             ... # S-ID:1

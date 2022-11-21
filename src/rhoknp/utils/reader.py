@@ -13,7 +13,7 @@ def chunk_by_sentence(f: TextIO) -> Iterator[str]:
     Args:
         f: 分割するファイル．
 
-    Examples:
+    Example:
         >>> from rhoknp.units import Sentence
         >>> from rhoknp.utils.reader import chunk_by_sentence
         >>> with open("example.knp") as f:
@@ -41,7 +41,7 @@ def chunk_by_document(
         f: 分割するファイル．
         doc_id_format: 文書IDのフォーマット．
 
-    Examples:
+    Example:
         >>> from rhoknp.units import Document
         >>> from rhoknp.utils.reader import chunk_by_document
         >>> with open("example.knp") as f:
