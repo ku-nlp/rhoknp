@@ -1,6 +1,8 @@
 import textwrap
 
-from rhoknp.cohesion import Predicate
+import pytest
+
+from rhoknp.cohesion import Pas, Predicate
 from rhoknp.units import BasePhrase
 
 
@@ -14,7 +16,13 @@ def test_predicate() -> None:
     )
     base_phrase = BasePhrase.from_knp(knp)
     predicate = Predicate(base_phrase, cfid="行く/いく:動12")
+    pas = Pas(predicate)
+    predicate.pas = pas
     assert predicate.base_phrase == base_phrase
     assert predicate.cfid == "行く/いく:動12"
+    assert predicate.text == "行った。"
+    with pytest.raises(AssertionError):
+        _ = predicate.sid
+    assert predicate.pas == pas
     assert str(predicate) == "行った。"
     assert repr(predicate) == "<rhoknp.cohesion.predicate.Predicate: '行った。'>"
