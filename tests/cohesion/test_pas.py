@@ -5,6 +5,7 @@ from typing import Any, Dict
 
 import pytest
 
+from rhoknp import Sentence
 from rhoknp.cohesion import ArgumentType, EndophoraArgument, ExophoraArgument
 from rhoknp.units import Document
 
@@ -310,6 +311,72 @@ def test_get_arguments(case: Dict[str, Any]) -> None:
         assert args_actual == args_expected
 
 
+def test_invalid_tag_format() -> None:
+    sentence = Sentence.from_knp(
+        textwrap.dedent(
+            """\
+            # S-ID:1
+            * 1D
+            + 1D
+            今日 きょう 今日 名詞 6 時相名詞 10 * 0 * 0
+            は は は 助詞 9 副助詞 2 * 0 * 0
+            * -1D
+            + -1D <格解析結果:晴れ/はれv:判4:マデ/U/-/-/-/-;時間/N/今日/0/0/1/0/0/0/0>
+            晴れ はれ 晴れ 名詞 6 普通名詞 1 * 0 * 0
+            だ だ だ 判定詞 4 * 0 判定詞 25 基本形 2
+            EOS
+            """
+        )
+    )
+    pas = sentence.base_phrases[1].pas
+    assert pas.predicate.base_phrase == sentence.base_phrases[1]
+    assert pas.cases == []
+
+
+def test_sentence_index_out_of_range_case() -> None:
+    sentence_case = Sentence.from_knp(
+        textwrap.dedent(
+            """\
+            # S-ID:1
+            * 1D
+            + 1D
+            今日 きょう 今日 名詞 6 時相名詞 10 * 0 * 0
+            は は は 助詞 9 副助詞 2 * 0 * 0
+            * -1D
+            + -1D <格解析結果:晴れ/はれv:判4:マデ/U/-/-/-/-;時間/N/今日/0/100/1>
+            晴れ はれ 晴れ 名詞 6 普通名詞 1 * 0 * 0
+            だ だ だ 判定詞 4 * 0 判定詞 25 基本形 2
+            EOS
+            """
+        )
+    )
+    pas = sentence_case.base_phrases[1].pas
+    assert pas.predicate.base_phrase == sentence_case.base_phrases[1]
+    assert pas.cases == []
+
+
+def test_sentence_index_out_of_range_pas() -> None:
+    sentence = Sentence.from_knp(
+        textwrap.dedent(
+            """\
+            # S-ID:1
+            * 1D
+            + 1D
+            今日 きょう 今日 名詞 6 時相名詞 10 * 0 * 0
+            は は は 助詞 9 副助詞 2 * 0 * 0
+            * -1D
+            + -1D <述語項構造:晴れ/はれv:判4:マデ/U/-/-/-/-;時間/N/今日/100/0/5>
+            晴れ はれ 晴れ 名詞 6 普通名詞 1 * 0 * 0
+            だ だ だ 判定詞 4 * 0 判定詞 25 基本形 2
+            EOS
+            """
+        )
+    )
+    pas = sentence.base_phrases[1].pas
+    assert pas.predicate.base_phrase == sentence.base_phrases[1]
+    assert pas.cases == []
+
+
 def test_pas_rel() -> None:
     doc_id = "w201106-0000060050"
     doc = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text())
@@ -363,7 +430,7 @@ def test_optional_case() -> None:
         + 4D <rel type="ヲ" target="役" sid="w201106-0000085526-2" id="1"/><rel type="時間" target="今日" sid="w201106-0000085526-2" id="0"/><rel type="ガ" target="私たち" sid="w201106-0000085526-1" id="0"/>
         決めて きめて 決める 動詞 2 * 0 母音動詞 1 タ系連用テ形 14
         * 4D
-        + 4D <rel type="ノ" target="劇" sid="w201106-0000085526-1" id="8"/>
+        + 4D <rel type="ノ" target="劇" sid="w201106-0000085526-1" id="8"/><rel type="ガ" mode="？" target="なし"/>
         場面 ばめん 場面 名詞 6 普通名詞 1 * 0 * 0
         ごと ごと ごと 接尾辞 14 名詞性名詞接尾辞 2 * 0 * 0
         に に に 助詞 9 格助詞 1 * 0 * 0
@@ -399,6 +466,11 @@ def test_optional_case() -> None:
     arguments_relaxed = pas.get_arguments("デ", relax=True, include_optional=True)
     assert {str(arg) for arg in arguments_relaxed} == {"みんなで"}
     logging.getLogger("rhoknp").setLevel(original_log_level)
+
+    # ignored なし tag
+    pas_ignored = Document.from_knp(knp_text).base_phrases[3].pas
+    assert pas_ignored is not None
+    assert len(pas_ignored.get_arguments("ガ")) == 0
 
 
 def test_pas_relax() -> None:
