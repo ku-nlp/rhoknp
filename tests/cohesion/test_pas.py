@@ -353,6 +353,7 @@ def test_invalid_tag_format() -> None:
         )
     )
     pas = sentence.base_phrases[1].pas
+    assert pas is not None
     assert pas.predicate.base_phrase == sentence.base_phrases[1]
     assert pas.cases == []
 
@@ -375,6 +376,7 @@ def test_sentence_index_out_of_range_case() -> None:
         )
     )
     pas = sentence_case.base_phrases[1].pas
+    assert pas is not None
     assert pas.predicate.base_phrase == sentence_case.base_phrases[1]
     assert pas.cases == []
 
@@ -397,6 +399,7 @@ def test_sentence_index_out_of_range_pas() -> None:
         )
     )
     pas = sentence.base_phrases[1].pas
+    assert pas is not None
     assert pas.predicate.base_phrase == sentence.base_phrases[1]
     assert pas.cases == []
 
