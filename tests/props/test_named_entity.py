@@ -1,6 +1,7 @@
+import textwrap
 from pathlib import Path
 
-from rhoknp import Document, Morpheme
+from rhoknp import Document, Morpheme, Sentence
 from rhoknp.props import NamedEntity, NamedEntityCategory
 
 
@@ -40,3 +41,45 @@ def test_double_quote() -> None:
     assert ne.category == NamedEntityCategory.ORGANIZATION
     assert str(ne) == 'ダブル"クオート"'
     assert ne.to_fstring() == f"<NE:{fstring}>"
+
+
+def test_unknown_category() -> None:
+    fstring = "UNKNOWN:アンノウン"
+    sentence = Sentence.from_knp(
+        textwrap.dedent(
+            """\
+            # S-ID:1
+            * -1D
+            + -1D
+            アンノウン アンノウン アンノウン 名詞 6 普通名詞 1 * 0 * 0
+            EOS
+            """
+        )
+    )
+    ne = NamedEntity.from_fstring(
+        fstring,
+        sentence.morphemes,
+    )
+    assert ne is None
+
+
+def test_span_not_found() -> None:
+    fstring = "ORGANIZATION:京都大学"
+    sentence = Sentence.from_knp(
+        textwrap.dedent(
+            """\
+            # S-ID:1
+            * -1D
+            + 1D
+            東京 とうきょう 東京 名詞 6 地名 4 * 0 * 0
+            + -1D
+            大学 だいがく 大学 名詞 6 普通名詞 1 * 0 * 0
+            EOS
+            """
+        )
+    )
+    ne = NamedEntity.from_fstring(
+        fstring,
+        sentence.morphemes,
+    )
+    assert ne is None
