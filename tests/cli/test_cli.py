@@ -4,7 +4,7 @@ import textwrap
 from typer.testing import CliRunner
 
 from rhoknp import Document, __version__
-from rhoknp.cli import app
+from rhoknp.cli.cli import app
 
 runner = CliRunner()
 
@@ -68,7 +68,6 @@ def test_stats_json():
     doc = Document.from_knp(knp)
     with tempfile.NamedTemporaryFile("wt") as f:
         f.write(doc.to_knp())
-        f.flush()
         result = runner.invoke(app, ["stats", f.name, "--json"])
         assert result.exit_code == 0
 

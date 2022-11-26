@@ -75,7 +75,7 @@ class Pas:
             return cls(Predicate(base_phrase))
 
         cfid = match[1] + ":" + match[2]
-        predicate = Predicate(unit=base_phrase, cfid=cfid)
+        predicate = Predicate(base_phrase, cfid=cfid)
 
         if match[3] is None:  # <述語項構造:束の間/つかのま:判0> など
             return cls(predicate)
@@ -163,7 +163,7 @@ class Pas:
                 elif isinstance(arg, EndophoraArgument):
                     entities = arg.base_phrase.entities_all if include_nonidentical else arg.base_phrase.entities
                 else:
-                    raise TypeError(f"invalid argument type: {type(arg)}")
+                    raise AssertionError  # unreachable
                 for entity in entities:
                     if entity.exophora_referent is not None:
                         pas.add_special_argument(case, entity.exophora_referent, entity.eid)

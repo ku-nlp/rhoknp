@@ -38,7 +38,7 @@ myst-parser = "^0.18.1"
 furo = "^2022.4.7"
 
 [tool.poetry.scripts]
-rhoknp = "rhoknp.cli:app"
+rhoknp = "rhoknp.cli.cli:app"
 
 [tool.black]
 line-length = 120

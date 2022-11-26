@@ -5,8 +5,8 @@ import typer
 import yaml
 
 from rhoknp import Document, __version__
-from rhoknp.utils.draw_tree import draw_tree
-from rhoknp.utils.stats import get_document_statistics
+from rhoknp.cli.show import draw_tree
+from rhoknp.cli.stats import get_document_statistics
 
 app = typer.Typer(help="rhoknp CLI utilities.")
 

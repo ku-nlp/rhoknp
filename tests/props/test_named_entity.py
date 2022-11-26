@@ -31,7 +31,11 @@ def test_from_fstring_malformed_line() -> None:
 
 def test_double_quote() -> None:
     fstring = r"ORGANIZATION:ダブル\"クオート\""
-    ne = NamedEntity.from_fstring(fstring, [Morpheme('ダブル"'), Morpheme('クオート"')])
+    dummy_args = ("_", "_", "_", 0, "_", 0, "_", 0, "_", 0)
+    ne = NamedEntity.from_fstring(
+        fstring,
+        [Morpheme('ダブル"', *dummy_args), Morpheme('クオート"', *dummy_args)],
+    )
     assert ne is not None
     assert ne.category == NamedEntityCategory.ORGANIZATION
     assert str(ne) == 'ダブル"クオート"'

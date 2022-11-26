@@ -40,7 +40,7 @@ class Unit(ABC):
         """言語単位の表層文字列．"""
         if self._text is not None:
             return self._text
-        elif self.child_units is not None:
+        if self.child_units is not None:
             self._text = "".join(str(child_unit) for child_unit in self.child_units)
             return self._text
         raise AttributeError

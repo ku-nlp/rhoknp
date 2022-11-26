@@ -328,34 +328,6 @@ def test_text(case: Dict[str, str]) -> None:
 
 
 @pytest.mark.parametrize("case", KNP_SNIPPETS)
-def test_document_error(case: Dict[str, str]) -> None:
-    with pytest.raises(AttributeError):
-        base_phrase = BasePhrase.from_knp(case["knp"])
-        _ = base_phrase.document
-
-
-@pytest.mark.parametrize("case", KNP_SNIPPETS)
-def test_sentence_error(case: Dict[str, str]) -> None:
-    with pytest.raises(AttributeError):
-        base_phrase = BasePhrase.from_knp(case["knp"])
-        _ = base_phrase.sentence
-
-
-@pytest.mark.parametrize("case", KNP_SNIPPETS)
-def test_clause_error(case: Dict[str, str]) -> None:
-    with pytest.raises(AttributeError):
-        base_phrase = BasePhrase.from_knp(case["knp"])
-        _ = base_phrase.clause
-
-
-@pytest.mark.parametrize("case", KNP_SNIPPETS)
-def test_phrase_error(case: Dict[str, str]) -> None:
-    with pytest.raises(AttributeError):
-        base_phrase = BasePhrase.from_knp(case["knp"])
-        _ = base_phrase.phrase
-
-
-@pytest.mark.parametrize("case", KNP_SNIPPETS)
 def test_morpheme_num(case: Dict[str, str]) -> None:
     base_phrase = BasePhrase.from_knp(case["knp"])
     assert len(base_phrase.morphemes) == case["morpheme_num"]

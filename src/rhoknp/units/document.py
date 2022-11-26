@@ -19,14 +19,13 @@ class Document(Unit):
 
     Args:
         text: 文書の文字列．
-        doc_id: 文書 ID．
     """
 
     EOD = "EOD"
 
     count = 0
 
-    def __init__(self, text: Optional[str] = None, doc_id: Optional[str] = None) -> None:
+    def __init__(self, text: Optional[str] = None) -> None:
         super().__init__()
 
         Sentence.count = 0
@@ -40,7 +39,7 @@ class Document(Unit):
         self.index = self.count
         Document.count += 1
 
-        self._doc_id: Optional[str] = doc_id
+        self._doc_id: Optional[str] = None
 
         self.entity_manager = EntityManager()
 
@@ -124,7 +123,7 @@ class Document(Unit):
             AttributeError: 解析結果にアクセスできない場合．
         """
         if self._sentences is None:
-            raise AttributeError("not available before applying a sentence splitter")
+            raise AttributeError("sentences have not been set")
         return self._sentences
 
     @sentences.setter
@@ -279,9 +278,9 @@ class Document(Unit):
         sentences_ = []
         for sentence in sentences:
             if isinstance(sentence, Sentence):
-                if sentence.need_jumanpp:
+                if sentence.need_jumanpp is True:
                     sentences_.append(Sentence.from_raw_text(sentence.text, post_init=False))
-                elif sentence.need_knp:
+                elif sentence.need_knp is True:
                     sentences_.append(Sentence.from_jumanpp(sentence.to_jumanpp(), post_init=False))
                 else:
                     sentences_.append(Sentence.from_knp(sentence.to_knp(), post_init=False))
@@ -299,10 +298,9 @@ class Document(Unit):
             jumanpp_text: Juman++ の解析結果．
 
         Raises:
-            Exception: 解析結果読み込み中にエラーが発生した場合．
+            ValueError: 解析結果読み込み中にエラーが発生した場合．
 
         Example:
-
             >>> from rhoknp import Document
             >>> jumanpp_text = \"\"\"
             ... # S-ID:1
@@ -349,10 +347,9 @@ class Document(Unit):
             knp_text: KNP の解析結果．
 
         Raises:
-            Exception: 解析結果読み込み中にエラーが発生した場合．
+            ValueError: 解析結果読み込み中にエラーが発生した場合．
 
         Example:
-
             >>> from rhoknp import Document
             >>> knp_text = \"\"\"
             ... # S-ID:1
@@ -412,9 +409,9 @@ class Document(Unit):
         """
         if self.need_knp is False:
             return Document.from_knp(self.to_knp())
-        elif self.need_jumanpp is False:
+        if self.need_jumanpp is False:
             return Document.from_jumanpp(self.to_jumanpp())
-        elif self.need_senter is False:
+        if self.need_senter is False:
             return Document.from_line_by_line_text(self.to_raw_text())
         return Document.from_raw_text(self.to_raw_text())
 
@@ -424,7 +421,7 @@ class Document(Unit):
         .. note::
             文分割済みの場合は一行一文の形式で出力．
         """
-        if self.need_senter:
+        if self.need_senter is True:
             return self.text.rstrip() + "\n"
         return "".join(sentence.to_raw_text() for sentence in self.sentences)
 

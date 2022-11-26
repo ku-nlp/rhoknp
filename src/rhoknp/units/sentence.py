@@ -226,7 +226,7 @@ class Sentence(Unit):
         """
         if self._phrases is not None:
             return self._phrases
-        elif self._clauses is not None:
+        if self._clauses is not None:
             return [phrase for clause in self.clauses for phrase in clause.phrases]
         raise AttributeError("phrases have not been set")
 
@@ -257,12 +257,12 @@ class Sentence(Unit):
         Raises:
             AttributeError: 解析結果にアクセスできない場合．
         """
+        if self._clauses is not None:
+            return [morpheme for clause in self.clauses for morpheme in clause.morphemes]
+        if self._phrases is not None:
+            return [morpheme for phrase in self.phrases for morpheme in phrase.morphemes]
         if self._morphemes is not None:
             return self._morphemes
-        elif self._clauses is not None:
-            return [morpheme for clause in self.clauses for morpheme in clause.morphemes]
-        elif self._phrases is not None:
-            return [morpheme for phrase in self.phrases for morpheme in phrase.morphemes]
         raise AttributeError("morphemes have not been set")
 
     @morphemes.setter
@@ -358,10 +358,9 @@ class Sentence(Unit):
             post_init: インスタンス作成後の追加処理を行うなら True．
 
         Raises:
-            Exception: 解析結果読み込み中にエラーが発生した場合．
+            ValueError: 解析結果読み込み中にエラーが発生した場合．
 
         Example:
-
             >>> from rhoknp import Sentence
             >>> jumanpp_text = \"\"\"
             ... # S-ID:1
@@ -380,7 +379,7 @@ class Sentence(Unit):
         morphemes: List[Morpheme] = []
         jumanpp_lines: List[str] = []
         for line in jumanpp_text.split("\n"):
-            if not line.strip():
+            if line.strip() == "":
                 continue
             if cls.is_comment_line(line):
                 sentence.comment = line
@@ -413,10 +412,9 @@ class Sentence(Unit):
             post_init: インスタンス作成後の追加処理を行うなら True．
 
         Raises:
-            Exception: 解析結果読み込み中にエラーが発生した場合．
+            ValueError: 解析結果読み込み中にエラーが発生した場合．
 
         Example:
-
             >>> from rhoknp import Sentence
             >>> knp_text = \"\"\"
             ... # S-ID:1
@@ -445,7 +443,7 @@ class Sentence(Unit):
         child_lines: List[str] = []
         is_clause_end = False
         for line in lines:
-            if not line.strip():
+            if line.strip() == "":
                 continue
             if cls.is_comment_line(line):
                 sentence.comment = line

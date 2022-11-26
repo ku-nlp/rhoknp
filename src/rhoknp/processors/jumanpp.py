@@ -75,7 +75,7 @@ class Jumanpp(Processor):
         if isinstance(document, str):
             document = Document(document)
 
-        if document.need_senter:
+        if document.need_senter is True:
             logger.debug("document needs to be split into sentences")
             if self.senter is None:
                 logger.debug("senter is not specified; use RegexSenter")

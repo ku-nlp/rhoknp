@@ -51,13 +51,8 @@ class BaseArgument(ABC):
 
     @property
     def pas(self) -> "Pas":
-        """述語項構造．
-
-        Raises:
-            AttributeError: 述語項構造がセットされていない場合．
-        """
-        if self._pas is None:
-            raise AttributeError("pas has not been set")
+        """述語項構造．"""
+        assert self._pas is not None
         return self._pas
 
     @pas.setter
@@ -88,11 +83,6 @@ class EndophoraArgument(BaseArgument):
         return isinstance(other, EndophoraArgument) and self.base_phrase == other.base_phrase
 
     @property
-    def unit(self) -> "BasePhrase":
-        """項の核となる基本句．"""
-        return self.base_phrase
-
-    @property
     def document(self) -> "Document":
         """項の核となる基本句が属する文書．"""
         return self.base_phrase.document
@@ -104,7 +94,11 @@ class EndophoraArgument(BaseArgument):
 
     @property
     def clause(self) -> "Clause":
-        """項の核となる基本句が属する節．"""
+        """項の核となる基本句が属する節．
+
+        Raises:
+            AttributeError: 解析結果にアクセスできない場合．
+        """
         return self.base_phrase.clause
 
     @property

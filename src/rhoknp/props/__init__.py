@@ -1,8 +1,8 @@
-from .dependency import DepType
-from .feature import FeatureDict
-from .memo import MemoTag
-from .named_entity import NamedEntity, NamedEntityCategory
-from .semantics import SemanticsDict
+from rhoknp.props.dependency import DepType
+from rhoknp.props.feature import FeatureDict
+from rhoknp.props.memo import MemoTag
+from rhoknp.props.named_entity import NamedEntity, NamedEntityCategory
+from rhoknp.props.semantics import SemanticsDict
 
 __all__ = [
     "DepType",

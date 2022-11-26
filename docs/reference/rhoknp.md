@@ -8,4 +8,5 @@ rhoknp.units
 rhoknp.props
 rhoknp.cohesion
 rhoknp.utils
+rhoknp.cli
 ```
