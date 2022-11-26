@@ -83,11 +83,6 @@ class EndophoraArgument(BaseArgument):
         return isinstance(other, EndophoraArgument) and self.base_phrase == other.base_phrase
 
     @property
-    def unit(self) -> "BasePhrase":
-        """項の核となる基本句．"""
-        return self.base_phrase
-
-    @property
     def document(self) -> "Document":
         """項の核となる基本句が属する文書．"""
         return self.base_phrase.document

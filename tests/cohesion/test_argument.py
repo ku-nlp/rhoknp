@@ -33,7 +33,6 @@ def test_endophora_argument() -> None:
     assert argument.is_special is False
     assert argument.pas == pas
     assert argument.base_phrase == argument_base_phrase
-    assert argument.unit == argument_base_phrase
     with pytest.raises(AssertionError):
         _ = argument.document
     with pytest.raises(AssertionError):
