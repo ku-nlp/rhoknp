@@ -337,14 +337,14 @@ class Sentence(Unit):
         """
         sentence = cls()
         text_lines = []
-        for line in text.split("\n"):
+        for line in text.splitlines():
             if line.strip() == "":
                 continue
             if cls.is_comment_line(line):
                 sentence.comment = line
             else:
                 text_lines.append(line)
-        sentence.text = "\n".join(text_lines)
+        sentence.text = "".join(text_lines)
         if post_init is True:
             sentence.__post_init__()
         return sentence

@@ -54,7 +54,7 @@ def test_apply_to_sentence(text: str) -> None:
         "Canon EOS 80D買った",  # EOS
         '"最高"の気分',  # double quotes
         "&lt;tag&gt;\\エス'ケープ",  # escape
-        # "キャリッジ\rリターン",  # carriage return  # TODO
+        "キャリッジ\rリターン",  # carriage return
         "ライン\nフィード",  # line feed
         "CR\r\nLF",  # CR+LF
     ],
