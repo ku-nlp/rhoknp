@@ -31,7 +31,7 @@ class Sentence(Unit):
     def __init__(self, text: Optional[str] = None):
         super().__init__()
         if text is not None:
-            self.text = text
+            self.text = text.replace("\r", "").replace("\n", "")
 
         Clause.count = 0
         Phrase.count = 0
