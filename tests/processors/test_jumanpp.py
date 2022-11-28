@@ -34,13 +34,15 @@ def test_apply() -> None:
         "Canon EOS 80D買った",  # EOS
         '"最高"の気分',  # double quotes
         "&lt;tag&gt;\\エス'ケープ",  # escape
-        # "これは\rどう",  # carriage return  # TODO
+        "キャリッジ\rリターン",  # carriage return
+        "ライン\nフィード",  # line feed
+        "CR\r\nLF",  # CR+LF
     ],
 )
 def test_apply_to_sentence(text: str) -> None:
     jumanpp = Jumanpp(options=["--juman"])
     sent = jumanpp.apply_to_sentence(text)
-    assert sent.text == text.replace(" ", "　").replace('"', "”")
+    assert sent.text == text.replace(" ", "　").replace('"', "”").replace("\r", "").replace("\n", "")
 
 
 @pytest.mark.parametrize(
@@ -52,13 +54,15 @@ def test_apply_to_sentence(text: str) -> None:
         "Canon EOS 80D買った",  # EOS
         '"最高"の気分',  # double quotes
         "&lt;tag&gt;\\エス'ケープ",  # escape
-        # "これは\rどう",  # carriage return  # TODO
+        # "キャリッジ\rリターン",  # carriage return  # TODO
+        "ライン\nフィード",  # line feed
+        "CR\r\nLF",  # CR+LF
     ],
 )
 def test_apply_to_document(text: str) -> None:
     jumanpp = Jumanpp()
     doc = jumanpp.apply_to_document(text)
-    assert doc.text == text.replace(" ", "　").replace('"', "”")
+    assert doc.text == text.replace(" ", "　").replace('"', "”").replace("\r", "").replace("\n", "")
 
 
 def test_thread_safe() -> None:
