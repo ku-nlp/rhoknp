@@ -35,13 +35,15 @@ def test_apply() -> None:
         '"最高"の気分',  # double quotes
         "&lt;tag&gt;エス'ケープ",  # escape
         # "\\エス'ケープ",  # backslash  # TODO
-        # "これは\rどう",  # carriage return  # TODO
+        "キャリッジ\rリターン",  # carriage return
+        "ライン\nフィード",  # line feed
+        "CR\r\nLF",  # CR+LF
     ],
 )
 def test_apply_to_sentence(text: str) -> None:
     knp = KNP(options=["-tab"])
     sent = knp.apply_to_sentence(text)
-    assert sent.text == text.replace(" ", "　").replace('"', "”")
+    assert sent.text == text.replace(" ", "　").replace('"', "”").replace("\r", "").replace("\n", "")
 
 
 def test_thread_safe() -> None:
@@ -65,13 +67,15 @@ def test_thread_safe() -> None:
         '"最高"の気分',  # double quotes
         "&lt;tag&gt;エス'ケープ",  # escape
         # "\\エス'ケープ",  # backslash  # TODO
-        # "これは\rどう",  # carriage return  # TODO
+        "キャリッジ\rリターン",  # carriage return
+        "ライン\nフィード",  # line feed
+        "CR\r\nLF",  # CR+LF
     ],
 )
 def test_apply_to_document(text: str) -> None:
     knp = KNP()
     doc = knp.apply_to_document(text)
-    assert doc.text == text.replace(" ", "　").replace('"', "”")
+    assert doc.text == text.replace(" ", "　").replace('"', "”").replace("\r", "").replace("\n", "")
 
 
 def test_is_available() -> None:
