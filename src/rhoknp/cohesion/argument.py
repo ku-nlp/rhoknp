@@ -80,7 +80,7 @@ class EndophoraArgument(BaseArgument):
         return self.base_phrase.text
 
     def __eq__(self, other: Any) -> bool:
-        return isinstance(other, EndophoraArgument) and self.base_phrase == other.base_phrase
+        return isinstance(other, type(self)) and self.base_phrase == other.base_phrase
 
     @property
     def document(self) -> "Document":
@@ -127,7 +127,7 @@ class ExophoraArgument(BaseArgument):
         return str(self.exophora_referent)
 
     def __eq__(self, other: Any) -> bool:
-        return isinstance(other, ExophoraArgument) and self.exophora_referent == other.exophora_referent
+        return isinstance(other, type(self)) and self.exophora_referent == other.exophora_referent
 
 
 Argument = Union[EndophoraArgument, ExophoraArgument]

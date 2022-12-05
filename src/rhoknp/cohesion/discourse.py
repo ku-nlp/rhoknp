@@ -122,7 +122,7 @@ class DiscourseRelation:
     explicit: bool = False  #: 明示的な談話関係ならTrue．．
 
     def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, DiscourseRelation):
+        if not isinstance(other, type(self)):
             return False
         return self.label == other.label and self.modifier == other.modifier and self.head == other.head
 

@@ -69,7 +69,7 @@ class Sentence(Unit):
                         self.named_entities.append(named_entity)
 
     def __eq__(self, other: Any) -> bool:
-        if isinstance(other, Sentence) is False:
+        if isinstance(other, type(self)) is False:
             return False
         return self._sent_id == other._sent_id and self.text == other.text
 
