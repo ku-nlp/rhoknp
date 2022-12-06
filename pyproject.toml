@@ -37,6 +37,12 @@ sphinx-copybutton = "^0.5.0"
 myst-parser = "^0.18.1"
 furo = "^2022.4.7"
 
+[tool.poetry.group.serve]
+
+[tool.poetry.group.serve.dependencies]
+fastapi = "^0.88.0"
+uvicorn = "^0.20.0"
+
 [tool.poetry.scripts]
 rhoknp = "rhoknp.cli.cli:app"
 
