@@ -67,7 +67,7 @@ def stats(
         typer.echo(yaml.dump(doc_stats, allow_unicode=True, sort_keys=False))
 
 
-@app.command(help="Show statistics of given KNP file.")
+@app.command(help="Serve an analyzer as HTTP server.")
 def serve(
     analyzer: AnalyzerType = typer.Argument(..., help="Analyzer to use. Choose from jumanpp, knp, kwja."),
     host: str = typer.Option("localhost", "--host", "-h", help="Host to listen on."),
