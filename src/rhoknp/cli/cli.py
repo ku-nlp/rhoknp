@@ -5,7 +5,7 @@ import typer
 import yaml
 
 from rhoknp import Document, __version__
-from rhoknp.cli.serve import AnalyzerType
+from rhoknp.cli.serve import AnalyzerType, serve_analyzer
 from rhoknp.cli.show import draw_tree
 from rhoknp.cli.stats import get_document_statistics
 
@@ -73,14 +73,14 @@ def serve(
     host: str = typer.Option("localhost", "--host", "-h", help="Host to listen on."),
     port: int = typer.Option(8000, "--port", "-p", help="Port to listen on."),
 ) -> None:
-    """解析器を起動し，HTTP サーバとして動作．
+    """解析器を起動し，HTTP サーバとして提供．
 
     Args:
         analyzer: 解析器の種類．
         host: ホスト．
         port: ポート．
     """
-    pass
+    serve_analyzer(analyzer, host, port)
 
 
 if __name__ == "__main__":

@@ -1,7 +1,6 @@
 import tempfile
 import textwrap
 
-import pytest
 from typer.testing import CliRunner
 
 from rhoknp import Document, __version__
@@ -76,12 +75,6 @@ def test_stats_json() -> None:
 def test_stats_error() -> None:
     result = runner.invoke(app, ["stats", "foo.knp"])  # not exist
     assert result.exit_code == 2
-
-
-@pytest.mark.parametrize("analyzer", ["jumanpp", "knp", "kwja"])
-def test_serve(analyzer: str) -> None:
-    result = runner.invoke(app, ["serve", analyzer])
-    assert result.exit_code == 0
 
 
 def test_serve_error() -> None:
