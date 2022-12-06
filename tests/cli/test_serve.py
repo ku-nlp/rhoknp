@@ -37,3 +37,17 @@ def test_analyze_knp():
     assert "result" in json
     document = Document.from_knp(json["result"])
     assert document.text == "こんにちは"
+
+
+def test_index_jumanpp():
+    app = create_app(AnalyzerType.jumanpp)
+    client = TestClient(app)
+    response = client.get("/", params={"text": "こんにちは"})
+    assert response.status_code == 200
+
+
+def test_index_knp():
+    app = create_app(AnalyzerType.knp)
+    client = TestClient(app)
+    response = client.get("/", params={"text": "こんにちは"})
+    assert response.status_code == 200
