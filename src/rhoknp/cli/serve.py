@@ -16,9 +16,9 @@ from rhoknp.processors import KNP, KWJA, Jumanpp
 class AnalyzerType(Enum):
     """解析器の種類．"""
 
-    jumanpp = "jumanpp"
-    knp = "knp"
-    kwja = "kwja"
+    JUMANPP = "jumanpp"
+    KNP = "knp"
+    KWJA = "kwja"
 
 
 BASE = textwrap.dedent(
@@ -91,11 +91,11 @@ def create_app(analyzer: AnalyzerType) -> "fastapi.FastAPI":
         raise ImportError("fastapi is required to run the server. Install it with `pip install fastapi`.")
 
     processor: Optional[Union[Jumanpp, KNP, KWJA]] = None
-    if analyzer == AnalyzerType.jumanpp:
+    if analyzer == AnalyzerType.JUMANPP:
         processor = Jumanpp()
-    elif analyzer == AnalyzerType.knp:
+    elif analyzer == AnalyzerType.KNP:
         processor = KNP()
-    elif analyzer == AnalyzerType.kwja:
+    elif analyzer == AnalyzerType.KWJA:
         processor = KWJA()
     else:
         raise AssertionError  # unreachable

@@ -8,7 +8,7 @@ from rhoknp.cli.serve import AnalyzerType, create_app
 
 @pytest.mark.parametrize(
     "analyzer",
-    [AnalyzerType.jumanpp, AnalyzerType.knp, AnalyzerType.kwja],
+    [AnalyzerType.JUMANPP, AnalyzerType.KNP, AnalyzerType.KWJA],
 )
 def test_create_app(analyzer: AnalyzerType) -> None:
     app = create_app(analyzer)
@@ -16,7 +16,7 @@ def test_create_app(analyzer: AnalyzerType) -> None:
 
 
 def test_analyze_jumanpp():
-    app = create_app(AnalyzerType.jumanpp)
+    app = create_app(AnalyzerType.JUMANPP)
     client = TestClient(app)
     response = client.get("/analyze", params={"text": "こんにちは"})
     assert response.status_code == 200
@@ -28,7 +28,7 @@ def test_analyze_jumanpp():
 
 
 def test_analyze_knp():
-    app = create_app(AnalyzerType.knp)
+    app = create_app(AnalyzerType.KNP)
     client = TestClient(app)
     response = client.get("/analyze", params={"text": "こんにちは"})
     assert response.status_code == 200
@@ -40,14 +40,14 @@ def test_analyze_knp():
 
 
 def test_index_jumanpp():
-    app = create_app(AnalyzerType.jumanpp)
+    app = create_app(AnalyzerType.JUMANPP)
     client = TestClient(app)
     response = client.get("/", params={"text": "こんにちは"})
     assert response.status_code == 200
 
 
 def test_index_knp():
-    app = create_app(AnalyzerType.knp)
+    app = create_app(AnalyzerType.KNP)
     client = TestClient(app)
     response = client.get("/", params={"text": "こんにちは"})
     assert response.status_code == 200
