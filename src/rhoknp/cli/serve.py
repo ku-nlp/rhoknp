@@ -27,7 +27,7 @@ BASE = textwrap.dedent(
     <html lang="ja">
     <head>
         <meta charset="UTF-8">
-        <title>rhoknp</title>
+        <title>{title}</title>
         <link
             rel="stylesheet"
             href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
@@ -38,7 +38,7 @@ BASE = textwrap.dedent(
     <body>
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
             <div class="container">
-                <a class="navbar-brand" href="#">rhoknp</a>
+                <a class="navbar-brand" href="#">{title}</a>
             </div>
         </nav>
         <div class="container mt-3">
@@ -115,12 +115,21 @@ def create_app(analyzer: AnalyzerType) -> "fastapi.FastAPI":
 
     @app.get("/", response_class=fastapi.responses.HTMLResponse)
     async def index(text: str = ""):
+        if analyzer == AnalyzerType.JUMANPP:
+            title = "Juman++ Demo"
+        elif analyzer == AnalyzerType.KNP:
+            title = "KNP Demo"
+        elif analyzer == AnalyzerType.KWJA:
+            title = "KWJA Demo"
+        else:
+            raise AssertionError  # unreachable
         if text == "":
-            return BASE.format(result="")
+            return BASE.format(title=title, result="")
         else:
             result = get_result(text)
             return BASE.format(
                 result=RESULT_TEMPLATE.format(
+                    title=title,
                     text=html.escape(text),
                     result=html.escape(result["result"]),
                 )
