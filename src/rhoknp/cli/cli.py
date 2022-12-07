@@ -5,6 +5,7 @@ import typer
 import yaml
 
 from rhoknp import Document, __version__
+from rhoknp.cli.serve import AnalyzerType, serve_analyzer
 from rhoknp.cli.show import draw_tree
 from rhoknp.cli.stats import get_document_statistics
 
@@ -64,6 +65,22 @@ def stats(
         typer.echo(json.dumps(doc_stats, ensure_ascii=False, indent=4))
     else:
         typer.echo(yaml.dump(doc_stats, allow_unicode=True, sort_keys=False))
+
+
+@app.command(help="Serve an analyzer as HTTP server.")
+def serve(
+    analyzer: AnalyzerType = typer.Argument(..., help="Analyzer to use. Choose from jumanpp, knp, kwja."),
+    host: str = typer.Option("localhost", "--host", "-h", help="Host to listen on."),
+    port: int = typer.Option(8000, "--port", "-p", help="Port to listen on."),
+) -> None:
+    """解析器を起動し，HTTP サーバとして提供．
+
+    Args:
+        analyzer: 解析器の種類．
+        host: ホスト．
+        port: ポート．
+    """
+    serve_analyzer(analyzer, host, port)
 
 
 if __name__ == "__main__":
