@@ -1,7 +1,7 @@
 import html
 import textwrap
 from enum import Enum
-from typing import Dict, Optional, Union
+from typing import Optional, Union
 
 try:
     import fastapi
@@ -21,7 +21,7 @@ class AnalyzerType(Enum):
     KWJA = "kwja"
 
 
-BASE = textwrap.dedent(
+BASE_TEMPLATE = textwrap.dedent(
     """\
     <!DOCTYPE html>
     <html lang="ja">
@@ -47,7 +47,7 @@ BASE = textwrap.dedent(
                     <form>
                         <div>
                             <label for="text" class="form-label">テキスト</label>
-                            <textarea class="form-control" id="text" name="text" rows="3"></textarea>
+                            <textarea class="form-control" id="text" name="text" rows="3" required></textarea>
                         </div>
                         <button type="submit" class="btn btn-outline-primary mt-3">解析</button>
                     </form>
@@ -88,7 +88,7 @@ def create_app(analyzer: AnalyzerType) -> "fastapi.FastAPI":
         analyzer: 解析器の種類．
     """
     if fastapi is None:
-        raise ImportError("fastapi is required to run the server. Install it with `pip install fastapi`.")
+        raise ImportError("fastapi is required to run the server. Install it with `pip install rhoknp[serve]`.")
 
     processor: Optional[Union[Jumanpp, KNP, KWJA]] = None
     if analyzer == AnalyzerType.JUMANPP:
@@ -102,16 +102,15 @@ def create_app(analyzer: AnalyzerType) -> "fastapi.FastAPI":
 
     app = fastapi.FastAPI()
 
-    def get_result(text: str) -> Dict[str, str]:
+    def get_result(text: str) -> str:
         if text == "":
-            return {"text": text, "result": ""}
-
+            return ""
         assert processor is not None
         document = processor.apply(text)
-        if document.need_knp is False:
-            return {"text": text, "result": document.to_knp()}
+        if analyzer == AnalyzerType.JUMANPP:
+            return document.to_jumanpp()
         else:
-            return {"text": text, "result": document.to_jumanpp()}
+            return document.to_knp()
 
     @app.get("/", response_class=fastapi.responses.HTMLResponse)
     async def index(text: str = ""):
@@ -124,20 +123,20 @@ def create_app(analyzer: AnalyzerType) -> "fastapi.FastAPI":
         else:
             raise AssertionError  # unreachable
         if text == "":
-            return BASE.format(title=title, result="")
+            return BASE_TEMPLATE.format(title=title, result="")
         else:
             result = get_result(text)
-            return BASE.format(
+            return BASE_TEMPLATE.format(
+                title=title,
                 result=RESULT_TEMPLATE.format(
-                    title=title,
                     text=html.escape(text),
-                    result=html.escape(result["result"]),
-                )
+                    result=html.escape(result),
+                ),
             )
 
     @app.get("/analyze", response_class=fastapi.responses.JSONResponse)
     async def analyze(text: str = ""):
-        return get_result(text)
+        return {"text": text, "result": get_result(text)}
 
     return app
 
@@ -151,7 +150,7 @@ def serve_analyzer(analyzer: AnalyzerType, host: str, port: int) -> None:
         port: ポート．
     """
     if uvicorn is None:
-        raise ImportError("uvicorn is required to run the server. Install it with `pip install uvicorn`.")
+        raise ImportError("uvicorn is required to run the server. Install it with `pip install rhoknp[serve]`.")
 
     app = create_app(analyzer)
     config = uvicorn.Config(app, host=host, port=port)
