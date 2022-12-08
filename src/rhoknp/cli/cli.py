@@ -80,7 +80,7 @@ def serve(
         host: ホスト．
         port: ポート．
     """
-    serve_analyzer(analyzer, host, port)
+    serve_analyzer(analyzer, host, port)  # pragma: no cover
 
 
 if __name__ == "__main__":
