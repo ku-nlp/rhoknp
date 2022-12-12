@@ -2,6 +2,7 @@
 
 [![Test](https://img.shields.io/github/workflow/status/ku-nlp/rhoknp/test?logo=github&label=test&style=flat-square)](https://github.com/ku-nlp/rhoknp/actions/workflows/test.yml)
 [![Codecov](https://img.shields.io/codecov/c/github/ku-nlp/rhoknp?logo=codecov&style=flat-square)](https://codecov.io/gh/ku-nlp/rhoknp)
+[![CodeFactor](https://img.shields.io/codefactor/grade/github/ku-nlp/rhoknp?style=flat-square)](https://www.codefactor.io/repository/github/ku-nlp/rhoknp)
 [![PyPI](https://img.shields.io/pypi/v/rhoknp?style=flat-square)](https://pypi.org/project/rhoknp/)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/rhoknp?style=flat-square)
 [![Documentation](https://img.shields.io/readthedocs/rhoknp?style=flat-square)](https://rhoknp.readthedocs.io/en/latest/?badge=latest)
