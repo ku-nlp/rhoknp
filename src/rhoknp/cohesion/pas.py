@@ -13,6 +13,10 @@ from rhoknp.cohesion.rel import RelMode
 if TYPE_CHECKING:
     from rhoknp.units.base_phrase import BasePhrase
 
+_HIRAGANA = "ぁあぃいぅうぇえぉおかがきぎくぐけげこごさざしじすずせぜそぞただちぢっつづてでとどなにぬねのはばぱひびぴふぶぷへべぺほぼぽまみむめもゃやゅゆょよらりるれろわをんーゎゐゑゕゖゔゝゞ"
+_KATAKANA = "ァアィイゥウェエォオカガキギクグケゲコゴサザシジスズセゼソゾタダチヂッツヅテデトドナニヌネノハバパヒビピフブプヘベペホボポマミムメモャヤュユョヨラリルレロワヲンーヮヰヱヵヶヴヽヾ"
+_HIRA2KATA = str.maketrans(_HIRAGANA, _KATAKANA)
+
 logger = logging.getLogger(__name__)
 
 
@@ -145,6 +149,7 @@ class Pas:
         References:
             格・省略・共参照タグ付けの基準 3.2.1 修飾的表現
         """
+        case = case.translate(_HIRA2KATA)
         args = self._arguments[case]
         if include_nonidentical is True:
             args += self._arguments[case + "≒"]
@@ -211,6 +216,7 @@ class Pas:
             mode: 関係のモード．
             arg_type: 述語と項の関係タイプ．
         """
+        case = case.translate(_HIRA2KATA)
         argument = EndophoraArgument(
             base_phrase,
             arg_type or self._get_arg_type(self.predicate, base_phrase, case),
@@ -232,6 +238,7 @@ class Pas:
             eid: エンティティ ID．
             mode: 関係のモード．
         """
+        case = case.translate(_HIRA2KATA)
         if isinstance(exophora_referent, str):
             exophora_referent = ExophoraReferent(exophora_referent)
         special_argument = ExophoraArgument(exophora_referent, eid)
@@ -247,6 +254,7 @@ class Pas:
         Args:
             case: 対象の格．
         """
+        case = case.translate(_HIRA2KATA)
         if not self._arguments[case]:
             logger.info(f"no preceding argument found in {self.sid}. 'なし' is ignored")
             return
