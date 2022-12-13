@@ -267,10 +267,8 @@ class Pas:
         if predicate.base_phrase.parent_index is None:
             return ArgumentType.UNASSIGNED
         if arg_base_phrase in predicate.base_phrase.children:
-            dep_case = arg_base_phrase.features.get("係", "")
-            assert isinstance(dep_case, str)
-            dep_case = dep_case.rstrip("格")
-            if (case == dep_case) or (case == "判ガ" and dep_case == "ガ") or (case == "ノ？" and dep_case == "ノ"):
+            tail_morpheme = arg_base_phrase.morphemes[-1]
+            if tail_morpheme.subpos == "格助詞" and tail_morpheme.text.translate(_HIRA2KATA) == case:
                 return ArgumentType.CASE_EXPLICIT
             else:
                 return ArgumentType.CASE_HIDDEN
