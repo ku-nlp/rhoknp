@@ -42,6 +42,7 @@ maxdepth: 1
 
 installation/index
 reference/index
+format/index
 ```
 
 ```{toctree}
