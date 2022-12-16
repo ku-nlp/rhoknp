@@ -81,7 +81,12 @@ class EndophoraArgument(BaseArgument):
         return self.base_phrase.text
 
     def __eq__(self, other: Any) -> bool:
-        return isinstance(other, type(self)) and self.base_phrase == other.base_phrase
+        if isinstance(other, type(self)) is False:
+            return False
+        if self._pas is not None and other._pas is not None:
+            if self.pas.predicate != other.pas.predicate:
+                return False
+        return self.case == other.case and self.base_phrase == other.base_phrase
 
     @property
     def document(self) -> "Document":
@@ -131,7 +136,12 @@ class ExophoraArgument(BaseArgument):
         return str(self.exophora_referent)
 
     def __eq__(self, other: Any) -> bool:
-        return isinstance(other, type(self)) and self.exophora_referent == other.exophora_referent
+        if isinstance(other, type(self)) is False:
+            return False
+        if self._pas is not None and other._pas is not None:
+            if self.pas.predicate != other.pas.predicate:
+                return False
+        return self.case == other.case and self.exophora_referent == other.exophora_referent
 
 
 Argument = Union[EndophoraArgument, ExophoraArgument]

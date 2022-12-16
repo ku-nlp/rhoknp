@@ -47,7 +47,9 @@ def test_endophora_argument() -> None:
     assert str(argument) == argument_base_phrase.text
     assert argument != "test"
     # TODO: consider whether this is expected behavior
-    assert argument == EndophoraArgument("ガ", argument_base_phrase, arg_type=ArgumentType.EXOPHORA)
+    another_argument = EndophoraArgument("ガ", argument_base_phrase, arg_type=ArgumentType.EXOPHORA)
+    another_argument.pas = pas
+    assert argument == another_argument
 
 
 def test_exophora_argument() -> None:
@@ -74,4 +76,6 @@ def test_exophora_argument() -> None:
     assert eval(repr(argument)) == argument
     assert str(argument) == "不特定:人"
     assert argument != "test"
-    assert argument == ExophoraArgument("ガ", exophora_referent, eid=1)  # TODO: consider whether this is expected
+    another_argument = ExophoraArgument("ガ", exophora_referent, eid=1)
+    another_argument.pas = pas
+    assert argument == another_argument
