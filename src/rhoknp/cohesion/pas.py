@@ -218,6 +218,7 @@ class Pas:
         """
         case = case.translate(_HIRA2KATA)
         argument = EndophoraArgument(
+            case,
             base_phrase,
             arg_type or self._get_arg_type(self.predicate, base_phrase, case),
         )
@@ -241,7 +242,7 @@ class Pas:
         case = case.translate(_HIRA2KATA)
         if isinstance(exophora_referent, str):
             exophora_referent = ExophoraReferent(exophora_referent)
-        special_argument = ExophoraArgument(exophora_referent, eid)
+        special_argument = ExophoraArgument(case, exophora_referent, eid)
         special_argument.pas = self
         if mode is not None:
             self.modes[case] = mode

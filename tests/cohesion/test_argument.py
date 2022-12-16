@@ -25,9 +25,10 @@ def test_endophora_argument() -> None:
         )
     )
     arg_type = ArgumentType.OMISSION
-    argument = EndophoraArgument(argument_base_phrase, arg_type=arg_type)
+    argument = EndophoraArgument("ガ", argument_base_phrase, arg_type=arg_type)
     pas = Pas(Predicate(predicate_base_phrase))
     argument.pas = pas
+    assert argument.case == "ガ"
     assert argument.type == arg_type
     assert argument.optional is False
     assert argument.is_special is False
@@ -42,11 +43,17 @@ def test_endophora_argument() -> None:
     with pytest.raises(AssertionError):
         _ = argument.phrase
 
-    assert repr(argument) == "<rhoknp.cohesion.argument.EndophoraArgument: '彼は'>"
+    assert repr(argument) == "<rhoknp.cohesion.argument.EndophoraArgument: 'ガ', '彼は'>"
     assert str(argument) == argument_base_phrase.text
     assert argument != "test"
-    # TODO: consider whether this is expected behavior
-    assert argument == EndophoraArgument(argument_base_phrase, arg_type=ArgumentType.EXOPHORA)
+    another_argument = EndophoraArgument("ガ", argument_base_phrase, arg_type=ArgumentType.EXOPHORA)
+    another_argument.pas = pas
+    assert argument == another_argument
+
+    predicate_base_phrase.text = "食べる"
+    another_pas = Pas(Predicate(predicate_base_phrase))
+    another_argument.pas = another_pas
+    assert argument != another_argument
 
 
 def test_exophora_argument() -> None:
@@ -60,16 +67,24 @@ def test_exophora_argument() -> None:
     )
     pas = Pas(Predicate(predicate_base_phrase))
     exophora_referent = ExophoraReferent("不特定:人")
-    argument = ExophoraArgument(exophora_referent, eid=3)
+    argument = ExophoraArgument("ガ", exophora_referent, eid=3)
     argument.pas = pas
+    assert argument.case == "ガ"
     assert argument.type == ArgumentType.EXOPHORA
     assert argument.optional is False
     assert argument.is_special is True
     assert argument.pas == pas
     assert argument.exophora_referent == exophora_referent
     assert argument.eid == 3
-    assert repr(argument) == f"ExophoraArgument(exophora_referent={repr(exophora_referent)}, eid=3)"
+    assert repr(argument) == f"ExophoraArgument(case='ガ', exophora_referent={repr(exophora_referent)}, eid=3)"
     assert eval(repr(argument)) == argument
     assert str(argument) == "不特定:人"
     assert argument != "test"
-    assert argument == ExophoraArgument(exophora_referent, eid=1)  # TODO: consider whether this is expected
+    another_argument = ExophoraArgument("ガ", exophora_referent, eid=1)
+    another_argument.pas = pas
+    assert argument == another_argument
+
+    predicate_base_phrase.text = "食べる"
+    another_pas = Pas(Predicate(predicate_base_phrase))
+    another_argument.pas = another_pas
+    assert argument != another_argument

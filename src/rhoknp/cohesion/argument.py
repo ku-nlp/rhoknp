@@ -27,9 +27,10 @@ class ArgumentType(Enum):
 class BaseArgument(ABC):
     """項の基底クラス．"""
 
-    def __init__(self, arg_type: ArgumentType) -> None:
+    def __init__(self, case: str, arg_type: ArgumentType) -> None:
+        self.case: str = case
         self.type: ArgumentType = arg_type
-        self.optional = False
+        self.optional: bool = False
         self._pas: Optional["Pas"] = None
 
     @abstractmethod
@@ -69,18 +70,23 @@ class EndophoraArgument(BaseArgument):
         arg_type: 項のタイプ．
     """
 
-    def __init__(self, base_phrase: "BasePhrase", arg_type: ArgumentType) -> None:
-        super().__init__(arg_type)
+    def __init__(self, case: str, base_phrase: "BasePhrase", arg_type: ArgumentType) -> None:
+        super().__init__(case, arg_type)
         self.base_phrase = base_phrase  #: 項の核となる基本句．
 
     def __repr__(self) -> str:
-        return f"<{self.__module__}.{self.__class__.__name__}: {repr(self.base_phrase.text)}>"
+        return f"<{self.__module__}.{self.__class__.__name__}: {repr(self.case)}, {repr(self.base_phrase.text)}>"
 
     def __str__(self) -> str:
         return self.base_phrase.text
 
     def __eq__(self, other: Any) -> bool:
-        return isinstance(other, type(self)) and self.base_phrase == other.base_phrase
+        if isinstance(other, type(self)) is False:
+            return False
+        if self._pas is not None and other._pas is not None:
+            if self.pas.predicate != other.pas.predicate:
+                return False
+        return self.case == other.case and self.base_phrase == other.base_phrase
 
     @property
     def document(self) -> "Document":
@@ -115,19 +121,27 @@ class ExophoraArgument(BaseArgument):
         eid: エンティティID．
     """
 
-    def __init__(self, exophora_referent: ExophoraReferent, eid: int) -> None:
-        super().__init__(ArgumentType.EXOPHORA)
+    def __init__(self, case: str, exophora_referent: ExophoraReferent, eid: int) -> None:
+        super().__init__(case, ArgumentType.EXOPHORA)
         self.exophora_referent = exophora_referent  #: 外界照応における照応先．
         self.eid = eid  #: エンティティID．
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(exophora_referent={repr(self.exophora_referent)}, eid={repr(self.eid)})"
+        return (
+            f"{self.__class__.__name__}(case={repr(self.case)}, exophora_referent={repr(self.exophora_referent)}, "
+            f"eid={repr(self.eid)})"
+        )
 
     def __str__(self) -> str:
         return str(self.exophora_referent)
 
     def __eq__(self, other: Any) -> bool:
-        return isinstance(other, type(self)) and self.exophora_referent == other.exophora_referent
+        if isinstance(other, type(self)) is False:
+            return False
+        if self._pas is not None and other._pas is not None:
+            if self.pas.predicate != other.pas.predicate:
+                return False
+        return self.case == other.case and self.exophora_referent == other.exophora_referent
 
 
 Argument = Union[EndophoraArgument, ExophoraArgument]
