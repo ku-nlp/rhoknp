@@ -46,10 +46,14 @@ def test_endophora_argument() -> None:
     assert repr(argument) == "<rhoknp.cohesion.argument.EndophoraArgument: 'ガ', '彼は'>"
     assert str(argument) == argument_base_phrase.text
     assert argument != "test"
-    # TODO: consider whether this is expected behavior
     another_argument = EndophoraArgument("ガ", argument_base_phrase, arg_type=ArgumentType.EXOPHORA)
     another_argument.pas = pas
     assert argument == another_argument
+
+    predicate_base_phrase.text = "食べる"
+    another_pas = Pas(Predicate(predicate_base_phrase))
+    another_argument.pas = another_pas
+    assert argument != another_argument
 
 
 def test_exophora_argument() -> None:
@@ -79,3 +83,8 @@ def test_exophora_argument() -> None:
     another_argument = ExophoraArgument("ガ", exophora_referent, eid=1)
     another_argument.pas = pas
     assert argument == another_argument
+
+    predicate_base_phrase.text = "食べる"
+    another_pas = Pas(Predicate(predicate_base_phrase))
+    another_argument.pas = another_pas
+    assert argument != another_argument
