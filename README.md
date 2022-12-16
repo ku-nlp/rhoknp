@@ -1,6 +1,6 @@
 # rhoknp: Yet another Python binding for Juman++/KNP/KWJA
 
-[![Test](https://img.shields.io/github/workflow/status/ku-nlp/rhoknp/test?logo=github&label=test&style=flat-square)](https://github.com/ku-nlp/rhoknp/actions/workflows/test.yml)
+[![Test](https://img.shields.io/github/actions/workflow/status/ku-nlp/rhoknp/test.yml?branch=main&logo=github&label=test&style=flat-square)](https://github.com/ku-nlp/rhoknp/actions/workflows/test.yml)
 [![Codecov](https://img.shields.io/codecov/c/github/ku-nlp/rhoknp?logo=codecov&style=flat-square)](https://codecov.io/gh/ku-nlp/rhoknp)
 [![CodeFactor](https://img.shields.io/codefactor/grade/github/ku-nlp/rhoknp?style=flat-square)](https://www.codefactor.io/repository/github/ku-nlp/rhoknp)
 [![PyPI](https://img.shields.io/pypi/v/rhoknp?style=flat-square)](https://pypi.org/project/rhoknp/)
@@ -15,7 +15,9 @@ import rhoknp
 
 # Perform language analysis by Juman++
 jumanpp = rhoknp.Jumanpp()
-sentence = jumanpp.apply_to_sentence("電気抵抗率は電気の通しにくさを表す物性値である。")
+sentence = jumanpp.apply_to_sentence(
+    "電気抵抗率は電気の通しにくさを表す物性値である。"
+)
 
 # Save language analysis by Juman++
 with open("result.jumanpp", "wt") as f:
@@ -24,22 +26,6 @@ with open("result.jumanpp", "wt") as f:
 # Load language analysis by Juman++
 with open("result.jumanpp", "rt") as f:
     sentence = rhoknp.Sentence.from_jumanpp(f.read())
-
-# Perform language analysis by KNP
-knp = rhoknp.KNP()
-sentence = knp.apply_to_sentence(sentence)  # or knp.apply_to_sentence("電気抵抗率は...")
-
-# Save language analysis by KNP
-with open("result.knp", "wt") as f:
-    f.write(sentence.to_knp())
-
-# Load language analysis by KNP
-with open("result.knp", "rt") as f:
-    sentence = rhoknp.Sentence.from_knp(f.read())
-
-# Perform language analysis by KWJA
-kwja = rhoknp.KWJA()
-sentence = kwja.apply_to_sentence(sentence)  # or kwja.apply_to_sentence("電気抵抗率は...")
 ```
 
 ## Requirements
