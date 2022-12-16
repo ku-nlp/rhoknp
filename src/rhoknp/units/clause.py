@@ -41,22 +41,22 @@ class Clause(Unit):
         for key in self.end.features:
             if key.startswith("節-機能"):
                 if relation := DiscourseRelation.from_clause_function_fstring(key, modifier=self):
-                    self.discourse_relations.append(relation)
+                    relation.modifier.discourse_relations.append(relation)
         for base_phrase in self.base_phrases:
             for key in base_phrase.features:
                 if key.startswith("節-前向き機能"):
                     if base_phrase.parent is None or base_phrase.parent in self.base_phrases:
-                        modifier = self
+                        head = self
                     else:
-                        modifier = base_phrase.parent.clause
-                    if relation := DiscourseRelation.from_backward_clause_function_fstring(key, modifier=modifier):
-                        modifier.discourse_relations.append(relation)
+                        head = base_phrase.parent.clause
+                    if relation := DiscourseRelation.from_backward_clause_function_fstring(key, head=head):
+                        relation.modifier.discourse_relations.append(relation)
         if values := self.end.features.get("談話関係", None):
             assert isinstance(values, str)
             for value in values.split(";"):
                 if relation := DiscourseRelation.from_discourse_relation_fstring(value, modifier=self):
-                    if relation not in self.discourse_relations:
-                        self.discourse_relations.append(relation)
+                    if relation not in relation.modifier.discourse_relations:
+                        relation.modifier.discourse_relations.append(relation)
 
     def __eq__(self, other: Any) -> bool:
         if isinstance(other, type(self)) is False:

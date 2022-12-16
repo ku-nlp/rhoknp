@@ -248,9 +248,9 @@ def test_backward_clause_function_0():
         """
     )
     document = Document.from_knp(knp_text)
-    assert len(document.clauses[0].discourse_relations) == 0
-    assert len(document.clauses[1].discourse_relations) == 1
-    assert document.clauses[1].discourse_relations[0].head == document.clauses[0]
+    assert len(document.clauses[0].discourse_relations) == 1
+    assert len(document.clauses[1].discourse_relations) == 0
+    assert document.clauses[0].discourse_relations[0].head == document.clauses[1]
 
 
 def test_backward_clause_function_1():
@@ -276,9 +276,9 @@ def test_backward_clause_function_1():
         """
     )
     document = Document.from_knp(knp_text)
-    assert len(document.clauses[0].discourse_relations) == 0
-    assert len(document.clauses[1].discourse_relations) == 1
-    assert document.clauses[1].discourse_relations[0].head == document.clauses[0]
+    assert len(document.clauses[0].discourse_relations) == 1
+    assert len(document.clauses[1].discourse_relations) == 0
+    assert document.clauses[0].discourse_relations[0].head == document.clauses[1]
 
 
 def test_backward_clause_function_2():
@@ -318,10 +318,11 @@ def test_backward_clause_function_2():
         """
     )
     document = Document.from_knp(knp_text)
-    assert len(document.clauses[0].discourse_relations) == 0
+    assert len(document.clauses[0].discourse_relations) == 1
     assert len(document.clauses[1].discourse_relations) == 1
-    assert len(document.clauses[2].discourse_relations) == 1
-    assert document.clauses[2].discourse_relations[0].head == document.clauses[0]
+    assert len(document.clauses[2].discourse_relations) == 0
+    assert document.clauses[0].discourse_relations[0].head == document.clauses[2]
+    assert document.clauses[1].discourse_relations[0].head == document.clauses[2]
 
 
 def test_both():

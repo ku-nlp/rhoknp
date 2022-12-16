@@ -160,12 +160,12 @@ class DiscourseRelation:
         )
 
     @classmethod
-    def from_backward_clause_function_fstring(cls, fstring: str, modifier: "Clause") -> Optional["DiscourseRelation"]:
+    def from_backward_clause_function_fstring(cls, fstring: str, head: "Clause") -> Optional["DiscourseRelation"]:
         """前向き節機能を表す素性文字列から初期化．
 
         Args:
             fstring: 前向き節機能を表す素性文字列．
-            modifier: 修飾節．
+            head: 主節．
 
         .. note::
             前向き節機能由来で認定された談話関係は明示的 (explicit) とみなす．
@@ -178,13 +178,13 @@ class DiscourseRelation:
             return None
         tag = DiscourseRelationTag(label)
         label = tag.label
-        if modifier.sentence.index == 0:
-            return None  # cannot find head
-        if modifier.sentence.has_document is False:
-            return None  # cannot find head
-        head = modifier.sentence.document.sentences[modifier.sentence.index - 1].clauses[-1]
+        if head.sentence.has_document is False:
+            return None  # cannot find modifier
+        if head.sentence.index == 0:
+            return None  # cannot find modifier
+        modifier = head.sentence.document.sentences[head.sentence.index - 1].clauses[-1]
         return cls(
-            sid=modifier.sentence.sid,
+            sid=head.sentence.sid,
             base_phrase_index=head.end.index,
             label=label,
             tag=tag,
