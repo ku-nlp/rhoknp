@@ -38,20 +38,25 @@ class Clause(Unit):
         super().__post_init__()
 
         # Find discourse relations.
-        # TODO: Use forward/backward clause function
-        explicit_discourse_relations = []
         for key in self.end.features:
             if key.startswith("節-機能"):
-                if discourse_relation := DiscourseRelation.from_clause_function_fstring(key, modifier=self):
-                    explicit_discourse_relations.append(discourse_relation)
-        implicit_discourse_relations = []
+                if relation := DiscourseRelation.from_clause_function_fstring(key, modifier=self):
+                    self.discourse_relations.append(relation)
+        for base_phrase in self.base_phrases:
+            for key in base_phrase.features:
+                if key.startswith("節-前向き機能"):
+                    if base_phrase.parent is None or base_phrase.parent in self.base_phrases:
+                        modifier = self
+                    else:
+                        modifier = base_phrase.parent.clause
+                    if relation := DiscourseRelation.from_backward_clause_function_fstring(key, modifier=modifier):
+                        modifier.discourse_relations.append(relation)
         if values := self.end.features.get("談話関係", None):
             assert isinstance(values, str)
             for value in values.split(";"):
-                if discourse_relation := DiscourseRelation.from_discourse_relation_fstring(value, modifier=self):
-                    if discourse_relation not in explicit_discourse_relations:
-                        implicit_discourse_relations.append(discourse_relation)
-        self.discourse_relations = explicit_discourse_relations + implicit_discourse_relations
+                if relation := DiscourseRelation.from_discourse_relation_fstring(value, modifier=self):
+                    if relation not in self.discourse_relations:
+                        self.discourse_relations.append(relation)
 
     def __eq__(self, other: Any) -> bool:
         if isinstance(other, type(self)) is False:

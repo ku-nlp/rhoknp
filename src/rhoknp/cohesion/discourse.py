@@ -109,6 +109,7 @@ class DiscourseRelation:
     """談話関係クラス"""
 
     CLAUSE_FUNCTION_PAT: ClassVar[re.Pattern] = re.compile(r"節-機能-(?P<label>.+)")
+    BACKWARD_CLAUSE_FUNCTION_PAT: ClassVar[re.Pattern] = re.compile(r"節-前向き機能-(?P<label>.+)")
     DISCOURSE_RELATION_PAT: ClassVar[re.Pattern] = re.compile(
         r"(?P<sid>[^/]+)/(?P<base_phrase_index>\d+)/(?P<tag>[^/]+)"
     )
@@ -148,6 +149,40 @@ class DiscourseRelation:
         head = modifier.parent
         if head is None:
             return None
+        return cls(
+            sid=modifier.sentence.sid,
+            base_phrase_index=head.end.index,
+            label=label,
+            tag=tag,
+            modifier=modifier,
+            head=head,
+            explicit=True,
+        )
+
+    @classmethod
+    def from_backward_clause_function_fstring(cls, fstring: str, modifier: "Clause") -> Optional["DiscourseRelation"]:
+        """前向き節機能を表す素性文字列から初期化．
+
+        Args:
+            fstring: 前向き節機能を表す素性文字列．
+            modifier: 修飾節．
+
+        .. note::
+            前向き節機能由来で認定された談話関係は明示的 (explicit) とみなす．
+        """
+        match = cls.BACKWARD_CLAUSE_FUNCTION_PAT.match(fstring)
+        if match is None:
+            return None
+        label = match["label"]
+        if not DiscourseRelationTag.has_value(label):
+            return None
+        tag = DiscourseRelationTag(label)
+        label = tag.label
+        if modifier.sentence.index == 0:
+            return None  # cannot find head
+        if modifier.sentence.has_document is False:
+            return None  # cannot find head
+        head = modifier.sentence.document.sentences[modifier.sentence.index - 1].clauses[-1]
         return cls(
             sid=modifier.sentence.sid,
             base_phrase_index=head.end.index,
