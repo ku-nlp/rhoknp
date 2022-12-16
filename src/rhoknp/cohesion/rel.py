@@ -1,3 +1,4 @@
+import logging
 import re
 from dataclasses import dataclass
 from enum import Enum
@@ -65,6 +66,8 @@ CASE_TYPES += [case + "≒" for case in CASE_TYPES]
 COREF_TYPES = ["=", "=構", "=役"]
 COREF_TYPES += [coref + "≒" for coref in COREF_TYPES]
 
+logger = logging.getLogger(__name__)
+
 
 class RelMode(Enum):
     """同一の基本句に同一タイプの関係タグが複数付いている場合にそれらの関係を表す列挙体．
@@ -102,6 +105,14 @@ class RelTag:
     sid: Optional[str]
     base_phrase_index: Optional[int]
     mode: Optional[RelMode]
+
+    def __post_init__(self):
+        if self.type.startswith("="):
+            if self.type not in COREF_TYPES:
+                logger.warning(f"Unknown coreference type: {self.type} (rel tag: {self})")
+        else:
+            if self.type not in CASE_TYPES:
+                logger.warning(f"Unknown case type: {self.type} (rel tag: {self})")
 
     def to_fstring(self) -> str:
         """素性文字列に変換．"""
