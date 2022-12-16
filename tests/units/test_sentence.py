@@ -461,7 +461,7 @@ def test_to_jumanpp(case: Dict[str, str]) -> None:
     # assert sent.to_jumanpp() == case["jumanpp"]
 
 
-@pytest.mark.parametrize("case", CASES[:3])  # TODO: support <ALT> tag
+@pytest.mark.parametrize("case", CASES)
 def test_to_knp(case: Dict[str, str]) -> None:
     sent = Sentence.from_raw_text(case["raw_text"])
     with pytest.raises(AttributeError):
