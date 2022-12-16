@@ -103,6 +103,18 @@ class DiscourseRelationTag(Enum):
             return DiscourseRelationLabel.EVIDENCE
         raise AssertionError  # unreachable
 
+    @property
+    def need_swap(self) -> bool:
+        """談話関係が逆方向であれば True．"""
+        return self in {
+            DiscourseRelationTag.CAUSE_REASON_BACKWARD,
+            DiscourseRelationTag.CAUSE_REASON_BACKWARD2,
+            DiscourseRelationTag.PURPOSE_BACKWARD,
+            DiscourseRelationTag.CONDITION_BACKWARD,
+            DiscourseRelationTag.CONCESSION_BACKWARD,
+            DiscourseRelationTag.EVIDENCE_BACKWARD,
+        }
+
 
 @dataclass
 class DiscourseRelation:
@@ -149,6 +161,8 @@ class DiscourseRelation:
         head = modifier.parent
         if head is None:
             return None
+        if tag.need_swap:
+            modifier, head = head, modifier
         return cls(
             sid=modifier.sentence.sid,
             base_phrase_index=head.end.index,
@@ -183,6 +197,8 @@ class DiscourseRelation:
         if head.sentence.index == 0:
             return None  # cannot find modifier
         modifier = head.sentence.document.sentences[head.sentence.index - 1].clauses[-1]
+        if tag.need_swap:
+            modifier, head = head, modifier
         return cls(
             sid=head.sentence.sid,
             base_phrase_index=head.end.index,
@@ -233,6 +249,8 @@ class DiscourseRelation:
         if head.end != head_base_phrase:
             logger.warning(f"invalid clause tag in {sid}")
             return None
+        if tag.need_swap:
+            modifier, head = head, modifier
         return cls(sid, base_phrase_index, category, tag, modifier, head)
 
     def to_fstring(self) -> str:

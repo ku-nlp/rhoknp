@@ -325,6 +325,35 @@ def test_backward_clause_function_2():
     assert document.clauses[1].discourse_relations[0].head == document.clauses[2]
 
 
+def test_backward_clause_function_3():
+    knp_text = textwrap.dedent(
+        """\
+        # S-ID:1
+        * -1D
+        + -1D <節-区切><節-主辞>
+        厳しい きびしい 厳しい 形容詞 3 * 0 イ形容詞イ段 19 基本形 2 "代表表記:厳しい/きびしい"
+        。 。 。 特殊 1 句点 1 * 0 * 0 "代表表記:。/。"
+        EOS
+        # S-ID:2
+        * 1D
+        + 1D <節-前向き機能-原因・理由-逆>
+        なぜなら なぜなら なぜなら 接続詞 10 * 0 * 0 * 0 "代表表記:なぜなら/なぜなら"
+        * -1D
+        + -1D <節-前向き機能-原因・理由-逆><節-区切><節-主辞>
+        雨 あめ 雨 名詞 6 普通名詞 1 * 0 * 0 "代表表記:雨/あめ カテゴリ:抽象物 漢字読み:訓"
+        だ だ だ 判定詞 4 * 0 判定詞 25 基本形 2 NIL
+        から から から 助詞 9 接続助詞 3 * 0 * 0 NIL
+        だ だ だ 判定詞 4 * 0 判定詞 25 基本形 2 NIL
+        。 。 。 特殊 1 句点 1 * 0 * 0 NIL
+        EOS
+        """
+    )
+    document = Document.from_knp(knp_text)
+    assert len(document.clauses[0].discourse_relations) == 0
+    assert len(document.clauses[1].discourse_relations) == 1
+    assert document.clauses[1].discourse_relations[0].head == document.clauses[0]
+
+
 def test_both():
     knp_text = textwrap.dedent(
         """\
