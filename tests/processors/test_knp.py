@@ -34,7 +34,7 @@ def test_apply() -> None:
         "Canon EOS 80D買った",  # EOS
         '"最高"の気分',  # double quotes
         "&lt;tag&gt;エス'ケープ",  # escape
-        # "\\エス'ケープ",  # backslash  # TODO
+        "\\エス'ケープ",  # backslash
         "キャリッジ\rリターン",  # carriage return
         "ライン\nフィード",  # line feed
         "CR\r\nLF",  # CR+LF
@@ -66,7 +66,7 @@ def test_thread_safe() -> None:
         "Canon EOS 80D買った",  # EOS
         '"最高"の気分',  # double quotes
         "&lt;tag&gt;エス'ケープ",  # escape
-        # "\\エス'ケープ",  # backslash  # TODO
+        "\\エス'ケープ",  # backslash
         "キャリッジ\rリターン",  # carriage return
         "ライン\nフィード",  # line feed
         "CR\r\nLF",  # CR+LF
