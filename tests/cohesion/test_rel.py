@@ -5,7 +5,6 @@ from rhoknp.cohesion.rel import RelMode, RelTagList
 FSTRINGS = [
     """<rel type="=≒" target="オフェンス" sid="w201106-0001519365-1" id="3"/><rel type="=≒" mode="AND" target="ディフェンス" sid="w201106-0001519365-1" id="4"/><rel type="ノ？" target="著者"/>""",
     """<rel type="ガ" target=">" sid="202209271752-05054-00" id="0"/><rel type="ニ" target="不特定:人"/>""",
-    r"""<rel type="ガ" target="ダブル\"クオート\"" sid="202209271752-05054-00" id="0"/>""",
 ]
 
 
