@@ -6,7 +6,7 @@ class SemanticsDict(Dict[str, Union[str, bool]]):
     """形態素の意味情報を表すクラス．"""
 
     NIL = "NIL"
-    PAT = re.compile(rf'(?P<sems>("([^"]|\\")+?")|{NIL})')
+    PAT = re.compile(rf'(?P<sems>("[^"]+?")|{NIL})')
     SEM_PAT = re.compile(r"(?P<key>[^:\s]+)(:(?P<value>\S+))?(\s|$)")
 
     def __init__(self, semantics: Optional[Dict[str, Union[str, bool]]] = None, is_nil: bool = False) -> None:
