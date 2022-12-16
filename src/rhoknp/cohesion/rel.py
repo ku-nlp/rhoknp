@@ -94,7 +94,7 @@ class RelTag:
     """関係タグ付きコーパスにおける <rel> タグを表すクラス．"""
 
     PAT: ClassVar[re.Pattern] = re.compile(
-        r'<rel type="(?P<type>\S+?)"( mode="(?P<mode>[^>]+?)")? target="(?P<target>.+?)"( sid="(?P<sid>.*?)" '
+        r'<rel type="(?P<type>\S+?)"( mode="(?P<mode>\S+?)")? target="(?P<target>.+?)"( sid="(?P<sid>.*?)" '
         r'id="(?P<id>\d+?)")?/>'
     )
     type: str
