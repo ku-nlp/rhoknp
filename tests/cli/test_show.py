@@ -1,7 +1,7 @@
 import io
 import textwrap
 
-from rhoknp.cli.show import draw_tree, sprint_tree
+from rhoknp.cli.show import draw_tree
 from rhoknp.units import Sentence
 
 knp = textwrap.dedent(
@@ -34,13 +34,12 @@ sentence = Sentence.from_knp(knp)
 def test_draw_phrase_tree() -> None:
     out = textwrap.dedent(
         """\
-        望遠n鏡nでp┐　　
-         泳いでvいるs┐　
-               少女nをp┐
-                 見たv。*
+        望遠n鏡nでp─┐       
+         泳いでvいるs─┐     
+               少女nをp─┐   
+                 見たv。*   
         """
     )
-    assert sprint_tree(sentence.phrases, show_pos=True) == out
     with io.StringIO() as f:
         draw_tree(sentence.phrases, f)
         assert f.getvalue() == out
@@ -49,11 +48,13 @@ def test_draw_phrase_tree() -> None:
 def test_draw_base_phrase_tree() -> None:
     out = textwrap.dedent(
         """\
-           望遠n┐　　　
-            鏡nでp┐　　
-        泳いでvいるs┐　
-              少女nをp┐
-                見たv。*
+           望遠n─┐         
+            鏡nでp─┐       
+        泳いでvいるs─┐     
+              少女nをp─┐   
+                見たv。*   
         """
     )
-    assert sprint_tree(sentence.base_phrases, show_pos=True) == out
+    with io.StringIO() as f:
+        draw_tree(sentence.base_phrases, f, show_pos=True)
+        assert f.getvalue() == out

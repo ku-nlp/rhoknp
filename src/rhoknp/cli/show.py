@@ -1,6 +1,9 @@
-import re
 import sys
 from typing import TYPE_CHECKING, Sequence, TextIO, Union
+
+from rich.console import Console
+from rich.table import Table
+from rich.text import Text
 
 from rhoknp.props.dependency import DepType
 
@@ -32,16 +35,19 @@ POS_MARK = {
 
 
 def draw_tree(
-    leaves: Sequence[Union["Phrase", "BasePhrase"]],
+    leaves: Union[Sequence["Phrase"], Sequence["BasePhrase"]],
     fh: TextIO = sys.stdout,
-    show_pos: bool = True,
+    show_pos: bool = False,
 ) -> None:
-    """構文木を指定された fh に出力する．"""
-    print(sprint_tree(leaves, show_pos=show_pos), file=fh, end="")
+    """構文木を指定された fh に出力．
 
-
-def sprint_tree(leaves: Sequence[Union["Phrase", "BasePhrase"]], show_pos: bool = True) -> str:
-    """構文木を文字列で返す．"""
+    Args:
+        leaves: 構文木の葉となる文節列または基本句列．
+        fh: 出力先．
+        show_pos: True なら品詞を表示する．
+    """
+    console = Console(file=fh)
+    table = Table.grid(padding=(0, 2))
     limit = len(leaves)
     item = [[""] * limit for _ in leaves]
     active_column = [0] * limit
@@ -62,11 +68,11 @@ def sprint_tree(leaves: Sequence[Union["Phrase", "BasePhrase"]], show_pos: bool 
                     item[i][j] = "━" if para_row else "─"
             elif j == parent_index:
                 if dep_type == DepType.PARALLEL:
-                    item[i][j] = "Ｐ"
+                    item[i][j] = "P"
                 elif dep_type == DepType.IMPERFECT_PARALLEL:
-                    item[i][j] = "Ｉ"
+                    item[i][j] = "I"
                 elif dep_type == DepType.APPOSITION:
-                    item[i][j] = "Ａ"
+                    item[i][j] = "A"
                 else:
                     if active_column[j] == 2:
                         item[i][j] = "┨"
@@ -87,21 +93,31 @@ def sprint_tree(leaves: Sequence[Union["Phrase", "BasePhrase"]], show_pos: bool 
                 elif active_column[j] == 1:
                     item[i][j] = "│"
                 else:
-                    item[i][j] = "　"
+                    item[i][j] = " "
 
-    lines = [_leaf_string(leaf, show_pos) for leaf in leaves]
-    for i in range(limit):
+    lines = []
+    for i in range(limit + 1):
+        line = _leaf_string(leaves[i], show_pos)
         for j in range(i + 1, limit + 1):
-            lines[i] += item[i][j]
+            line += _extend_horizontal(item[i][j]) + item[i][j]
+        lines.append(line)
 
     max_length = max(_str_real_length(line) for line in lines)
-    buf = ""
     for i in range(limit + 1):
         diff = max_length - _str_real_length(lines[i])
-        buf += " " * diff
-        buf += lines[i] + "\n"
+        buf = " " * diff
+        buf += lines[i]
+        table.add_row(Text(buf), "")
+    console.print(table)
 
-    return buf
+
+def _extend_horizontal(token: str) -> str:
+    if token in ("╂", "┼", "┤", "┨", "┐", "─", "I", "A"):
+        return "─"
+    elif token in ("╋", "┿", "━", "P"):
+        return "━"
+    else:
+        return " "
 
 
 def _leaf_string(leaf: Union["Phrase", "BasePhrase"], show_pos: bool) -> str:
@@ -109,7 +125,7 @@ def _leaf_string(leaf: Union["Phrase", "BasePhrase"], show_pos: bool) -> str:
     for mrph in leaf.morphemes:
         ret += mrph.text
         if show_pos is True:
-            if re.search("^(?:固有名詞|人名|地名)$", mrph.subpos):
+            if mrph.subpos in ("固有名詞", "人名", "地名"):
                 ret += POS_MARK[mrph.subpos]
             else:
                 ret += POS_MARK[mrph.pos]
@@ -117,11 +133,4 @@ def _leaf_string(leaf: Union["Phrase", "BasePhrase"], show_pos: bool) -> str:
 
 
 def _str_real_length(string: str) -> int:
-    length = 0
-    for char in string:
-        if re.search(r"^[a-zA-Z*!?]$", char):
-            # 品詞情報は長さ1
-            length += 1
-        else:
-            length += 2
-    return length
+    return Text(string).cell_len
