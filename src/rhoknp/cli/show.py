@@ -67,12 +67,8 @@ def draw_tree(
                 else:
                     item[i][j] = "━" if para_row else "─"
             elif j == parent_index:
-                if dep_type == DepType.PARALLEL:
-                    item[i][j] = "P"
-                elif dep_type == DepType.IMPERFECT_PARALLEL:
-                    item[i][j] = "I"
-                elif dep_type == DepType.APPOSITION:
-                    item[i][j] = "A"
+                if dep_type in (DepType.PARALLEL, DepType.IMPERFECT_PARALLEL, DepType.APPOSITION):
+                    item[i][j] = str(dep_type.value)
                 else:
                     if active_column[j] == 2:
                         item[i][j] = "┨"
