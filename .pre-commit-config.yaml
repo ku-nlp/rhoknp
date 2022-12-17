@@ -4,7 +4,6 @@ repos:
     hooks:
       - id: end-of-file-fixer
       - id: trailing-whitespace
-        exclude: ^tests/cli/test_show\.py$
       - id: check-docstring-first
       - id: check-yaml
       - id: check-toml
@@ -17,7 +16,6 @@ repos:
     rev: 5.0.4
     hooks:
       - id: flake8
-        exclude: ^tests/cli/test_show\.py$
   - repo: https://github.com/PyCQA/isort
     rev: 5.10.1
     hooks:
