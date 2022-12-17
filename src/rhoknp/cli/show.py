@@ -1,15 +1,13 @@
 import sys
-from typing import TYPE_CHECKING, Sequence, TextIO, Union
+from typing import List, Sequence, TextIO, Union
 
 from rich.console import Console
 from rich.table import Table
 from rich.text import Text
 
 from rhoknp.props.dependency import DepType
-
-if TYPE_CHECKING:
-    from rhoknp.units.base_phrase import BasePhrase
-    from rhoknp.units.phrase import Phrase
+from rhoknp.units.base_phrase import BasePhrase
+from rhoknp.units.phrase import Phrase
 
 POS_MARK = {
     "特殊": "*",
@@ -35,7 +33,7 @@ POS_MARK = {
 
 
 def draw_tree(
-    leaves: Union[Sequence["Phrase"], Sequence["BasePhrase"]],
+    leaves: Union[Sequence[Phrase], Sequence[BasePhrase]],
     fh: TextIO = sys.stdout,
     show_pos: bool = False,
 ) -> None:
@@ -95,19 +93,19 @@ def draw_tree(
                 else:
                     item[i][j] = " "
 
-    lines = []
-    for i in range(limit + 1):
+    lines: List[str] = []
+    for i in range(len(leaves)):
         line = _leaf_string(leaves[i], show_pos)
-        for j in range(i + 1, limit + 1):
+        for j in range(i + 1, len(leaves)):
             line += _extend_horizontal(item[i][j]) + item[i][j]
         lines.append(line)
 
     max_length = max(_str_real_length(line) for line in lines)
-    for i in range(limit + 1):
-        diff = max_length - _str_real_length(lines[i])
-        buf = " " * diff
-        buf += lines[i]
-        table.add_row(Text(buf), "")
+    for line, leaf in zip(lines, leaves):
+        diff = max_length - _str_real_length(line)
+        tree_string = " " * diff + line
+        rel_string = _rel_string(leaf) if isinstance(leaf, BasePhrase) else ""
+        table.add_row(Text(tree_string), Text(rel_string))
     console.print(table)
 
 
@@ -120,7 +118,7 @@ def _extend_horizontal(token: str) -> str:
         return " "
 
 
-def _leaf_string(leaf: Union["Phrase", "BasePhrase"], show_pos: bool) -> str:
+def _leaf_string(leaf: Union[Phrase, BasePhrase], show_pos: bool) -> str:
     ret = ""
     for mrph in leaf.morphemes:
         ret += mrph.text
@@ -134,3 +132,7 @@ def _leaf_string(leaf: Union["Phrase", "BasePhrase"], show_pos: bool) -> str:
 
 def _str_real_length(string: str) -> int:
     return Text(string).cell_len
+
+
+def _rel_string(base_phrase: BasePhrase) -> str:
+    return " ".join(f"{tag.type}:{tag.target}" for tag in base_phrase.rel_tags)
