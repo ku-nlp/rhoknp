@@ -148,7 +148,7 @@ class RelTagList(List[RelTag]):
 
     def to_fstring(self) -> str:
         """素性文字列に変換．"""
-        return "".join(rel.to_fstring() for rel in self)
+        return "".join(rel_tag.to_fstring() for rel_tag in self)
 
     def __str__(self) -> str:
         return self.to_fstring()
