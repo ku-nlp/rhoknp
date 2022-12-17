@@ -36,13 +36,15 @@ def draw_tree(
     leaves: Union[Sequence[Phrase], Sequence[BasePhrase]],
     fh: TextIO = sys.stdout,
     show_pos: bool = False,
+    show_rel: bool = False,
 ) -> None:
     """構文木を指定された fh に出力．
 
     Args:
         leaves: 構文木の葉となる文節列または基本句列．
         fh: 出力先．
-        show_pos: True なら品詞を表示する．
+        show_pos: True なら同時に品詞を表示する．
+        show_rel: True なら同時に <rel> タグを表示する．
     """
     console = Console(file=fh)
     table = Table.grid(padding=(0, 2))
@@ -104,7 +106,7 @@ def draw_tree(
     for line, leaf in zip(lines, leaves):
         diff = max_length - _str_real_length(line)
         tree_string = " " * diff + line
-        rel_string = _rel_string(leaf) if isinstance(leaf, BasePhrase) else ""
+        rel_string = _rel_string(leaf) if isinstance(leaf, BasePhrase) and show_rel is True else ""
         table.add_row(Text(tree_string), Text(rel_string))
     console.print(table)
 

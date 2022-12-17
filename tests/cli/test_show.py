@@ -56,5 +56,5 @@ def test_draw_base_phrase_tree() -> None:
         """
     )
     with io.StringIO() as f:
-        draw_tree(sentence.base_phrases, f, show_pos=True)
+        draw_tree(sentence.base_phrases, f, show_pos=True, show_rel=True)
         assert [line.rstrip() for line in f.getvalue().splitlines()] == [line.rstrip() for line in out.splitlines()]
