@@ -122,13 +122,13 @@ def _extend_horizontal(token: str) -> str:
 
 def _leaf_string(leaf: Union[Phrase, BasePhrase], show_pos: bool) -> str:
     ret = ""
-    for mrph in leaf.morphemes:
-        ret += mrph.text
+    for morpheme in leaf.morphemes:
+        ret += morpheme.text
         if show_pos is True:
-            if mrph.subpos in ("固有名詞", "人名", "地名"):
-                ret += POS_MARK[mrph.subpos]
+            if morpheme.subpos in ("固有名詞", "人名", "地名"):
+                ret += POS_MARK[morpheme.subpos]
             else:
-                ret += POS_MARK[mrph.pos]
+                ret += POS_MARK[morpheme.pos]
     return ret
 
 
