@@ -292,26 +292,6 @@ def test_from_knp(case: Dict[str, str]) -> None:
     _ = Clause.from_knp(case["knp"])
 
 
-def test_from_knp_error() -> None:
-    knp = textwrap.dedent(
-        """\
-        * 1D
-        + 2D
-        EOS EOS EOS 名詞 6 組織名 6 * 0 * 0
-        は は は 助詞 9 副助詞 2 * 0 * 0
-        * -1D
-        + 2D
-        特殊 とくしゅ 特殊だ 形容詞 3 * 0 ナノ形容詞 22 語幹 1
-        + -1D <節-区切>
-        記号 きごう 記号 名詞 6 普通名詞 1 * 0 * 0
-        です です だ 判定詞 4 * 0 判定詞 25 デス列基本形 27
-        。 。 。 特殊 1 句点 1 * 0 * 0
-        """
-    )
-    with pytest.raises(ValueError):
-        _ = Clause.from_knp(knp)
-
-
 @pytest.mark.parametrize("case", KNP_SNIPPETS)
 def test_to_knp(case: Dict[str, str]) -> None:
     clause = Clause.from_knp(case["knp"])
@@ -364,3 +344,41 @@ def test_is_adnominal(case: Dict[str, str]) -> None:
 def test_is_sentential_complement(case: Dict[str, str]) -> None:
     clause = Clause.from_knp(case["knp"])
     assert clause.is_sentential_complement == case["is_sentential_complement"]
+
+
+def test_invalid_head_0() -> None:
+    knp_text = textwrap.dedent(
+        textwrap.dedent(
+            """\
+            * 1D
+            + 1D <節-主辞>
+            天気 てんき 天気 名詞 6 普通名詞 1 * 0 * 0
+            が が が 助詞 9 格助詞 1 * 0 * 0
+            * 2D
+            + 2D <節-区切><節-主辞>
+            いい いい いい 形容詞 3 * 0 イ形容詞イ段 19 基本形 2
+            ので ので のだ 助動詞 5 * 0 ナ形容詞 21 ダ列タ系連用テ形 12
+            """
+        )
+    )
+    clause = Clause.from_knp(knp_text)
+    assert clause.head.text == "いいので"
+
+
+def test_invalid_head_1() -> None:
+    knp_text = textwrap.dedent(
+        textwrap.dedent(
+            """\
+            * 1D
+            + 1D
+            天気 てんき 天気 名詞 6 普通名詞 1 * 0 * 0
+            が が が 助詞 9 格助詞 1 * 0 * 0
+            * 2D
+            + 2D <節-区切>
+            いい いい いい 形容詞 3 * 0 イ形容詞イ段 19 基本形 2
+            ので ので のだ 助動詞 5 * 0 ナ形容詞 21 ダ列タ系連用テ形 12
+            """
+        )
+    )
+    clause = Clause.from_knp(knp_text)
+    assert clause.head.text == "いいので"
