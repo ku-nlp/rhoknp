@@ -50,53 +50,65 @@ pip install rhoknp
 
 ## Quick tour
 
-*rhoknp* provides APIs to perform language analysis by Juman++ and KNP.
+Let's start with using Juman++ with *rhoknp*.
+Here is a simple example of using Juman++ to analyze a sentence.
 
 ```python
 # Perform language analysis by Juman++
 jumanpp = rhoknp.Jumanpp()
 sentence = jumanpp.apply_to_sentence("電気抵抗率は電気の通しにくさを表す物性値である。")
-
-# Perform language analysis by KNP
-knp = rhoknp.KNP()
-sentence = knp.apply_to_sentence(sentence)  # or knp.apply_to_sentence("電気抵抗率は...")
 ```
 
-Sentence objects can be saved in the Juman/KNP format
+You can easily access the morphemes that make up the sentence.
 
 ```python
-# Save language analysis by Juman++
-with open("result.jumanpp", "wt") as f:
+for morpheme in sentence.morphemes:  # a.k.a. keitai-so
+    ...
+```
+
+Sentence objects can be saved in the JUMAN format.
+
+```python
+# Save the sentence in the JUMAN format
+with open("sentence.jumanpp", "wt") as f:
     f.write(sentence.to_jumanpp())
 
-# Save language analysis by KNP
-with open("result.knp", "wt") as f:
-    f.write(sentence.to_knp())
-```
-
-and recovered from Juman/KNP-format text.
-
-```python
-# Load language analysis by Juman++
-with open("result.jumanpp", "rt") as f:
+# Load the sentence
+with open("sentence.jumanpp", "rt") as f:
     sentence = rhoknp.Sentence.from_jumanpp(f.read())
-
-# Perform language analysis by KNP
-with open("result.knp", "rt") as f:
-    sentence = rhoknp.Sentence.from_knp(f.read())
 ```
 
-It is easy to access the linguistic units that make up a sentence.
+Almost the same APIs are available for KNP.
 
 ```python
-for clause in sentence.clauses:
+# Perform language analysis by KNP
+knp = rhoknp.KNP()
+sentence = knp.apply_to_sentence("電気抵抗率は電気の通しにくさを表す物性値である。")
+```
+
+KNP performs language analysis at multiple levels.
+
+```python
+for clause in sentence.clauses:  # a.k.a., setsu
     ...
 for phrase in sentence.phrases:  # a.k.a. bunsetsu
     ...
 for base_phrase in sentence.base_phrases:  # a.k.a. kihon-ku
     ...
-for morpheme in sentence.morphemes:
+for morpheme in sentence.morphemes:  # a.k.a. keitai-so
     ...
+```
+
+Sentence objects can be saved in the KNP format.
+
+```python
+# Save the sentence in the KNP format
+with open("sentence.knp", "wt") as f:
+    f.write(sentence.to_knp())
+
+# Load the sentence
+with open("sentence.knp", "rt") as f:
+    sentence = rhoknp.Sentence.from_knp(f.read())
 ```
 
 *rhoknp* also provides APIs for document-level language analysis.
@@ -117,38 +129,31 @@ document = rhoknp.Document.from_sentences(
 Document objects can be handled in almost the same way as Sentence objects.
 
 ```python
-# Perform language analysis by Juman++/KNP
+# Perform language analysis by Juman++
 document = jumanpp.apply_to_document(document)
-document = knp.apply_to_document(document)
-
-# Save language analysis by Juman++/KNP
-with open("result.jumanpp", "wt") as f:
-    f.write(document.to_jumanpp())
-with open("result.knp", "wt") as f:
-    f.write(document.to_knp())
-
-# Load language analysis by Juman++/KNP
-with open("result.jumanpp", "rt") as f:
-    document = rhoknp.Document.from_jumanpp(f.read())
-with open("result.knp", "rt") as f:
-    document = rhoknp.Document.from_knp(f.read())
 
 # Access language units in the document
 for sentence in document.sentences:
     ...
-for clause in document.clauses:
-    ...
-for phrase in document.phrases:
-    ...
-for base_phrase in document.base_phrases:
-    ...
 for morpheme in document.morphemes:
     ...
+
+# Save language analysis by Juman++
+with open("document.jumanpp", "wt") as f:
+    f.write(document.to_jumanpp())
+
+# Load language analysis by Juman++
+with open("document.jumanpp", "rt") as f:
+    document = rhoknp.Document.from_jumanpp(f.read())
 ```
 
 For more information, explore the [examples](./examples) and [documentation](https://rhoknp.readthedocs.io/en/latest/).
 
 ## Main differences from [pyknp](https://github.com/ku-nlp/pyknp/)
+
+[*pyknp*](https://pypi.org/project/pyknp/) has been developed as the official Python binding for Juman++ and KNP.
+In *rhoknp*, we redesigned the API from the top-down, taking into account the current use cases of *pyknp*.
+The main differences are as follows:
 
 - **Support for document-level language analysis**: *rhoknp* can load and instantiate the result of document-level language analysis (i.e., cohesion analysis and discourse relation analysis).
 - **Strictly type-aware**: *rhoknp* is thoroughly annotated with type annotations.
