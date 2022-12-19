@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "rhoknp: Yet another Python binding for Juman++/KNP/KWJA"
+authors:
+  - family-names: Kiyomaru
+    given-names: Hirokazu
+  - family-names: Ueda
+    given-names: Nobuhiro
+version: 1.0.0
+repository-code: "https://github.com/ku-nlp/rhoknp"
+date-released: 2022-12-19  # fixme
