@@ -34,16 +34,20 @@ def main(
 @app.command(help="Print given file content in tree format.")
 def show(
     knp_path: Path = typer.Argument(..., exists=True, dir_okay=False, help="Path to knp file to show"),
+    pos: bool = typer.Option(False, "--pos", "-p", help="Show POS characters."),
+    rel: bool = typer.Option(False, "--rel", "-r", help="Show <rel> tags."),
 ) -> None:
     """KNP ファイルを読み込み係り受けを可視化．
 
     Args:
         knp_path: KNP ファイルのパス．
+        pos: True なら同時に品詞を表示．
+        rel: True なら同時に <rel> タグを表示．
     """
     doc = Document.from_knp(knp_path.read_text())
     for sent in doc.sentences:
         print(sent.comment)
-        draw_tree(sent.base_phrases, show_pos=False)
+        draw_tree(sent.base_phrases, show_pos=pos, show_rel=rel)
 
 
 @app.command(help="Show statistics of given KNP file.")
