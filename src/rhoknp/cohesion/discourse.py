@@ -103,12 +103,25 @@ class DiscourseRelationTag(Enum):
             return DiscourseRelationLabel.EVIDENCE
         raise AssertionError  # unreachable
 
+    @property
+    def need_swap(self) -> bool:
+        """談話関係が逆方向であれば True．"""
+        return self in {
+            DiscourseRelationTag.CAUSE_REASON_BACKWARD,
+            DiscourseRelationTag.CAUSE_REASON_BACKWARD2,
+            DiscourseRelationTag.PURPOSE_BACKWARD,
+            DiscourseRelationTag.CONDITION_BACKWARD,
+            DiscourseRelationTag.CONCESSION_BACKWARD,
+            DiscourseRelationTag.EVIDENCE_BACKWARD,
+        }
+
 
 @dataclass
 class DiscourseRelation:
     """談話関係クラス"""
 
     CLAUSE_FUNCTION_PAT: ClassVar[re.Pattern] = re.compile(r"節-機能-(?P<label>.+)")
+    BACKWARD_CLAUSE_FUNCTION_PAT: ClassVar[re.Pattern] = re.compile(r"節-前向き機能-(?P<label>.+)")
     DISCOURSE_RELATION_PAT: ClassVar[re.Pattern] = re.compile(
         r"(?P<sid>[^/]+)/(?P<base_phrase_index>\d+)/(?P<tag>[^/]+)"
     )
@@ -119,10 +132,10 @@ class DiscourseRelation:
     tag: DiscourseRelationTag  #: 談話関係タグ．
     modifier: "Clause"  #: 修飾節．
     head: "Clause"  #: 主辞節．
-    explicit: bool = False  #: 明示的な談話関係ならTrue．．
+    is_explicit: bool = False  #: 明示的な談話関係ならTrue．．
 
     def __eq__(self, other: Any) -> bool:
-        if not isinstance(other, DiscourseRelation):
+        if not isinstance(other, type(self)):
             return False
         return self.label == other.label and self.modifier == other.modifier and self.head == other.head
 
@@ -148,6 +161,9 @@ class DiscourseRelation:
         head = modifier.parent
         if head is None:
             return None
+        if tag.need_swap:
+            # NOTE: Currently, no clause function requires swap.
+            modifier, head = head, modifier  # pragma: no cover
         return cls(
             sid=modifier.sentence.sid,
             base_phrase_index=head.end.index,
@@ -155,7 +171,43 @@ class DiscourseRelation:
             tag=tag,
             modifier=modifier,
             head=head,
-            explicit=True,
+            is_explicit=True,
+        )
+
+    @classmethod
+    def from_backward_clause_function_fstring(cls, fstring: str, head: "Clause") -> Optional["DiscourseRelation"]:
+        """前向き節機能を表す素性文字列から初期化．
+
+        Args:
+            fstring: 前向き節機能を表す素性文字列．
+            head: 主節．
+
+        .. note::
+            前向き節機能由来で認定された談話関係は明示的 (explicit) とみなす．
+        """
+        match = cls.BACKWARD_CLAUSE_FUNCTION_PAT.match(fstring)
+        if match is None:
+            return None
+        label = match["label"]
+        if not DiscourseRelationTag.has_value(label):
+            return None
+        tag = DiscourseRelationTag(label)
+        label = tag.label
+        if head.sentence.has_document is False:
+            return None  # cannot find modifier
+        if head.sentence.index == 0:
+            return None  # cannot find modifier
+        modifier = head.sentence.document.sentences[head.sentence.index - 1].clauses[-1]
+        if tag.need_swap:
+            modifier, head = head, modifier
+        return cls(
+            sid=head.sentence.sid,
+            base_phrase_index=head.end.index,
+            label=label,
+            tag=tag,
+            modifier=modifier,
+            head=head,
+            is_explicit=True,
         )
 
     @classmethod
@@ -198,6 +250,8 @@ class DiscourseRelation:
         if head.end != head_base_phrase:
             logger.warning(f"invalid clause tag in {sid}")
             return None
+        if tag.need_swap:
+            modifier, head = head, modifier
         return cls(sid, base_phrase_index, category, tag, modifier, head)
 
     def to_fstring(self) -> str:

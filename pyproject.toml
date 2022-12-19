@@ -14,8 +14,9 @@ keywords = ["NLP"]
 
 [tool.poetry.dependencies]
 python = ">=3.8,<3.12"
-typer = "^0.6.1"
+typer = ">=0.6.1,<0.8"
 PyYAML = "^6.0"
+rich = "^12.6"
 
 [tool.poetry.group.dev]
 
@@ -27,6 +28,7 @@ ipdb = "^0.13.9"
 [tool.poetry.group.test.dependencies]
 pytest = "^7.1.2"
 pytest-cov = "^3.0.0"
+httpx = "^0.23.1"
 
 [tool.poetry.group.docs]
 
@@ -37,12 +39,18 @@ sphinx-copybutton = "^0.5.0"
 myst-parser = "^0.18.1"
 furo = "^2022.4.7"
 
+[tool.poetry.group.serve]
+
+[tool.poetry.group.serve.dependencies]
+fastapi = "^0.88.0"
+uvicorn = "^0.20.0"
+
 [tool.poetry.scripts]
-rhoknp = "rhoknp.cli:app"
+rhoknp = "rhoknp.cli.cli:app"
 
 [tool.black]
 line-length = 120
-target-version = ["py38", "py39", "py310"]  # py311 is not supported yet
+target-version = ["py38", "py39", "py310", "py311"]
 
 [tool.isort]
 line_length = 120

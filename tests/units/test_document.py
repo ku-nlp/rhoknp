@@ -183,17 +183,19 @@ def test_from_raw_text_parallel(case: Dict[str, str]) -> None:
 
 @pytest.mark.parametrize("case", CASES)
 def test_from_sentences(case: Dict[str, str]) -> None:
-    _ = Document.from_sentences(case["sentences"])
+    doc1 = Document.from_sentences(case["sentences"])
     # from_sentences() allows Sentence objects as input.
-    _ = Document.from_sentences(list(map(Sentence.from_raw_text, case["sentences"])))
+    doc2 = Document.from_sentences(list(map(Sentence.from_raw_text, case["sentences"])))
+    assert doc1 == doc2
 
 
 @pytest.mark.parametrize("case", CASES)
 def test_from_sentences_parallel(case: Dict[str, str]) -> None:
     with multiprocessing.Pool(processes=1) as pool:
-        _ = pool.map(Document.from_sentences, [case["sentences"]])
+        doc1 = pool.map(Document.from_sentences, [case["sentences"]])
         # from_sentences() allows Sentence objects as input.
-        _ = pool.map(Document.from_sentences, [list(map(Sentence.from_raw_text, case["sentences"]))])
+        doc2 = pool.map(Document.from_sentences, [list(map(Sentence.from_raw_text, case["sentences"]))])
+        assert doc1 == doc2
 
 
 @pytest.mark.parametrize("case", CASES)
@@ -250,6 +252,7 @@ def test_from_jumanpp_control_character() -> None:
         " " " 特殊 1 括弧終 4 * 0 * 0
         : : : 未定義語 15 その他 1 * 0 * 0
         ; ; ; 未定義語 15 その他 1 * 0 * 0
+        # # # 未定義語 15 その他 1 * 0 * 0
         EOS
         # S-ID:0-2
         * あすたりすく * 特殊 1 記号 5 * 0 * 0
@@ -262,6 +265,7 @@ def test_from_jumanpp_control_character() -> None:
         " " " 特殊 1 括弧終 4 * 0 * 0
         : : : 未定義語 15 その他 1 * 0 * 0
         ; ; ; 未定義語 15 その他 1 * 0 * 0
+        # # # 未定義語 15 その他 1 * 0 * 0
         EOS
         """
     )

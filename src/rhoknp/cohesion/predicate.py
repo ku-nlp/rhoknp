@@ -9,37 +9,29 @@ class Predicate:
     """述語を表すクラス．
 
     Args:
-        unit: 述語の基本句．
+        base_phrase: 述語の基本句．
         cfid: 格フーレムID．
     """
 
-    def __init__(self, unit: "BasePhrase", cfid: Optional[str] = None) -> None:
-        self.unit: "BasePhrase" = unit  #: 述語の基本句．
+    def __init__(self, base_phrase: "BasePhrase", cfid: Optional[str] = None) -> None:
+        self.base_phrase: "BasePhrase" = base_phrase  #: 述語の基本句．
         self.cfid: Optional[str] = cfid  #: 格フーレムID．
         self._pas: Optional["Pas"] = None
 
     @property
-    def base_phrase(self) -> "BasePhrase":
-        """基本句．"""
-        return self.unit
-
-    @property
     def text(self) -> str:
         """表層文字列．"""
-        return self.unit.text
+        return self.base_phrase.text
 
     @property
     def sid(self) -> str:
         """文 ID．"""
-        if self.unit.sentence is None:
-            raise AttributeError("sentence has not been set")
-        return self.unit.sentence.sid
+        return self.base_phrase.sentence.sid
 
     @property
     def pas(self) -> "Pas":
         """述語項構造．"""
-        if self._pas is None:
-            raise AttributeError("pas has not been set")
+        assert self._pas is not None
         return self._pas
 
     @pas.setter

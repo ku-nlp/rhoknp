@@ -7,7 +7,7 @@ jobs:
   test:
     name: Run tests with pytest
     container: kunlp/jumanpp-knp:ubuntu
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04  # to meet the ubuntu version in the kunlp/jumanpp-knp:ubuntu container
     strategy:
       fail-fast: false
       matrix:

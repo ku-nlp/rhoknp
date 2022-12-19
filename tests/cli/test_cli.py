@@ -4,7 +4,7 @@ import textwrap
 from typer.testing import CliRunner
 
 from rhoknp import Document, __version__
-from rhoknp.cli import app
+from rhoknp.cli.cli import app
 
 runner = CliRunner()
 
@@ -35,13 +35,13 @@ knp = textwrap.dedent(
 )
 
 
-def test_version():
+def test_version() -> None:
     result = runner.invoke(app, ["-v"])
     assert result.exit_code == 0
     assert result.stdout.strip() == f"rhoknp version: {__version__}"
 
 
-def test_show():
+def test_show() -> None:
     doc = Document.from_knp(knp)
     with tempfile.NamedTemporaryFile("wt") as f:
         f.write(doc.to_knp())
@@ -50,12 +50,12 @@ def test_show():
         assert result.exit_code == 0
 
 
-def test_show_error():
+def test_show_error() -> None:
     result = runner.invoke(app, ["show", "foo.knp"])  # not exist
     assert result.exit_code == 2
 
 
-def test_stats():
+def test_stats() -> None:
     doc = Document.from_knp(knp)
     with tempfile.NamedTemporaryFile("wt") as f:
         f.write(doc.to_knp())
@@ -64,15 +64,19 @@ def test_stats():
         assert result.exit_code == 0
 
 
-def test_stats_json():
+def test_stats_json() -> None:
     doc = Document.from_knp(knp)
     with tempfile.NamedTemporaryFile("wt") as f:
         f.write(doc.to_knp())
-        f.flush()
         result = runner.invoke(app, ["stats", f.name, "--json"])
         assert result.exit_code == 0
 
 
-def test_stats_error():
+def test_stats_error() -> None:
     result = runner.invoke(app, ["stats", "foo.knp"])  # not exist
+    assert result.exit_code == 2
+
+
+def test_serve_error() -> None:
+    result = runner.invoke(app, ["serve"])
     assert result.exit_code == 2

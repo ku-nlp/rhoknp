@@ -316,6 +316,7 @@ def test_from_jumanpp_control_character() -> None:
         " " " 特殊 1 括弧終 4 * 0 * 0
         : : : 未定義語 15 その他 1 * 0 * 0
         ; ; ; 未定義語 15 その他 1 * 0 * 0
+        # # # 未定義語 15 その他 1 * 0 * 0
         EOS
         """
     )
@@ -460,7 +461,7 @@ def test_to_jumanpp(case: Dict[str, str]) -> None:
     # assert sent.to_jumanpp() == case["jumanpp"]
 
 
-@pytest.mark.parametrize("case", CASES[:3])  # TODO: support <ALT> tag
+@pytest.mark.parametrize("case", CASES)
 def test_to_knp(case: Dict[str, str]) -> None:
     sent = Sentence.from_raw_text(case["raw_text"])
     with pytest.raises(AttributeError):
