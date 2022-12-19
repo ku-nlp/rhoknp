@@ -19,6 +19,10 @@ sentence = jumanpp.apply_to_sentence(
     "電気抵抗率は電気の通しにくさを表す物性値である。"
 )
 
+# Access to the result
+for morpheme in sentence.morphemes:  # a.k.a. keitai-so
+    ...
+
 # Save language analysis by Juman++
 with open("result.jumanpp", "wt") as f:
     f.write(sentence.to_jumanpp())
