@@ -132,7 +132,7 @@ class DiscourseRelation:
     tag: DiscourseRelationTag  #: 談話関係タグ．
     modifier: "Clause"  #: 修飾節．
     head: "Clause"  #: 主辞節．
-    explicit: bool = False  #: 明示的な談話関係ならTrue．．
+    is_explicit: bool = False  #: 明示的な談話関係ならTrue．．
 
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, type(self)):
@@ -161,7 +161,7 @@ class DiscourseRelation:
         head = modifier.parent
         if head is None:
             return None
-        if tag.need_swap:
+        if tag.need_swap:  # pragma: no cover (no such case in the corpus)
             modifier, head = head, modifier
         return cls(
             sid=modifier.sentence.sid,
@@ -170,7 +170,7 @@ class DiscourseRelation:
             tag=tag,
             modifier=modifier,
             head=head,
-            explicit=True,
+            is_explicit=True,
         )
 
     @classmethod
@@ -206,7 +206,7 @@ class DiscourseRelation:
             tag=tag,
             modifier=modifier,
             head=head,
-            explicit=True,
+            is_explicit=True,
         )
 
     @classmethod
