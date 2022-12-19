@@ -161,8 +161,9 @@ class DiscourseRelation:
         head = modifier.parent
         if head is None:
             return None
-        if tag.need_swap:  # pragma: no cover (no such case in the corpus)
-            modifier, head = head, modifier
+        if tag.need_swap:
+            # NOTE: Currently, no clause function requires swap.
+            modifier, head = head, modifier  # pragma: no cover
         return cls(
             sid=modifier.sentence.sid,
             base_phrase_index=head.end.index,
