@@ -140,10 +140,18 @@ class Clause(Unit):
     @cached_property
     def head(self) -> BasePhrase:
         """節主辞の基本句．"""
+        heads: List[BasePhrase] = []
         for base_phrase in self.base_phrases:
             if "節-主辞" in base_phrase.features:
-                return base_phrase
-        raise AssertionError  # unreachable
+                heads.append(base_phrase)
+        if len(heads) == 1:
+            return heads[0]
+        elif len(heads) > 1:
+            logger.warning("found multiple heads in a clause; use the last base phrase as the head")
+            return heads[-1]
+        else:
+            logger.warning("found no head in a clause; use the last base phrase as the head")
+            return self.base_phrases[-1]
 
     @property
     def end(self) -> BasePhrase:
@@ -182,9 +190,6 @@ class Clause(Unit):
 
         Args:
             knp_text: KNP の解析結果．
-
-        Raises:
-            ValueError: 解析結果読み込み中にエラーが発生した場合．
         """
         clause = cls()
         phrases = []
@@ -199,14 +204,6 @@ class Clause(Unit):
         else:
             phrase = Phrase.from_knp("\n".join(phrase_lines))
             phrases.append(phrase)
-        # Ensure that only one clause head exists.
-        num_clause_heads = 0
-        for phrase in phrases:
-            for base_phrase in phrase.base_phrases:
-                if "節-主辞" in base_phrase.features:
-                    num_clause_heads += 1
-        if num_clause_heads != 1:
-            raise ValueError("invalid number of clause heads")
         clause.phrases = phrases
         return clause
 
