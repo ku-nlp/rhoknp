@@ -1,4 +1,5 @@
 import concurrent.futures
+from typing import Generator
 
 import pytest
 
@@ -6,7 +7,7 @@ from rhoknp import KNP, Document, Jumanpp, RegexSenter, Sentence
 
 
 @pytest.fixture()
-def knp() -> KNP:
+def knp() -> Generator[KNP, None, None]:
     yield KNP(options=["-tab"])
 
 

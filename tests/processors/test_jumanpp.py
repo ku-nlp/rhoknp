@@ -1,4 +1,5 @@
 import concurrent.futures
+from typing import Generator
 
 import pytest
 
@@ -6,7 +7,7 @@ from rhoknp import Document, Jumanpp, RegexSenter, Sentence
 
 
 @pytest.fixture()
-def jumanpp() -> Jumanpp:
+def jumanpp() -> Generator[Jumanpp, None, None]:
     yield Jumanpp(options=["--juman"])
 
 
