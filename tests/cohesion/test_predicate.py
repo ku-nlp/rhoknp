@@ -26,3 +26,11 @@ def test_predicate() -> None:
     assert predicate.pas == pas
     assert str(predicate) == "行った。"
     assert repr(predicate) == "<rhoknp.cohesion.predicate.Predicate: '行った。'>"
+
+    assert predicate != "test"
+    another_predicate = Predicate(base_phrase, cfid="行く/いく:動12")
+    assert predicate == another_predicate
+    another_predicate = Predicate(base_phrase, cfid=None)
+    assert predicate == another_predicate
+    another_predicate = Predicate(base_phrase, cfid="行く/いく:動3")
+    assert predicate != another_predicate
