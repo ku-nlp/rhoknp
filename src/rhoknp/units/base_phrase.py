@@ -354,8 +354,10 @@ class BasePhrase(Unit):
             logger.warning(f"{self.sentence.sid}: index out of range")
             return None
         target_base_phrase = sentence.base_phrases[rel_tag.base_phrase_index]
-        if not (set(rel_tag.target) <= set(target_base_phrase.text)):
-            logger.info(f"{self.sentence.sid}: rel target mismatch; '{rel_tag.target}' vs '{target_base_phrase.text}'")
+        if not (set(rel_tag.target) & set(target_base_phrase.text)):
+            logger.warning(
+                f"{self.sentence.sid}: rel target mismatch; '{rel_tag.target}' vs '{target_base_phrase.text}'"
+            )
         return target_base_phrase
 
     def __hash__(self) -> int:
