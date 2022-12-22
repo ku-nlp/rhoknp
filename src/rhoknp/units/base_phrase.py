@@ -77,6 +77,7 @@ class BasePhrase(Unit):
 
         # Parse the rel tag if this unit is a piece of a document.
         if self.sentence.has_document is False:
+            logger.info("post-processing of rel tags was skipped because there is no document.")
             return
         for rel_tag in self.rel_tags:
             if rel_tag.sid == "":
