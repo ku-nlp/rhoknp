@@ -367,7 +367,10 @@ def test_empty_sid():
             """
         )
     )
-    assert document.base_phrases[1].rel_tags[0].sid == "000-0-0"
+    assert document.base_phrases[1].rel_tags[0].sid == ""
+    arguments = document.base_phrases[1].pas.get_arguments("ガ")
+    assert len(arguments) == 1
+    assert str(arguments[0]) == "天気が"
 
 
 def test_out_of_range_id():

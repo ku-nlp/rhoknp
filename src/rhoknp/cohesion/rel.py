@@ -92,7 +92,7 @@ class RelMode(Enum):
     AMBIGUOUS = "？"  #: いずれの解釈も妥当であり，文脈から判断ができない．
 
 
-@dataclass
+@dataclass(frozen=True)
 class RelTag:
     """関係タグ付きコーパスにおける <rel> タグを表すクラス．"""
 

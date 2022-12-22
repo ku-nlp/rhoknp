@@ -81,7 +81,13 @@ class BasePhrase(Unit):
             return
         for rel_tag in self.rel_tags:
             if rel_tag.sid == "":
-                rel_tag.sid = self.sentence.sid
+                rel_tag = RelTag(
+                    type=rel_tag.type,
+                    target=rel_tag.target,
+                    sid=self.sentence.sid,  # The target is considered to be in the same sentence.
+                    base_phrase_index=rel_tag.base_phrase_index,
+                    mode=rel_tag.mode,
+                )
             if rel_tag.type in CASE_TYPES:
                 self._add_pas(rel_tag)
             elif rel_tag.type in COREF_TYPES and rel_tag.mode in (None, RelMode.AND):  # ignore "OR" and "?"
