@@ -1,0 +1,73 @@
+%YAML 1.2
+---
+name: KNP
+file_extensions: [knp]
+scope: source.knp
+
+contexts:
+  main:
+    - match: '^[^+*\#\"<> ]+'
+      scope: variablel
+    - match: '(?<=\s)[^+\#\"<> ]+'
+      scope: variable
+    - match: "<"
+      scope: keyword
+      push: feature
+    - match: ^\+
+      scope: keyword
+      push: tag_bnst
+    - match: ^\*
+      scope: keyword
+      push: tag_bnst
+    - match: ^EOS$
+      scope: constant
+    - match: \"
+      scope: string
+      push: string
+    - match: ^\#
+      scope: comment
+      push: comment
+  string:
+    - match: '[^\"]+'
+      scope: string
+    - match: \"
+      scope: string
+      pop: true
+  tag_bnst:
+    - match: (-1|\d+)[DPAI]
+      scope: constant.language
+    - match: "<"
+      scope: keyword
+      push: feature
+    - match: $
+      pop: true
+  feature:
+    - match: \"
+      scope: string
+      push: string
+    - match: ">"
+      scope: keyword
+      pop: true
+    - match: ":"
+      scope: keyword
+      push: feature_value
+    - match: "="
+      scope: keyword
+    - match: '[^ :><\"=]+'
+      scope: storage.type
+  feature_value:
+    - match: "[^><]+(?=>)"
+      scope: variable.parameter
+      pop: true
+  comment:
+    - match: "S-ID:"
+      scope: comment
+      push: sid
+    - match: \S+
+      scope: comment
+    - match: $
+      pop: true
+  sid:
+    - match: \S+
+      scope: constant.numeric
+      pop: true

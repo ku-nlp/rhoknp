@@ -92,7 +92,7 @@ class RelMode(Enum):
     AMBIGUOUS = "？"  #: いずれの解釈も妥当であり，文脈から判断ができない．
 
 
-@dataclass
+@dataclass(frozen=True)
 class RelTag:
     """関係タグ付きコーパスにおける <rel> タグを表すクラス．"""
 
@@ -109,10 +109,10 @@ class RelTag:
     def __post_init__(self):
         if self.type.startswith("="):
             if self.type not in COREF_TYPES:
-                logger.warning(f"Unknown coreference type: {self.type} (rel tag: {self})")
+                logger.warning(f"Unknown coreference type: {self.type} ({self})")
         else:
             if self.type not in CASE_TYPES:
-                logger.warning(f"Unknown case type: {self.type} (rel tag: {self})")
+                logger.warning(f"Unknown case type: {self.type} ({self})")
 
     def to_fstring(self) -> str:
         """素性文字列に変換．"""

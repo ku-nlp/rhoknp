@@ -77,16 +77,23 @@ class BasePhrase(Unit):
 
         # Parse the rel tag if this unit is a piece of a document.
         if self.sentence.has_document is False:
+            logger.info("post-processing of rel tags was skipped because there is no document.")
             return
         for rel_tag in self.rel_tags:
             if rel_tag.sid == "":
-                rel_tag.sid = self.sentence.sid
+                rel_tag = RelTag(
+                    type=rel_tag.type,
+                    target=rel_tag.target,
+                    sid=self.sentence.sid,  # The target is considered to be in the same sentence.
+                    base_phrase_index=rel_tag.base_phrase_index,
+                    mode=rel_tag.mode,
+                )
             if rel_tag.type in CASE_TYPES:
                 self._add_pas(rel_tag)
             elif rel_tag.type in COREF_TYPES and rel_tag.mode in (None, RelMode.AND):  # ignore "OR" and "?"
                 self._add_coreference(rel_tag)
             else:
-                logger.warning(f"Rel tag: {rel_tag} is ignored.")
+                logger.warning(f"{rel_tag} is ignored.")
 
     def __eq__(self, other: Any) -> bool:
         if isinstance(other, type(self)) is False:
@@ -354,8 +361,10 @@ class BasePhrase(Unit):
             logger.warning(f"{self.sentence.sid}: index out of range")
             return None
         target_base_phrase = sentence.base_phrases[rel_tag.base_phrase_index]
-        if not (set(rel_tag.target) <= set(target_base_phrase.text)):
-            logger.info(f"{self.sentence.sid}: rel target mismatch; '{rel_tag.target}' vs '{target_base_phrase.text}'")
+        if not (set(rel_tag.target) & set(target_base_phrase.text)):
+            logger.warning(
+                f"{self.sentence.sid}: rel target mismatch; '{rel_tag.target}' vs '{target_base_phrase.text}'"
+            )
         return target_base_phrase
 
     def __hash__(self) -> int:

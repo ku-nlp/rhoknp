@@ -349,3 +349,65 @@ def test_no_pas():
         )
     )
     assert base_phrase.pas is None
+
+
+def test_empty_sid():
+    document = Document.from_knp(
+        textwrap.dedent(
+            """\
+            # S-ID:000-0-0
+            * 1D
+            + 1D
+            天気 てんき 天気 名詞 6 普通名詞 1 * 0 * 0
+            が が が 助詞 9 格助詞 1 * 0 * 0
+            * -1D
+            + -1D <rel type="ガ" target="天気" sid="" id="0"/>
+            いい いい いい 形容詞 3 * 0 イ形容詞イ段 19 基本形 2
+            EOS
+            """
+        )
+    )
+    assert document.base_phrases[1].rel_tags[0].sid == ""
+    arguments = document.base_phrases[1].pas.get_arguments("ガ")
+    assert len(arguments) == 1
+    assert str(arguments[0]) == "天気が"
+
+
+def test_out_of_range_id():
+    document = Document.from_knp(
+        textwrap.dedent(
+            """\
+            # S-ID:000-0-0
+            * 1D
+            + 1D
+            天気 てんき 天気 名詞 6 普通名詞 1 * 0 * 0
+            が が が 助詞 9 格助詞 1 * 0 * 0
+            * -1D
+            + -1D <rel type="ガ" target="天気" sid="000-0-0" id="10"/>
+            いい いい いい 形容詞 3 * 0 イ形容詞イ段 19 基本形 2
+            EOS
+            """
+        )
+    )
+    assert document.base_phrases[1].pas.get_all_arguments() == {}
+
+
+def test_rel_target_mismatch():
+    document = Document.from_knp(
+        textwrap.dedent(
+            """\
+            # S-ID:000-0-0
+            * 1D
+            + 1D
+            天気 てんき 天気 名詞 6 普通名詞 1 * 0 * 0
+            が が が 助詞 9 格助詞 1 * 0 * 0
+            * -1D
+            + -1D <rel type="ガ" target="転機" sid="000-0-0" id="0"/>
+            いい いい いい 形容詞 3 * 0 イ形容詞イ段 19 基本形 2
+            EOS
+            """
+        )
+    )
+    arguments = document.base_phrases[1].pas.get_arguments("ガ")
+    assert len(arguments) == 1
+    assert str(arguments[0]) == "天気が"

@@ -24,6 +24,14 @@ def test_endophora_argument() -> None:
             """
         )
     )
+    another_predicate_base_phrase = BasePhrase.from_knp(
+        textwrap.dedent(
+            """\
+            + -1D
+            食べる たべる 食べる 動詞 2 * 0 母音動詞 1 基本形 2
+            """
+        )
+    )
     arg_type = ArgumentType.OMISSION
     argument = EndophoraArgument("ガ", argument_base_phrase, arg_type=arg_type)
     pas = Pas(Predicate(predicate_base_phrase))
@@ -50,8 +58,7 @@ def test_endophora_argument() -> None:
     another_argument.pas = pas
     assert argument == another_argument
 
-    predicate_base_phrase.text = "食べる"
-    another_pas = Pas(Predicate(predicate_base_phrase))
+    another_pas = Pas(Predicate(another_predicate_base_phrase))
     another_argument.pas = another_pas
     assert argument != another_argument
 
@@ -62,6 +69,14 @@ def test_exophora_argument() -> None:
             """\
             + -1D
             言う いう 言う 動詞 2 * 0 子音動詞ワ行 12 基本形 2
+            """
+        )
+    )
+    another_predicate_base_phrase = BasePhrase.from_knp(
+        textwrap.dedent(
+            """\
+            + -1D
+            食べる たべる 食べる 動詞 2 * 0 母音動詞 1 基本形 2
             """
         )
     )
@@ -84,7 +99,6 @@ def test_exophora_argument() -> None:
     another_argument.pas = pas
     assert argument == another_argument
 
-    predicate_base_phrase.text = "食べる"
-    another_pas = Pas(Predicate(predicate_base_phrase))
+    another_pas = Pas(Predicate(another_predicate_base_phrase))
     another_argument.pas = another_pas
     assert argument != another_argument

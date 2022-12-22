@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from typing import ClassVar
 
 
-@dataclass
+@dataclass(frozen=True)
 class MemoTag:
     """関係タグ付きコーパスにおける <memo> タグを表すクラス．"""
 
