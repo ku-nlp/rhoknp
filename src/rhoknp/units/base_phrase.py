@@ -86,7 +86,7 @@ class BasePhrase(Unit):
             elif rel_tag.type in COREF_TYPES and rel_tag.mode in (None, RelMode.AND):  # ignore "OR" and "?"
                 self._add_coreference(rel_tag)
             else:
-                logger.warning(f"Rel tag: {rel_tag} is ignored.")
+                logger.warning(f"{rel_tag} is ignored.")
 
     def __eq__(self, other: Any) -> bool:
         if isinstance(other, type(self)) is False:
