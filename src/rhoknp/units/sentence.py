@@ -62,10 +62,12 @@ class Sentence(Unit):
         self.named_entities = []
         if self.need_knp is False:
             for base_phrase in self.base_phrases:
-                if fstring := base_phrase.features.get("NE"):
+                fstring = base_phrase.features.get("NE")
+                if fstring:
                     assert isinstance(fstring, str)
                     candidate_morphemes = self.morphemes[: base_phrase.morphemes[-1].index + 1]
-                    if named_entity := NamedEntity.from_fstring(fstring, candidate_morphemes):
+                    named_entity = NamedEntity.from_fstring(fstring, candidate_morphemes)
+                    if named_entity is not None:
                         self.named_entities.append(named_entity)
 
     def __eq__(self, other: Any) -> bool:
@@ -280,10 +282,10 @@ class Sentence(Unit):
     def comment(self) -> str:
         """コメント行．"""
         ret = ""
-        if sid := self._sent_id:
-            ret += f"S-ID:{sid} "
-        if misc := self.misc_comment:
-            ret += f"{misc} "
+        if self._sent_id:
+            ret += f"S-ID:{self._sent_id} "
+        if self.misc_comment:
+            ret += f"{self.misc_comment} "
         if ret != "":
             ret = "# " + ret
         return ret.rstrip(" ")
@@ -494,7 +496,8 @@ class Sentence(Unit):
             str: The rest of the comment line.
         """
         assert comment.startswith("#")
-        if match_sid := re.match(r"# S-ID: ?(\S*)( .+)?$", comment):
+        match_sid = re.match(r"# S-ID: ?(\S*)( .+)?$", comment)
+        if match_sid is not None:
             sid_string = match_sid[1]
             match = (
                 Sentence.SID_PAT_KWDLC.match(sid_string)
