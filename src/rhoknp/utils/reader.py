@@ -1,6 +1,6 @@
 import logging
 import re
-from typing import Callable, Iterator, List, Literal, Optional, TextIO, Union
+from typing import Callable, Iterator, List, Optional, TextIO, Union
 
 from rhoknp import Sentence
 
@@ -32,9 +32,7 @@ def chunk_by_sentence(f: TextIO) -> Iterator[str]:
         yield "".join(buffer)
 
 
-def chunk_by_document(
-    f: TextIO, doc_id_format: Union[Literal["default", "kwdlc", "wac"], Callable] = "default"
-) -> Iterator[str]:
+def chunk_by_document(f: TextIO, doc_id_format: Union[str, Callable] = "default") -> Iterator[str]:
     """解析結果ファイルを文書ごとに分割するジェネレータ．
 
     Args:
