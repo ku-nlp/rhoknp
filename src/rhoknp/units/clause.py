@@ -40,7 +40,8 @@ class Clause(Unit):
         # Find discourse relations.
         for key in self.end.features:
             if key.startswith("節-機能"):
-                if relation := DiscourseRelation.from_clause_function_fstring(key, modifier=self):
+                relation = DiscourseRelation.from_clause_function_fstring(key, modifier=self)
+                if relation is not None:
                     if relation not in relation.modifier.discourse_relations:
                         relation.modifier.discourse_relations.append(relation)
         for base_phrase in self.base_phrases:
@@ -50,13 +51,16 @@ class Clause(Unit):
                         head = self
                     else:
                         head = base_phrase.parent.clause
-                    if relation := DiscourseRelation.from_backward_clause_function_fstring(key, head=head):
+                    relation = DiscourseRelation.from_backward_clause_function_fstring(key, head=head)
+                    if relation is not None:
                         if relation not in relation.modifier.discourse_relations:
                             relation.modifier.discourse_relations.append(relation)
-        if values := self.end.features.get("談話関係", None):
+        values = self.end.features.get("談話関係")
+        if values:
             assert isinstance(values, str)
             for value in values.split(";"):
-                if relation := DiscourseRelation.from_discourse_relation_fstring(value, modifier=self):
+                relation = DiscourseRelation.from_discourse_relation_fstring(value, modifier=self)
+                if relation is not None:
                     if relation not in relation.modifier.discourse_relations:
                         relation.modifier.discourse_relations.append(relation)
 

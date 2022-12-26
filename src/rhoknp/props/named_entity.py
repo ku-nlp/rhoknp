@@ -62,7 +62,8 @@ class NamedEntity:
             logger.warning(f"{candidate_morphemes[0].sentence.sid}: unknown NE category: {category}")
             return None
         name: str = match["name"]
-        if (span := cls._find_morpheme_span(name, candidate_morphemes)) is None:
+        span = cls._find_morpheme_span(name, candidate_morphemes)
+        if span is None:
             logger.warning(f"{candidate_morphemes[0].sentence.sid}: morpheme span of '{name}' not found")
             return None
         return NamedEntity(NamedEntityCategory(category), candidate_morphemes[span.start : span.stop])

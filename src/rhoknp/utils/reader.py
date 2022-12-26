@@ -96,7 +96,8 @@ def _extract_doc_id(pat: re.Pattern) -> Callable[[str], Optional[str]]:
     """
 
     def extract_doc_id(line: str) -> Optional[str]:
-        if match_sid := re.match(r"# S-ID: ?(\S*)( .+)?$", line):
+        match_sid = re.match(r"# S-ID: ?(\S*)( .+)?$", line)
+        if match_sid:
             sid_string = match_sid[1]
             match = pat.match(sid_string)
             if match is None:
