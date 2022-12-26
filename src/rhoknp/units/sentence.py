@@ -282,9 +282,9 @@ class Sentence(Unit):
     def comment(self) -> str:
         """コメント行．"""
         ret = ""
-        if self._sent_id is not None:
+        if self._sent_id:
             ret += f"S-ID:{self._sent_id} "
-        if self.misc_comment is not None:
+        if self.misc_comment:
             ret += f"{self.misc_comment} "
         if ret != "":
             ret = "# " + ret
