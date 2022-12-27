@@ -1,5 +1,9 @@
 import re
-from functools import cached_property
+
+try:
+    from functools import cached_property  # type: ignore
+except ImportError:
+    from cached_property import cached_property
 from typing import TYPE_CHECKING, Any, ClassVar, List, Optional, Tuple, Union
 
 from rhoknp.props.feature import FeatureDict
@@ -274,7 +278,8 @@ class Morpheme(Unit):
         Raises:
             ValueError: 解析結果読み込み中にエラーが発生した場合．
         """
-        if (match := cls.PAT.match(jumanpp_line) or cls.PAT_REPEATED.match(jumanpp_line)) is None:
+        match = cls.PAT.match(jumanpp_line) or cls.PAT_REPEATED.match(jumanpp_line)
+        if match is None:
             raise ValueError(f"malformed morpheme line: {jumanpp_line}")
         surf = match["surf"]
         match_attr = cls._ATTRIBUTE_PAT.match(match["attrs"]) or cls._ATTRIBUTE_PAT_REPEATED.match(match["attrs"])

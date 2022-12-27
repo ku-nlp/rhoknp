@@ -22,6 +22,14 @@ def test_predicate() -> None:
     assert predicate.cfid == "行く/いく:動12"
     assert predicate.text == "行った。"
     with pytest.raises(AssertionError):
+        _ = predicate.document
+    with pytest.raises(AssertionError):
+        _ = predicate.sentence
+    with pytest.raises(AssertionError):
+        _ = predicate.clause
+    with pytest.raises(AssertionError):
+        _ = predicate.phrase
+    with pytest.raises(AssertionError):
         _ = predicate.sid
     assert predicate.pas == pas
     assert str(predicate) == "行った。"

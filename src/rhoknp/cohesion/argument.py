@@ -25,12 +25,17 @@ class ArgumentType(Enum):
 
 
 class BaseArgument(ABC):
-    """項の基底クラス．"""
+    """項の基底クラス．
+
+    Args:
+        case: 述語に対する格．
+        arg_type: 項のタイプ．
+    """
 
     def __init__(self, case: str, arg_type: ArgumentType) -> None:
-        self.case: str = case
-        self.type: ArgumentType = arg_type
-        self.optional: bool = False
+        self.case: str = case  #: 述語に対する格．
+        self.type: ArgumentType = arg_type  #: 項のタイプ．
+        self.optional: bool = False  #: 修飾的な項かどうか．
         self._pas: Optional["Pas"] = None
 
     @abstractmethod
@@ -63,10 +68,11 @@ class BaseArgument(ABC):
 
 
 class EndophoraArgument(BaseArgument):
-    """文脈中の句を指す項を表すクラス．
+    """文脈中の基本句に対応する項を表すクラス．
 
     Args:
-        base_phrase: 照応詞が指す基本句．
+        case: 述語に対する格．
+        base_phrase: 項の核となる基本句．
         arg_type: 項のタイプ．
     """
 
@@ -90,7 +96,11 @@ class EndophoraArgument(BaseArgument):
 
     @property
     def document(self) -> "Document":
-        """項の核となる基本句が属する文書．"""
+        """項の核となる基本句が属する文書．
+
+        Raises:
+            AttributeError: 解析結果にアクセスできない場合．
+        """
         return self.base_phrase.document
 
     @property
@@ -114,9 +124,10 @@ class EndophoraArgument(BaseArgument):
 
 
 class ExophoraArgument(BaseArgument):
-    """外界を指す項を表すクラス．
+    """外界照応の照応先に対応する項を表すクラス．
 
     Args:
+        case: 述語に対する格．
         exophora_referent: 外界照応における照応先（不特定:人など）．
         eid: エンティティID．
     """

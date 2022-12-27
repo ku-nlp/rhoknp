@@ -1,5 +1,9 @@
 import re
-from functools import cached_property
+
+try:
+    from functools import cached_property  # type: ignore
+except ImportError:
+    from cached_property import cached_property
 from typing import TYPE_CHECKING, Any, List, Optional, Union
 
 from rhoknp.props.dependency import DepType

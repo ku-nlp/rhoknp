@@ -188,8 +188,8 @@ class EntityManager:
     def delete_entity(self, entity: Entity) -> None:
         """エンティティを削除．
 
-        Remove the target entity from all the mentions of the entity as well as from self.entities.
-        Note that entity IDs can have a missing number.
+        対象エンティティを `EntityManager` およびそのエンティティを参照するすべてのメンションから削除する．
+        エンティティIDには欠番が生まれる可能性がある．
 
         Args:
             entity: 削除対象のエンティティ．
@@ -201,7 +201,7 @@ class EntityManager:
         self.entities.remove(entity)
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(entities={repr(self.entities)})"
+        return f"<{self.__module__}.{self.__class__.__name__}: {len(self.entities)}>"
 
     def __getitem__(self, eid: int) -> Entity:
         es = [e for e in self.entities if e.eid == eid]

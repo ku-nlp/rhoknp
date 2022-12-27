@@ -97,7 +97,8 @@ class Pas:
                 if sdist == 0:
                     sentence = base_phrase.sentence
                 else:
-                    if (sentence_index := base_phrase.sentence.index - sdist) < 0:
+                    sentence_index = base_phrase.sentence.index - sdist
+                    if sentence_index < 0:
                         logger.warning(f"sentence index out of range: {sentence_index} in {base_phrase.sentence.sid}")
                         continue
                     sentence = base_phrase.document.sentences[sentence_index]
@@ -114,7 +115,8 @@ class Pas:
                     if sdist == 0:
                         sentence = base_phrase.sentence
                     else:
-                        if (sentence_index := base_phrase.sentence.index - sdist) < 0:
+                        sentence_index = base_phrase.sentence.index - sdist
+                        if sentence_index < 0:
                             logger.warning(
                                 f"sentence index out of range: {sentence_index} in {base_phrase.sentence.sid}"
                             )
