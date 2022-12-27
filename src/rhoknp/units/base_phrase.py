@@ -1,6 +1,10 @@
 import logging
 import re
-from functools import cached_property
+
+try:
+    from functools import cached_property  # type: ignore
+except ImportError:
+    from cached_property import cached_property
 from typing import TYPE_CHECKING, Any, List, Optional, Set
 
 from rhoknp.cohesion.coreference import Entity
@@ -310,7 +314,8 @@ class BasePhrase(Unit):
         entity_manager = self.document.entity_manager
         assert self.pas is not None
         if rel_tag.sid is not None:
-            if (arg_base_phrase := self._get_target_base_phrase(rel_tag)) is None:
+            arg_base_phrase = self._get_target_base_phrase(rel_tag)
+            if arg_base_phrase is None:
                 return
             if not arg_base_phrase.entities:
                 arg_base_phrase.add_entity(entity_manager.get_or_create_entity())
@@ -332,7 +337,8 @@ class BasePhrase(Unit):
 
         nonidentical: bool = rel_tag.type.endswith("≒")
         if rel_tag.sid is not None:
-            if (target_base_phrase := self._get_target_base_phrase(rel_tag)) is None:
+            target_base_phrase = self._get_target_base_phrase(rel_tag)
+            if target_base_phrase is None:
                 return
             if target_base_phrase == self:
                 logger.warning(f"{self.sentence.sid}: coreference with self found: {self}")

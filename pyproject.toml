@@ -13,10 +13,12 @@ documentation = "https://rhoknp.readthedocs.io/en/latest"
 keywords = ["NLP"]
 
 [tool.poetry.dependencies]
-python = ">=3.8,<3.12"
+python = ">=3.7,<3.12"
 typer = ">=0.6.1,<0.8"
 PyYAML = "^6.0"
 rich = "^12.6"
+cached-property = { version = "^1.5", python = "<3.8" }
+importlib-metadata = { version = "^5.2", python = "<3.8" }
 
 [tool.poetry.group.dev]
 
@@ -50,13 +52,13 @@ rhoknp = "rhoknp.cli.cli:app"
 
 [tool.black]
 line-length = 120
-target-version = ["py38", "py39", "py310", "py311"]
+target-version = ["py37", "py38", "py39", "py310", "py311"]
 
 [tool.isort]
 line_length = 120
 
 [tool.mypy]
-python_version = 3.8
+python_version = 3.7
 
 [build-system]
 requires = ["poetry-core"]
