@@ -201,7 +201,7 @@ class EntityManager:
         self.entities.remove(entity)
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(entities={repr(self.entities)})"
+        return f"<{self.__module__}.{self.__class__.__name__}: {len(self.entities)}>"
 
     def __getitem__(self, eid: int) -> Entity:
         es = [e for e in self.entities if e.eid == eid]
