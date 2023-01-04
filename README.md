@@ -34,7 +34,7 @@ with open("result.jumanpp", "rt") as f:
 
 ## Requirements
 
-- Python 3.8+
+- Python 3.7+
 
 ## Optional requirements for language analysis
 
