@@ -16,7 +16,7 @@ keywords = ["NLP"]
 python = ">=3.7,<3.12"
 typer = ">=0.6.1,<0.8"
 PyYAML = "^6.0"
-rich = "^12.6"
+rich = ">=12.6,<14"
 cached-property = { version = "^1.5", python = "<3.8" }
 importlib-metadata = { version = "^5.2", python = "<3.8" }
 
