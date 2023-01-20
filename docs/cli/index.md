@@ -2,6 +2,15 @@
 
 *rhoknp* provides a command-line interface (CLI).
 
+Before using the CLI, you need to install *rhoknp* with the following command:
+
+```{eval-rst}
+.. prompt::
+    :prompts: $
+
+    pip install rhoknp[cli]
+```
+
 ## serve
 
 The `serve` command starts a web server to provide a playground for the given language analyzer.
@@ -11,16 +20,6 @@ The `serve` command starts a web server to provide a playground for the given la
     :prompts: $
 
     rhoknp serve {jumanpp|knp|kwja} [--host HOST] [--port PORT]
-```
-
-```{note}
-To use the `serve` command, install *rhoknp* with the following command:
-
-```{eval-rst}
-.. prompt::
-     :prompts: $
-
-     pip install rhoknp[serve]
 ```
 
 ## show
