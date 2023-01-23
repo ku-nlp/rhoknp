@@ -4,7 +4,7 @@ from rhoknp import KWJA, Document, Sentence
 
 
 def test_apply() -> None:
-    kwja = KWJA()
+    kwja = KWJA(options=["--model-size", "tiny"])
     text = "外国人参政権"
     assert isinstance(kwja.apply(text), Document)
     assert isinstance(kwja.apply(Document.from_raw_text(text)), Document)
@@ -26,13 +26,13 @@ def test_apply() -> None:
     ],
 )
 def test_apply_to_sentence(text: str) -> None:
-    kwja = KWJA()
+    kwja = KWJA(options=["--model-size", "tiny"])
     sent = kwja.apply_to_sentence(text)
     assert sent.text == text
 
 
 def test_is_available() -> None:
-    kwja = KWJA()
+    kwja = KWJA(options=["--model-size", "tiny"])
     assert kwja.is_available() is True
 
     kwja = KWJA("kwjaa")
@@ -46,5 +46,5 @@ def test_is_available() -> None:
 
 
 def test_repr() -> None:
-    kwja = KWJA(options=["--text"])
-    assert repr(kwja) == "KWJA(executable='kwja', options=['--text'])"
+    kwja = KWJA(options=["--model-size", "tiny"])
+    assert repr(kwja) == "KWJA(executable='kwja', options=['--model-size', 'tiny'])"
