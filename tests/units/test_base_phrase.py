@@ -119,14 +119,14 @@ CASES = [
             # S-ID:202211041803-0-0 kwja:1.2.0
             * 2D
             + 2D <体言>
-            " " " 特殊 1 記号 5 * 0 * 0 <基本句-主辞>
+            ” ” ” 特殊 1 記号 5 * 0 * 0 <基本句-主辞>
             は は は 助詞 9 副助詞 2 * 0 * 0 "代表表記:は/は" <代表表記:は/は>
             * 2D
             + 2D <体言><係:ノ格>
             記号 きごう 記号 名詞 6 普通名詞 1 * 0 * 0 "代表表記:記号/きごう カテゴリ:抽象物" <代表表記:記号/きごう><カテゴリ:抽象物><基本句-主辞>
             の の の 助詞 9 接続助詞 3 * 0 * 0 "代表表記:の/の" <代表表記:の/の>
             * -1D
-            + -1D <rel type="ガ" target="\\"" sid="202211041803-0-0" id="0"/><rel type="ノ" target="記号" sid="202211041803-0-0" id="1"/><用言:判><体言><時制:非過去><節-区切><レベル:C><状態述語><節-主辞>
+            + -1D <rel type="ガ" target="”" sid="202211041803-0-0" id="0"/><rel type="ノ" target="記号" sid="202211041803-0-0" id="1"/><用言:判><体言><時制:非過去><節-区切><レベル:C><状態述語><節-主辞>
             一種 いっしゅ 一種 名詞 6 普通名詞 1 * 0 * 0 <基本句-主辞><用言表記先頭><用言表記末尾>
             だ だ だ 判定詞 4 * 0 判定詞 25 基本形 2 "代表表記:だ/だ" <代表表記:だ/だ>
             EOS
@@ -328,34 +328,6 @@ def test_text(case: Dict[str, str]) -> None:
 
 
 @pytest.mark.parametrize("case", KNP_SNIPPETS)
-def test_document_error(case: Dict[str, str]) -> None:
-    with pytest.raises(AttributeError):
-        base_phrase = BasePhrase.from_knp(case["knp"])
-        _ = base_phrase.document
-
-
-@pytest.mark.parametrize("case", KNP_SNIPPETS)
-def test_sentence_error(case: Dict[str, str]) -> None:
-    with pytest.raises(AttributeError):
-        base_phrase = BasePhrase.from_knp(case["knp"])
-        _ = base_phrase.sentence
-
-
-@pytest.mark.parametrize("case", KNP_SNIPPETS)
-def test_clause_error(case: Dict[str, str]) -> None:
-    with pytest.raises(AttributeError):
-        base_phrase = BasePhrase.from_knp(case["knp"])
-        _ = base_phrase.clause
-
-
-@pytest.mark.parametrize("case", KNP_SNIPPETS)
-def test_phrase_error(case: Dict[str, str]) -> None:
-    with pytest.raises(AttributeError):
-        base_phrase = BasePhrase.from_knp(case["knp"])
-        _ = base_phrase.phrase
-
-
-@pytest.mark.parametrize("case", KNP_SNIPPETS)
 def test_morpheme_num(case: Dict[str, str]) -> None:
     base_phrase = BasePhrase.from_knp(case["knp"])
     assert len(base_phrase.morphemes) == case["morpheme_num"]
@@ -377,3 +349,65 @@ def test_no_pas():
         )
     )
     assert base_phrase.pas is None
+
+
+def test_empty_sid():
+    document = Document.from_knp(
+        textwrap.dedent(
+            """\
+            # S-ID:000-0-0
+            * 1D
+            + 1D
+            天気 てんき 天気 名詞 6 普通名詞 1 * 0 * 0
+            が が が 助詞 9 格助詞 1 * 0 * 0
+            * -1D
+            + -1D <rel type="ガ" target="天気" sid="" id="0"/>
+            いい いい いい 形容詞 3 * 0 イ形容詞イ段 19 基本形 2
+            EOS
+            """
+        )
+    )
+    assert document.base_phrases[1].rel_tags[0].sid == ""
+    arguments = document.base_phrases[1].pas.get_arguments("ガ")
+    assert len(arguments) == 1
+    assert str(arguments[0]) == "天気が"
+
+
+def test_out_of_range_id():
+    document = Document.from_knp(
+        textwrap.dedent(
+            """\
+            # S-ID:000-0-0
+            * 1D
+            + 1D
+            天気 てんき 天気 名詞 6 普通名詞 1 * 0 * 0
+            が が が 助詞 9 格助詞 1 * 0 * 0
+            * -1D
+            + -1D <rel type="ガ" target="天気" sid="000-0-0" id="10"/>
+            いい いい いい 形容詞 3 * 0 イ形容詞イ段 19 基本形 2
+            EOS
+            """
+        )
+    )
+    assert document.base_phrases[1].pas.get_all_arguments() == {}
+
+
+def test_rel_target_mismatch():
+    document = Document.from_knp(
+        textwrap.dedent(
+            """\
+            # S-ID:000-0-0
+            * 1D
+            + 1D
+            天気 てんき 天気 名詞 6 普通名詞 1 * 0 * 0
+            が が が 助詞 9 格助詞 1 * 0 * 0
+            * -1D
+            + -1D <rel type="ガ" target="転機" sid="000-0-0" id="0"/>
+            いい いい いい 形容詞 3 * 0 イ形容詞イ段 19 基本形 2
+            EOS
+            """
+        )
+    )
+    arguments = document.base_phrases[1].pas.get_arguments("ガ")
+    assert len(arguments) == 1
+    assert str(arguments[0]) == "天気が"

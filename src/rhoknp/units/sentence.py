@@ -31,7 +31,7 @@ class Sentence(Unit):
     def __init__(self, text: Optional[str] = None):
         super().__init__()
         if text is not None:
-            self.text = text
+            self.text = text.replace("\r", "").replace("\n", "")
 
         Clause.count = 0
         Phrase.count = 0
@@ -62,14 +62,16 @@ class Sentence(Unit):
         self.named_entities = []
         if self.need_knp is False:
             for base_phrase in self.base_phrases:
-                if fstring := base_phrase.features.get("NE"):
+                fstring = base_phrase.features.get("NE")
+                if fstring:
                     assert isinstance(fstring, str)
                     candidate_morphemes = self.morphemes[: base_phrase.morphemes[-1].index + 1]
-                    if named_entity := NamedEntity.from_fstring(fstring, candidate_morphemes):
+                    named_entity = NamedEntity.from_fstring(fstring, candidate_morphemes)
+                    if named_entity is not None:
                         self.named_entities.append(named_entity)
 
     def __eq__(self, other: Any) -> bool:
-        if isinstance(other, Sentence) is False:
+        if isinstance(other, type(self)) is False:
             return False
         return self._sent_id == other._sent_id and self.text == other.text
 
@@ -226,7 +228,7 @@ class Sentence(Unit):
         """
         if self._phrases is not None:
             return self._phrases
-        elif self._clauses is not None:
+        if self._clauses is not None:
             return [phrase for clause in self.clauses for phrase in clause.phrases]
         raise AttributeError("phrases have not been set")
 
@@ -257,12 +259,12 @@ class Sentence(Unit):
         Raises:
             AttributeError: 解析結果にアクセスできない場合．
         """
+        if self._clauses is not None:
+            return [morpheme for clause in self.clauses for morpheme in clause.morphemes]
+        if self._phrases is not None:
+            return [morpheme for phrase in self.phrases for morpheme in phrase.morphemes]
         if self._morphemes is not None:
             return self._morphemes
-        elif self._clauses is not None:
-            return [morpheme for clause in self.clauses for morpheme in clause.morphemes]
-        elif self._phrases is not None:
-            return [morpheme for phrase in self.phrases for morpheme in phrase.morphemes]
         raise AttributeError("morphemes have not been set")
 
     @morphemes.setter
@@ -280,10 +282,10 @@ class Sentence(Unit):
     def comment(self) -> str:
         """コメント行．"""
         ret = ""
-        if sid := self._sent_id:
-            ret += f"S-ID:{sid} "
-        if misc := self.misc_comment:
-            ret += f"{misc} "
+        if self._sent_id:
+            ret += f"S-ID:{self._sent_id} "
+        if self.misc_comment:
+            ret += f"{self.misc_comment} "
         if ret != "":
             ret = "# " + ret
         return ret.rstrip(" ")
@@ -337,14 +339,14 @@ class Sentence(Unit):
         """
         sentence = cls()
         text_lines = []
-        for line in text.split("\n"):
+        for line in text.splitlines():
             if line.strip() == "":
                 continue
             if cls.is_comment_line(line):
                 sentence.comment = line
             else:
                 text_lines.append(line)
-        sentence.text = "\n".join(text_lines)
+        sentence.text = "".join(text_lines)
         if post_init is True:
             sentence.__post_init__()
         return sentence
@@ -358,10 +360,9 @@ class Sentence(Unit):
             post_init: インスタンス作成後の追加処理を行うなら True．
 
         Raises:
-            Exception: 解析結果読み込み中にエラーが発生した場合．
+            ValueError: 解析結果読み込み中にエラーが発生した場合．
 
         Example:
-
             >>> from rhoknp import Sentence
             >>> jumanpp_text = \"\"\"
             ... # S-ID:1
@@ -380,7 +381,7 @@ class Sentence(Unit):
         morphemes: List[Morpheme] = []
         jumanpp_lines: List[str] = []
         for line in jumanpp_text.split("\n"):
-            if not line.strip():
+            if line.strip() == "":
                 continue
             if cls.is_comment_line(line):
                 sentence.comment = line
@@ -413,10 +414,9 @@ class Sentence(Unit):
             post_init: インスタンス作成後の追加処理を行うなら True．
 
         Raises:
-            Exception: 解析結果読み込み中にエラーが発生した場合．
+            ValueError: 解析結果読み込み中にエラーが発生した場合．
 
         Example:
-
             >>> from rhoknp import Sentence
             >>> knp_text = \"\"\"
             ... # S-ID:1
@@ -445,7 +445,7 @@ class Sentence(Unit):
         child_lines: List[str] = []
         is_clause_end = False
         for line in lines:
-            if not line.strip():
+            if line.strip() == "":
                 continue
             if cls.is_comment_line(line):
                 sentence.comment = line
@@ -496,7 +496,8 @@ class Sentence(Unit):
             str: The rest of the comment line.
         """
         assert comment.startswith("#")
-        if match_sid := re.match(r"# S-ID: ?(\S*)( .+)?$", comment):
+        match_sid = re.match(r"# S-ID: ?(\S*)( .+)?$", comment)
+        if match_sid is not None:
             sid_string = match_sid[1]
             match = (
                 Sentence.SID_PAT_KWDLC.match(sid_string)

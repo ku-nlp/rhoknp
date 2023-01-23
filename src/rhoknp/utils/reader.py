@@ -1,6 +1,6 @@
 import logging
 import re
-from typing import Callable, Iterator, List, Literal, Optional, TextIO, Union
+from typing import Callable, Iterator, List, Optional, TextIO, Union
 
 from rhoknp import Sentence
 
@@ -13,7 +13,7 @@ def chunk_by_sentence(f: TextIO) -> Iterator[str]:
     Args:
         f: 分割するファイル．
 
-    Examples:
+    Example:
         >>> from rhoknp.units import Sentence
         >>> from rhoknp.utils.reader import chunk_by_sentence
         >>> with open("example.knp") as f:
@@ -32,16 +32,14 @@ def chunk_by_sentence(f: TextIO) -> Iterator[str]:
         yield "".join(buffer)
 
 
-def chunk_by_document(
-    f: TextIO, doc_id_format: Union[Literal["default", "kwdlc", "wac"], Callable] = "default"
-) -> Iterator[str]:
+def chunk_by_document(f: TextIO, doc_id_format: Union[str, Callable] = "default") -> Iterator[str]:
     """解析結果ファイルを文書ごとに分割するジェネレータ．
 
     Args:
         f: 分割するファイル．
         doc_id_format: 文書IDのフォーマット．
 
-    Examples:
+    Example:
         >>> from rhoknp.units import Document
         >>> from rhoknp.utils.reader import chunk_by_document
         >>> with open("example.knp") as f:
@@ -98,7 +96,8 @@ def _extract_doc_id(pat: re.Pattern) -> Callable[[str], Optional[str]]:
     """
 
     def extract_doc_id(line: str) -> Optional[str]:
-        if match_sid := re.match(r"# S-ID: ?(\S*)( .+)?$", line):
+        match_sid = re.match(r"# S-ID: ?(\S*)( .+)?$", line)
+        if match_sid:
             sid_string = match_sid[1]
             match = pat.match(sid_string)
             if match is None:

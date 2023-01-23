@@ -65,7 +65,7 @@ class RegexSenter(Processor):
         regex = re.compile(f"^[{self.PERIODS}]$")
         merged_candidates = [""]
         for candidate in candidates:
-            if re.match(regex, candidate):
+            if re.match(regex, candidate) is not None:
                 merged_candidates[-1] += candidate
             else:
                 merged_candidates.append(candidate)
@@ -106,7 +106,7 @@ class RegexSenter(Processor):
                 else:
                     prefix += candidate
 
-        if prefix:
+        if prefix != "":
             merged_candidates.append(prefix)
         return merged_candidates
 

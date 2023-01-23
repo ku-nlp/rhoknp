@@ -13,6 +13,10 @@ from rhoknp.cohesion.rel import RelMode
 if TYPE_CHECKING:
     from rhoknp.units.base_phrase import BasePhrase
 
+_HIRAGANA = "ぁあぃいぅうぇえぉおかがきぎくぐけげこごさざしじすずせぜそぞただちぢっつづてでとどなにぬねのはばぱひびぴふぶぷへべぺほぼぽまみむめもゃやゅゆょよらりるれろわをんーゎゐゑゕゖゔゝゞ"
+_KATAKANA = "ァアィイゥウェエォオカガキギクグケゲコゴサザシジスズセゼソゾタダチヂッツヅテデトドナニヌネノハバパヒビピフブプヘベペホボポマミムメモャヤュユョヨラリルレロワヲンーヮヰヱヵヶヴヽヾ"
+_HIRA2KATA = str.maketrans(_HIRAGANA, _KATAKANA)
+
 logger = logging.getLogger(__name__)
 
 
@@ -75,7 +79,7 @@ class Pas:
             return cls(Predicate(base_phrase))
 
         cfid = match[1] + ":" + match[2]
-        predicate = Predicate(unit=base_phrase, cfid=cfid)
+        predicate = Predicate(base_phrase, cfid=cfid)
 
         if match[3] is None:  # <述語項構造:束の間/つかのま:判0> など
             return cls(predicate)
@@ -93,7 +97,8 @@ class Pas:
                 if sdist == 0:
                     sentence = base_phrase.sentence
                 else:
-                    if (sentence_index := base_phrase.sentence.index - sdist) < 0:
+                    sentence_index = base_phrase.sentence.index - sdist
+                    if sentence_index < 0:
                         logger.warning(f"sentence index out of range: {sentence_index} in {base_phrase.sentence.sid}")
                         continue
                     sentence = base_phrase.document.sentences[sentence_index]
@@ -110,7 +115,8 @@ class Pas:
                     if sdist == 0:
                         sentence = base_phrase.sentence
                     else:
-                        if (sentence_index := base_phrase.sentence.index - sdist) < 0:
+                        sentence_index = base_phrase.sentence.index - sdist
+                        if sentence_index < 0:
                             logger.warning(
                                 f"sentence index out of range: {sentence_index} in {base_phrase.sentence.sid}"
                             )
@@ -145,6 +151,7 @@ class Pas:
         References:
             格・省略・共参照タグ付けの基準 3.2.1 修飾的表現
         """
+        case = case.translate(_HIRA2KATA)
         args = self._arguments[case]
         if include_nonidentical is True:
             args += self._arguments[case + "≒"]
@@ -163,7 +170,7 @@ class Pas:
                 elif isinstance(arg, EndophoraArgument):
                     entities = arg.base_phrase.entities_all if include_nonidentical else arg.base_phrase.entities
                 else:
-                    raise TypeError(f"invalid argument type: {type(arg)}")
+                    raise AssertionError  # unreachable
                 for entity in entities:
                     if entity.exophora_referent is not None:
                         pas.add_special_argument(case, entity.exophora_referent, entity.eid)
@@ -211,7 +218,9 @@ class Pas:
             mode: 関係のモード．
             arg_type: 述語と項の関係タイプ．
         """
+        case = case.translate(_HIRA2KATA)
         argument = EndophoraArgument(
+            case,
             base_phrase,
             arg_type or self._get_arg_type(self.predicate, base_phrase, case),
         )
@@ -232,9 +241,10 @@ class Pas:
             eid: エンティティ ID．
             mode: 関係のモード．
         """
+        case = case.translate(_HIRA2KATA)
         if isinstance(exophora_referent, str):
             exophora_referent = ExophoraReferent(exophora_referent)
-        special_argument = ExophoraArgument(exophora_referent, eid)
+        special_argument = ExophoraArgument(case, exophora_referent, eid)
         special_argument.pas = self
         if mode is not None:
             self.modes[case] = mode
@@ -247,6 +257,7 @@ class Pas:
         Args:
             case: 対象の格．
         """
+        case = case.translate(_HIRA2KATA)
         if not self._arguments[case]:
             logger.info(f"no preceding argument found in {self.sid}. 'なし' is ignored")
             return
@@ -259,10 +270,8 @@ class Pas:
         if predicate.base_phrase.parent_index is None:
             return ArgumentType.UNASSIGNED
         if arg_base_phrase in predicate.base_phrase.children:
-            dep_case = arg_base_phrase.features.get("係", "")
-            assert isinstance(dep_case, str)
-            dep_case = dep_case.rstrip("格")
-            if (case == dep_case) or (case == "判ガ" and dep_case == "ガ") or (case == "ノ？" and dep_case == "ノ"):
+            tail_morpheme = arg_base_phrase.morphemes[-1]
+            if tail_morpheme.subpos == "格助詞" and tail_morpheme.text.translate(_HIRA2KATA) == case:
                 return ArgumentType.CASE_EXPLICIT
             else:
                 return ArgumentType.CASE_HIDDEN

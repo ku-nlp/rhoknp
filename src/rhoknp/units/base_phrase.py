@@ -1,6 +1,10 @@
 import logging
 import re
-from functools import cached_property
+
+try:
+    from functools import cached_property  # type: ignore
+except ImportError:
+    from cached_property import cached_property
 from typing import TYPE_CHECKING, Any, List, Optional, Set
 
 from rhoknp.cohesion.coreference import Entity
@@ -77,14 +81,23 @@ class BasePhrase(Unit):
 
         # Parse the rel tag if this unit is a piece of a document.
         if self.sentence.has_document is False:
+            logger.info("post-processing of rel tags was skipped because there is no document.")
             return
         for rel_tag in self.rel_tags:
             if rel_tag.sid == "":
-                rel_tag.sid = self.sentence.sid
+                rel_tag = RelTag(
+                    type=rel_tag.type,
+                    target=rel_tag.target,
+                    sid=self.sentence.sid,  # The target is considered to be in the same sentence.
+                    base_phrase_index=rel_tag.base_phrase_index,
+                    mode=rel_tag.mode,
+                )
             if rel_tag.type in CASE_TYPES:
                 self._add_pas(rel_tag)
             elif rel_tag.type in COREF_TYPES and rel_tag.mode in (None, RelMode.AND):  # ignore "OR" and "?"
                 self._add_coreference(rel_tag)
+            else:
+                logger.warning(f"{rel_tag} is ignored.")
 
     def __eq__(self, other: Any) -> bool:
         if isinstance(other, type(self)) is False:
@@ -123,11 +136,7 @@ class BasePhrase(Unit):
 
     @property
     def sentence(self) -> "Sentence":
-        """文．
-
-        Raises:
-            AttributeError: 解析結果にアクセスできない場合．
-        """
+        """文．"""
         return self.phrase.sentence
 
     @property
@@ -141,13 +150,8 @@ class BasePhrase(Unit):
 
     @property
     def phrase(self) -> "Phrase":
-        """文節．
-
-        Raises:
-            AttributeError: 解析結果にアクセスできない場合．
-        """
-        if self._phrase is None:
-            raise AttributeError("phrase has not been set")
+        """文節．"""
+        assert self._phrase is not None
         return self._phrase
 
     @phrase.setter
@@ -238,7 +242,7 @@ class BasePhrase(Unit):
 
         morphemes: List[Morpheme] = []
         for line in lines:
-            if not line.strip():
+            if line.strip() == "":
                 continue
             morphemes.append(Morpheme.from_jumanpp(line))
         base_phrase.morphemes = morphemes
@@ -305,34 +309,36 @@ class BasePhrase(Unit):
             self.entities.add(entity)
         entity.add_mention(self, nonidentical=nonidentical)
 
-    def _add_pas(self, rel: RelTag) -> None:
+    def _add_pas(self, rel_tag: RelTag) -> None:
         """述語項構造を追加．"""
         entity_manager = self.document.entity_manager
         assert self.pas is not None
-        if rel.sid is not None:
-            if (arg_base_phrase := self._get_target_base_phrase(rel)) is None:
+        if rel_tag.sid is not None:
+            arg_base_phrase = self._get_target_base_phrase(rel_tag)
+            if arg_base_phrase is None:
                 return
             if not arg_base_phrase.entities:
                 arg_base_phrase.add_entity(entity_manager.get_or_create_entity())
-            self.pas.add_argument(rel.type, arg_base_phrase, mode=rel.mode)
+            self.pas.add_argument(rel_tag.type, arg_base_phrase, mode=rel_tag.mode)
         else:
-            if rel.target == "なし":
-                self.pas.set_arguments_optional(rel.type)
+            if rel_tag.target == "なし":
+                self.pas.set_arguments_optional(rel_tag.type)
                 return
             # exophora
-            entity = entity_manager.get_or_create_entity(ExophoraReferent(rel.target))
-            self.pas.add_special_argument(rel.type, rel.target, eid=entity.eid, mode=rel.mode)
+            entity = entity_manager.get_or_create_entity(ExophoraReferent(rel_tag.target))
+            self.pas.add_special_argument(rel_tag.type, rel_tag.target, eid=entity.eid, mode=rel_tag.mode)
 
-    def _add_coreference(self, rel: RelTag) -> None:
+    def _add_coreference(self, rel_tag: RelTag) -> None:
         """共参照関係を追加．"""
         entity_manager = self.document.entity_manager
         # create source entity
         if not self.entities:
             self.add_entity(entity_manager.get_or_create_entity())
 
-        nonidentical: bool = rel.type.endswith("≒")
-        if rel.sid is not None:
-            if (target_base_phrase := self._get_target_base_phrase(rel)) is None:
+        nonidentical: bool = rel_tag.type.endswith("≒")
+        if rel_tag.sid is not None:
+            target_base_phrase = self._get_target_base_phrase(rel_tag)
+            if target_base_phrase is None:
                 return
             if target_base_phrase == self:
                 logger.warning(f"{self.sentence.sid}: coreference with self found: {self}")
@@ -346,23 +352,25 @@ class BasePhrase(Unit):
         else:
             # exophora
             for source_entity in self.entities_all:
-                target_entity = entity_manager.get_or_create_entity(exophora_referent=ExophoraReferent(rel.target))
+                target_entity = entity_manager.get_or_create_entity(exophora_referent=ExophoraReferent(rel_tag.target))
                 entity_manager.merge_entities(self, None, source_entity, target_entity, nonidentical)
 
-    def _get_target_base_phrase(self, rel: RelTag) -> Optional["BasePhrase"]:
+    def _get_target_base_phrase(self, rel_tag: RelTag) -> Optional["BasePhrase"]:
         """rel が指す基本句を取得．"""
-        sentences = [sent for sent in self.document.sentences if sent.sid == rel.sid]
+        sentences = [sent for sent in self.document.sentences if sent.sid == rel_tag.sid]
         if not sentences:
-            logger.warning(f"{self.sentence.sid}: relation with unknown sid found: {rel.sid}")
+            logger.warning(f"{self.sentence.sid}: relation with unknown sid found: {rel_tag.sid}")
             return None
         sentence = sentences[0]
-        assert rel.base_phrase_index is not None
-        if rel.base_phrase_index >= len(sentence.base_phrases):
+        assert rel_tag.base_phrase_index is not None
+        if rel_tag.base_phrase_index >= len(sentence.base_phrases):
             logger.warning(f"{self.sentence.sid}: index out of range")
             return None
-        target_base_phrase = sentence.base_phrases[rel.base_phrase_index]
-        if not (set(rel.target) <= set(target_base_phrase.text)):
-            logger.info(f"{self.sentence.sid}: rel target mismatch; '{rel.target}' vs '{target_base_phrase.text}'")
+        target_base_phrase = sentence.base_phrases[rel_tag.base_phrase_index]
+        if not (set(rel_tag.target) & set(target_base_phrase.text)):
+            logger.warning(
+                f"{self.sentence.sid}: rel target mismatch; '{rel_tag.target}' vs '{target_base_phrase.text}'"
+            )
         return target_base_phrase
 
     def __hash__(self) -> int:

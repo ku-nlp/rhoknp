@@ -36,7 +36,8 @@ class ExophoraReferent:
             self.type = ExophoraReferentType.OTHER
             self._other_text = text
         else:
-            if index := match["index"]:
+            index = match["index"]
+            if index:
                 self.index = int(index)
             self.type = ExophoraReferentType(match["type"])
 
@@ -69,5 +70,4 @@ class ExophoraReferent:
             return False
         if self.type == ExophoraReferentType.OTHER:
             return self._other_text == other._other_text
-        else:
-            return self.index == other.index
+        return self.index == other.index

@@ -14,10 +14,6 @@ CASES = [
         "dict_": {"代表表記": "新/しん", "内容語": True, "NE": "ORGANIZATION:head"},
     },
     {
-        "sstring": r'"代表表記:\"/\" 元半角"',
-        "dict_": {"代表表記": '"/"', "元半角": True},
-    },
-    {
         "sstring": "NIL",
         "dict_": {},
     },

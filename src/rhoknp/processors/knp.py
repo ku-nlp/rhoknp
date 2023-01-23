@@ -84,7 +84,7 @@ class KNP(Processor):
         if isinstance(document, str):
             document = Document(document)
 
-        if document.need_senter:
+        if document.need_senter is True:
             logger.debug("document needs to be split into sentences")
             if self.senter is None:
                 logger.debug("senter is not specified; use RegexSenter")
@@ -92,7 +92,7 @@ class KNP(Processor):
                 logger.debug(self.senter)
             document = self.senter.apply_to_document(document)
 
-        if document.need_jumanpp:
+        if document.need_jumanpp is True:
             logger.debug("document needs to be processed by Juman++")
             if self.jumanpp is None:
                 logger.info("jumanpp is not specified; use Jumanpp")
@@ -103,7 +103,7 @@ class KNP(Processor):
         with self._lock:
             knp_text = ""
             for sentence in document.sentences:
-                self._proc.stdin.write(sentence.to_jumanpp() if sentence.need_knp else sentence.to_knp())
+                self._proc.stdin.write(sentence.to_jumanpp() if sentence.need_knp is True else sentence.to_knp())
                 self._proc.stdin.flush()
                 while self.is_available():
                     line = self._proc.stdout.readline()
@@ -131,7 +131,7 @@ class KNP(Processor):
         if isinstance(sentence, str):
             sentence = Sentence(sentence)
 
-        if sentence.need_jumanpp:
+        if sentence.need_jumanpp is True:
             logger.debug("sentence needs to be processed by Juman++")
             if self.jumanpp is None:
                 logger.info("jumanpp is not specified when initializing KNP: use Jumanpp with no option")
@@ -139,7 +139,7 @@ class KNP(Processor):
             sentence = self.jumanpp.apply_to_sentence(sentence)
 
         with self._lock:
-            self._proc.stdin.write(sentence.to_jumanpp() if sentence.need_knp else sentence.to_knp())
+            self._proc.stdin.write(sentence.to_jumanpp() if sentence.need_knp is True else sentence.to_knp())
             self._proc.stdin.flush()
             knp_text = ""
             while self.is_available():

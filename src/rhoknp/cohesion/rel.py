@@ -1,3 +1,4 @@
+import logging
 import re
 from dataclasses import dataclass
 from enum import Enum
@@ -65,6 +66,8 @@ CASE_TYPES += [case + "≒" for case in CASE_TYPES]
 COREF_TYPES = ["=", "=構", "=役"]
 COREF_TYPES += [coref + "≒" for coref in COREF_TYPES]
 
+logger = logging.getLogger(__name__)
+
 
 class RelMode(Enum):
     """同一の基本句に同一タイプの関係タグが複数付いている場合にそれらの関係を表す列挙体．
@@ -89,13 +92,13 @@ class RelMode(Enum):
     AMBIGUOUS = "？"  #: いずれの解釈も妥当であり，文脈から判断ができない．
 
 
-@dataclass
+@dataclass(frozen=True)
 class RelTag:
     """関係タグ付きコーパスにおける <rel> タグを表すクラス．"""
 
     PAT: ClassVar[re.Pattern] = re.compile(
-        r'<rel type="(?P<type>\S+?)"( mode="(?P<mode>\S+?)")? target="(?P<target>.+?)"'
-        r'( sid="(?P<sid>.*?)" id="(?P<id>\d+?)")?/>'
+        r'<rel type="(?P<type>\S+?)"( mode="(?P<mode>\S+?)")? target="(?P<target>.+?)"( sid="(?P<sid>.*?)" '
+        r'id="(?P<id>\d+?)")?/>'
     )
     type: str
     target: str
@@ -103,13 +106,20 @@ class RelTag:
     base_phrase_index: Optional[int]
     mode: Optional[RelMode]
 
+    def __post_init__(self):
+        if self.type.startswith("="):
+            if self.type not in COREF_TYPES:
+                logger.warning(f"Unknown coreference type: {self.type} ({self})")
+        else:
+            if self.type not in CASE_TYPES:
+                logger.warning(f"Unknown case type: {self.type} ({self})")
+
     def to_fstring(self) -> str:
         """素性文字列に変換．"""
         ret = f'<rel type="{self.type}"'
         if self.mode is not None:
             ret += f' mode="{self.mode.value}"'
-        target = self.target.replace('"', r"\"")  # escape double quotes
-        ret += f' target="{target}"'
+        ret += f' target="{self.target}"'
         if self.sid is not None:
             assert self.base_phrase_index is not None
             ret += f' sid="{self.sid}" id="{self.base_phrase_index}"'
@@ -128,7 +138,7 @@ class RelTagList(List[RelTag]):
             rel_tags.append(
                 RelTag(
                     type=match["type"],
-                    target=match["target"].replace(r"\"", '"'),  # unescape double quotes
+                    target=match["target"],
                     sid=match["sid"],
                     base_phrase_index=int(match["id"]) if match["id"] else None,
                     mode=RelMode(match["mode"]) if match["mode"] else None,
@@ -138,7 +148,7 @@ class RelTagList(List[RelTag]):
 
     def to_fstring(self) -> str:
         """素性文字列に変換．"""
-        return "".join(rel.to_fstring() for rel in self)
+        return "".join(rel_tag.to_fstring() for rel_tag in self)
 
     def __str__(self) -> str:
         return self.to_fstring()

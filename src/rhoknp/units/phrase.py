@@ -1,5 +1,9 @@
 import re
-from functools import cached_property
+
+try:
+    from functools import cached_property  # type: ignore
+except ImportError:
+    from cached_property import cached_property
 from typing import TYPE_CHECKING, Any, List, Optional, Union
 
 from rhoknp.props.dependency import DepType
@@ -83,11 +87,7 @@ class Phrase(Unit):
 
     @property
     def sentence(self) -> "Sentence":
-        """文．
-
-        Raises:
-            AttributeError: 解析結果にアクセスできない場合．
-        """
+        """文．"""
         return self._sentence or self.clause.sentence
 
     @sentence.setter
@@ -138,11 +138,7 @@ class Phrase(Unit):
 
     @property
     def morphemes(self) -> List[Morpheme]:
-        """形態素のリスト．
-
-        Raises:
-            AttributeError: 解析結果にアクセスできない場合．
-        """
+        """形態素のリスト．"""
         return [morpheme for base_phrase in self.base_phrases for morpheme in base_phrase.morphemes]
 
     @property
@@ -173,6 +169,9 @@ class Phrase(Unit):
 
         Args:
             knp_text: KNP の解析結果．
+
+        Raises:
+            ValueError: 解析結果読み込み中にエラーが発生した場合．
         """
         first_line, *lines = knp_text.split("\n")
         match = cls.PAT.match(first_line)
@@ -186,7 +185,7 @@ class Phrase(Unit):
         base_phrases: List[BasePhrase] = []
         base_phrase_lines: List[str] = []
         for line in lines:
-            if not line.strip():
+            if line.strip() == "":
                 continue
             if BasePhrase.is_base_phrase_line(line) and base_phrase_lines:
                 base_phrases.append(BasePhrase.from_knp("\n".join(base_phrase_lines)))

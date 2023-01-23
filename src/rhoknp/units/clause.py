@@ -1,5 +1,9 @@
 import logging
-from functools import cached_property
+
+try:
+    from functools import cached_property  # type: ignore
+except ImportError:
+    from cached_property import cached_property
 from typing import TYPE_CHECKING, Any, List, Optional
 
 from rhoknp.cohesion.discourse import DiscourseRelation
@@ -38,20 +42,31 @@ class Clause(Unit):
         super().__post_init__()
 
         # Find discourse relations.
-        # TODO: Use forward/backward clause function
-        explicit_discourse_relations = []
         for key in self.end.features:
             if key.startswith("節-機能"):
-                if discourse_relation := DiscourseRelation.from_clause_function_fstring(key, modifier=self):
-                    explicit_discourse_relations.append(discourse_relation)
-        implicit_discourse_relations = []
-        if values := self.end.features.get("談話関係", None):
+                relation = DiscourseRelation.from_clause_function_fstring(key, modifier=self)
+                if relation is not None:
+                    if relation not in relation.modifier.discourse_relations:
+                        relation.modifier.discourse_relations.append(relation)
+        for base_phrase in self.base_phrases:
+            for key in base_phrase.features:
+                if key.startswith("節-前向き機能"):
+                    if base_phrase.parent is None or base_phrase.parent in self.base_phrases:
+                        head = self
+                    else:
+                        head = base_phrase.parent.clause
+                    relation = DiscourseRelation.from_backward_clause_function_fstring(key, head=head)
+                    if relation is not None:
+                        if relation not in relation.modifier.discourse_relations:
+                            relation.modifier.discourse_relations.append(relation)
+        values = self.end.features.get("談話関係")
+        if values:
             assert isinstance(values, str)
             for value in values.split(";"):
-                if discourse_relation := DiscourseRelation.from_discourse_relation_fstring(value, modifier=self):
-                    if discourse_relation not in explicit_discourse_relations:
-                        implicit_discourse_relations.append(discourse_relation)
-        self.discourse_relations = explicit_discourse_relations + implicit_discourse_relations
+                relation = DiscourseRelation.from_discourse_relation_fstring(value, modifier=self)
+                if relation is not None:
+                    if relation not in relation.modifier.discourse_relations:
+                        relation.modifier.discourse_relations.append(relation)
 
     def __eq__(self, other: Any) -> bool:
         if isinstance(other, type(self)) is False:
@@ -90,13 +105,8 @@ class Clause(Unit):
 
     @property
     def sentence(self) -> "Sentence":
-        """文．
-
-        Raises:
-            AttributeError: 解析結果にアクセスできない場合．
-        """
-        if self._sentence is None:
-            raise AttributeError("sentence has not been set")
+        """文．"""
+        assert self._sentence is not None
         return self._sentence
 
     @sentence.setter
@@ -127,29 +137,29 @@ class Clause(Unit):
 
     @property
     def base_phrases(self) -> List[BasePhrase]:
-        """基本句のリスト．
-
-        Raises:
-            AttributeError: 解析結果にアクセスできない場合．
-        """
+        """基本句のリスト．"""
         return [base_phrase for phrase in self.phrases for base_phrase in phrase.base_phrases]
 
     @property
     def morphemes(self) -> List[Morpheme]:
-        """形態素のリスト．
-
-        Raises:
-            AttributeError: 解析結果にアクセスできない場合．
-        """
+        """形態素のリスト．"""
         return [morpheme for base_phrase in self.base_phrases for morpheme in base_phrase.morphemes]
 
     @cached_property
     def head(self) -> BasePhrase:
         """節主辞の基本句．"""
+        heads: List[BasePhrase] = []
         for base_phrase in self.base_phrases:
             if "節-主辞" in base_phrase.features:
-                return base_phrase
-        raise AssertionError
+                heads.append(base_phrase)
+        if len(heads) == 1:
+            return heads[0]
+        elif len(heads) > 1:
+            logger.warning("found multiple heads in a clause; use the last base phrase as the head")
+            return heads[-1]
+        else:
+            logger.warning("found no head in a clause; use the last base phrase as the head")
+            return self.base_phrases[-1]
 
     @property
     def end(self) -> BasePhrase:
