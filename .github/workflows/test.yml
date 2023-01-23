@@ -44,7 +44,8 @@ jobs:
         run: |
           python3 -m sysconfig
       - name: Run tests with KWJA
-        if: ${{ matrix.python-version != 3.11 }}
+        # KWJA does not support Python 3.7 and 3.11
+        if: ${{ matrix.python-version != 3.7 && matrix.python-version != 3.11 }}
         run: |
           pipx install kwja==${{ env.KWJA_VERSION }}
           export KWJA_CACHE_DIR=/tmp/kwja
