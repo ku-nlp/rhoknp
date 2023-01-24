@@ -109,7 +109,7 @@ class Sentence(Unit):
             AttributeError: 文書 IDにアクセスできない場合．
         """
         if self._doc_id is None:
-            raise AttributeError("doc_id has not been set")
+            raise AttributeError("document id has not been set")
         return self._doc_id
 
     @doc_id.setter
@@ -147,7 +147,7 @@ class Sentence(Unit):
             AttributeError: 文 IDにアクセスできない場合．
         """
         if self._sent_id is None:
-            raise AttributeError("sid has not been set")
+            raise AttributeError("sentence id has not been set")
         return self._sent_id
 
     @sent_id.setter

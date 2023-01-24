@@ -85,7 +85,7 @@ class Document(Unit):
             AttributeError: 文書 IDにアクセスできない場合．
         """
         if self._doc_id is None:
-            raise AttributeError("doc_id has not been set")
+            raise AttributeError("document id has not been set")
         return self._doc_id
 
     @doc_id.setter
