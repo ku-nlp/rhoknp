@@ -17,6 +17,6 @@ sent = knp.apply_to_sentence(sys.argv[1])
 for phrase in sent.phrases:
     parent = phrase.parent
     if parent:
-        print(f"{phrase.text} -> {phrase.parent.text}")
+        print(f"{phrase.text} -> {parent.text}")
     else:
         print(f"{phrase.text} -> ROOT")
