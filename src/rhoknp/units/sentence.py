@@ -339,7 +339,7 @@ class Sentence(Unit):
         """
         sentence = cls()
         text_lines = []
-        for line in text.splitlines():
+        for line in text.split("\n"):
             if line.strip() == "":
                 continue
             if cls.is_comment_line(line):
