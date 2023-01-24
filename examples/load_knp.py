@@ -1,4 +1,4 @@
-"""Example code for loading KNP from a file.
+"""Example code for loading the result of KNP/KWJA from a file.
 
 Usage:
     $ python examples/load_knp.py example.jumanpp

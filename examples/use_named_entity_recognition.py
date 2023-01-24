@@ -1,7 +1,7 @@
-"""Example code for applying KNP to the given sentence.
+"""Example code for using the result of named entity recognition.
 
 Usage:
-    $ python examples/find_named_entity.py "太郎は花子が読んでいる本を次郎に渡した。"
+    $ python examples/use_named_entity_recognition.py "太郎は花子が読んでいる本を次郎に渡した。"
 """
 import sys
 
