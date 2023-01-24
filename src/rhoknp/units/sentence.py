@@ -337,16 +337,14 @@ class Sentence(Unit):
             >>> text = "天気が良かったので散歩した。"
             >>> sent = Sentence(text)
         """
-        sentence = cls()
-        text_lines = []
+        sentence = cls(text="")
         for line in text.split("\n"):
             if line.strip() == "":
                 continue
             if cls.is_comment_line(line):
                 sentence.comment = line
             else:
-                text_lines.append(line)
-        sentence.text = "".join(text_lines)
+                sentence.text += line.replace("\r", "")
         if post_init is True:
             sentence.__post_init__()
         return sentence
