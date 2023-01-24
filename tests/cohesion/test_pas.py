@@ -381,6 +381,52 @@ def test_sentence_index_out_of_range_case() -> None:
     assert pas.cases == []
 
 
+def test_tag_id_out_of_range_case() -> None:
+    sentence_case = Sentence.from_knp(
+        textwrap.dedent(
+            """\
+            # S-ID:1
+            * 1D
+            + 1D
+            今日 きょう 今日 名詞 6 時相名詞 10 * 0 * 0
+            は は は 助詞 9 副助詞 2 * 0 * 0
+            * -1D
+            + -1D <述語項構造:晴れ/はれv:判4:マデ/U/-/-/-/-;時間/N/きょう/0/100/1>
+            晴れ はれ 晴れ 名詞 6 普通名詞 1 * 0 * 0
+            だ だ だ 判定詞 4 * 0 判定詞 25 基本形 2
+            EOS
+            """
+        )
+    )
+    pas = sentence_case.base_phrases[1].pas
+    assert pas is not None
+    assert pas.predicate.base_phrase == sentence_case.base_phrases[1]
+    assert pas.cases == []
+
+
+def test_surf_mismatch_case() -> None:
+    sentence = Sentence.from_knp(
+        textwrap.dedent(
+            """\
+            # S-ID:1
+            * 1D
+            + 1D
+            今日 きょう 今日 名詞 6 時相名詞 10 * 0 * 0
+            は は は 助詞 9 副助詞 2 * 0 * 0
+            * -1D
+            + -1D <格解析結果:晴れ/はれv:判4:マデ/U/-/-/-/-;時間/N/きょう/0/0/1><述語項構造:晴れ/はれv:判4:マデ/U/-/-/-/-;時間/N/きょう/0/0/1>
+            晴れ はれ 晴れ 名詞 6 普通名詞 1 * 0 * 0
+            だ だ だ 判定詞 4 * 0 判定詞 25 基本形 2
+            EOS
+            """
+        )
+    )
+    pas = sentence.base_phrases[1].pas
+    assert pas is not None
+    assert pas.predicate.base_phrase == sentence.base_phrases[1]
+    assert len(pas.get_arguments("時間")) == 1
+
+
 def test_sentence_index_out_of_range_pas() -> None:
     sentence = Sentence.from_knp(
         textwrap.dedent(
