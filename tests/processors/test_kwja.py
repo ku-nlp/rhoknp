@@ -1,10 +1,16 @@
+from typing import Generator
+
 import pytest
 
 from rhoknp import KWJA, Document, Sentence
 
 
-def test_apply() -> None:
-    kwja = KWJA(options=["--model-size", "tiny"])
+@pytest.fixture()
+def kwja() -> Generator[KWJA, None, None]:
+    yield KWJA(options=["--model-size", "tiny"])
+
+
+def test_apply(kwja: KWJA) -> None:
     text = "外国人参政権"
     assert isinstance(kwja.apply(text), Document)
     assert isinstance(kwja.apply(Document.from_raw_text(text)), Document)
@@ -25,8 +31,7 @@ def test_apply() -> None:
         # "これは\rどう",  # carriage return  # TODO
     ],
 )
-def test_apply_to_sentence(text: str) -> None:
-    kwja = KWJA(options=["--model-size", "tiny"])
+def test_apply_to_sentence(kwja: KWJA, text: str) -> None:
     sent = kwja.apply_to_sentence(text)
     assert sent.text == text
 
@@ -35,7 +40,7 @@ def test_is_available() -> None:
     kwja = KWJA(options=["--model-size", "tiny"])
     assert kwja.is_available() is True
 
-    kwja = KWJA("kwjaa")
+    kwja = KWJA("kwjaaaaaaaaaaaaaaaaa")
     assert kwja.is_available() is False
 
     with pytest.raises(RuntimeError):
