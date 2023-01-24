@@ -187,6 +187,11 @@ def test_from_sentences(case: Dict[str, str]) -> None:
     # from_sentences() allows Sentence objects as input.
     doc2 = Document.from_sentences(list(map(Sentence.from_raw_text, case["sentences"])))
     assert doc1 == doc2
+    doc1.doc_id = "1"
+    doc3 = Document.from_sentences(Document.from_jumanpp(case["jumanpp"]).sentences)
+    assert doc1 == doc3
+    doc4 = Document.from_sentences(Document.from_knp(case["knp"]).sentences)
+    assert doc1 == doc4
 
 
 @pytest.mark.parametrize("case", CASES)
@@ -743,18 +748,28 @@ def test_to_knp_wac() -> None:
     assert doc.to_knp() == knp
 
 
-def test_id_kwdlc() -> None:
+@pytest.mark.parametrize("doc_id", ("w201106-0000060050", "wiki00100176"))
+def test_id(doc_id) -> None:
+    doc = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text())
+    assert doc.doc_id == doc_id
+    assert doc.did == doc_id
+
+
+def test_update_id() -> None:
     doc_id = "w201106-0000060050"
     doc = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text())
-    assert doc.doc_id == doc_id
-    assert doc.did == doc_id
+    doc.doc_id = "test_doc_id"
+    assert doc.doc_id == "test_doc_id"
+    doc.did = "test_did"
+    assert doc.did == "test_did"
 
 
-def test_id_wac() -> None:
-    doc_id = "wiki00100176"
-    doc = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text())
-    assert doc.doc_id == doc_id
-    assert doc.did == doc_id
+def test_unset_id() -> None:
+    doc = Document.from_raw_text("天気がいいので散歩した。")
+    with pytest.raises(AttributeError):
+        _ = doc.doc_id
+    with pytest.raises(AttributeError):
+        _ = doc.did
 
 
 def test_eq() -> None:
