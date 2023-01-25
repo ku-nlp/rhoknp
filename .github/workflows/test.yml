@@ -35,23 +35,14 @@ jobs:
         run: echo "$HOME/.local/bin" >> $GITHUB_PATH
       - name: Install dependencies
         run: poetry install --no-interaction --without dev,docs
-      - name: Cache KWJA checkpoints
-        uses: actions/cache@v3
-        with:
-          path: /tmp/kwja
-          key: kwja-${{ env.KWJA_VERSION }}
-      - name: debug
-        run: |
-          python3 -m sysconfig
       - name: Run tests with KWJA
         # KWJA does not support Python 3.7 and 3.11
         if: ${{ matrix.python-version != 3.7 && matrix.python-version != 3.11 }}
         run: |
           pipx install kwja==${{ env.KWJA_VERSION }}
-          export KWJA_CACHE_DIR=/tmp/kwja
           poetry run pytest --cov=./ --cov-report=xml -v ./tests
       - name: Run tests without KWJA
-        if: ${{ matrix.python-version == 3.11 }}
+        if: ${{ matrix.python-version == 3.7 || matrix.python-version == 3.11 }}
         run: |
           poetry run pytest --cov=./ --cov-report=xml -v --ignore ./tests/processors/test_kwja.py ./tests
       - name: Upload coverage to Codecov
