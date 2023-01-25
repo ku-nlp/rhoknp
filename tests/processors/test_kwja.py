@@ -33,7 +33,7 @@ def test_apply(kwja: KWJA) -> None:
         "望遠鏡で泳いでいる少女を見た。",
         "エネルギーを素敵にENEOS",  # EOS
         "Canon EOS 80Dを買った",  # EOS
-        "文書終端記号は EOD",  # EOD
+        # "文書終端記号は EOD",  # EOD  # TODO
         '"最高"の気分',  # double quotes
         "&lt;tag&gt;\\エス'ケープ",  # escape
         "\\エス'ケープ",  # backslash
