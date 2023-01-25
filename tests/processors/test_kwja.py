@@ -31,15 +31,19 @@ def test_apply(kwja: KWJA) -> None:
         "外国人参政権",
         "望遠鏡で泳いでいる少女を見た。",
         "エネルギーを素敵にENEOS",  # EOS
-        # "Canon EOS 80D買った",  # EOS  # TODO
+        "Canon EOS 80Dを買った",  # EOS
+        "文書終端記号は EOD",  # EOD
         # '"最高"の気分',  # double quotes  # TODO
         "&lt;tag&gt;\\エス'ケープ",  # escape
-        # "これは\rどう",  # carriage return  # TODO
+        "\\エス'ケープ",  # backslash
+        "キャリッジ\rリターン",  # carriage return
+        "ライン\nフィード",  # line feed
+        "CR\r\nLF",  # CR+LF
     ],
 )
 def test_apply_to_sentence(kwja: KWJA, text: str) -> None:
     sent = kwja.apply_to_sentence(text)
-    assert sent.text == text
+    assert sent.text == text.replace('"', "”").replace(" ", "␣").replace("\r", "").replace("\n", "")
 
 
 def test_is_available() -> None:
