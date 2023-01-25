@@ -109,7 +109,7 @@ class Sentence(Unit):
             AttributeError: 文書 IDにアクセスできない場合．
         """
         if self._doc_id is None:
-            raise AttributeError("doc_id has not been set")
+            raise AttributeError("document id has not been set")
         return self._doc_id
 
     @doc_id.setter
@@ -147,7 +147,7 @@ class Sentence(Unit):
             AttributeError: 文 IDにアクセスできない場合．
         """
         if self._sent_id is None:
-            raise AttributeError("sid has not been set")
+            raise AttributeError("sentence id has not been set")
         return self._sent_id
 
     @sent_id.setter
@@ -337,16 +337,14 @@ class Sentence(Unit):
             >>> text = "天気が良かったので散歩した。"
             >>> sent = Sentence(text)
         """
-        sentence = cls()
-        text_lines = []
-        for line in text.splitlines():
+        sentence = cls(text="")
+        for line in text.split("\n"):
             if line.strip() == "":
                 continue
             if cls.is_comment_line(line):
                 sentence.comment = line
             else:
-                text_lines.append(line)
-        sentence.text = "".join(text_lines)
+                sentence.text += line.replace("\r", "")
         if post_init is True:
             sentence.__post_init__()
         return sentence

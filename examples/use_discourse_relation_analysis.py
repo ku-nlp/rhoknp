@@ -1,7 +1,7 @@
-"""Example code for applying KNP to the given sentence.
+"""Example code for using the result of discourse relation analysis.
 
 Usage:
-    $ python examples/find_discourse_relation.py "風が吹いたら桶屋が儲かる。"
+    $ python examples/use_discourse_relation_analysis.py "風が吹いたら桶屋が儲かる。"
 """
 import sys
 

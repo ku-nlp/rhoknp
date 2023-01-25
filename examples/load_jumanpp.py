@@ -1,4 +1,4 @@
-"""Example code for loading Juman++ from a file.
+"""Example code for loading the result of Juman++ from a file.
 
 Usage:
     $ python examples/load_jumanpp.py example.jumanpp

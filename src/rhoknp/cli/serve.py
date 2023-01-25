@@ -1,14 +1,10 @@
 import html
 import textwrap
 from enum import Enum
-from typing import Optional, Union
+from typing import Union
 
-try:
-    import fastapi
-    import uvicorn
-except ImportError:
-    fastapi = None
-    uvicorn = None
+import fastapi
+import uvicorn
 
 from rhoknp.processors import KNP, KWJA, Jumanpp
 
@@ -87,10 +83,7 @@ def create_app(analyzer: AnalyzerType) -> "fastapi.FastAPI":
     Args:
         analyzer: 解析器の種類．
     """
-    if fastapi is None:
-        raise ImportError("fastapi is required to run the server. Install it with `pip install rhoknp[serve]`.")
-
-    processor: Optional[Union[Jumanpp, KNP, KWJA]] = None
+    processor: Union[Jumanpp, KNP, KWJA]
     if analyzer == AnalyzerType.JUMANPP:
         processor = Jumanpp()
     elif analyzer == AnalyzerType.KNP:
@@ -105,7 +98,6 @@ def create_app(analyzer: AnalyzerType) -> "fastapi.FastAPI":
     def get_result(text: str) -> str:
         if text == "":
             return ""
-        assert processor is not None
         document = processor.apply(text)
         if analyzer == AnalyzerType.JUMANPP:
             return document.to_jumanpp()
@@ -149,9 +141,6 @@ def serve_analyzer(analyzer: AnalyzerType, host: str, port: int) -> None:
         host: ホスト．
         port: ポート．
     """
-    if uvicorn is None:
-        raise ImportError("uvicorn is required to run the server. Install it with `pip install rhoknp[serve]`.")
-
     app = create_app(analyzer)
     config = uvicorn.Config(app, host=host, port=port)
     server = uvicorn.Server(config)

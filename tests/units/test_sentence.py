@@ -277,13 +277,29 @@ def test_from_raw_text(case: Dict[str, str]) -> None:
     _ = Sentence.from_raw_text(case["line_by_line_text"])
 
 
+def test_from_raw_text_empty_line():
+    sent = Sentence.from_raw_text(
+        textwrap.dedent(
+            """\
+
+
+            # S-ID:w201106-0000060050-1
+
+            コイントスを３回行う。
+            """
+        )
+    )
+    assert sent.sid == "w201106-0000060050-1"
+    assert sent.text == "コイントスを３回行う。"
+
+
 @pytest.mark.parametrize("case", CASES)
 def test_from_jumanpp(case: Dict[str, str]) -> None:
     _ = Sentence.from_jumanpp(case["jumanpp"])
 
 
 def test_from_jumanpp_empty_line():
-    _ = Sentence.from_jumanpp(
+    sent = Sentence.from_jumanpp(
         textwrap.dedent(
             """\
 
@@ -293,6 +309,7 @@ def test_from_jumanpp_empty_line():
             トス とす トス 名詞 6 サ変名詞 2 * 0 * 0
             を を を 助詞 9 格助詞 1 * 0 * 0
             ３ さん ３ 名詞 6 数詞 7 * 0 * 0
+
             回 かい 回 接尾辞 14 名詞性名詞助数辞 3 * 0 * 0
             行う おこなう 行う 動詞 2 * 0 子音動詞ワ行 12 基本形 2
             。 。 。 特殊 1 句点 1 * 0 * 0
@@ -300,6 +317,8 @@ def test_from_jumanpp_empty_line():
             """
         )
     )
+    assert sent.sid == "w201106-0000060050-1"
+    assert sent.text == "コイントスを３回行う。"
 
 
 def test_from_jumanpp_control_character() -> None:
@@ -325,13 +344,13 @@ def test_from_jumanpp_control_character() -> None:
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_from_knp_with_no_clause_tag(case: Dict[str, str]) -> None:
-    _ = Sentence.from_knp(case["knp_with_no_clause_tag"])
+def test_from_knp(case: Dict[str, str]) -> None:
+    _ = Sentence.from_knp(case["knp"])
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_from_knp(case: Dict[str, str]) -> None:
-    _ = Sentence.from_knp(case["knp"])
+def test_from_knp_with_no_clause_tag(case: Dict[str, str]) -> None:
+    _ = Sentence.from_knp(case["knp_with_no_clause_tag"])
 
 
 def test_from_knp_empty_line():
@@ -566,12 +585,6 @@ def test_morphemes(case: Dict[str, str]) -> None:
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_sid(case: Dict[str, str]) -> None:
-    sent = Sentence.from_knp(case["knp"])
-    assert sent.sid == case["sid"]
-
-
-@pytest.mark.parametrize("case", CASES)
 @pytest.mark.parametrize(
     "key",
     ("raw_text", "sentences", "line_by_line_text", "jumanpp", "knp_with_no_clause_tag", "knp"),
@@ -588,6 +601,63 @@ def test_reparse(case: Dict[str, str], key: str) -> None:
     else:
         return
     assert sent == sent.reparse()
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_sid(case: Dict[str, str]) -> None:
+    sent = Sentence.from_knp(case["knp"])
+    assert sent.sent_id == case["sid"]
+    assert sent.sid == case["sid"]
+
+
+def test_update_id() -> None:
+    sent = Sentence.from_raw_text("天気がいいので散歩した。")
+    sent.doc_id = "test_doc_id"
+    assert sent.doc_id == "test_doc_id"
+    sent.did = "test_did"
+    assert sent.did == "test_did"
+    sent.sent_id = "test_sent_id"
+    assert sent.sent_id == "test_sent_id"
+    sent.sid = "test_sid"
+    assert sent.sid == "test_sid"
+
+
+def test_unset_id() -> None:
+    sent = Sentence.from_raw_text("天気がいいので散歩した。")
+    with pytest.raises(AttributeError):
+        _ = sent.doc_id
+    with pytest.raises(AttributeError):
+        _ = sent.did
+    with pytest.raises(AttributeError):
+        _ = sent.sent_id
+    with pytest.raises(AttributeError):
+        _ = sent.sid
+
+
+def test_invalid_id() -> None:
+    with pytest.raises(ValueError):
+        _ = Sentence.from_raw_text(
+            textwrap.dedent(
+                """\
+                # S-ID:!.,@#$%^&*=あ
+                天気がいいので散歩した。
+                """
+            )
+        )
+
+
+def test_comment_without_id() -> None:
+    sent = Sentence.from_raw_text(
+        textwrap.dedent(
+            """\
+            # NO SID WRITTEN
+            天気がいいので散歩した。
+            """
+        )
+    )
+    assert sent.comment == "# NO SID WRITTEN"
+    with pytest.raises(AttributeError):
+        _ = sent.sid
 
 
 def test_id_kwdlc():
@@ -617,6 +687,11 @@ def test_id_kwdlc():
     assert sent.sid == "w201106-0000060050-1"
     assert sent.doc_id == "w201106-0000060050"
     assert sent.did == "w201106-0000060050"
+
+
+def test_eq() -> None:
+    sent = Sentence.from_raw_text("天気がいいので散歩した。")
+    assert sent != "天気がいいので散歩した。"
 
 
 @pytest.mark.parametrize("case", CASES)

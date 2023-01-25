@@ -130,7 +130,7 @@ class Pas:
                         logger.warning(f"surface mismatch ({sentence.sid}): '{surf}' vs '{arg_base_phrase.text}'")
                     pas.add_argument(case, arg_base_phrase)
             else:
-                raise ValueError(f"invalid format: {format_}")
+                raise AssertionError(f"invalid format: {format_}")
         return pas
 
     def get_arguments(
