@@ -3,6 +3,9 @@ name: Test
 on:
   [ push, pull_request, workflow_dispatch ]
 
+env:
+  KWJA_VERSION: 1.3.0
+
 jobs:
   test:
     name: Run tests with pytest
@@ -18,11 +21,11 @@ jobs:
       - name: Install required apt packages
         run: |
           apt update -y
-          apt install -y curl libsqlite3-dev gcc libffi-dev
+          apt install -y curl build-essential libsqlite3-dev libffi-dev
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: ${{ matrix.python-version }}-dev
       - name: Install Poetry
         run: |
           python3 -m pip install --user pipx
@@ -32,8 +35,16 @@ jobs:
         run: echo "$HOME/.local/bin" >> $GITHUB_PATH
       - name: Install dependencies
         run: poetry install --no-interaction --without dev,docs
-      - name: Run tests
-        run: poetry run pytest --cov=./ --cov-report=xml -v ./tests
+      - name: Run tests with KWJA
+        # KWJA does not support Python 3.7 and 3.11
+        if: ${{ matrix.python-version != 3.7 && matrix.python-version != 3.11 }}
+        run: |
+          pipx install kwja==${{ env.KWJA_VERSION }}
+          poetry run pytest --cov=./ --cov-report=xml -v ./tests
+      - name: Run tests without KWJA
+        if: ${{ matrix.python-version == 3.7 || matrix.python-version == 3.11 }}
+        run: |
+          poetry run pytest --cov=./ --cov-report=xml -v --ignore ./tests/processors/test_kwja.py ./tests
       - name: Upload coverage to Codecov
         if: ${{ matrix.python-version == 3.9 }}
         uses: codecov/codecov-action@v3
