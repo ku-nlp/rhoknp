@@ -9,6 +9,7 @@ from rhoknp import KWJA, Document, Sentence
 def kwja() -> Generator[KWJA, None, None]:
     model = KWJA(options=["--model-size", "tiny"])
     # Workaround for the formatting error due to the debug message emitted from transformers
+    # TODO: Remove this after KWJA that depends on transformers>=4.27.0 is released
     try:
         _ = model.apply("...")
     except ValueError:
