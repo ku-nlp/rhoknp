@@ -7,7 +7,13 @@ from rhoknp import KWJA, Document, Sentence
 
 @pytest.fixture()
 def kwja() -> Generator[KWJA, None, None]:
-    yield KWJA(options=["--model-size", "tiny"])
+    model = KWJA(options=["--model-size", "tiny"])
+    # Workaround for the formatting error due to the debug message emitted from transformers
+    try:
+        _ = model.apply("...")
+    except ValueError:
+        pass
+    yield model
 
 
 def test_apply(kwja: KWJA) -> None:
