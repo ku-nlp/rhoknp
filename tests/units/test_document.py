@@ -405,6 +405,12 @@ def test_text(case: Dict[str, str]) -> None:
     assert doc.text == case["raw_text"]
 
 
+def test_text_error() -> None:
+    doc = Document()
+    with pytest.raises(AttributeError):
+        _ = doc.text
+
+
 @pytest.mark.parametrize("case", CASES)
 def test_to_raw_text(case: Dict[str, str]) -> None:
     doc = Document.from_raw_text(case["raw_text"])
@@ -789,9 +795,3 @@ def test_eq_raw_text() -> None:
     doc1 = Document.from_raw_text("天気がいいので散歩した。")
     doc2 = Document.from_raw_text("天気がいいので散歩した。")
     assert doc1 == doc2
-
-
-def test_text_error() -> None:
-    doc = Document()
-    with pytest.raises(AttributeError):
-        _ = doc.text
