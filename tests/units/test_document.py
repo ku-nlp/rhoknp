@@ -789,3 +789,9 @@ def test_eq_raw_text() -> None:
     doc1 = Document.from_raw_text("天気がいいので散歩した。")
     doc2 = Document.from_raw_text("天気がいいので散歩した。")
     assert doc1 == doc2
+
+
+def test_text_error() -> None:
+    doc = Document()
+    with pytest.raises(AttributeError):
+        _ = doc.text
