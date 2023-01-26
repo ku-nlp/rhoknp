@@ -1,8 +1,10 @@
 from typing import Generator
 
 import pytest
+from fastapi.testclient import TestClient
 
 from rhoknp import KWJA, Document, Sentence
+from rhoknp.cli.serve import AnalyzerType, create_app
 
 
 @pytest.fixture()
@@ -64,3 +66,12 @@ def test_is_available() -> None:
 def test_repr() -> None:
     kwja = KWJA(options=["--model-size", "tiny"])
     assert repr(kwja) == "KWJA(executable='kwja', options=['--model-size', 'tiny'])"
+
+
+def test_cli_serve_index_kwja():
+    app = create_app(AnalyzerType.KWJA)
+    client = TestClient(app)
+    response = client.get("/", params={"text": "こんにちは"})
+    assert response.status_code == 200
+    response = client.get("/", params={"text": ""})
+    assert response.status_code == 200
