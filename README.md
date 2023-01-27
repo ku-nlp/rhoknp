@@ -1,5 +1,7 @@
 <p align="center">
+<a href="https://rhoknp.readthedocs.io/en/latest/" rel="noopener" target="_blank">
 <img width="150" src="https://lotus.kuee.kyoto-u.ac.jp/~ueda/rhoknp/logo.png" alt="rhoknp logo">
+</a>
 </p>
 
 <h1 style="text-align: center">rhoknp: Yet another Python binding for Juman++/KNP/KWJA</h1>
