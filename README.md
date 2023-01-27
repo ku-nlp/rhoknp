@@ -1,5 +1,5 @@
 <!-- markdownlint-disable-next-line -->
-<p style="text-align: center">
+<p align="center">
 <a href="https://rhoknp.readthedocs.io/en/latest/" rel="noopener" target="_blank">
 
 [//]: # (<img width="150" src="https://raw.githubusercontent.com/ku-nlp/rhoknp/main/docs/_static/logo.png" alt="rhoknp logo">)
@@ -9,7 +9,7 @@
 
 <h1 style="text-align: center">rhoknp: Yet another Python binding for Juman++/KNP/KWJA</h1>
 
-<p style="text-align: center">
+<p align="center">
 <a href="https://github.com/ku-nlp/rhoknp/actions/workflows/test.yml"><img alt="Test" src="https://img.shields.io/github/actions/workflow/status/ku-nlp/rhoknp/test.yml?branch=main&logo=github&label=test&style=flat-square"></a>
 <a href="https://codecov.io/gh/ku-nlp/rhoknp"><img alt="Codecov" src="https://img.shields.io/codecov/c/github/ku-nlp/rhoknp?logo=codecov&style=flat-square"></a>
 <a href="https://www.codefactor.io/repository/github/ku-nlp/rhoknp"><img alt="CodeFactor" src="https://img.shields.io/codefactor/grade/github/ku-nlp/rhoknp?style=flat-square"></a>
