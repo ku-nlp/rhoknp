@@ -1,14 +1,24 @@
-# rhoknp: Yet another Python binding for Juman++/KNP/KWJA
+<p align="center">
+<a href="https://rhoknp.readthedocs.io/en/latest/" rel="noopener" target="_blank">
+<img width="150" src="https://raw.githubusercontent.com/ku-nlp/rhoknp/logo/docs/_static/logo.png" alt="rhoknp logo">
+</a>
+</p>
 
-[![Test](https://img.shields.io/github/actions/workflow/status/ku-nlp/rhoknp/test.yml?branch=main&logo=github&label=test&style=flat-square)](https://github.com/ku-nlp/rhoknp/actions/workflows/test.yml)
-[![Codecov](https://img.shields.io/codecov/c/github/ku-nlp/rhoknp?logo=codecov&style=flat-square)](https://codecov.io/gh/ku-nlp/rhoknp)
-[![CodeFactor](https://img.shields.io/codefactor/grade/github/ku-nlp/rhoknp?style=flat-square)](https://www.codefactor.io/repository/github/ku-nlp/rhoknp)
-[![PyPI](https://img.shields.io/pypi/v/rhoknp?style=flat-square)](https://pypi.org/project/rhoknp/)
-![PyPI - Python Version](https://img.shields.io/pypi/pyversions/rhoknp?style=flat-square)
-[![Documentation](https://img.shields.io/readthedocs/rhoknp?style=flat-square)](https://rhoknp.readthedocs.io/en/latest/?badge=latest)
-[![Code style - black](https://img.shields.io/badge/code%20style-black-222222?style=flat-square)](https://github.com/psf/black)
+<h1 align="center">rhoknp: Yet another Python binding for Juman++/KNP/KWJA</h1>
 
-*rhoknp* is a Python binding for [Juman++](https://github.com/ku-nlp/jumanpp), [KNP](https://github.com/ku-nlp/knp), and [KWJA](https://github.com/ku-nlp/kwja).
+<p align="center">
+<a href="https://github.com/ku-nlp/rhoknp/actions/workflows/test.yml"><img alt="Test" src="https://img.shields.io/github/actions/workflow/status/ku-nlp/rhoknp/test.yml?branch=main&logo=github&label=test&style=flat-square"></a>
+<a href="https://codecov.io/gh/ku-nlp/rhoknp"><img alt="Codecov" src="https://img.shields.io/codecov/c/github/ku-nlp/rhoknp?logo=codecov&style=flat-square"></a>
+<a href="https://www.codefactor.io/repository/github/ku-nlp/rhoknp"><img alt="CodeFactor" src="https://img.shields.io/codefactor/grade/github/ku-nlp/rhoknp?style=flat-square"></a>
+<a href="https://pypi.org/project/rhoknp/"><img alt="PyPI" src="https://img.shields.io/pypi/v/rhoknp?style=flat-square"></a>
+<img alt="PyPI - Python Version" src="https://img.shields.io/pypi/pyversions/rhoknp?style=flat-square">
+<a href="https://rhoknp.readthedocs.io/en/latest/"><img alt="Documentation" src="https://img.shields.io/readthedocs/rhoknp?style=flat-square"></a>
+<a href="https://github.com/psf/black"><img alt="Code style - black" src="https://img.shields.io/badge/code%20style-black-222222?style=flat-square"></a>
+</p>
+
+*rhoknp* is a Python binding for [Juman++](https://github.com/ku-nlp/jumanpp), [KNP](https://github.com/ku-nlp/knp), and [KWJA](https://github.com/ku-nlp/kwja).[^1]
+
+[^1]: The logo was originally generated using OpenAI DALL·E 2
 
 ```python
 import rhoknp
