@@ -4,7 +4,7 @@
 </a>
 </p>
 
-<h1 style="text-align: center">rhoknp: Yet another Python binding for Juman++/KNP/KWJA</h1>
+<h1 align="center">rhoknp: Yet another Python binding for Juman++/KNP/KWJA</h1>
 
 <p align="center">
 <a href="https://github.com/ku-nlp/rhoknp/actions/workflows/test.yml"><img alt="Test" src="https://img.shields.io/github/actions/workflow/status/ku-nlp/rhoknp/test.yml?branch=main&logo=github&label=test&style=flat-square"></a>
