@@ -1,6 +1,6 @@
 <p align="center">
 <a href="https://rhoknp.readthedocs.io/en/latest/" rel="noopener" target="_blank">
-<img width="150" src="https://raw.githubusercontent.com/ku-nlp/rhoknp/logo/docs/_static/logo.png" alt="rhoknp logo">
+<img width="150" src="https://raw.githubusercontent.com/ku-nlp/rhoknp/develop/docs/_static/logo.png" alt="rhoknp logo">
 </a>
 </p>
 
