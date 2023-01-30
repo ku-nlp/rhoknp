@@ -30,7 +30,10 @@ repos:
       - id: mypy
         additional_dependencies:
           - types-PyYAML
-          - typer==0.7.0
+          - typer
+          - rich
+          - uvicorn
+          - fastapi
   - repo: https://github.com/asottile/pyupgrade
     rev: v3.3.1
     hooks:
