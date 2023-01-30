@@ -90,7 +90,6 @@ class Pas:
             if case_flag in ("U", "-"):
                 continue
             arg_type = ArgumentType(case_flag)
-            arg: Argument
             if format_ == CaseInfoFormat.CASE:
                 tid, sdist, sid = int(fields[0]), int(fields[1]), fields[2]
                 assert arg_type != ArgumentType.EXOPHORA
