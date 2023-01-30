@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.3.0
+    rev: v4.4.0
     hooks:
       - id: end-of-file-fixer
       - id: trailing-whitespace
@@ -9,15 +9,15 @@ repos:
       - id: check-toml
       - id: check-added-large-files
   - repo: https://github.com/psf/black
-    rev: 22.10.0
+    rev: 22.12.0
     hooks:
       - id: black
   - repo: https://github.com/PyCQA/flake8
-    rev: 5.0.4
+    rev: 6.0.0
     hooks:
       - id: flake8
   - repo: https://github.com/PyCQA/isort
-    rev: 5.10.1
+    rev: 5.12.0
     hooks:
       - id: isort
   - repo: https://github.com/MarcoGorelli/absolufy-imports
@@ -25,19 +25,22 @@ repos:
     hooks:
       - id: absolufy-imports
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.990
+    rev: v0.991
     hooks:
       - id: mypy
         additional_dependencies:
           - types-PyYAML
-          - typer==0.7.0
+          - typer
+          - rich
+          - uvicorn
+          - fastapi
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.2.2
+    rev: v3.3.1
     hooks:
       - id: pyupgrade
         args:
           - --py37-plus
   - repo: https://github.com/PyCQA/pydocstyle
-    rev: 6.1.1
+    rev: 6.3.0
     hooks:
       - id: pydocstyle
