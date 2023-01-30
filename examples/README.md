@@ -21,3 +21,4 @@ We host a number of example scripts.
 - [Named entity recognition](./use_named_entity_recognition.py)
 - [Discourse relation analysis](./use_discourse_relation_analysis.py)
 - [Predicate-argument structure analysis](./use_predicate_argument_structure_analysis.py)
+- [Coreference resolution](./use_coreference_resolution.py)
