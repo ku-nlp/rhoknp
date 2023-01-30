@@ -20,3 +20,4 @@ We host a number of example scripts.
 - [Dependency parsing](./use_dependency_parsing.py)
 - [Named entity recognition](./use_named_entity_recognition.py)
 - [Discourse relation analysis](./use_discourse_relation_analysis.py)
+- [Predicate-argument structure analysis](./use_predicate_argument_structure_analysis.py)
