@@ -44,10 +44,14 @@ def test_index_jumanpp():
     client = TestClient(app)
     response = client.get("/", params={"text": "こんにちは"})
     assert response.status_code == 200
+    response = client.get("/", params={"text": ""})
+    assert response.status_code == 200
 
 
 def test_index_knp():
     app = create_app(AnalyzerType.KNP)
     client = TestClient(app)
     response = client.get("/", params={"text": "こんにちは"})
+    assert response.status_code == 200
+    response = client.get("/", params={"text": ""})
     assert response.status_code == 200

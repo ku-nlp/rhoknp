@@ -1,27 +1,62 @@
 import textwrap
 from pathlib import Path
+from typing import Any, Dict
+
+import pytest
 
 from rhoknp import Document, Sentence
 from rhoknp.props import NamedEntity, NamedEntityCategory
 
 
-def test_ne1() -> None:
-    doc_id = "w201106-0000060877"
-    doc = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text())
-    nes = doc.named_entities
-    assert len(nes) == 2
-    assert (nes[0].category, str(nes[0])) == (NamedEntityCategory.ORGANIZATION, "柏市ひまわり園")
-    assert (nes[1].category, str(nes[1])) == (NamedEntityCategory.DATE, "平成２３年度")
-
-
-def test_ne2() -> None:
-    doc_id = "w201106-0000074273"
-    doc = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text())
-    nes = doc.named_entities
-    assert len(nes) == 3
-    assert (nes[0].category, str(nes[0])) == (NamedEntityCategory.LOCATION, "ダーマ神殿")
-    assert (nes[1].category, str(nes[1])) == (NamedEntityCategory.ARTIFACT, "天の箱舟")
-    assert (nes[2].category, str(nes[2])) == (NamedEntityCategory.LOCATION, "ナザム村")
+@pytest.mark.parametrize(
+    "case",
+    [
+        {
+            "doc_id": "w201106-0000060877",
+            "named_entities": [
+                {
+                    "category": NamedEntityCategory.ORGANIZATION,
+                    "text": "柏市ひまわり園",
+                    "fstring": "<NE:ORGANIZATION:柏市ひまわり園>",
+                },
+                {
+                    "category": NamedEntityCategory.DATE,
+                    "text": "平成２３年度",
+                    "fstring": "<NE:DATE:平成２３年度>",
+                },
+            ],
+        },
+        {
+            "doc_id": "w201106-0000074273",
+            "named_entities": [
+                {
+                    "category": NamedEntityCategory.LOCATION,
+                    "text": "ダーマ神殿",
+                    "fstring": "<NE:LOCATION:ダーマ神殿>",
+                },
+                {
+                    "category": NamedEntityCategory.ARTIFACT,
+                    "text": "天の箱舟",
+                    "fstring": "<NE:ARTIFACT:天の箱舟>",
+                },
+                {
+                    "category": NamedEntityCategory.LOCATION,
+                    "text": "ナザム村",
+                    "fstring": "<NE:LOCATION:ナザム村>",
+                },
+            ],
+        },
+    ],
+)
+def test_ne(case: Dict[str, Any]) -> None:
+    doc = Document.from_knp(Path(f"tests/data/{case['doc_id']}.knp").read_text())
+    actual_nes = doc.named_entities
+    expected_nes = case["named_entities"]
+    assert len(actual_nes) == len(expected_nes)
+    for actual_ne, expected_ne in zip(actual_nes, expected_nes):
+        assert actual_ne.category == expected_ne["category"]
+        assert actual_ne.text == expected_ne["text"]
+        assert actual_ne.to_fstring() == expected_ne["fstring"]
 
 
 def test_from_fstring_malformed_line() -> None:

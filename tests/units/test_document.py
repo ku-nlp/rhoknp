@@ -405,6 +405,12 @@ def test_text(case: Dict[str, str]) -> None:
     assert doc.text == case["raw_text"]
 
 
+def test_text_error() -> None:
+    doc = Document()
+    with pytest.raises(AttributeError):
+        _ = doc.text
+
+
 @pytest.mark.parametrize("case", CASES)
 def test_to_raw_text(case: Dict[str, str]) -> None:
     doc = Document.from_raw_text(case["raw_text"])

@@ -3,9 +3,6 @@ name: Test
 on:
   [ push, pull_request, workflow_dispatch ]
 
-env:
-  KWJA_VERSION: 1.3.0
-
 jobs:
   test:
     name: Run tests with pytest
@@ -34,17 +31,18 @@ jobs:
       - name: Add path for Python packages
         run: echo "$HOME/.local/bin" >> $GITHUB_PATH
       - name: Install dependencies
-        run: poetry install --no-interaction --without dev,docs
+        run: poetry install --no-interaction --without dev,docs --extras=cli
       - name: Run tests with KWJA
         # KWJA does not support Python 3.7 and 3.11
         if: ${{ matrix.python-version != 3.7 && matrix.python-version != 3.11 }}
         run: |
-          pipx install kwja==${{ env.KWJA_VERSION }}
+          pipx install kwja
+          ulimit -n 4096
           poetry run pytest --cov=./ --cov-report=xml -v ./tests
       - name: Run tests without KWJA
         if: ${{ matrix.python-version == 3.7 || matrix.python-version == 3.11 }}
         run: |
-          poetry run pytest --cov=./ --cov-report=xml -v --ignore ./tests/processors/test_kwja.py ./tests
+          poetry run pytest -v --ignore ./tests/processors/test_kwja.py ./tests
       - name: Upload coverage to Codecov
         if: ${{ matrix.python-version == 3.9 }}
         uses: codecov/codecov-action@v3
