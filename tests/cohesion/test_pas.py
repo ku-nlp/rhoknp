@@ -414,18 +414,28 @@ def test_surf_mismatch_case() -> None:
             + 1D
             今日 きょう 今日 名詞 6 時相名詞 10 * 0 * 0
             は は は 助詞 9 副助詞 2 * 0 * 0
+            * 3P
+            + 3P <節-区切><節-主辞><述語項構造:晴れ/はれv:判4:マデ/U/-/-/-/-;時間/N/きょう/0/0/1>
+            晴れ はれ 晴れる 動詞 2 * 0 母音動詞 1 基本連用形 8
+            、 、 、 特殊 1 読点 2 * 0 * 0
+            * 3D
+            + 3D
+            昨日 きのう 昨日 名詞 6 時相名詞 10 * 0 * 0
+            は は は 助詞 9 副助詞 2 * 0 * 0
             * -1D
-            + -1D <格解析結果:晴れ/はれv:判4:マデ/U/-/-/-/-;時間/N/きょう/0/0/1><述語項構造:晴れ/はれv:判4:マデ/U/-/-/-/-;時間/N/きょう/0/0/1>
-            晴れ はれ 晴れ 名詞 6 普通名詞 1 * 0 * 0
+            + -1D <節-区切><節-主辞><格解析結果:雨/あめ:判0:ガ/N/きのう/2/0/1>
+            雨 あめ 雨 名詞 6 普通名詞 1 * 0 * 0
             だ だ だ 判定詞 4 * 0 判定詞 25 基本形 2
             EOS
             """
         )
     )
-    pas = sentence.base_phrases[1].pas
-    assert pas is not None
+    pas = sentence.pas_list[0]
     assert pas.predicate.base_phrase == sentence.base_phrases[1]
     assert len(pas.get_arguments("時間")) == 1
+    pas = sentence.pas_list[1]
+    assert pas.predicate.base_phrase == sentence.base_phrases[3]
+    assert len(pas.get_arguments("ガ")) == 1
 
 
 def test_sentence_index_out_of_range_pas() -> None:
