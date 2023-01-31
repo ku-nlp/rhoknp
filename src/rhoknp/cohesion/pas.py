@@ -81,10 +81,10 @@ class Pas:
         )
 
         if match is None:
-            logger.warning(f"invalid tag format: '{pas_string}' is ignored")
+            logger.warning(f"ignored malformed pas_string: '{pas_string}'")
             return
 
-        self.predicate.cfid = match[1] + ":" + match[2]
+        self.predicate.cfid = f"{match[1]}:{match[2]}"
 
         if match[3] is None:  # <述語項構造:束の間/つかのま:判0> など
             return
