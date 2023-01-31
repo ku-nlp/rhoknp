@@ -17,7 +17,7 @@ doc = kwja.apply_to_document(sys.argv[1])
 # Get information.
 for base_phrase in doc.base_phrases:
     coreferents: Set[BasePhrase] = base_phrase.get_coreferents()
-    if len(coreferents) > 1:
+    if len(coreferents) > 0:
         print(f"Mention {base_phrase}")
         for coreferring_mention in coreferents:
             print(f"  = {coreferring_mention}")

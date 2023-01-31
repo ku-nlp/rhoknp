@@ -5,6 +5,7 @@ from collections import defaultdict
 from enum import Enum, auto
 from typing import TYPE_CHECKING, Dict, List, Optional, Union
 
+from rhoknp.cohesion import EntityManager
 from rhoknp.cohesion.argument import Argument, ArgumentType, EndophoraArgument, ExophoraArgument
 from rhoknp.cohesion.exophora import ExophoraReferent
 from rhoknp.cohesion.predicate import Predicate
@@ -57,6 +58,14 @@ class Pas:
     def sid(self) -> str:
         """文 ID．"""
         return self._predicate.sid
+
+    @property
+    def is_empty(self) -> bool:
+        """述語が項を持たなければ True．"""
+        for args in self._arguments.values():
+            if len(args) > 0:
+                return False
+        return True
 
     @classmethod
     def from_pas_string(cls, base_phrase: "BasePhrase", fstring: str, format_: CaseInfoFormat) -> "Pas":
@@ -162,10 +171,9 @@ class Pas:
 
         sentence = self.predicate.base_phrase.sentence
         if relax is True and sentence.parent_unit is not None:
-            entity_manager = sentence.document.entity_manager
             for arg in args:
                 if isinstance(arg, ExophoraArgument):
-                    entities = {entity_manager[arg.eid]}
+                    entities = {EntityManager.get_entity(arg.eid)}
                 elif isinstance(arg, EndophoraArgument):
                     entities = arg.base_phrase.entities_all if include_nonidentical else arg.base_phrase.entities
                 else:

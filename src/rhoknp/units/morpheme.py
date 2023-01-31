@@ -109,6 +109,8 @@ class Morpheme(Unit):
     @cached_property
     def global_index(self) -> int:
         """文書全体におけるインデックス．"""
+        if self.sentence.has_document is False:
+            return self.index
         if self.index > 0:
             return self.sentence.morphemes[self.index - 1].global_index + 1
         if self.sentence.index == 0:

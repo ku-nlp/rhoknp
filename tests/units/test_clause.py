@@ -287,6 +287,21 @@ def test_children_sentence(case: Dict[str, str]) -> None:
     assert [[child.index for child in clause.children] for clause in sent.clauses] == case["children_ids"]
 
 
+@pytest.mark.parametrize("case", CASES)
+def test_index_sentence(case: Dict[str, str]) -> None:
+    sent = Sentence.from_knp(case["knp"])
+    for index, clause in enumerate(sent.clauses):
+        assert clause.index == index
+        assert clause.global_index == index
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_index_document(case: Dict[str, str]) -> None:
+    doc = Document.from_knp(case["knp"])
+    for index, clause in enumerate(doc.clauses):
+        assert clause.global_index == index
+
+
 @pytest.mark.parametrize("case", KNP_SNIPPETS)
 def test_from_knp(case: Dict[str, str]) -> None:
     _ = Clause.from_knp(case["knp"])

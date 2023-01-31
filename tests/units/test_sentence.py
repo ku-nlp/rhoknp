@@ -603,6 +603,11 @@ def test_reparse(case: Dict[str, str], key: str) -> None:
     assert sent == sent.reparse()
 
 
+def test_pas_list() -> None:
+    sent = Sentence.from_knp(CASES[0]["knp"])
+    assert len(sent.pas_list) == 1
+
+
 @pytest.mark.parametrize("case", CASES)
 def test_sid(case: Dict[str, str]) -> None:
     sent = Sentence.from_knp(case["knp"])

@@ -1,7 +1,7 @@
 import logging
 from typing import Any, List, Optional, Sequence, Union
 
-from rhoknp.cohesion.coreference import EntityManager
+from rhoknp.cohesion import EntityManager
 from rhoknp.cohesion.pas import Pas
 from rhoknp.props.named_entity import NamedEntity
 from rhoknp.units.base_phrase import BasePhrase
@@ -29,6 +29,7 @@ class Document(Unit):
         super().__init__()
 
         Sentence.count = 0
+        EntityManager.reset()
 
         # child units
         self._sentences: Optional[List[Sentence]] = None
@@ -40,8 +41,6 @@ class Document(Unit):
         Document.count += 1
 
         self._doc_id: Optional[str] = None
-
-        self.entity_manager = EntityManager()
 
     def __post_init__(self) -> None:
         super().__post_init__()
@@ -184,12 +183,12 @@ class Document(Unit):
 
     @property
     def pas_list(self) -> List[Pas]:
-        """述語項構造のリストを返却．
+        """述語項構造のリスト．
 
         Raises:
             AttributeError: 解析結果にアクセスできない場合．
         """
-        return [base_phrase.pas for base_phrase in self.base_phrases if base_phrase.pas is not None]
+        return [pas for sentence in self.sentences for pas in sentence.pas_list]
 
     @property
     def need_senter(self) -> bool:

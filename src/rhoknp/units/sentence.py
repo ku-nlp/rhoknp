@@ -2,6 +2,7 @@ import logging
 import re
 from typing import TYPE_CHECKING, Any, List, Optional, Tuple, Union
 
+from rhoknp.cohesion import EntityManager, Pas
 from rhoknp.props.named_entity import NamedEntity
 from rhoknp.units.base_phrase import BasePhrase
 from rhoknp.units.clause import Clause
@@ -37,6 +38,7 @@ class Sentence(Unit):
         Phrase.count = 0
         BasePhrase.count = 0
         Morpheme.count = 0
+        EntityManager.reset()
 
         # parent unit
         self._document: Optional["Document"] = None
@@ -303,6 +305,19 @@ class Sentence(Unit):
         if doc_id is not None:
             self.doc_id = doc_id
         self.misc_comment = rest
+
+    @property
+    def pas_list(self) -> List[Pas]:
+        """述語項構造のリスト．
+
+        Raises:
+            AttributeError: 解析結果にアクセスできない場合．
+        """
+        return [
+            base_phrase.pas
+            for base_phrase in self.base_phrases
+            if base_phrase.pas is not None and base_phrase.pas.is_empty is False
+        ]
 
     @property
     def has_document(self) -> bool:

@@ -740,6 +740,12 @@ def test_reparse(case: Dict[str, str], key: str) -> None:
     assert doc == doc.reparse()
 
 
+def test_pas_list() -> None:
+    doc_id = "w201106-0000060050"
+    doc = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text())
+    assert len(doc.pas_list) == 12
+
+
 def test_to_knp_kwdlc() -> None:
     doc_id = "w201106-0000060050"
     knp = Path(f"tests/data/{doc_id}.knp").read_text()
