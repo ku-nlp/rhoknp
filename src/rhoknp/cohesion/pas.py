@@ -59,6 +59,14 @@ class Pas:
         """文 ID．"""
         return self._predicate.sid
 
+    @property
+    def is_empty(self) -> bool:
+        """述語が項を持たなければ True．"""
+        for args in self._arguments.values():
+            if len(args) > 0:
+                return False
+        return True
+
     @classmethod
     def from_pas_string(cls, base_phrase: "BasePhrase", fstring: str, format_: CaseInfoFormat) -> "Pas":
         """PAS 文字列から述語項構造を生成する．
