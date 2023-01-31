@@ -1,10 +1,13 @@
 import logging
 import re
 
+from rhoknp.cohesion import Argument, EndophoraArgument, ExophoraArgument
+
 try:
     from functools import cached_property  # type: ignore
 except ImportError:
     from cached_property import cached_property
+
 from typing import TYPE_CHECKING, Any, List, Optional, Set
 
 from rhoknp.cohesion.coreference import Entity, EntityManager
@@ -82,6 +85,7 @@ class BasePhrase(Unit):
         # Parse the rel tags.
         for rel_tag in self.rel_tags:
             if rel_tag.sid == "":
+                # RelTag is immutable, so we need to create a new instance.
                 rel_tag = RelTag(
                     type=rel_tag.type,
                     target=rel_tag.target,
@@ -90,7 +94,7 @@ class BasePhrase(Unit):
                     mode=rel_tag.mode,
                 )
             if rel_tag.type in CASE_TYPES:
-                self._add_pas(rel_tag)
+                self._add_argument(rel_tag)
             elif rel_tag.type in COREF_TYPES and rel_tag.mode in (None, RelMode.AND):  # ignore "OR" and "?"
                 self._add_coreference(rel_tag)
             else:
@@ -283,54 +287,32 @@ class BasePhrase(Unit):
             mentions.remove(self)
         return mentions
 
-    def is_nonidentical_to(self, entity: Entity) -> bool:
-        """エンティティに対して自身が nonidentical な場合に True を返す．
-
-        Args:
-            entity: エンティティ．
-        """
-        if entity in self.entities:
-            return False
-        else:
-            assert entity in self.entities_nonidentical, f"non-referring entity: {entity}"
-            return True
-
-    def add_entity(self, entity: Entity, nonidentical: bool = False) -> None:
-        """エンティティを追加．
-
-        Args:
-            entity: 追加するエンティティ．
-            nonidentical: nonidentical なメンションなら True．
-        """
-        if nonidentical:
-            self.entities_nonidentical.add(entity)
-        else:
-            self.entities.add(entity)
-        entity.add_mention(self, nonidentical=nonidentical)
-
-    def _add_pas(self, rel_tag: RelTag) -> None:
-        """述語項構造を追加．"""
+    def _add_argument(self, rel_tag: RelTag) -> None:
+        """自身を述語とする述語項構造に項を追加．"""
         assert self.pas is not None
+        argument: Argument
         if rel_tag.sid is not None:
             arg_base_phrase = self._get_target_base_phrase(rel_tag)
             if arg_base_phrase is None:
                 return
             if not arg_base_phrase.entities:
-                arg_base_phrase.add_entity(EntityManager.get_or_create_entity())
-            self.pas.add_argument(rel_tag.type, arg_base_phrase, mode=rel_tag.mode)
+                EntityManager.get_or_create_entity().add_mention(arg_base_phrase)
+            argument = EndophoraArgument(rel_tag.type, arg_base_phrase, self.pas.predicate)
         else:
             if rel_tag.target == "なし":
                 self.pas.set_arguments_optional(rel_tag.type)
                 return
             # exophora
-            entity = EntityManager.get_or_create_entity(ExophoraReferent(rel_tag.target))
-            self.pas.add_special_argument(rel_tag.type, rel_tag.target, eid=entity.eid, mode=rel_tag.mode)
+            exophora_referent = ExophoraReferent(rel_tag.target)
+            entity = EntityManager.get_or_create_entity(exophora_referent)
+            argument = ExophoraArgument(rel_tag.type, exophora_referent, entity.eid)
+        self.pas.add_argument(argument, mode=rel_tag.mode)
 
     def _add_coreference(self, rel_tag: RelTag) -> None:
         """共参照関係を追加．"""
         # create source entity
         if not self.entities:
-            self.add_entity(EntityManager.get_or_create_entity())
+            EntityManager.get_or_create_entity().add_mention(self)
 
         nonidentical: bool = rel_tag.type.endswith("≒")
         if rel_tag.sid is not None:
@@ -342,7 +324,7 @@ class BasePhrase(Unit):
                 return
             # create target entity
             if not target_base_phrase.entities:
-                target_base_phrase.add_entity(EntityManager.get_or_create_entity())
+                EntityManager.get_or_create_entity().add_mention(target_base_phrase)
             for source_entity in self.entities_all:
                 for target_entity in target_base_phrase.entities_all:
                     EntityManager.merge_entities(self, target_base_phrase, source_entity, target_entity, nonidentical)

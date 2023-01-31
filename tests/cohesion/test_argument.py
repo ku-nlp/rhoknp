@@ -33,8 +33,8 @@ def test_endophora_argument() -> None:
         )
     )
     arg_type = ArgumentType.OMISSION
-    argument = EndophoraArgument("ガ", argument_base_phrase, arg_type=arg_type)
     pas = Pas(Predicate(predicate_base_phrase))
+    argument = EndophoraArgument("ガ", argument_base_phrase, pas.predicate, arg_type=arg_type)
     argument.pas = pas
     assert argument.case == "ガ"
     assert argument.type == arg_type
@@ -54,7 +54,7 @@ def test_endophora_argument() -> None:
     assert repr(argument) == "<rhoknp.cohesion.argument.EndophoraArgument: 'ガ', '彼は'>"
     assert str(argument) == argument_base_phrase.text
     assert argument != "test"
-    another_argument = EndophoraArgument("ガ", argument_base_phrase, arg_type=ArgumentType.EXOPHORA)
+    another_argument = EndophoraArgument("ガ", argument_base_phrase, pas.predicate, arg_type=ArgumentType.EXOPHORA)
     another_argument.pas = pas
     assert argument == another_argument
 

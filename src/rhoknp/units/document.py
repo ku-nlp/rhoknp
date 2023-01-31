@@ -1,7 +1,6 @@
 import logging
 from typing import Any, List, Optional, Sequence, Union
 
-from rhoknp.cohesion import EntityManager
 from rhoknp.cohesion.pas import Pas
 from rhoknp.props.named_entity import NamedEntity
 from rhoknp.units.base_phrase import BasePhrase
@@ -29,7 +28,6 @@ class Document(Unit):
         super().__init__()
 
         Sentence.count = 0
-        EntityManager.reset()
 
         # child units
         self._sentences: Optional[List[Sentence]] = None

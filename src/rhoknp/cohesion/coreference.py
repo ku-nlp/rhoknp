@@ -117,10 +117,8 @@ class EntityManager:
                 return entities[0]
         eids: List[int] = [e.eid for e in cls.entities]
         if eid in eids:
-            _eid = eid
-            eid = max(eids) + 1
-            logger.warning(f"{_eid} is already used. use eid: {eid} instead.")
-        elif eid is None or eid < 0:
+            return next(e for e in cls.entities if e.eid == eid)
+        elif eid is None:
             eid = max(eids) + 1 if eids else 0
         entity = Entity(eid, exophora_referent=exophora_referent)
         cls.entities.append(entity)
@@ -133,12 +131,12 @@ class EntityManager:
         target_mention: Optional["BasePhrase"],
         source_entity: Entity,
         target_entity: Entity,
-        nonidentical: bool,
+        is_nonidentical: bool,
     ) -> None:
         """2つのエンティティをマージ．
 
-        source_mention と source_entity, target_mention と target_entity の間には mention が張られているが，
-        source と target 間には張られていないので，add_mention する．
+        source_mention と source_entity, target_mention と target_entity の間には参照関係があるが，
+        source と target 間には関係が作られていないので，add_mention する．
         source_entity と target_entity が同一のエンティティであり，exophor も同じか片方が None ならば target_entity の方を削除する．
 
         Args:
@@ -146,28 +144,28 @@ class EntityManager:
             target_mention: ターゲット側メンション．メンションが存在しない場合は None．
             source_entity: ソース側エンティティ．
             target_entity: ターゲット側エンティティ．
-            nonidentical: ソース側メンションとターゲット側メンションの関係が nonidentical なら True．
+            is_nonidentical: ソース側メンションとターゲット側メンションの関係が nonidentical なら True．
         """
-        nonidentical_tgt = (target_mention is not None) and target_mention.is_nonidentical_to(target_entity)
-        if source_entity not in source_mention.entities_all:
-            return
-        nonidentical_src = source_mention.is_nonidentical_to(source_entity)
+        assert target_entity in target_mention.entities_all if target_mention else True
+        assert source_entity in source_mention.entities_all
+        is_tgt_nonidentical = target_mention is not None and target_entity in target_mention.entities_nonidentical
+        is_src_nonidentical = source_entity in source_mention.entities_nonidentical
         if source_entity is target_entity:
-            if not nonidentical:
+            if not is_nonidentical:
                 # source_entity (target_entity), source_mention, target_mention の三角形のうち2辺が identical ならもう1辺も identical
-                if (not nonidentical_src) and nonidentical_tgt:
+                if is_src_nonidentical is False and is_tgt_nonidentical is True:
                     assert target_mention is not None
                     source_entity.add_mention(target_mention, nonidentical=False)
-                if nonidentical_src and (not nonidentical_tgt):
+                if is_src_nonidentical is True and is_tgt_nonidentical is False:
                     source_entity.add_mention(source_mention, nonidentical=False)
             return
         if target_mention is not None:
-            source_entity.add_mention(target_mention, nonidentical=(nonidentical or nonidentical_src))
-        target_entity.add_mention(source_mention, nonidentical=(nonidentical or nonidentical_tgt))
-        # source_entity と target_entity が同一でない可能性が捨てきれない場合，target_entity は削除しない
-        if nonidentical_src or nonidentical or nonidentical_tgt:
+            source_entity.add_mention(target_mention, nonidentical=(is_nonidentical or is_src_nonidentical))
+        target_entity.add_mention(source_mention, nonidentical=(is_nonidentical or is_tgt_nonidentical))
+        # source_entity と target_entity が同一でない可能性があるとき，target_entity は削除しない
+        if is_nonidentical or is_tgt_nonidentical or is_src_nonidentical:
             return
-        # source_entity と target_entity が同一でも exophor が異なれば target_entity は削除しない
+        # source_entity と target_entity の exophora_referent が異なれば target_entity は削除しない
         if (
             source_entity.exophora_referent is not None
             and target_entity.exophora_referent is not None
@@ -178,14 +176,14 @@ class EntityManager:
         if source_entity.exophora_referent is None:
             source_entity.exophora_referent = target_entity.exophora_referent
         for tm in target_entity.mentions_all:
-            source_entity.add_mention(tm, nonidentical=tm.is_nonidentical_to(target_entity))
-        # argument も eid を持っているので eid が変わった場合はこちらも更新
+            source_entity.add_mention(tm, nonidentical=target_entity in tm.entities_nonidentical)
+        # argument も eid を持っているので更新
         source_sentence = source_mention.sentence
         pas_list = source_mention.document.pas_list if source_sentence.has_document else source_sentence.pas_list
         for arg in [arg for pas in pas_list for args in pas.get_all_arguments(relax=False).values() for arg in args]:
             if isinstance(arg, ExophoraArgument) and arg.eid == target_entity.eid:
                 arg.eid = source_entity.eid
-        cls.delete_entity(target_entity)  # delete target entity
+        cls.delete_entity(target_entity)
 
     @classmethod
     def delete_entity(cls, entity: Entity) -> None:
@@ -197,26 +195,9 @@ class EntityManager:
         Args:
             entity: 削除対象のエンティティ．
         """
-        if entity not in cls.entities:
-            return
         for mention in entity.mentions_all:
             entity.remove_mention(mention)
         cls.entities.remove(entity)
-
-    @classmethod
-    def get_entity(cls, eid: int) -> Entity:
-        """指定されたエンティティ ID に対応するエンティティを返却．
-
-        Args:
-            eid: エンティティ ID．
-
-        Returns:
-             Entity: 対応するエンティティ．
-        """
-        es = [e for e in cls.entities if e.eid == eid]
-        if len(es) == 0:
-            raise ValueError(f"entity ID: {eid} not found.")
-        return es[0]
 
     @classmethod
     def reset(cls) -> None:
