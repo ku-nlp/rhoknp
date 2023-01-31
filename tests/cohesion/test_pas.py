@@ -1,12 +1,13 @@
 import logging
 import textwrap
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, Tuple
 
 import pytest
 
 from rhoknp import Sentence
 from rhoknp.cohesion import ArgumentType, EndophoraArgument, ExophoraArgument
+from rhoknp.cohesion.pas import normalize_case
 from rhoknp.units import Document
 
 CASES = [
@@ -598,3 +599,11 @@ def test_get_all_arguments() -> None:
     assert set(all_arguments.keys()) == {"ガ", "ヲ"}
     assert {str(arg) for arg in all_arguments["ガ"]} == {"不特定:人", "著者", "読者"}
     assert {str(arg) for arg in all_arguments["ヲ"]} == {"トスを"}
+
+
+@pytest.mark.parametrize(
+    "case",
+    [("が", "ガ"), ("を", "ヲ"), ("ヲ", "ヲ"), ("が2", "ガ２"), ("判が", "判ガ"), ("外の関係", "外の関係")],
+)
+def test_normalize_case(case: Tuple[str, str]) -> None:
+    assert normalize_case(case[0]) == case[1]

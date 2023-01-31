@@ -1,18 +1,16 @@
 import logging
 import re
-
-from rhoknp.cohesion import Argument, EndophoraArgument, ExophoraArgument
+from typing import TYPE_CHECKING, Any, List, Optional, Set
 
 try:
     from functools import cached_property  # type: ignore
 except ImportError:
     from cached_property import cached_property
 
-from typing import TYPE_CHECKING, Any, List, Optional, Set
-
+from rhoknp.cohesion.argument import Argument, EndophoraArgument, ExophoraArgument
 from rhoknp.cohesion.coreference import Entity, EntityManager
 from rhoknp.cohesion.exophora import ExophoraReferent
-from rhoknp.cohesion.pas import CaseInfoFormat, Pas
+from rhoknp.cohesion.pas import CaseInfoFormat, Pas, normalize_case
 from rhoknp.cohesion.predicate import Predicate
 from rhoknp.cohesion.rel import CASE_TYPES, COREF_TYPES, RelMode, RelTag, RelTagList
 from rhoknp.props.dependency import DepType
@@ -290,6 +288,7 @@ class BasePhrase(Unit):
     def _add_argument(self, rel_tag: RelTag) -> None:
         """自身を述語とする述語項構造に項を追加．"""
         assert self.pas is not None
+        case = normalize_case(rel_tag.type)
         argument: Argument
         if rel_tag.sid is not None:
             arg_base_phrase = self._get_target_base_phrase(rel_tag)
@@ -297,15 +296,14 @@ class BasePhrase(Unit):
                 return
             if not arg_base_phrase.entities:
                 EntityManager.get_or_create_entity().add_mention(arg_base_phrase)
-            argument = EndophoraArgument(rel_tag.type, arg_base_phrase, self.pas.predicate)
+            argument = EndophoraArgument(case, arg_base_phrase, self.pas.predicate)
         else:
             if rel_tag.target == "なし":
-                self.pas.set_arguments_optional(rel_tag.type)
+                self.pas.set_arguments_optional(case)
                 return
-            # exophora
             exophora_referent = ExophoraReferent(rel_tag.target)
             entity = EntityManager.get_or_create_entity(exophora_referent)
-            argument = ExophoraArgument(rel_tag.type, exophora_referent, entity.eid)
+            argument = ExophoraArgument(case, exophora_referent, entity.eid)
         self.pas.add_argument(argument, mode=rel_tag.mode)
 
     def _add_coreference(self, rel_tag: RelTag) -> None:

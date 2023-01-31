@@ -88,7 +88,6 @@ class EndophoraArgument(BaseArgument):
         predicate: Predicate,
         arg_type: Optional[ArgumentType] = None,
     ) -> None:
-        case = case.translate(HIRA2KATA)
         super().__init__(case, arg_type or self._get_arg_type(predicate, base_phrase, case))
         self.base_phrase = base_phrase  #: 項の核となる基本句．
 
@@ -160,7 +159,6 @@ class ExophoraArgument(BaseArgument):
     """
 
     def __init__(self, case: str, exophora_referent: ExophoraReferent, eid: int) -> None:
-        case = case.translate(HIRA2KATA)
         super().__init__(case, ArgumentType.EXOPHORA)
         self.exophora_referent = exophora_referent  #: 外界照応における照応先．
         self.eid = eid  #: エンティティID．

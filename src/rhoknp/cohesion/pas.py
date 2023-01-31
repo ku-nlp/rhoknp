@@ -9,7 +9,9 @@ from rhoknp.cohesion import EntityManager
 from rhoknp.cohesion.argument import HIRA2KATA, Argument, ArgumentType, EndophoraArgument, ExophoraArgument
 from rhoknp.cohesion.exophora import ExophoraReferent
 from rhoknp.cohesion.predicate import Predicate
-from rhoknp.cohesion.rel import RelMode
+from rhoknp.cohesion.rel import CASE_TYPES, RelMode
+
+NUM_HAN_TO_ZEN = str.maketrans("0123456789", "０１２３４５６７８９")
 
 if TYPE_CHECKING:
     from rhoknp.units.base_phrase import BasePhrase
@@ -155,7 +157,7 @@ class Pas:
         References:
             格・省略・共参照タグ付けの基準 3.2.1 修飾的表現
         """
-        case = case.translate(HIRA2KATA)
+        case = normalize_case(case)
         args = self._arguments[case]
         if include_nonidentical is True:
             args += self._arguments[case + "≒"]
@@ -226,7 +228,7 @@ class Pas:
         Args:
             case: 対象の格．
         """
-        case = case.translate(HIRA2KATA)
+        case = normalize_case(case)
         if not self._arguments[case]:
             logger.info(f"no preceding argument found in {self.sid}. 'なし' is ignored")
             return
@@ -236,3 +238,18 @@ class Pas:
 
     def __repr__(self) -> str:
         return f"<{self.__module__}.{self.__class__.__name__}: {repr(self.predicate.text)}>"
+
+
+def normalize_case(case: str) -> str:
+    """格を表す文字列を正規化．
+
+    Args:
+        case: 格．
+
+    Returns:
+        正規化された格．
+    """
+    case = case.translate(NUM_HAN_TO_ZEN)
+    if case.translate(HIRA2KATA) in CASE_TYPES:
+        return case.translate(HIRA2KATA)
+    return case
