@@ -300,3 +300,26 @@ def test_coreferents_nonidentical() -> None:
     assert (coreferents[0].text, coreferents[0].global_index) == ("ドクターを", 7)
     assert (coreferents[1].text, coreferents[1].global_index) == ("ドクターの", 16)
     assert (coreferents[2].text, coreferents[2].global_index) == ("皆様", 17)
+
+
+def test_coref_with_self() -> None:
+    _ = Sentence.from_knp(
+        textwrap.dedent(
+            """\
+            # S-ID:000-0-0
+            * -1D
+            + -1D <rel type="=" target="わたし" sid="000-0-0" id="0"/>
+            わたし わたし わたし 名詞 6 普通名詞 1 * 0 * 0
+            EOS
+            """
+        )
+    )
+
+    entities: List[Entity] = sorted(EntityManager.entities.values(), key=lambda e: e.eid)
+    assert len(entities) == 1
+    entity = entities[0]
+    assert entity.exophora_referent is None
+    assert len(entity.mentions) == 1
+    mention = list(entity.mentions)[0]
+    assert (mention.text, mention.global_index, {e.eid for e in mention.entities}) == ("わたし", 0, {0})
+    assert len(entities[0].mentions_all) == 1
