@@ -93,7 +93,7 @@ def test_coref_sentence() -> None:
         )
     )
 
-    entities: List[Entity] = sorted(EntityManager.entities, key=lambda e: e.eid)
+    entities: List[Entity] = sorted(EntityManager.entities.values(), key=lambda e: e.eid)
     assert len(entities) == 2
 
     entity = entities[0]
@@ -117,7 +117,7 @@ def test_coref1() -> None:
     doc_id = "w201106-0000060050"
     _ = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text())
 
-    entities: List[Entity] = sorted(EntityManager.entities, key=lambda e: e.eid)
+    entities: List[Entity] = sorted(EntityManager.entities.values(), key=lambda e: e.eid)
     assert len(entities) == 19
 
     entity = entities[0]
@@ -251,7 +251,7 @@ def test_coref1() -> None:
 def test_coref2() -> None:
     doc_id = "w201106-0000060560"
     _ = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text())
-    entities: List[Entity] = sorted(EntityManager.entities, key=lambda e: e.eid)
+    entities: List[Entity] = sorted(EntityManager.entities.values(), key=lambda e: e.eid)
     assert len(entities) == 15
 
     entity: Entity = entities[12]
@@ -267,7 +267,7 @@ def test_coref2() -> None:
 @pytest.mark.parametrize("doc_id", ["w201106-0000060560", "w201106-0000060560", "w201106-0000060877"])
 def test_coref_link(doc_id: str) -> None:
     document = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text())
-    entities: List[Entity] = sorted(EntityManager.entities, key=lambda e: e.eid)
+    entities: List[Entity] = sorted(EntityManager.entities.values(), key=lambda e: e.eid)
 
     for entity in entities:
         for mention in entity.mentions:

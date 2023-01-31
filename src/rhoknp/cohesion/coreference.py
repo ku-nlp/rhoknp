@@ -1,5 +1,5 @@
 import logging
-from typing import TYPE_CHECKING, List, Optional, Set
+from typing import TYPE_CHECKING, Dict, Optional, Set
 
 from rhoknp.cohesion.argument import ExophoraArgument
 from rhoknp.cohesion.exophora import ExophoraReferent
@@ -89,7 +89,7 @@ class Entity:
 class EntityManager:
     """文書全体のエンティティを管理．"""
 
-    entities: List[Entity] = []  #: エンティティのリスト．
+    entities: Dict[int, Entity] = {}  #: ID をキーとするエンティティの辞書．
 
     @classmethod
     def get_or_create_entity(
@@ -110,18 +110,17 @@ class EntityManager:
              Entity: 作成されたエンティティ．
         """
         if exophora_referent is not None and exophora_referent.is_singleton is True:
-            entities = [e for e in cls.entities if exophora_referent == e.exophora_referent]
+            entities = [e for e in cls.entities.values() if exophora_referent == e.exophora_referent]
             # すでに singleton entity が存在した場合，新しい entity は作らずにその entity を返す
             if entities:
                 assert len(entities) == 1  # singleton entity が1つしかないことを保証
                 return entities[0]
-        eids: List[int] = [e.eid for e in cls.entities]
-        if eid in eids:
-            return next(e for e in cls.entities if e.eid == eid)
+        if eid in cls.entities:
+            return cls.entities[eid]
         elif eid is None:
-            eid = max(eids) + 1 if eids else 0
+            eid = max(cls.entities.keys()) + 1 if cls.entities else 0
         entity = Entity(eid, exophora_referent=exophora_referent)
-        cls.entities.append(entity)
+        cls.entities[eid] = entity
         return entity
 
     @classmethod
@@ -197,7 +196,7 @@ class EntityManager:
         """
         for mention in entity.mentions_all:
             entity.remove_mention(mention)
-        cls.entities.remove(entity)
+        cls.entities.pop(entity.eid)
 
     @classmethod
     def reset(cls) -> None:
