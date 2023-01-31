@@ -429,6 +429,21 @@ def test_children_sentence_jumanpp(case: Dict[str, str]) -> None:
         assert [[child.index for child in morpheme.children] for morpheme in sent.morphemes] == case["children_ids"]
 
 
+@pytest.mark.parametrize("case", CASES)
+def test_index_sentence_jumanpp(case: Dict[str, str]) -> None:
+    sent = Sentence.from_jumanpp(case["jumanpp"])
+    for index, morpheme in enumerate(sent.morphemes):
+        assert morpheme.index == index
+        assert morpheme.global_index == index
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_index_document_jumanpp(case: Dict[str, str]) -> None:
+    doc = Document.from_jumanpp(case["jumanpp"])
+    for index, morpheme in enumerate(doc.morphemes):
+        assert morpheme.global_index == index
+
+
 @pytest.mark.parametrize("case", JUMANPP_SNIPPETS)
 def test_from_jumanpp(case: Dict[str, str]) -> None:
     _ = Morpheme.from_jumanpp(case["jumanpp"])
