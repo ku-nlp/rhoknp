@@ -56,6 +56,7 @@ def test_ne(case: Dict[str, Any]) -> None:
     for actual_ne, expected_ne in zip(actual_nes, expected_nes):
         assert actual_ne.category == expected_ne["category"]
         assert actual_ne.text == expected_ne["text"]
+        assert str(actual_ne) == expected_ne["text"]
         assert actual_ne.to_fstring() == expected_ne["fstring"]
 
 
