@@ -71,11 +71,11 @@ class BasePhrase(Unit):
         if "述語項構造" in self.features:
             pas_string = self.features["述語項構造"]
             assert isinstance(pas_string, str)
-            self.pas.from_pas_string(self, pas_string, format_=CaseInfoFormat.PAS)
+            self.pas.parse_pas_string(self, pas_string, format_=CaseInfoFormat.PAS)
         elif "格解析結果" in self.features:
             pas_string = self.features["格解析結果"]
             assert isinstance(pas_string, str)
-            self.pas.from_pas_string(self, pas_string, format_=CaseInfoFormat.CASE)
+            self.pas.parse_pas_string(self, pas_string, format_=CaseInfoFormat.CASE)
 
         # Parse the rel tags.
         for rel_tag in self.rel_tags:

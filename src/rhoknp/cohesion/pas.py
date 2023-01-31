@@ -65,7 +65,7 @@ class Pas:
                 return False
         return True
 
-    def from_pas_string(self, base_phrase: "BasePhrase", pas_string: str, format_: CaseInfoFormat):
+    def parse_pas_string(self, base_phrase: "BasePhrase", pas_string: str, format_: CaseInfoFormat):
         """PAS 文字列から述語項構造を生成する．
 
         Args:
