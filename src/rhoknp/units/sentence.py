@@ -64,13 +64,13 @@ class Sentence(Unit):
         self.named_entities = []
         if self.need_knp is False:
             for base_phrase in self.base_phrases:
-                fstring = base_phrase.features.get("NE")
-                if fstring:
-                    assert isinstance(fstring, str)
-                    candidate_morphemes = self.morphemes[: base_phrase.morphemes[-1].index + 1]
-                    named_entity = NamedEntity.from_fstring(fstring, candidate_morphemes)
-                    if named_entity is not None:
-                        self.named_entities.append(named_entity)
+                if "NE" not in base_phrase.features:
+                    continue
+                fstring = f'<NE:{base_phrase.features["NE"]}>'
+                candidate_morphemes = self.morphemes[: base_phrase.morphemes[-1].index + 1]
+                named_entity = NamedEntity.from_fstring(fstring, candidate_morphemes)
+                if named_entity is not None:
+                    self.named_entities.append(named_entity)
 
     def __eq__(self, other: Any) -> bool:
         if isinstance(other, type(self)) is False:

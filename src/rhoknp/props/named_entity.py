@@ -37,7 +37,7 @@ class NamedEntityCategory(Enum):
 class NamedEntity:
     """固有表現を表すクラス．"""
 
-    PAT: ClassVar[re.Pattern] = re.compile(r"(?P<cat>\w+):(?P<name>[^>]+)")
+    PAT: ClassVar[re.Pattern] = re.compile(r"<NE:(?P<cat>\w+):(?P<name>[^>]+)>")
 
     category: NamedEntityCategory
     morphemes: List["Morpheme"]
