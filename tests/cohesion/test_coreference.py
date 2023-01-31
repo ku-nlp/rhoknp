@@ -69,6 +69,14 @@ def test_exophora_entity() -> None:
     assert str(entity) == "不特定:物1"
 
 
+def test_entity_manager_get_entity() -> None:
+    EntityManager.reset()
+    entity = EntityManager.get_or_create_entity(ExophoraReferent("著者"), eid=1)
+    assert EntityManager.get_entity(1) == entity
+    with pytest.raises(ValueError):
+        EntityManager.get_entity(2)
+
+
 def test_coref_sentence() -> None:
     _ = Sentence.from_knp(
         textwrap.dedent(
