@@ -309,15 +309,13 @@ CASES = [
 @pytest.mark.parametrize("case", CASES)
 def test_initialized(case: Dict[str, Any]) -> None:
     doc = Document.from_knp(case["knp"])
-    pas = doc.base_phrases[case["base_phrase_index"]].pas
-    assert pas is not None
+    _ = doc.base_phrases[case["base_phrase_index"]].pas
 
 
 @pytest.mark.parametrize("case", CASES)
 def test_attribute(case: Dict[str, Any]) -> None:
     doc = Document.from_knp(case["knp"])
     pas = doc.base_phrases[case["base_phrase_index"]].pas
-    assert pas is not None
     assert pas.sid == case["sid"]
     assert pas.predicate.cfid == case["cfid"]
     assert set(pas.cases) == set(case["arguments"].keys())
@@ -328,7 +326,6 @@ def test_attribute(case: Dict[str, Any]) -> None:
 def test_get_arguments(case: Dict[str, Any]) -> None:
     doc = Document.from_knp(case["knp"])
     pas = doc.base_phrases[case["base_phrase_index"]].pas
-    assert pas is not None
     for case, args_expected in case["arguments"].items():
         args_actual = {
             (str(arg), (arg.base_phrase.global_index if isinstance(arg, EndophoraArgument) else -1), arg.type)
@@ -355,7 +352,6 @@ def test_invalid_tag_format() -> None:
         )
     )
     pas = sentence.base_phrases[1].pas
-    assert pas is not None
     assert pas.predicate.base_phrase == sentence.base_phrases[1]
     assert pas.cases == []
 
@@ -378,7 +374,6 @@ def test_sentence_index_out_of_range_case() -> None:
         )
     )
     pas = sentence_case.base_phrases[1].pas
-    assert pas is not None
     assert pas.predicate.base_phrase == sentence_case.base_phrases[1]
     assert pas.cases == []
 
@@ -401,7 +396,6 @@ def test_tag_id_out_of_range_case() -> None:
         )
     )
     pas = sentence_case.base_phrases[1].pas
-    assert pas is not None
     assert pas.predicate.base_phrase == sentence_case.base_phrases[1]
     assert pas.cases == []
 
@@ -457,7 +451,6 @@ def test_sentence_index_out_of_range_pas() -> None:
         )
     )
     pas = sentence.base_phrases[1].pas
-    assert pas is not None
     assert pas.predicate.base_phrase == sentence.base_phrases[1]
     assert pas.cases == []
 
@@ -541,7 +534,6 @@ def test_optional_case() -> None:
         """
     )
     pas = Document.from_knp(knp_text).base_phrases[8].pas
-    assert pas is not None
     assert len(pas.get_arguments("デ")) == 0
     arguments = pas.get_arguments("デ", relax=False, include_optional=True)
     assert {str(arg) for arg in arguments} == {"みんなで"}
@@ -552,7 +544,6 @@ def test_optional_case() -> None:
 
     # ignored なし tag
     pas_ignored = Document.from_knp(knp_text).base_phrases[3].pas
-    assert pas_ignored is not None
     assert len(pas_ignored.get_arguments("ガ")) == 0
 
 
@@ -560,7 +551,6 @@ def test_pas_relax() -> None:
     doc_id = "w201106-0000060560"
     doc = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text())
     pas = doc.base_phrases[18].pas
-    assert pas is not None
     assert pas.predicate.text == "ご協力の"
     case = "ガ"
     args = sorted(

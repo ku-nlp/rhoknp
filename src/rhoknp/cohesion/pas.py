@@ -65,34 +65,31 @@ class Pas:
                 return False
         return True
 
-    @classmethod
-    def from_pas_string(cls, base_phrase: "BasePhrase", fstring: str, format_: CaseInfoFormat) -> "Pas":
+    def from_pas_string(self, base_phrase: "BasePhrase", pas_string: str, format_: CaseInfoFormat):
         """PAS 文字列から述語項構造を生成する．
 
         Args:
             base_phrase: 述語となる基本句．
-            fstring: 述語項構造を表す素性文字列（e.g., "食べる/たべる:動2:ガ/C/太郎/0/0/1;ヲ/C/パン/1/0/1;ニ/U/-/-/-/-;デ/U/-/-/-/-;カラ/U/-/-/-/-;時間/U/-/-/-/-"）
+            pas_string: 述語項構造を表す素性文字列（e.g., "食べる/たべる:動2:ガ/C/太郎/0/0/1;ヲ/C/パン/1/0/1;ニ/U/-/-/-/-;デ/U/-/-/-/-;カラ/U/-/-/-/-;時間/U/-/-/-/-"）
             format_: fstring における述語項構造のフォーマット．
         """
         # language=RegExp
         cfid_pat = r"(.*?):([^:/]+?)"  # 食べる/たべる:動1
         match = re.match(
-            r"{cfid}(:(?P<args>{args}(;{args})*))?$".format(cfid=cfid_pat, args=cls.ARGUMENT_PAT.pattern),
-            fstring,
+            r"{cfid}(:(?P<args>{args}(;{args})*))?$".format(cfid=cfid_pat, args=self.ARGUMENT_PAT.pattern),
+            pas_string,
         )
 
         if match is None:
-            logger.warning(f"invalid tag format: '{fstring}' is ignored")
-            return cls(Predicate(base_phrase))
+            logger.warning(f"invalid tag format: '{pas_string}' is ignored")
+            return
 
-        cfid = match[1] + ":" + match[2]
-        predicate = Predicate(base_phrase, cfid=cfid)
+        self.predicate.cfid = match[1] + ":" + match[2]
 
         if match[3] is None:  # <述語項構造:束の間/つかのま:判0> など
-            return cls(predicate)
+            return
 
-        pas = cls(predicate)
-        for match_arg in cls.ARGUMENT_PAT.finditer(match["args"]):
+        for match_arg in self.ARGUMENT_PAT.finditer(match["args"]):
             case, case_flag, surf, *fields = match_arg[0].split("/")
             if case_flag in ("U", "-"):
                 continue
@@ -112,11 +109,11 @@ class Pas:
                 arg_base_phrase = sentence.base_phrases[tid]
                 if surf not in arg_base_phrase.text:
                     logger.warning(f"surface mismatch ({sid}): '{surf}' vs '{arg_base_phrase.text}'")
-                pas.add_argument(EndophoraArgument(case, arg_base_phrase, predicate, arg_type=arg_type))
+                self.add_argument(EndophoraArgument(case, arg_base_phrase, self.predicate, arg_type=arg_type))
             elif format_ == CaseInfoFormat.PAS:
                 sdist, tid, eid = int(fields[0]), int(fields[1]), int(fields[2])
                 if arg_type == ArgumentType.EXOPHORA:
-                    pas.add_argument(ExophoraArgument(case, ExophoraReferent(surf), eid))
+                    self.add_argument(ExophoraArgument(case, ExophoraReferent(surf), eid))
                 else:
                     if sdist == 0:
                         sentence = base_phrase.sentence
@@ -134,10 +131,9 @@ class Pas:
                     arg_base_phrase = sentence.base_phrases[tid]
                     if surf not in arg_base_phrase.text:
                         logger.warning(f"surface mismatch ({sentence.sid}): '{surf}' vs '{arg_base_phrase.text}'")
-                    pas.add_argument(EndophoraArgument(case, arg_base_phrase, predicate))
+                    self.add_argument(EndophoraArgument(case, arg_base_phrase, self.predicate))
             else:
                 raise AssertionError(f"invalid format: {format_}")
-        return pas
 
     def get_arguments(
         self,

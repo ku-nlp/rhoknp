@@ -57,7 +57,7 @@ class BasePhrase(Unit):
         self.features: FeatureDict = features or FeatureDict()  #: 素性．
         self.rel_tags: RelTagList = rel_tags or RelTagList()  #: 基本句間関係．
         self.memo_tag: MemoTag = memo_tag or MemoTag()  #: タグ付けメモ．
-        self.pas: Optional["Pas"] = None  #: 述語項構造．
+        self.pas: Pas = Pas(Predicate(self))  #: 述語項構造．
         self.entities: Set[Entity] = set()  #: 参照しているエンティティ．
         self.entities_nonidentical: Set[Entity] = set()  #: ≒で参照しているエンティティ．
 
@@ -71,14 +71,11 @@ class BasePhrase(Unit):
         if "述語項構造" in self.features:
             pas_string = self.features["述語項構造"]
             assert isinstance(pas_string, str)
-            pas = Pas.from_pas_string(self, pas_string, format_=CaseInfoFormat.PAS)
+            self.pas.from_pas_string(self, pas_string, format_=CaseInfoFormat.PAS)
         elif "格解析結果" in self.features:
             pas_string = self.features["格解析結果"]
             assert isinstance(pas_string, str)
-            pas = Pas.from_pas_string(self, pas_string, format_=CaseInfoFormat.CASE)
-        else:
-            pas = Pas(Predicate(self))
-        self.pas = pas
+            self.pas.from_pas_string(self, pas_string, format_=CaseInfoFormat.CASE)
 
         # Parse the rel tags.
         for rel_tag in self.rel_tags:
@@ -287,7 +284,6 @@ class BasePhrase(Unit):
 
     def _add_argument(self, rel_tag: RelTag) -> None:
         """自身を述語とする述語項構造に項を追加．"""
-        assert self.pas is not None
         case = normalize_case(rel_tag.type)
         argument: Argument
         if rel_tag.sid is not None:

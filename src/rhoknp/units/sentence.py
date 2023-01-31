@@ -313,11 +313,7 @@ class Sentence(Unit):
         Raises:
             AttributeError: 解析結果にアクセスできない場合．
         """
-        return [
-            base_phrase.pas
-            for base_phrase in self.base_phrases
-            if base_phrase.pas is not None and base_phrase.pas.is_empty is False
-        ]
+        return [base_phrase.pas for base_phrase in self.base_phrases if base_phrase.pas.is_empty is False]
 
     @property
     def has_document(self) -> bool:
