@@ -2,7 +2,7 @@ import logging
 import re
 from typing import TYPE_CHECKING, Any, List, Optional, Tuple, Union
 
-from rhoknp.cohesion import Pas
+from rhoknp.cohesion import EntityManager, Pas
 from rhoknp.props.named_entity import NamedEntity
 from rhoknp.units.base_phrase import BasePhrase
 from rhoknp.units.clause import Clause
@@ -38,6 +38,7 @@ class Sentence(Unit):
         Phrase.count = 0
         BasePhrase.count = 0
         Morpheme.count = 0
+        EntityManager.reset()
 
         # parent unit
         self._document: Optional["Document"] = None

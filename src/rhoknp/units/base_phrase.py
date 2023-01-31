@@ -354,7 +354,8 @@ class BasePhrase(Unit):
 
     def _get_target_base_phrase(self, rel_tag: RelTag) -> Optional["BasePhrase"]:
         """rel が指す基本句を取得．"""
-        sentences = [sent for sent in self.document.sentences if sent.sid == rel_tag.sid]
+        sentences = self.document.sentences if self.sentence.has_document else [self.sentence]
+        sentences = [sent for sent in sentences if sent.sid == rel_tag.sid]
         if not sentences:
             logger.warning(f"{self.sentence.sid}: relation with unknown sid found: {rel_tag.sid}")
             return None

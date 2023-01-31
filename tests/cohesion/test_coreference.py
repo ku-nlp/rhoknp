@@ -4,6 +4,7 @@ from typing import List
 
 import pytest
 
+from rhoknp import Sentence
 from rhoknp.cohesion import Entity, EntityManager, ExophoraReferent
 from rhoknp.units import BasePhrase, Document
 
@@ -66,6 +67,50 @@ def test_exophora_entity() -> None:
     assert entity.exophora_referent == exophora_referent
     assert entity.mentions_all == set()
     assert str(entity) == "不特定:物1"
+
+
+def test_coref_sentence() -> None:
+    _ = Sentence.from_knp(
+        textwrap.dedent(
+            """\
+            # S-ID:000-0-0
+            * 2D
+            + 2D <用言:判><体言><時制:非過去><状態述語>
+            あれ あれ あれ 指示詞 7 名詞形態指示詞 1 * 0 * 0 "代表表記:あれ/あれ" <基本句-主辞><用言表記先頭><用言表記末尾>
+            だ だ だ 判定詞 4 * 0 判定詞 25 基本形 2 "代表表記:だ/だ"
+            よ よ よ 助詞 9 終助詞 4 * 0 * 0 "代表表記:よ/よ"
+            * 2P
+            + 2P <rel type="=" target="あれ" sid="000-0-0" id="0"/><修飾>
+            あれ あれ あれ 指示詞 7 名詞形態指示詞 1 * 0 * 0 "代表表記:あれ/あれ" <基本句-主辞>
+            、 、 、 特殊 1 読点 2 * 0 * 0 "代表表記:、/、"
+            * -1D
+            + -1D <rel type="=" target="不特定:物１"/><用言:判><体言><時制:非過去><否定表現><レベル:C><状態述語><節-区切><節-主辞>
+            それ それ それ 指示詞 7 名詞形態指示詞 1 * 0 * 0 "代表表記:それ/それ" <基本句-主辞><用言表記先頭><用言表記末尾>
+            じゃ じゃ じゃ 判定詞 4 * 0 判定詞 25 ダ列タ系連用テ形 12 "代表表記:だ/だ"
+            なくて なくて ない 接尾辞 14 形容詞性述語接尾辞 5 イ形容詞アウオ段 18 タ系連用テ形 12 "代表表記:ない/ない"
+            EOS
+            """
+        )
+    )
+
+    entities: List[Entity] = sorted(EntityManager.entities, key=lambda e: e.eid)
+    assert len(entities) == 2
+
+    entity = entities[0]
+    assert entity.exophora_referent is None
+    mentions = sorted(entity.mentions_all, key=lambda x: x.global_index)
+    assert len(mentions) == 2
+    assert (mentions[0].head.surf, mentions[0].global_index) == ("あれ", 0)
+    assert len(mentions[0].entities) == 1
+    assert (mentions[1].head.surf, mentions[1].global_index) == ("あれ", 1)
+    assert len(mentions[1].entities) == 1
+
+    entity = entities[1]
+    assert entity.exophora_referent == ExophoraReferent("不特定:物１")
+    mentions = sorted(entity.mentions_all, key=lambda x: x.global_index)
+    assert len(mentions) == 1
+    assert (mentions[0].head.surf, mentions[0].global_index) == ("それ", 2)
+    assert len(mentions[0].entities) == 1
 
 
 def test_coref1() -> None:
