@@ -451,12 +451,10 @@ def test_sentence_index_out_of_range_pas() -> None:
     assert pas.cases == []
 
 
-def test_pas_rel() -> None:
+def test_pas_repr() -> None:
     doc_id = "w201106-0000060050"
     doc = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text())
-    assert len(doc.pas_list) == 19
-
-    pas = doc.pas_list[1]
+    pas = doc.pas_list[0]
     assert repr(pas) == "<rhoknp.cohesion.pas.Pas: 'トスを'>"
 
 
@@ -585,7 +583,7 @@ def test_pas_relax() -> None:
 def test_get_all_arguments() -> None:
     doc_id = "w201106-0000060050"
     doc = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text())
-    pas = doc.pas_list[3]
+    pas = doc.pas_list[1]
     all_arguments = pas.get_all_arguments()
     assert set(all_arguments.keys()) == {"ガ", "ヲ"}
     assert {str(arg) for arg in all_arguments["ガ"]} == {"不特定:人", "著者", "読者"}
