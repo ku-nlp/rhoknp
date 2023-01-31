@@ -7,7 +7,7 @@ except ImportError:
     from cached_property import cached_property
 from typing import TYPE_CHECKING, Any, List, Optional, Set
 
-from rhoknp.cohesion.coreference import Entity
+from rhoknp.cohesion.coreference import Entity, EntityManager
 from rhoknp.cohesion.exophora import ExophoraReferent
 from rhoknp.cohesion.pas import CaseInfoFormat, Pas
 from rhoknp.cohesion.predicate import Predicate
@@ -79,10 +79,7 @@ class BasePhrase(Unit):
             pas = Pas(Predicate(self))
         self.pas = pas
 
-        # Parse the rel tag if this unit is a piece of a document.
-        if self.sentence.has_document is False:
-            logger.info("post-processing of rel tags was skipped because there is no document.")
-            return
+        # Parse the rel tags.
         for rel_tag in self.rel_tags:
             if rel_tag.sid == "":
                 rel_tag = RelTag(
@@ -311,29 +308,27 @@ class BasePhrase(Unit):
 
     def _add_pas(self, rel_tag: RelTag) -> None:
         """述語項構造を追加．"""
-        entity_manager = self.document.entity_manager
         assert self.pas is not None
         if rel_tag.sid is not None:
             arg_base_phrase = self._get_target_base_phrase(rel_tag)
             if arg_base_phrase is None:
                 return
             if not arg_base_phrase.entities:
-                arg_base_phrase.add_entity(entity_manager.get_or_create_entity())
+                arg_base_phrase.add_entity(EntityManager.get_or_create_entity())
             self.pas.add_argument(rel_tag.type, arg_base_phrase, mode=rel_tag.mode)
         else:
             if rel_tag.target == "なし":
                 self.pas.set_arguments_optional(rel_tag.type)
                 return
             # exophora
-            entity = entity_manager.get_or_create_entity(ExophoraReferent(rel_tag.target))
+            entity = EntityManager.get_or_create_entity(ExophoraReferent(rel_tag.target))
             self.pas.add_special_argument(rel_tag.type, rel_tag.target, eid=entity.eid, mode=rel_tag.mode)
 
     def _add_coreference(self, rel_tag: RelTag) -> None:
         """共参照関係を追加．"""
-        entity_manager = self.document.entity_manager
         # create source entity
         if not self.entities:
-            self.add_entity(entity_manager.get_or_create_entity())
+            self.add_entity(EntityManager.get_or_create_entity())
 
         nonidentical: bool = rel_tag.type.endswith("≒")
         if rel_tag.sid is not None:
@@ -345,15 +340,15 @@ class BasePhrase(Unit):
                 return
             # create target entity
             if not target_base_phrase.entities:
-                target_base_phrase.add_entity(entity_manager.get_or_create_entity())
+                target_base_phrase.add_entity(EntityManager.get_or_create_entity())
             for source_entity in self.entities_all:
                 for target_entity in target_base_phrase.entities_all:
-                    entity_manager.merge_entities(self, target_base_phrase, source_entity, target_entity, nonidentical)
+                    EntityManager.merge_entities(self, target_base_phrase, source_entity, target_entity, nonidentical)
         else:
             # exophora
             for source_entity in self.entities_all:
-                target_entity = entity_manager.get_or_create_entity(exophora_referent=ExophoraReferent(rel_tag.target))
-                entity_manager.merge_entities(self, None, source_entity, target_entity, nonidentical)
+                target_entity = EntityManager.get_or_create_entity(exophora_referent=ExophoraReferent(rel_tag.target))
+                EntityManager.merge_entities(self, None, source_entity, target_entity, nonidentical)
 
     def _get_target_base_phrase(self, rel_tag: RelTag) -> Optional["BasePhrase"]:
         """rel が指す基本句を取得．"""

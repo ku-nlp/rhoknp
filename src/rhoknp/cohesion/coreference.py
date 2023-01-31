@@ -89,11 +89,11 @@ class Entity:
 class EntityManager:
     """文書全体のエンティティを管理．"""
 
-    def __init__(self) -> None:
-        self.entities: List[Entity] = []  #: エンティティのリスト．
+    entities: List[Entity] = []  #: エンティティのリスト．
 
+    @classmethod
     def get_or_create_entity(
-        self, exophora_referent: Optional[ExophoraReferent] = None, eid: Optional[int] = None
+        cls, exophora_referent: Optional[ExophoraReferent] = None, eid: Optional[int] = None
     ) -> Entity:
         """自身が参照するエンティティを作成．
 
@@ -110,12 +110,12 @@ class EntityManager:
              Entity: 作成されたエンティティ．
         """
         if exophora_referent is not None and exophora_referent.is_singleton is True:
-            entities = [e for e in self.entities if exophora_referent == e.exophora_referent]
+            entities = [e for e in cls.entities if exophora_referent == e.exophora_referent]
             # すでに singleton entity が存在した場合，新しい entity は作らずにその entity を返す
             if entities:
                 assert len(entities) == 1  # singleton entity が1つしかないことを保証
                 return entities[0]
-        eids: List[int] = [e.eid for e in self.entities]
+        eids: List[int] = [e.eid for e in cls.entities]
         if eid in eids:
             _eid = eid
             eid = max(eids) + 1
@@ -123,11 +123,12 @@ class EntityManager:
         elif eid is None or eid < 0:
             eid = max(eids) + 1 if eids else 0
         entity = Entity(eid, exophora_referent=exophora_referent)
-        self.entities.append(entity)
+        cls.entities.append(entity)
         return entity
 
+    @classmethod
     def merge_entities(
-        self,
+        cls,
         source_mention: "BasePhrase",
         target_mention: Optional["BasePhrase"],
         source_entity: Entity,
@@ -183,9 +184,10 @@ class EntityManager:
         for arg in [arg for pas in pas_list for args in pas.get_all_arguments(relax=False).values() for arg in args]:
             if isinstance(arg, ExophoraArgument) and arg.eid == target_entity.eid:
                 arg.eid = source_entity.eid
-        self.delete_entity(target_entity)  # delete target entity
+        cls.delete_entity(target_entity)  # delete target entity
 
-    def delete_entity(self, entity: Entity) -> None:
+    @classmethod
+    def delete_entity(cls, entity: Entity) -> None:
         """エンティティを削除．
 
         対象エンティティを `EntityManager` およびそのエンティティを参照するすべてのメンションから削除する．
@@ -194,17 +196,28 @@ class EntityManager:
         Args:
             entity: 削除対象のエンティティ．
         """
-        if entity not in self.entities:
+        if entity not in cls.entities:
             return
         for mention in entity.mentions_all:
             entity.remove_mention(mention)
-        self.entities.remove(entity)
+        cls.entities.remove(entity)
 
-    def __repr__(self) -> str:
-        return f"<{self.__module__}.{self.__class__.__name__}: {len(self.entities)}>"
+    @classmethod
+    def get_entity(cls, eid: int) -> Entity:
+        """指定されたエンティティ ID に対応するエンティティを返却．
 
-    def __getitem__(self, eid: int) -> Entity:
-        es = [e for e in self.entities if e.eid == eid]
+        Args:
+            eid: エンティティ ID．
+
+        Returns:
+             Entity: 対応するエンティティ．
+        """
+        es = [e for e in cls.entities if e.eid == eid]
         if len(es) == 0:
-            raise KeyError(f"entity ID: {eid} not found.")
+            raise ValueError(f"entity ID: {eid} not found.")
         return es[0]
+
+    @classmethod
+    def reset(cls) -> None:
+        """管理しているエンティティを全て削除．"""
+        cls.entities.clear()
