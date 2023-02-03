@@ -38,31 +38,24 @@ class Document(Unit):
         self.index = self.count
         Document.count += 1
 
-        self._doc_id: Optional[str] = None
+        self.doc_id: str = ""  #: 文書 ID．
 
     def __post_init__(self) -> None:
         super().__post_init__()
 
         # Set doc_id.
         if self.need_senter is False and len(self.sentences) > 0:
-            doc_ids = []
-            for sentence in self.sentences:
-                doc_id: Optional[str] = None
-                try:
-                    doc_id = sentence.doc_id
-                except AttributeError:
-                    pass
-                doc_ids.append(doc_id)
-            self._doc_id = doc_ids[0]
-            if not all(doc_id == self._doc_id for doc_id in doc_ids):
+            doc_ids = [sentence.doc_id for sentence in self.sentences]
+            self.doc_id = doc_ids[0]
+            if not all(doc_id == self.doc_id for doc_id in doc_ids):
                 logger.warning(
-                    f"'doc_id' is not consistent; use 'doc_id' extracted from the first sentence: {self._doc_id}."
+                    f"'doc_id' is not consistent; use 'doc_id' extracted from the first sentence: {self.doc_id}."
                 )
 
     def __eq__(self, other: Any) -> bool:
         if isinstance(other, Document) is False:
             return False
-        return self._doc_id == other._doc_id and self.text == other.text
+        return self.doc_id == other.doc_id and self.text == other.text
 
     @property
     def parent_unit(self) -> None:
@@ -75,32 +68,8 @@ class Document(Unit):
         return self._sentences
 
     @property
-    def doc_id(self) -> str:
-        """文書 ID．
-
-        Raises:
-            AttributeError: 文書 IDにアクセスできない場合．
-        """
-        if self._doc_id is None:
-            raise AttributeError("document id has not been set")
-        return self._doc_id
-
-    @doc_id.setter
-    def doc_id(self, doc_id: str) -> None:
-        """文書 ID．
-
-        Args:
-            doc_id: 文書 ID．
-        """
-        self._doc_id = doc_id
-
-    @property
     def did(self) -> str:
-        """文書 ID（doc_id のエイリアス）．
-
-        Raises:
-            AttributeError: 文書 IDにアクセスできない場合．
-        """
+        """文書 ID（doc_id のエイリアス）．"""
         return self.doc_id
 
     @did.setter

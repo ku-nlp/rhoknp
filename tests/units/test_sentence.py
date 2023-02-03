@@ -619,24 +619,24 @@ def test_update_id() -> None:
     sent = Sentence.from_raw_text("天気がいいので散歩した。")
     sent.doc_id = "test_doc_id"
     assert sent.doc_id == "test_doc_id"
+    assert sent.did == "test_doc_id"
     sent.did = "test_did"
+    assert sent.doc_id == "test_did"
     assert sent.did == "test_did"
     sent.sent_id = "test_sent_id"
     assert sent.sent_id == "test_sent_id"
+    assert sent.sid == "test_sent_id"
     sent.sid = "test_sid"
+    assert sent.sent_id == "test_sid"
     assert sent.sid == "test_sid"
 
 
 def test_unset_id() -> None:
     sent = Sentence.from_raw_text("天気がいいので散歩した。")
-    with pytest.raises(AttributeError):
-        _ = sent.doc_id
-    with pytest.raises(AttributeError):
-        _ = sent.did
-    with pytest.raises(AttributeError):
-        _ = sent.sent_id
-    with pytest.raises(AttributeError):
-        _ = sent.sid
+    assert sent.doc_id == ""
+    assert sent.did == ""
+    assert sent.sent_id == ""
+    assert sent.sid == ""
 
 
 def test_invalid_id() -> None:
@@ -661,8 +661,7 @@ def test_comment_without_id() -> None:
         )
     )
     assert sent.comment == "# NO SID WRITTEN"
-    with pytest.raises(AttributeError):
-        _ = sent.sid
+    assert sent.sid == ""
 
 
 def test_id_kwdlc():
