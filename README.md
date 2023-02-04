@@ -11,7 +11,7 @@
 <a href="https://codecov.io/gh/ku-nlp/rhoknp"><img alt="Codecov" src="https://img.shields.io/codecov/c/github/ku-nlp/rhoknp?logo=codecov&style=flat-square"></a>
 <a href="https://www.codefactor.io/repository/github/ku-nlp/rhoknp"><img alt="CodeFactor" src="https://img.shields.io/codefactor/grade/github/ku-nlp/rhoknp?style=flat-square"></a>
 <a href="https://pypi.org/project/rhoknp/"><img alt="PyPI" src="https://img.shields.io/pypi/v/rhoknp?style=flat-square"></a>
-<img alt="PyPI - Python Version" src="https://img.shields.io/pypi/pyversions/rhoknp?style=flat-square">
+<a href="https://pypi.org/project/rhoknp/"><img alt="PyPI - Python Version" src="https://img.shields.io/pypi/pyversions/rhoknp?style=flat-square">
 <a href="https://rhoknp.readthedocs.io/en/latest/"><img alt="Documentation" src="https://img.shields.io/readthedocs/rhoknp?style=flat-square"></a>
 <a href="https://github.com/psf/black"><img alt="Code style - black" src="https://img.shields.io/badge/code%20style-black-222222?style=flat-square"></a>
 </p>

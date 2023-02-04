@@ -3,7 +3,7 @@
 [![Codecov](https://img.shields.io/codecov/c/github/ku-nlp/rhoknp?logo=codecov&style=flat-square)](https://codecov.io/gh/ku-nlp/rhoknp)
 [![CodeFactor](https://img.shields.io/codefactor/grade/github/ku-nlp/rhoknp?style=flat-square)](https://www.codefactor.io/repository/github/ku-nlp/rhoknp)
 [![PyPI](https://img.shields.io/pypi/v/rhoknp?style=flat-square)](https://pypi.org/project/rhoknp/)
-[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/rhoknp?style=flat-square)]()
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/rhoknp?style=flat-square)](https://pypi.org/project/rhoknp/)
 [![Documentation](https://img.shields.io/readthedocs/rhoknp?style=flat-square)](https://rhoknp.readthedocs.io/en/latest/?badge=latest)
 [![Code style - black](https://img.shields.io/badge/code%20style-black-222222?style=flat-square)](https://github.com/psf/black)
 
