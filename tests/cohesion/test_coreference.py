@@ -323,3 +323,53 @@ def test_coref_with_self() -> None:
     mention = list(entity.mentions)[0]
     assert (mention.text, mention.global_index, {e.eid for e in mention.entities}) == ("わたし", 0, {0})
     assert len(entities[0].mentions_all) == 1
+
+
+def test_merge_entity() -> None:
+    EntityManager.reset()
+    _ = Sentence.from_knp(
+        textwrap.dedent(
+            """\
+            # S-ID:000-0-0
+            * 1D
+            + 1D <rel type="=" target="著者"/>
+            わたし わたし わたし 名詞 6 普通名詞 1 * 0 * 0
+            * 2D
+            + 2D <rel type="=" target="著者"/><rel type="=≒" target="わたし" sid="000-0-0" id="0"/>
+            私 わたし 私 名詞 6 普通名詞 1 * 0 * 0
+            * -1D
+            + -1D <rel type="=≒" target="わたし" sid="000-0-0" id="0"/>
+            自分 じぶん 自分 名詞 6 普通名詞 1 * 0 * 0
+            EOS
+            """
+        )
+    )
+
+    entities: List[Entity] = sorted(EntityManager.entities.values(), key=lambda e: e.eid)
+    assert len(entities) == 2
+
+    entity = entities[0]
+    assert entity.exophora_referent == ExophoraReferent("著者")
+    assert len(entity.mentions_all) == 3
+    mentions_identical = sorted(entity.mentions, key=lambda x: x.global_index)
+    assert len(mentions_identical) == 2
+    assert (mentions_identical[0].head.surf, mentions_identical[0].global_index) == ("わたし", 0)
+    assert len(mentions_identical[0].entities) == 1
+    assert (mentions_identical[1].head.surf, mentions_identical[1].global_index) == ("私", 1)
+    assert len(mentions_identical[1].entities) == 1
+    mentions_nonidentical = sorted(entity.mentions_nonidentical, key=lambda x: x.global_index)
+    assert len(mentions_nonidentical) == 1
+    assert (mentions_nonidentical[0].head.surf, mentions_nonidentical[0].global_index) == ("自分", 2)
+    assert len(mentions_nonidentical[0].entities) == 1
+
+    entity = entities[1]
+    assert entity.exophora_referent is None
+    assert len(entity.mentions_all) == 2
+    mentions_identical = sorted(entity.mentions, key=lambda x: x.global_index)
+    assert len(mentions_identical) == 1
+    assert (mentions_identical[0].head.surf, mentions_identical[0].global_index) == ("自分", 2)
+    assert len(mentions_identical[0].entities) == 1
+    mentions_nonidentical = sorted(entity.mentions_nonidentical, key=lambda x: x.global_index)
+    assert len(mentions_nonidentical) == 1
+    assert (mentions_nonidentical[0].head.surf, mentions_nonidentical[0].global_index) == ("わたし", 0)
+    assert len(mentions_nonidentical[0].entities) == 1
