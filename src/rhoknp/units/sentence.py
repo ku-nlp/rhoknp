@@ -48,8 +48,8 @@ class Sentence(Unit):
         self._phrases: Optional[List[Phrase]] = None
         self._morphemes: Optional[List[Morpheme]] = None
 
-        self._sent_id: Optional[str] = None
-        self._doc_id: Optional[str] = None
+        self.sent_id: str = ""
+        self.doc_id: str = ""
         self.misc_comment: str = ""
 
         self.named_entities: List[NamedEntity] = []
@@ -75,7 +75,7 @@ class Sentence(Unit):
     def __eq__(self, other: Any) -> bool:
         if isinstance(other, type(self)) is False:
             return False
-        return self._sent_id == other._sent_id and self.text == other.text
+        return self.sent_id == other.sent_id and self.text == other.text
 
     @property
     def global_index(self) -> int:
@@ -104,32 +104,8 @@ class Sentence(Unit):
         return None
 
     @property
-    def doc_id(self) -> str:
-        """文書 ID．
-
-        Raises:
-            AttributeError: 文書 IDにアクセスできない場合．
-        """
-        if self._doc_id is None:
-            raise AttributeError("document id has not been set")
-        return self._doc_id
-
-    @doc_id.setter
-    def doc_id(self, doc_id: str) -> None:
-        """文書 ID．
-
-        Args:
-            doc_id: 文書 ID．
-        """
-        self._doc_id = doc_id
-
-    @property
     def did(self) -> str:
-        """文書 ID（doc_id のエイリアス）．
-
-        Raises:
-            AttributeError: 文書 IDにアクセスできない場合．
-        """
+        """文書 ID（doc_id のエイリアス）．"""
         return self.doc_id
 
     @did.setter
@@ -142,32 +118,8 @@ class Sentence(Unit):
         self.doc_id = did
 
     @property
-    def sent_id(self) -> str:
-        """文 ID．
-
-        Raises:
-            AttributeError: 文 IDにアクセスできない場合．
-        """
-        if self._sent_id is None:
-            raise AttributeError("sentence id has not been set")
-        return self._sent_id
-
-    @sent_id.setter
-    def sent_id(self, sid: str) -> None:
-        """文 ID．
-
-        Args:
-            sid: 文 ID．
-        """
-        self._sent_id = sid
-
-    @property
     def sid(self) -> str:
-        """文 ID（sent_id のエイリアス）．
-
-        Raises:
-            AttributeError: 文 IDにアクセスできない場合．
-        """
+        """文 ID（sent_id のエイリアス）．"""
         return self.sent_id
 
     @sid.setter
@@ -284,8 +236,8 @@ class Sentence(Unit):
     def comment(self) -> str:
         """コメント行．"""
         ret = ""
-        if self._sent_id:
-            ret += f"S-ID:{self._sent_id} "
+        if self.sent_id:
+            ret += f"S-ID:{self.sent_id} "
         if self.misc_comment:
             ret += f"{self.misc_comment} "
         if ret != "":
