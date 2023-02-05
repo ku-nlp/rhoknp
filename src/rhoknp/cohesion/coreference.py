@@ -68,9 +68,9 @@ class Entity:
         if self.exophora_referent:
             return str(self.exophora_referent)
         if self.mentions:
-            return list(self.mentions)[0].__str__()
+            return str(list(self.mentions)[0])
         elif self.mentions_nonidentical:
-            return list(self.mentions_nonidentical)[0].__str__()
+            return str(list(self.mentions_nonidentical)[0])
         else:
             return ""
 
@@ -150,8 +150,9 @@ class EntityManager:
         is_tgt_nonidentical = target_mention is not None and target_entity in target_mention.entities_nonidentical
         is_src_nonidentical = source_entity in source_mention.entities_nonidentical
         if source_entity is target_entity:
-            if not is_nonidentical:
-                # source_entity (target_entity), source_mention, target_mention の三角形のうち2辺が identical ならもう1辺も identical
+            if is_nonidentical is False:
+                # When two sides of a triangle formed by source_entity (=target_entity), source_mention, and
+                # target_mention are identical, the other side is also identical.
                 if is_src_nonidentical is False and is_tgt_nonidentical is True:
                     assert target_mention is not None
                     source_entity.add_mention(target_mention, nonidentical=False)
@@ -161,22 +162,22 @@ class EntityManager:
         if target_mention is not None:
             source_entity.add_mention(target_mention, nonidentical=(is_nonidentical or is_src_nonidentical))
         target_entity.add_mention(source_mention, nonidentical=(is_nonidentical or is_tgt_nonidentical))
-        # source_entity と target_entity が同一でない可能性があるとき，target_entity は削除しない
+        # When source_entity and target_entity may not be identical, do not delete target_entity.
         if is_nonidentical or is_tgt_nonidentical or is_src_nonidentical:
             return
-        # source_entity と target_entity の exophora_referent が異なれば target_entity は削除しない
+        # When exophora_referent of source_entity and target_entity is different, target_entity is not deleted.
         if (
             source_entity.exophora_referent is not None
             and target_entity.exophora_referent is not None
             and source_entity.exophora_referent != target_entity.exophora_referent
         ):
             return
-        # 以下 target_entity を削除する準備
+        # prepare to delete target_entity as follows
         if source_entity.exophora_referent is None:
             source_entity.exophora_referent = target_entity.exophora_referent
         for tm in target_entity.mentions_all:
             source_entity.add_mention(tm, nonidentical=target_entity in tm.entities_nonidentical)
-        # argument も eid を持っているので更新
+        # Arguments also have entity ids and will be updated.
         source_sentence = source_mention.sentence
         pas_list = source_mention.document.pas_list if source_sentence.has_document else source_sentence.pas_list
         for arg in [arg for pas in pas_list for args in pas.get_all_arguments(relax=False).values() for arg in args]:
