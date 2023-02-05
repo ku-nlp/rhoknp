@@ -728,6 +728,28 @@ def test_comment_wac() -> None:
     assert sent.comment == "# S-ID:wiki00100205-01 KNP:5.0-6a1f607d DATE:2022/04/11 SCORE:28.00000 MOD:2022/05/27 MEMO:"
 
 
+def test_comment_wac_paren() -> None:
+    sent = Sentence.from_raw_text(
+        textwrap.dedent(
+            """\
+            # S-ID:wiki00100205-00-02 括弧始:（ 括弧終:） 括弧位置:2 KNP:5.0-6a1f607d DATE:2022/04/11 SCORE:0.00000 MOD:202
+            2/04/14 MEMO:
+            * -1D
+            + -1D <rel type="=" target="垂直" sid="wiki00100205-00-01" id="0"/>
+            すいちょく すいちょく すいちょくだ 形容詞 3 * 0 ナ形容詞 21 語幹 1 NIL
+            EOS
+            """
+        )
+    )
+    assert sent.sent_id == sent.sid == "wiki00100205-00-02"
+    assert sent.doc_id == sent.did == "wiki00100205"
+    assert sent.misc_comment == "括弧始:（ 括弧終:） 括弧位置:2 KNP:5.0-6a1f607d DATE:2022/04/11 SCORE:0.00000 MOD:202"
+    assert (
+        sent.comment
+        == "# S-ID:wiki00100205-00-02 括弧始:（ 括弧終:） 括弧位置:2 KNP:5.0-6a1f607d DATE:2022/04/11 SCORE:0.00000 MOD:202"
+    )
+
+
 def test_eq() -> None:
     sent = Sentence.from_raw_text("天気がいいので散歩した。")
     assert sent != "天気がいいので散歩した。"
