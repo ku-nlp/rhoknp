@@ -640,15 +640,16 @@ def test_unset_id() -> None:
 
 
 def test_invalid_id() -> None:
-    with pytest.raises(ValueError):
-        _ = Sentence.from_raw_text(
-            textwrap.dedent(
-                """\
-                # S-ID:!.,@#$%^&*=あ
-                天気がいいので散歩した。
-                """
-            )
+    sent = Sentence.from_raw_text(
+        textwrap.dedent(
+            """\
+            # S-ID:!.,@#$%^&*=あ
+            天気がいいので散歩した。
+            """
         )
+    )
+    assert sent.sent_id == ""
+    assert sent.doc_id == ""
 
 
 def test_comment_without_id() -> None:

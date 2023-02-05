@@ -465,14 +465,15 @@ class Sentence(Unit):
                 or Sentence.SID_PAT_WAC.match(sid_string)
                 or Sentence.SID_PAT.match(sid_string)
             )
-            if match is None:
-                raise ValueError(f"unsupported S-ID format: {sid_string}")
-            return (
-                match["did"],
-                match["sid"],
-                match_sid[2].lstrip() if match_sid[2] else "",
-            )
-        return None, None, comment.lstrip("#").lstrip(" ")
+            if match is not None:
+                return (
+                    match["did"],
+                    match["sid"],
+                    match_sid[2].lstrip() if match_sid[2] else "",
+                )
+            else:
+                logger.warning(f"unsupported S-ID format: {sid_string}")
+        return None, None, comment.lstrip("#").lstrip()
 
     def to_raw_text(self) -> str:
         """生テキストフォーマットに変換．"""
