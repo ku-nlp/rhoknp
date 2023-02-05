@@ -618,28 +618,24 @@ def test_sid(case: Dict[str, str]) -> None:
 def test_update_id() -> None:
     sent = Sentence.from_raw_text("天気がいいので散歩した。")
     sent.doc_id = "test_doc_id"
-    assert sent.doc_id == "test_doc_id"
-    assert sent.did == "test_doc_id"
+    assert sent.doc_id == sent.did == "test_doc_id"
     sent.did = "test_did"
-    assert sent.doc_id == "test_did"
-    assert sent.did == "test_did"
+    assert sent.doc_id == sent.did == "test_did"
     sent.sent_id = "test_sent_id"
-    assert sent.sent_id == "test_sent_id"
-    assert sent.sid == "test_sent_id"
+    assert sent.sent_id == sent.sid == "test_sent_id"
     sent.sid = "test_sid"
-    assert sent.sent_id == "test_sid"
-    assert sent.sid == "test_sid"
+    assert sent.sent_id == sent.sid == "test_sid"
 
 
-def test_unset_id() -> None:
+def test_comment_unset_sid() -> None:
     sent = Sentence.from_raw_text("天気がいいので散歩した。")
-    assert sent.doc_id == ""
-    assert sent.did == ""
-    assert sent.sent_id == ""
-    assert sent.sid == ""
+    assert sent.doc_id == sent.did == ""
+    assert sent.sent_id == sent.sid == ""
+    assert sent.misc_comment == ""
+    assert sent.comment == ""
 
 
-def test_invalid_id() -> None:
+def test_comment_invalid_sid() -> None:
     sent = Sentence.from_raw_text(
         textwrap.dedent(
             """\
@@ -648,8 +644,10 @@ def test_invalid_id() -> None:
             """
         )
     )
-    assert sent.sent_id == ""
-    assert sent.doc_id == ""
+    assert sent.sent_id == sent.sid == ""
+    assert sent.doc_id == sent.did == ""
+    assert sent.misc_comment == "S-ID:!.,@#$%^&*=あ"
+    assert sent.comment == "# S-ID:!.,@#$%^&*=あ"
 
 
 def test_comment_without_id() -> None:
@@ -661,8 +659,10 @@ def test_comment_without_id() -> None:
             """
         )
     )
+    assert sent.sent_id == sent.sid == ""
+    assert sent.doc_id == sent.did == ""
+    assert sent.misc_comment == "NO SID WRITTEN"
     assert sent.comment == "# NO SID WRITTEN"
-    assert sent.sid == ""
 
 
 def test_id_kwdlc():
