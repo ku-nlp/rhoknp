@@ -251,9 +251,9 @@ class Sentence(Unit):
         Args:
             comment: コメント行．
         """
-        doc_id, sid, rest = self._extract_sid(comment)
-        if sid is not None:
-            self.sid = sid
+        doc_id, sent_id, rest = self._extract_sid(comment)
+        if sent_id is not None:
+            self.sent_id = sent_id
         if doc_id is not None:
             self.doc_id = doc_id
         self.misc_comment = rest
