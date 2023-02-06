@@ -15,43 +15,51 @@ def test_create_app(analyzer: AnalyzerType) -> None:
     assert isinstance(app, FastAPI)
 
 
-def test_analyze_jumanpp():
+@pytest.mark.parametrize("text", ["こんにちは", ""])
+def test_analyze_jumanpp(text: str) -> None:
     app = create_app(AnalyzerType.JUMANPP)
     client = TestClient(app)
-    response = client.get("/analyze", params={"text": "こんにちは"})
+    response = client.get("/analyze", params={"text": text})
     assert response.status_code == 200
     json = response.json()
     assert "text" in json
     assert "result" in json
     document = Document.from_jumanpp(json["result"])
-    assert document.text == "こんにちは"
+    assert document.text == text
 
 
-def test_analyze_knp():
+@pytest.mark.parametrize("text", ["こんにちは", ""])
+def test_analyze_knp(text: str) -> None:
     app = create_app(AnalyzerType.KNP)
     client = TestClient(app)
-    response = client.get("/analyze", params={"text": "こんにちは"})
+    response = client.get("/analyze", params={"text": text})
     assert response.status_code == 200
     json = response.json()
     assert "text" in json
     assert "result" in json
     document = Document.from_knp(json["result"])
-    assert document.text == "こんにちは"
+    assert document.text == text
 
 
-def test_index_jumanpp():
+def test_index_jumanpp() -> None:
     app = create_app(AnalyzerType.JUMANPP)
     client = TestClient(app)
-    response = client.get("/", params={"text": "こんにちは"})
-    assert response.status_code == 200
-    response = client.get("/", params={"text": ""})
-    assert response.status_code == 200
+    for text in ["こんにちは", ""]:
+        response = client.get("/", params={"text": text})
+        assert response.status_code == 200
 
 
-def test_index_knp():
+def test_index_knp() -> None:
     app = create_app(AnalyzerType.KNP)
     client = TestClient(app)
-    response = client.get("/", params={"text": "こんにちは"})
-    assert response.status_code == 200
-    response = client.get("/", params={"text": ""})
-    assert response.status_code == 200
+    for text in ["こんにちは", ""]:
+        response = client.get("/", params={"text": text})
+        assert response.status_code == 200
+
+
+def test_index_kwja() -> None:
+    app = create_app(AnalyzerType.KWJA)
+    client = TestClient(app)
+    for text in ["こんにちは", ""]:
+        response = client.get("/", params={"text": text})
+        assert response.status_code == 200
