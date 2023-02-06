@@ -335,7 +335,7 @@ class BasePhrase(Unit):
                     EntityManager.merge_entities(self, None, source_entity, target_entity, is_nonidentical)
 
     def _get_target_base_phrase(self, rel_tag: RelTag) -> Optional["BasePhrase"]:
-        """rel が指す基本句を取得．"""
+        """rel_tag が指す基本句を返す．見つからなければ None を返す．"""
         sentences = self.document.sentences if self.sentence.has_document else [self.sentence]
         sentences = [sent for sent in sentences if sent.sid == rel_tag.sid]
         if not sentences:

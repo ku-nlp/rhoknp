@@ -77,7 +77,6 @@ def draw_tree(
                     else:
                         item[i][j] = "┐"
                 if active_column[j] == 2:
-                    # すでにＰからの太線があればそのまま
                     pass
                 elif para_row:
                     active_column[j] = 2
