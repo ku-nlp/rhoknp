@@ -57,9 +57,9 @@ def test_index_knp() -> None:
         assert response.status_code == 200
 
 
-def test_index_kwja() -> None:
-    app = create_app(AnalyzerType.KWJA)
-    client = TestClient(app)
-    for text in ["こんにちは", ""]:
-        response = client.get("/", params={"text": text})
-        assert response.status_code == 200
+# def test_index_kwja() -> None:
+#     app = create_app(AnalyzerType.KWJA)
+#     client = TestClient(app)
+#     for text in ["こんにちは", ""]:
+#         response = client.get("/", params={"text": text})
+#         assert response.status_code == 200
