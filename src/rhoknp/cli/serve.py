@@ -115,16 +115,10 @@ def create_app(analyzer: AnalyzerType) -> "fastapi.FastAPI":
         else:
             raise AssertionError  # unreachable
         if text == "":
-            return BASE_TEMPLATE.format(title=title, result="")
+            result = ""
         else:
-            result = get_result(text)
-            return BASE_TEMPLATE.format(
-                title=title,
-                result=RESULT_TEMPLATE.format(
-                    text=html.escape(text),
-                    result=html.escape(result),
-                ),
-            )
+            result = RESULT_TEMPLATE.format(text=html.escape(text), result=html.escape(get_result(text)))
+        return BASE_TEMPLATE.format(title=title, result=result)
 
     @app.get("/analyze", response_class=fastapi.responses.JSONResponse)
     async def analyze(text: str = ""):
