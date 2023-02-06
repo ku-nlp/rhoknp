@@ -5,7 +5,7 @@ from typing import List
 import pytest
 
 from rhoknp import Sentence
-from rhoknp.cohesion import Entity, EntityManager, ExophoraReferent
+from rhoknp.cohesion import Entity, EntityManager, ExophoraArgument, ExophoraReferent
 from rhoknp.units import BasePhrase, Document
 
 
@@ -325,8 +325,7 @@ def test_coref_with_self() -> None:
     assert len(entities[0].mentions_all) == 1
 
 
-def test_merge_entity() -> None:
-    EntityManager.reset()
+def test_merge_entity_0() -> None:
     _ = Sentence.from_knp(
         textwrap.dedent(
             """\
@@ -373,3 +372,137 @@ def test_merge_entity() -> None:
     assert len(mentions_nonidentical) == 1
     assert (mentions_nonidentical[0].head.surf, mentions_nonidentical[0].global_index) == ("わたし", 0)
     assert len(mentions_nonidentical[0].entities) == 1
+
+
+def test_merge_entity_1() -> None:
+    _ = Sentence.from_knp(
+        textwrap.dedent(
+            """\
+            # S-ID:000-0-0
+            * 1D
+            + 1D <rel type="=" target="著者"/>
+            わたし わたし わたし 名詞 6 普通名詞 1 * 0 * 0
+            * -1D
+            + -1D <rel type="=≒" target="著者"/><rel type="=" target="わたし" sid="000-0-0" id="0"/>
+            私 わたし 私 名詞 6 普通名詞 1 * 0 * 0
+            EOS
+            """
+        )
+    )
+
+    entities: List[Entity] = sorted(EntityManager.entities.values(), key=lambda e: e.eid)
+    assert len(entities) == 1
+
+    entity = entities[0]
+    assert entity.exophora_referent == ExophoraReferent("著者")
+    assert len(entity.mentions_all) == 2
+    mentions_identical = sorted(entity.mentions, key=lambda x: x.global_index)
+    assert len(mentions_identical) == 2
+    assert (mentions_identical[0].head.surf, mentions_identical[0].global_index) == ("わたし", 0)
+    assert len(mentions_identical[0].entities) == 1
+    assert (mentions_identical[1].head.surf, mentions_identical[1].global_index) == ("私", 1)
+    assert len(mentions_identical[1].entities) == 1
+    assert len(entity.mentions_nonidentical) == 0
+
+
+def test_merge_entity_2() -> None:
+    _ = Sentence.from_knp(
+        textwrap.dedent(
+            """\
+            # S-ID:000-0-0
+            * 1D
+            + 1D <rel type="=≒" target="著者"/>
+            わたし わたし わたし 名詞 6 普通名詞 1 * 0 * 0
+            * -1D
+            + -1D <rel type="=" target="著者"/><rel type="=" target="わたし" sid="000-0-0" id="0"/>
+            私 わたし 私 名詞 6 普通名詞 1 * 0 * 0
+            EOS
+            """
+        )
+    )
+
+    entities: List[Entity] = sorted(EntityManager.entities.values(), key=lambda e: e.eid)
+    assert len(entities) == 1
+
+    entity = entities[0]
+    assert entity.exophora_referent == ExophoraReferent("著者")
+    assert len(entity.mentions_all) == 2
+    mentions_identical = sorted(entity.mentions, key=lambda x: x.global_index)
+    assert len(mentions_identical) == 2
+    assert (mentions_identical[0].head.surf, mentions_identical[0].global_index) == ("わたし", 0)
+    assert len(mentions_identical[0].entities) == 1
+    assert (mentions_identical[1].head.surf, mentions_identical[1].global_index) == ("私", 1)
+    assert len(mentions_identical[1].entities) == 1
+    assert len(entity.mentions_nonidentical) == 0
+
+
+def test_merge_entity_3() -> None:
+    _ = Sentence.from_knp(
+        textwrap.dedent(
+            """\
+            # S-ID:000-0-0
+            * 1D
+            + 1D <rel type="=" target="著者"/>
+            わたし わたし わたし 名詞 6 普通名詞 1 * 0 * 0
+            * -1D
+            + -1D <rel type="=" target="読者"/><rel type="=" target="わたし" sid="000-0-0" id="0"/>
+            自分 じぶん 自分 名詞 6 普通名詞 1 * 0 * 0
+            EOS
+            """
+        )
+    )
+
+    entities: List[Entity] = sorted(EntityManager.entities.values(), key=lambda e: e.eid)
+    assert len(entities) == 2
+
+    entity = entities[0]
+    assert entity.exophora_referent == ExophoraReferent("著者")
+    assert len(entity.mentions_all) == 2
+    mentions_identical = sorted(entity.mentions, key=lambda x: x.global_index)
+    assert len(mentions_identical) == 2
+    assert (mentions_identical[0].head.surf, mentions_identical[0].global_index) == ("わたし", 0)
+    assert len(mentions_identical[0].entities) == 2
+    assert (mentions_identical[1].head.surf, mentions_identical[1].global_index) == ("自分", 1)
+    assert len(mentions_identical[1].entities) == 2
+    assert len(entity.mentions_nonidentical) == 0
+
+    entity = entities[1]
+    assert entity.exophora_referent == ExophoraReferent("読者")
+    assert len(entity.mentions_all) == 2
+    mentions_identical = sorted(entity.mentions, key=lambda x: x.global_index)
+    assert len(mentions_identical) == 2
+    assert (mentions_identical[0].head.surf, mentions_identical[0].global_index) == ("わたし", 0)
+    assert len(mentions_identical[0].entities) == 2
+    assert (mentions_identical[1].head.surf, mentions_identical[1].global_index) == ("自分", 1)
+    assert len(mentions_identical[1].entities) == 2
+    assert len(entity.mentions_nonidentical) == 0
+
+
+def test_update_argument_eid() -> None:
+    doc = Document.from_knp(
+        textwrap.dedent(
+            """\
+            # S-ID:000-0-0
+            * 1D
+            + 1D <rel type="=" target="著者"/>
+            私 わたし 私 名詞 6 普通名詞 1 * 0 * 0
+            は は は 助詞 9 副助詞 2 * 0 * 0
+            * -1D
+            + -1D <rel type="ガ" target="私" sid="000-0-0" id="0"/><rel type="ヲ" target="不特定:人１"/>
+            見た みた 見る 動詞 2 * 0 母音動詞 1 タ形 10
+            。 。 。 特殊 1 句点 1 * 0 * 0
+            EOS
+            # S-ID:000-0-1
+            * -1D
+            + -1D <rel type="=" target="不特定:人１"/>
+            彼 かれ 彼 名詞 6 普通名詞 1 * 0 * 0
+            を を を 助詞 9 格助詞 1 * 0 * 0
+            EOS
+            """
+        )
+    )
+    pas = doc.base_phrases[1].pas
+    exophora_arguments = [arg for arg in pas.get_arguments("ヲ") if isinstance(arg, ExophoraArgument)]
+    assert len(exophora_arguments) == 1
+    assert exophora_arguments[0].eid == 2
+    assert len(EntityManager.entities) == 2
