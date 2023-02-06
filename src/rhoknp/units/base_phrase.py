@@ -309,7 +309,7 @@ class BasePhrase(Unit):
         if not self.entities:
             EntityManager.get_or_create_entity().add_mention(self)
 
-        nonidentical: bool = rel_tag.type.endswith("≒")
+        is_nonidentical: bool = rel_tag.type.endswith("≒")
         if rel_tag.sid is not None:
             target_base_phrase = self._get_target_base_phrase(rel_tag)
             if target_base_phrase is None:
@@ -323,14 +323,16 @@ class BasePhrase(Unit):
             for source_entity, target_entity in itertools.product(self.entities_all, target_base_phrase.entities_all):
                 # Because entities are dynamically deleted within this loop, we need to check if they exist.
                 if source_entity in self.entities_all and target_entity in target_base_phrase.entities_all:
-                    EntityManager.merge_entities(self, target_base_phrase, source_entity, target_entity, nonidentical)
+                    EntityManager.merge_entities(
+                        self, target_base_phrase, source_entity, target_entity, is_nonidentical
+                    )
         else:
             # exophora
             target_entity = EntityManager.get_or_create_entity(exophora_referent=ExophoraReferent(rel_tag.target))
             for source_entity in self.entities_all:
                 # Because entities are dynamically deleted within this loop, we need to check if they exist.
                 if source_entity in self.entities_all and target_entity in EntityManager.entities.values():
-                    EntityManager.merge_entities(self, None, source_entity, target_entity, nonidentical)
+                    EntityManager.merge_entities(self, None, source_entity, target_entity, is_nonidentical)
 
     def _get_target_base_phrase(self, rel_tag: RelTag) -> Optional["BasePhrase"]:
         """rel が指す基本句を取得．"""

@@ -42,13 +42,13 @@ def test_entity() -> None:
     assert str(entity) == "天気が"
     assert repr(entity) == "<rhoknp.cohesion.coreference.Entity: 0, '天気が'>"
 
-    entity.add_mention(base_phrase_0, nonidentical=True)
+    entity.add_mention(base_phrase_0, is_nonidentical=True)
     assert entity.mentions_all == {base_phrase_0}
     assert str(entity) == "天気が"
     assert repr(entity) == "<rhoknp.cohesion.coreference.Entity: 0, '天気が'>"
 
     base_phrase_1 = document.base_phrases[1]
-    entity.add_mention(base_phrase_1, nonidentical=True)
+    entity.add_mention(base_phrase_1, is_nonidentical=True)
     assert entity.mentions_all == {base_phrase_0, base_phrase_1}
     assert str(entity) == "天気が"
     assert repr(entity) == "<rhoknp.cohesion.coreference.Entity: 0, '天気が', 'いいので'>"
@@ -496,9 +496,9 @@ def test_merge_entity_4() -> None:
     EntityManager.reset()
     target_mention = sentence.base_phrases[0]
     entity = EntityManager.get_or_create_entity()
-    entity.add_mention(target_mention, nonidentical=True)
+    entity.add_mention(target_mention, is_nonidentical=True)
     source_mention = sentence.base_phrases[1]
-    entity.add_mention(source_mention, nonidentical=False)
+    entity.add_mention(source_mention, is_nonidentical=False)
     EntityManager.merge_entities(source_mention, target_mention, entity, entity, is_nonidentical=False)
 
     assert len(EntityManager.entities) == 1

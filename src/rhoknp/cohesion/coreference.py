@@ -29,18 +29,18 @@ class Entity:
         """nonidentical を含めたこのエンティティを参照する全てのメンションの集合．"""
         return self.mentions | self.mentions_nonidentical
 
-    def add_mention(self, mention: "BasePhrase", nonidentical: bool = False) -> None:
+    def add_mention(self, mention: "BasePhrase", is_nonidentical: bool = False) -> None:
         """このエンティティを参照するメンションを追加．
 
         Args:
             mention: 追加対象のメンション．
-            nonidentical: メンションが nonidentical（"≒" 付きでアノテーションされている）なら True．
+            is_nonidentical: メンションが nonidentical（"≒" 付きでアノテーションされている）なら True．
 
         .. note::
             identical なメンションが追加されたとき，すでに nonidentical なメンションとして登録されていたら，
             identical なメンションとして上書きする．
         """
-        if nonidentical:
+        if is_nonidentical:
             if mention in self.mentions_all:
                 return
             mention.entities_nonidentical.add(self)
@@ -155,13 +155,13 @@ class EntityManager:
                 # target_mention are identical, the other side is also identical.
                 if is_src_nonidentical is False and is_tgt_nonidentical is True:
                     assert target_mention is not None
-                    source_entity.add_mention(target_mention, nonidentical=False)
+                    source_entity.add_mention(target_mention, is_nonidentical=False)
                 if is_src_nonidentical is True and is_tgt_nonidentical is False:
-                    source_entity.add_mention(source_mention, nonidentical=False)
+                    source_entity.add_mention(source_mention, is_nonidentical=False)
             return
         if target_mention is not None:
-            source_entity.add_mention(target_mention, nonidentical=(is_nonidentical or is_src_nonidentical))
-        target_entity.add_mention(source_mention, nonidentical=(is_nonidentical or is_tgt_nonidentical))
+            source_entity.add_mention(target_mention, is_nonidentical=(is_nonidentical or is_src_nonidentical))
+        target_entity.add_mention(source_mention, is_nonidentical=(is_nonidentical or is_tgt_nonidentical))
         # When source_entity and target_entity may not be identical, do not delete target_entity.
         if is_nonidentical or is_tgt_nonidentical or is_src_nonidentical:
             return
@@ -176,7 +176,7 @@ class EntityManager:
         if source_entity.exophora_referent is None:
             source_entity.exophora_referent = target_entity.exophora_referent
         for tm in target_entity.mentions_all:
-            source_entity.add_mention(tm, nonidentical=target_entity in tm.entities_nonidentical)
+            source_entity.add_mention(tm, is_nonidentical=target_entity in tm.entities_nonidentical)
         # Arguments also have entity ids and will be updated.
         source_sentence = source_mention.sentence
         pas_list = source_mention.document.pas_list if source_sentence.has_document else source_sentence.pas_list
