@@ -1,3 +1,4 @@
+import itertools
 import logging
 import re
 from typing import TYPE_CHECKING, Any, List, Optional, Set
@@ -319,14 +320,17 @@ class BasePhrase(Unit):
             # create target entity
             if not target_base_phrase.entities:
                 EntityManager.get_or_create_entity().add_mention(target_base_phrase)
-            for source_entity in self.entities_all:
-                for target_entity in target_base_phrase.entities_all:
+            for source_entity, target_entity in itertools.product(self.entities_all, target_base_phrase.entities_all):
+                # Because entities are dynamically deleted within this loop, we need to check if they exist.
+                if source_entity in self.entities_all and target_entity in target_base_phrase.entities_all:
                     EntityManager.merge_entities(self, target_base_phrase, source_entity, target_entity, nonidentical)
         else:
             # exophora
+            target_entity = EntityManager.get_or_create_entity(exophora_referent=ExophoraReferent(rel_tag.target))
             for source_entity in self.entities_all:
-                target_entity = EntityManager.get_or_create_entity(exophora_referent=ExophoraReferent(rel_tag.target))
-                EntityManager.merge_entities(self, None, source_entity, target_entity, nonidentical)
+                # Because entities are dynamically deleted within this loop, we need to check if they exist.
+                if source_entity in self.entities_all and target_entity in EntityManager.entities.values():
+                    EntityManager.merge_entities(self, None, source_entity, target_entity, nonidentical)
 
     def _get_target_base_phrase(self, rel_tag: RelTag) -> Optional["BasePhrase"]:
         """rel が指す基本句を取得．"""
