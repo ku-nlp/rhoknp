@@ -478,6 +478,41 @@ def test_merge_entity_3() -> None:
     assert len(entity.mentions_nonidentical) == 0
 
 
+def test_merge_entity_4() -> None:
+    sentence = Sentence.from_knp(
+        textwrap.dedent(
+            """\
+            # S-ID:000-0-0
+            * 1D
+            + 1D
+            わたし わたし わたし 名詞 6 普通名詞 1 * 0 * 0
+            * -1D
+            + -1D
+            わたくし わたくし わたくし 名詞 6 普通名詞 1 * 0 * 0
+            EOS
+            """
+        )
+    )
+    EntityManager.reset()
+    target_mention = sentence.base_phrases[0]
+    entity = EntityManager.get_or_create_entity()
+    entity.add_mention(target_mention, nonidentical=True)
+    source_mention = sentence.base_phrases[1]
+    entity.add_mention(source_mention, nonidentical=False)
+    EntityManager.merge_entities(source_mention, target_mention, entity, entity, is_nonidentical=False)
+
+    assert len(EntityManager.entities) == 1
+    assert entity.exophora_referent is None
+    assert len(entity.mentions_all) == 2
+    mentions_identical = sorted(entity.mentions, key=lambda x: x.global_index)
+    assert len(mentions_identical) == 2
+    assert (mentions_identical[0].head.surf, mentions_identical[0].global_index) == ("わたし", 0)
+    assert len(mentions_identical[0].entities) == 1
+    assert (mentions_identical[1].head.surf, mentions_identical[1].global_index) == ("わたくし", 1)
+    assert len(mentions_identical[1].entities) == 1
+    assert len(entity.mentions_nonidentical) == 0
+
+
 def test_update_argument_eid() -> None:
     doc = Document.from_knp(
         textwrap.dedent(
