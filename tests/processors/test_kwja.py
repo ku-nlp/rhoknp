@@ -84,5 +84,6 @@ def test_cli_serve_analyze_kwja(text: str) -> None:
 def test_cli_serve_index_kwja():
     app = create_app(AnalyzerType.KWJA, options=["--model-size", "tiny", "--tasks", "char,word"])
     client = TestClient(app)
-    response = client.get("/", params={"text": "こんにちは"})
-    assert response.status_code == 200
+    for text in ["こんにちは", ""]:
+        response = client.get("/", params={"text": text})
+        assert response.status_code == 200
