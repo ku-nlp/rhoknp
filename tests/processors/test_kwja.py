@@ -1,3 +1,4 @@
+import gc
 from typing import Generator
 
 import pytest
@@ -70,6 +71,7 @@ def test_repr() -> None:
 
 @pytest.mark.parametrize("text", ["こんにちは", ""])
 def test_cli_serve_analyze_kwja(text: str) -> None:
+    gc.collect()  # Workaround for GitHub Actions
     app = create_app(AnalyzerType.KWJA, options=["--model-size", "tiny", "--tasks", "char,word"])
     client = TestClient(app)
     response = client.get("/analyze", params={"text": text})
@@ -82,6 +84,7 @@ def test_cli_serve_analyze_kwja(text: str) -> None:
 
 
 def test_cli_serve_index_kwja():
+    gc.collect()  # Workaround for GitHub Actions
     app = create_app(AnalyzerType.KWJA, options=["--model-size", "tiny", "--tasks", "char,word"])
     client = TestClient(app)
     for text in ["こんにちは", ""]:
