@@ -740,6 +740,12 @@ def test_reparse(case: Dict[str, str], key: str) -> None:
     assert doc == doc.reparse()
 
 
+def test_pas_list() -> None:
+    doc_id = "w201106-0000060050"
+    doc = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text())
+    assert len(doc.pas_list) == 12
+
+
 def test_to_knp_kwdlc() -> None:
     doc_id = "w201106-0000060050"
     knp = Path(f"tests/data/{doc_id}.knp").read_text()
@@ -766,16 +772,10 @@ def test_update_id() -> None:
     doc = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text())
     doc.doc_id = "test_doc_id"
     assert doc.doc_id == "test_doc_id"
+    assert doc.did == "test_doc_id"
     doc.did = "test_did"
+    assert doc.doc_id == "test_did"
     assert doc.did == "test_did"
-
-
-def test_unset_id() -> None:
-    doc = Document.from_raw_text("天気がいいので散歩した。")
-    with pytest.raises(AttributeError):
-        _ = doc.doc_id
-    with pytest.raises(AttributeError):
-        _ = doc.did
 
 
 def test_eq() -> None:

@@ -305,6 +305,21 @@ def test_children_sentence(case: Dict[str, str]) -> None:
             _ = [bp.children for bp in sent.base_phrases]
 
 
+@pytest.mark.parametrize("case", CASES)
+def test_index_sentence(case: Dict[str, str]) -> None:
+    sent = Sentence.from_knp(case["knp"])
+    for index, base_phrase in enumerate(sent.base_phrases):
+        assert base_phrase.index == index
+        assert base_phrase.global_index == index
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_index_document(case: Dict[str, str]) -> None:
+    doc = Document.from_knp(case["knp"])
+    for index, base_phrase in enumerate(doc.base_phrases):
+        assert base_phrase.global_index == index
+
+
 @pytest.mark.parametrize("case", KNP_SNIPPETS)
 def test_from_knp(case: Dict[str, str]) -> None:
     _ = BasePhrase.from_knp(case["knp"])
@@ -337,18 +352,6 @@ def test_morpheme_num(case: Dict[str, str]) -> None:
 def test_head_text(case: Dict[str, str]) -> None:
     base_phrase = BasePhrase.from_knp(case["knp"])
     assert base_phrase.head.text == case["head_text"]
-
-
-def test_no_pas():
-    base_phrase = BasePhrase.from_knp(
-        textwrap.dedent(
-            """\
-            + -1D <文頭><文末><句点><受けNONE><用言:判><体言止><レベル:C><区切:5-5><ID:（文末）><係:文末><提題受:30><主節><格要素><連用要素><状態述語><判定詞句><用言代表表記:。/。><節-区切><節-主辞><時制:非過去>
-            。 。 。 特殊 1 句点 1 * 0 * 0 NIL <英記号><記号><文頭><文末><付属><タグ単位始><文節始><用言表記先頭><用言表記末尾><用言意味表記末尾>
-            """
-        )
-    )
-    assert base_phrase.pas is None
 
 
 def test_empty_sid():

@@ -77,19 +77,21 @@ RESULT_TEMPLATE = textwrap.dedent(
 )
 
 
-def create_app(analyzer: AnalyzerType) -> "fastapi.FastAPI":
+def create_app(analyzer: AnalyzerType, *args, **kwargs) -> "fastapi.FastAPI":
     """解析器を起動し，HTTP サーバとして提供．
 
     Args:
         analyzer: 解析器の種類．
+        args: 解析器のオプション．
+        kwargs: 解析器のオプション．
     """
     processor: Union[Jumanpp, KNP, KWJA]
     if analyzer == AnalyzerType.JUMANPP:
-        processor = Jumanpp()
+        processor = Jumanpp(*args, **kwargs)
     elif analyzer == AnalyzerType.KNP:
-        processor = KNP()
+        processor = KNP(*args, **kwargs)
     elif analyzer == AnalyzerType.KWJA:
-        processor = KWJA()
+        processor = KWJA(*args, **kwargs)
     else:
         raise AssertionError  # unreachable
 
@@ -115,16 +117,10 @@ def create_app(analyzer: AnalyzerType) -> "fastapi.FastAPI":
         else:
             raise AssertionError  # unreachable
         if text == "":
-            return BASE_TEMPLATE.format(title=title, result="")
+            result = ""
         else:
-            result = get_result(text)
-            return BASE_TEMPLATE.format(
-                title=title,
-                result=RESULT_TEMPLATE.format(
-                    text=html.escape(text),
-                    result=html.escape(result),
-                ),
-            )
+            result = RESULT_TEMPLATE.format(text=html.escape(text), result=html.escape(get_result(text)))
+        return BASE_TEMPLATE.format(title=title, result=result)
 
     @app.get("/analyze", response_class=fastapi.responses.JSONResponse)
     async def analyze(text: str = ""):

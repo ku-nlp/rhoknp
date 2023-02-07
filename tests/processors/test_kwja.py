@@ -1,13 +1,10 @@
 from typing import Generator
 
 import pytest
+from fastapi.testclient import TestClient
 
 from rhoknp import KWJA, Document, Sentence
-
-# from fastapi.testclient import TestClient
-
-
-# from rhoknp.cli.serve import AnalyzerType, create_app
+from rhoknp.cli.serve import AnalyzerType, create_app
 
 
 @pytest.fixture()
@@ -71,10 +68,21 @@ def test_repr() -> None:
     assert repr(kwja) == "KWJA(executable='kwja', options=['--model-size', 'tiny'])"
 
 
-# def test_cli_serve_index_kwja():
-#     app = create_app(AnalyzerType.KWJA)
-#     client = TestClient(app)
-#     response = client.get("/", params={"text": "こんにちは"})
-#     assert response.status_code == 200
-#     response = client.get("/", params={"text": ""})
-#     assert response.status_code == 200
+@pytest.mark.parametrize("text", ["こんにちは", ""])
+def test_cli_serve_analyze_kwja(text: str) -> None:
+    app = create_app(AnalyzerType.KWJA, options=["--model-size", "tiny", "--tasks", "char,word"])
+    client = TestClient(app)
+    response = client.get("/analyze", params={"text": text})
+    assert response.status_code == 200
+    json = response.json()
+    assert "text" in json
+    assert "result" in json
+    document = Document.from_knp(json["result"])
+    assert document.text == text
+
+
+def test_cli_serve_index_kwja():
+    app = create_app(AnalyzerType.KWJA, options=["--model-size", "tiny", "--tasks", "char,word"])
+    client = TestClient(app)
+    response = client.get("/", params={"text": "こんにちは"})
+    assert response.status_code == 200

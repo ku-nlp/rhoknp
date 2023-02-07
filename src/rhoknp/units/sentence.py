@@ -2,6 +2,7 @@ import logging
 import re
 from typing import TYPE_CHECKING, Any, List, Optional, Tuple, Union
 
+from rhoknp.cohesion import EntityManager, Pas
 from rhoknp.props.named_entity import NamedEntity
 from rhoknp.units.base_phrase import BasePhrase
 from rhoknp.units.clause import Clause
@@ -37,6 +38,7 @@ class Sentence(Unit):
         Phrase.count = 0
         BasePhrase.count = 0
         Morpheme.count = 0
+        EntityManager.reset()
 
         # parent unit
         self._document: Optional["Document"] = None
@@ -46,8 +48,8 @@ class Sentence(Unit):
         self._phrases: Optional[List[Phrase]] = None
         self._morphemes: Optional[List[Morpheme]] = None
 
-        self._sent_id: Optional[str] = None
-        self._doc_id: Optional[str] = None
+        self.sent_id: str = ""
+        self.doc_id: str = ""
         self.misc_comment: str = ""
 
         self.named_entities: List[NamedEntity] = []
@@ -62,18 +64,18 @@ class Sentence(Unit):
         self.named_entities = []
         if self.need_knp is False:
             for base_phrase in self.base_phrases:
-                fstring = base_phrase.features.get("NE")
-                if fstring:
-                    assert isinstance(fstring, str)
-                    candidate_morphemes = self.morphemes[: base_phrase.morphemes[-1].index + 1]
-                    named_entity = NamedEntity.from_fstring(fstring, candidate_morphemes)
-                    if named_entity is not None:
-                        self.named_entities.append(named_entity)
+                if "NE" not in base_phrase.features:
+                    continue
+                fstring = f'<NE:{base_phrase.features["NE"]}>'
+                candidate_morphemes = self.morphemes[: base_phrase.morphemes[-1].index + 1]
+                named_entity = NamedEntity.from_fstring(fstring, candidate_morphemes)
+                if named_entity is not None:
+                    self.named_entities.append(named_entity)
 
     def __eq__(self, other: Any) -> bool:
         if isinstance(other, type(self)) is False:
             return False
-        return self._sent_id == other._sent_id and self.text == other.text
+        return self.sent_id == other.sent_id and self.text == other.text
 
     @property
     def global_index(self) -> int:
@@ -102,32 +104,8 @@ class Sentence(Unit):
         return None
 
     @property
-    def doc_id(self) -> str:
-        """文書 ID．
-
-        Raises:
-            AttributeError: 文書 IDにアクセスできない場合．
-        """
-        if self._doc_id is None:
-            raise AttributeError("document id has not been set")
-        return self._doc_id
-
-    @doc_id.setter
-    def doc_id(self, doc_id: str) -> None:
-        """文書 ID．
-
-        Args:
-            doc_id: 文書 ID．
-        """
-        self._doc_id = doc_id
-
-    @property
     def did(self) -> str:
-        """文書 ID（doc_id のエイリアス）．
-
-        Raises:
-            AttributeError: 文書 IDにアクセスできない場合．
-        """
+        """文書 ID（doc_id のエイリアス）．"""
         return self.doc_id
 
     @did.setter
@@ -140,32 +118,8 @@ class Sentence(Unit):
         self.doc_id = did
 
     @property
-    def sent_id(self) -> str:
-        """文 ID．
-
-        Raises:
-            AttributeError: 文 IDにアクセスできない場合．
-        """
-        if self._sent_id is None:
-            raise AttributeError("sentence id has not been set")
-        return self._sent_id
-
-    @sent_id.setter
-    def sent_id(self, sid: str) -> None:
-        """文 ID．
-
-        Args:
-            sid: 文 ID．
-        """
-        self._sent_id = sid
-
-    @property
     def sid(self) -> str:
-        """文 ID（sent_id のエイリアス）．
-
-        Raises:
-            AttributeError: 文 IDにアクセスできない場合．
-        """
+        """文 ID（sent_id のエイリアス）．"""
         return self.sent_id
 
     @sid.setter
@@ -282,8 +236,8 @@ class Sentence(Unit):
     def comment(self) -> str:
         """コメント行．"""
         ret = ""
-        if self._sent_id:
-            ret += f"S-ID:{self._sent_id} "
+        if self.sent_id:
+            ret += f"S-ID:{self.sent_id} "
         if self.misc_comment:
             ret += f"{self.misc_comment} "
         if ret != "":
@@ -297,12 +251,21 @@ class Sentence(Unit):
         Args:
             comment: コメント行．
         """
-        doc_id, sid, rest = self._extract_sid(comment)
-        if sid is not None:
-            self.sid = sid
+        doc_id, sent_id, rest = self._extract_sid(comment)
+        if sent_id is not None:
+            self.sent_id = sent_id
         if doc_id is not None:
             self.doc_id = doc_id
         self.misc_comment = rest
+
+    @property
+    def pas_list(self) -> List[Pas]:
+        """述語項構造のリスト．
+
+        Raises:
+            AttributeError: 解析結果にアクセスできない場合．
+        """
+        return [base_phrase.pas for base_phrase in self.base_phrases if base_phrase.pas.is_empty is False]
 
     @property
     def has_document(self) -> bool:
@@ -502,14 +465,15 @@ class Sentence(Unit):
                 or Sentence.SID_PAT_WAC.match(sid_string)
                 or Sentence.SID_PAT.match(sid_string)
             )
-            if match is None:
-                raise ValueError(f"unsupported S-ID format: {sid_string}")
-            return (
-                match["did"],
-                match["sid"],
-                match_sid[2].lstrip() if match_sid[2] else "",
-            )
-        return None, None, comment.lstrip("#").lstrip(" ")
+            if match is not None:
+                return (
+                    match["did"],
+                    match["sid"],
+                    match_sid[2].lstrip() if match_sid[2] else "",
+                )
+            else:
+                logger.warning(f"unsupported S-ID format: {sid_string}")
+        return None, None, comment.lstrip("#").lstrip()
 
     def to_raw_text(self) -> str:
         """生テキストフォーマットに変換．"""

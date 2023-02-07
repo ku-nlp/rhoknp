@@ -603,6 +603,11 @@ def test_reparse(case: Dict[str, str], key: str) -> None:
     assert sent == sent.reparse()
 
 
+def test_pas_list() -> None:
+    sent = Sentence.from_knp(CASES[0]["knp"])
+    assert len(sent.pas_list) == 1
+
+
 @pytest.mark.parametrize("case", CASES)
 def test_sid(case: Dict[str, str]) -> None:
     sent = Sentence.from_knp(case["knp"])
@@ -613,40 +618,39 @@ def test_sid(case: Dict[str, str]) -> None:
 def test_update_id() -> None:
     sent = Sentence.from_raw_text("天気がいいので散歩した。")
     sent.doc_id = "test_doc_id"
-    assert sent.doc_id == "test_doc_id"
+    assert sent.doc_id == sent.did == "test_doc_id"
     sent.did = "test_did"
-    assert sent.did == "test_did"
+    assert sent.doc_id == sent.did == "test_did"
     sent.sent_id = "test_sent_id"
-    assert sent.sent_id == "test_sent_id"
+    assert sent.sent_id == sent.sid == "test_sent_id"
     sent.sid = "test_sid"
-    assert sent.sid == "test_sid"
+    assert sent.sent_id == sent.sid == "test_sid"
 
 
-def test_unset_id() -> None:
+def test_comment_unset_sid() -> None:
     sent = Sentence.from_raw_text("天気がいいので散歩した。")
-    with pytest.raises(AttributeError):
-        _ = sent.doc_id
-    with pytest.raises(AttributeError):
-        _ = sent.did
-    with pytest.raises(AttributeError):
-        _ = sent.sent_id
-    with pytest.raises(AttributeError):
-        _ = sent.sid
+    assert sent.doc_id == sent.did == ""
+    assert sent.sent_id == sent.sid == ""
+    assert sent.misc_comment == ""
+    assert sent.comment == ""
 
 
-def test_invalid_id() -> None:
-    with pytest.raises(ValueError):
-        _ = Sentence.from_raw_text(
-            textwrap.dedent(
-                """\
-                # S-ID:!.,@#$%^&*=あ
-                天気がいいので散歩した。
-                """
-            )
+def test_comment_invalid_sid() -> None:
+    sent = Sentence.from_raw_text(
+        textwrap.dedent(
+            """\
+            # S-ID:!.,@#$%^&*=あ
+            天気がいいので散歩した。
+            """
         )
+    )
+    assert sent.sent_id == sent.sid == ""
+    assert sent.doc_id == sent.did == ""
+    assert sent.misc_comment == "S-ID:!.,@#$%^&*=あ"
+    assert sent.comment == "# S-ID:!.,@#$%^&*=あ"
 
 
-def test_comment_without_id() -> None:
+def test_comment_without_sid() -> None:
     sent = Sentence.from_raw_text(
         textwrap.dedent(
             """\
@@ -655,38 +659,95 @@ def test_comment_without_id() -> None:
             """
         )
     )
+    assert sent.sent_id == sent.sid == ""
+    assert sent.doc_id == sent.did == ""
+    assert sent.misc_comment == "NO SID WRITTEN"
     assert sent.comment == "# NO SID WRITTEN"
-    with pytest.raises(AttributeError):
-        _ = sent.sid
 
 
-def test_id_kwdlc():
-    sent = Sentence.from_knp(
+def test_comment_kwdlc() -> None:
+    sent = Sentence.from_raw_text(
         textwrap.dedent(
             """\
             # S-ID:w201106-0000060050-1 JUMAN:6.1-20101108 KNP:3.1-20101107 DATE:2011/06/21 SCORE:-44.94406 MOD:2017/10/15 MEMO:
-            * 2D
-            + 1D
-            コイン こいん コイン 名詞 6 普通名詞 1 * 0 * 0
-            + 3D <rel type="ガ" target="不特定:人"/><rel type="ヲ" target="コイン" sid="w201106-0000060050-1" id="0"/>
-            トス とす トス 名詞 6 サ変名詞 2 * 0 * 0
-            を を を 助詞 9 格助詞 1 * 0 * 0
-            * 2D
-            + 3D
-            ３ さん ３ 名詞 6 数詞 7 * 0 * 0
-            回 かい 回 接尾辞 14 名詞性名詞助数辞 3 * 0 * 0
             * -1D
-            + -1D <rel type="ガ" target="不特定:人"/><rel type="ガ" mode="？" target="読者"/><rel type="ガ" mode="？" target="著者"/><rel type="ヲ" target="トス" sid="w201106-0000060050-1" id="1"/>
+            + -1D
             行う おこなう 行う 動詞 2 * 0 子音動詞ワ行 12 基本形 2
             。 。 。 特殊 1 句点 1 * 0 * 0
             EOS
             """
         )
     )
-    assert sent.sent_id == "w201106-0000060050-1"
-    assert sent.sid == "w201106-0000060050-1"
-    assert sent.doc_id == "w201106-0000060050"
-    assert sent.did == "w201106-0000060050"
+    assert sent.sent_id == sent.sid == "w201106-0000060050-1"
+    assert sent.doc_id == sent.did == "w201106-0000060050"
+    assert (
+        sent.misc_comment == "JUMAN:6.1-20101108 KNP:3.1-20101107 DATE:2011/06/21 SCORE:-44.94406 MOD:2017/10/15 MEMO:"
+    )
+    assert (
+        sent.comment
+        == "# S-ID:w201106-0000060050-1 JUMAN:6.1-20101108 KNP:3.1-20101107 DATE:2011/06/21 SCORE:-44.94406 MOD:2017/10/15 MEMO:"
+    )
+
+
+def test_comment_kc() -> None:
+    sent = Sentence.from_raw_text(
+        textwrap.dedent(
+            """\
+            # S-ID:950101004-003 KNP:96/10/27 MOD:2004/02/04 MEMO:?
+            * -1D
+            + -1D <rel type="ト" target="入った" sid="950101004-003" id="5"/><rel type="ニ" target="不特定:人"/>
+            み み みる 動詞 2 * 0 母音動詞 1 未然形 3
+            られる られる られる 接尾辞 14 動詞性接尾辞 7 母音動詞 1 基本形 2
+            。 。 。 特殊 1 句点 1 * 0 * 0
+            EOS
+            """
+        )
+    )
+    assert sent.sent_id == sent.sid == "950101004-003"
+    assert sent.doc_id == sent.did == "950101004"
+    assert sent.misc_comment == "KNP:96/10/27 MOD:2004/02/04 MEMO:?"
+    assert sent.comment == "# S-ID:950101004-003 KNP:96/10/27 MOD:2004/02/04 MEMO:?"
+
+
+def test_comment_wac() -> None:
+    sent = Sentence.from_raw_text(
+        textwrap.dedent(
+            """\
+            # S-ID:wiki00100205-01 KNP:5.0-6a1f607d DATE:2022/04/11 SCORE:28.00000 MOD:2022/05/27 MEMO:
+            * -1D
+            + -1D <rel type="ガ" target="場合" sid="wiki00100205-01" id="7"/>
+            ある ある ある 動詞 2 * 0 子音動詞ラ行 10 基本形 2 NIL
+            。 。 。 特殊 1 句点 1 * 0 * 0 NIL
+            EOS
+            """
+        )
+    )
+    assert sent.sent_id == sent.sid == "wiki00100205-01"
+    assert sent.doc_id == sent.did == "wiki00100205"
+    assert sent.misc_comment == "KNP:5.0-6a1f607d DATE:2022/04/11 SCORE:28.00000 MOD:2022/05/27 MEMO:"
+    assert sent.comment == "# S-ID:wiki00100205-01 KNP:5.0-6a1f607d DATE:2022/04/11 SCORE:28.00000 MOD:2022/05/27 MEMO:"
+
+
+def test_comment_wac_paren() -> None:
+    sent = Sentence.from_raw_text(
+        textwrap.dedent(
+            """\
+            # S-ID:wiki00100205-00-02 括弧始:（ 括弧終:） 括弧位置:2 KNP:5.0-6a1f607d DATE:2022/04/11 SCORE:0.00000 MOD:202
+            2/04/14 MEMO:
+            * -1D
+            + -1D <rel type="=" target="垂直" sid="wiki00100205-00-01" id="0"/>
+            すいちょく すいちょく すいちょくだ 形容詞 3 * 0 ナ形容詞 21 語幹 1 NIL
+            EOS
+            """
+        )
+    )
+    assert sent.sent_id == sent.sid == "wiki00100205-00-02"
+    assert sent.doc_id == sent.did == "wiki00100205"
+    assert sent.misc_comment == "括弧始:（ 括弧終:） 括弧位置:2 KNP:5.0-6a1f607d DATE:2022/04/11 SCORE:0.00000 MOD:202"
+    assert (
+        sent.comment
+        == "# S-ID:wiki00100205-00-02 括弧始:（ 括弧終:） 括弧位置:2 KNP:5.0-6a1f607d DATE:2022/04/11 SCORE:0.00000 MOD:202"
+    )
 
 
 def test_eq() -> None:

@@ -1,15 +1,17 @@
+import itertools
 import logging
 import re
+from typing import TYPE_CHECKING, Any, List, Optional, Set
 
 try:
     from functools import cached_property  # type: ignore
 except ImportError:
     from cached_property import cached_property
-from typing import TYPE_CHECKING, Any, List, Optional, Set
 
-from rhoknp.cohesion.coreference import Entity
+from rhoknp.cohesion.argument import Argument, EndophoraArgument, ExophoraArgument
+from rhoknp.cohesion.coreference import Entity, EntityManager
 from rhoknp.cohesion.exophora import ExophoraReferent
-from rhoknp.cohesion.pas import CaseInfoFormat, Pas
+from rhoknp.cohesion.pas import CaseInfoFormat, Pas, normalize_case
 from rhoknp.cohesion.predicate import Predicate
 from rhoknp.cohesion.rel import CASE_TYPES, COREF_TYPES, RelMode, RelTag, RelTagList
 from rhoknp.props.dependency import DepType
@@ -56,7 +58,7 @@ class BasePhrase(Unit):
         self.features: FeatureDict = features or FeatureDict()  #: 素性．
         self.rel_tags: RelTagList = rel_tags or RelTagList()  #: 基本句間関係．
         self.memo_tag: MemoTag = memo_tag or MemoTag()  #: タグ付けメモ．
-        self.pas: Optional["Pas"] = None  #: 述語項構造．
+        self.pas: Pas = Pas(Predicate(self))  #: 述語項構造．
         self.entities: Set[Entity] = set()  #: 参照しているエンティティ．
         self.entities_nonidentical: Set[Entity] = set()  #: ≒で参照しているエンティティ．
 
@@ -70,21 +72,16 @@ class BasePhrase(Unit):
         if "述語項構造" in self.features:
             pas_string = self.features["述語項構造"]
             assert isinstance(pas_string, str)
-            pas = Pas.from_pas_string(self, pas_string, format_=CaseInfoFormat.PAS)
+            self.pas.parse_pas_string(self, pas_string, format_=CaseInfoFormat.PAS)
         elif "格解析結果" in self.features:
             pas_string = self.features["格解析結果"]
             assert isinstance(pas_string, str)
-            pas = Pas.from_pas_string(self, pas_string, format_=CaseInfoFormat.CASE)
-        else:
-            pas = Pas(Predicate(self))
-        self.pas = pas
+            self.pas.parse_pas_string(self, pas_string, format_=CaseInfoFormat.CASE)
 
-        # Parse the rel tag if this unit is a piece of a document.
-        if self.sentence.has_document is False:
-            logger.info("post-processing of rel tags was skipped because there is no document.")
-            return
+        # Parse the rel tags.
         for rel_tag in self.rel_tags:
             if rel_tag.sid == "":
+                # RelTag is immutable, so we need to create a new instance.
                 rel_tag = RelTag(
                     type=rel_tag.type,
                     target=rel_tag.target,
@@ -93,7 +90,7 @@ class BasePhrase(Unit):
                     mode=rel_tag.mode,
                 )
             if rel_tag.type in CASE_TYPES:
-                self._add_pas(rel_tag)
+                self._add_argument(rel_tag)
             elif rel_tag.type in COREF_TYPES and rel_tag.mode in (None, RelMode.AND):  # ignore "OR" and "?"
                 self._add_coreference(rel_tag)
             else:
@@ -109,6 +106,8 @@ class BasePhrase(Unit):
     @cached_property
     def global_index(self) -> int:
         """文書全体におけるインデックス．"""
+        if self.sentence.has_document is False:
+            return self.index
         if self.index > 0:
             return self.sentence.base_phrases[self.index - 1].global_index + 1
         if self.sentence.index == 0:
@@ -284,58 +283,33 @@ class BasePhrase(Unit):
             mentions.remove(self)
         return mentions
 
-    def is_nonidentical_to(self, entity: Entity) -> bool:
-        """エンティティに対して自身が nonidentical な場合に True を返す．
-
-        Args:
-            entity: エンティティ．
-        """
-        if entity in self.entities:
-            return False
-        else:
-            assert entity in self.entities_nonidentical, f"non-referring entity: {entity}"
-            return True
-
-    def add_entity(self, entity: Entity, nonidentical: bool = False) -> None:
-        """エンティティを追加．
-
-        Args:
-            entity: 追加するエンティティ．
-            nonidentical: nonidentical なメンションなら True．
-        """
-        if nonidentical:
-            self.entities_nonidentical.add(entity)
-        else:
-            self.entities.add(entity)
-        entity.add_mention(self, nonidentical=nonidentical)
-
-    def _add_pas(self, rel_tag: RelTag) -> None:
-        """述語項構造を追加．"""
-        entity_manager = self.document.entity_manager
-        assert self.pas is not None
+    def _add_argument(self, rel_tag: RelTag) -> None:
+        """自身を述語とする述語項構造に項を追加．"""
+        case = normalize_case(rel_tag.type)
+        argument: Argument
         if rel_tag.sid is not None:
             arg_base_phrase = self._get_target_base_phrase(rel_tag)
             if arg_base_phrase is None:
                 return
             if not arg_base_phrase.entities:
-                arg_base_phrase.add_entity(entity_manager.get_or_create_entity())
-            self.pas.add_argument(rel_tag.type, arg_base_phrase, mode=rel_tag.mode)
+                EntityManager.get_or_create_entity().add_mention(arg_base_phrase)
+            argument = EndophoraArgument(case, arg_base_phrase, self.pas.predicate)
         else:
             if rel_tag.target == "なし":
-                self.pas.set_arguments_optional(rel_tag.type)
+                self.pas.set_arguments_optional(case)
                 return
-            # exophora
-            entity = entity_manager.get_or_create_entity(ExophoraReferent(rel_tag.target))
-            self.pas.add_special_argument(rel_tag.type, rel_tag.target, eid=entity.eid, mode=rel_tag.mode)
+            exophora_referent = ExophoraReferent(rel_tag.target)
+            entity = EntityManager.get_or_create_entity(exophora_referent)
+            argument = ExophoraArgument(case, exophora_referent, entity.eid)
+        self.pas.add_argument(argument, mode=rel_tag.mode)
 
     def _add_coreference(self, rel_tag: RelTag) -> None:
         """共参照関係を追加．"""
-        entity_manager = self.document.entity_manager
         # create source entity
         if not self.entities:
-            self.add_entity(entity_manager.get_or_create_entity())
+            EntityManager.get_or_create_entity().add_mention(self)
 
-        nonidentical: bool = rel_tag.type.endswith("≒")
+        is_nonidentical: bool = rel_tag.type.endswith("≒")
         if rel_tag.sid is not None:
             target_base_phrase = self._get_target_base_phrase(rel_tag)
             if target_base_phrase is None:
@@ -345,19 +319,25 @@ class BasePhrase(Unit):
                 return
             # create target entity
             if not target_base_phrase.entities:
-                target_base_phrase.add_entity(entity_manager.get_or_create_entity())
-            for source_entity in self.entities_all:
-                for target_entity in target_base_phrase.entities_all:
-                    entity_manager.merge_entities(self, target_base_phrase, source_entity, target_entity, nonidentical)
+                EntityManager.get_or_create_entity().add_mention(target_base_phrase)
+            for source_entity, target_entity in itertools.product(self.entities_all, target_base_phrase.entities_all):
+                # Because entities are dynamically deleted within this loop, we need to check if they exist.
+                if source_entity in self.entities_all and target_entity in target_base_phrase.entities_all:
+                    EntityManager.merge_entities(
+                        self, target_base_phrase, source_entity, target_entity, is_nonidentical
+                    )
         else:
             # exophora
+            target_entity = EntityManager.get_or_create_entity(exophora_referent=ExophoraReferent(rel_tag.target))
             for source_entity in self.entities_all:
-                target_entity = entity_manager.get_or_create_entity(exophora_referent=ExophoraReferent(rel_tag.target))
-                entity_manager.merge_entities(self, None, source_entity, target_entity, nonidentical)
+                # Because entities are dynamically deleted within this loop, we need to check if they exist.
+                if source_entity in self.entities_all and target_entity in EntityManager.entities.values():
+                    EntityManager.merge_entities(self, None, source_entity, target_entity, is_nonidentical)
 
     def _get_target_base_phrase(self, rel_tag: RelTag) -> Optional["BasePhrase"]:
-        """rel が指す基本句を取得．"""
-        sentences = [sent for sent in self.document.sentences if sent.sid == rel_tag.sid]
+        """rel_tag が指す基本句を返す．見つからなければ None を返す．"""
+        sentences = self.document.sentences if self.sentence.has_document else [self.sentence]
+        sentences = [sent for sent in sentences if sent.sid == rel_tag.sid]
         if not sentences:
             logger.warning(f"{self.sentence.sid}: relation with unknown sid found: {rel_tag.sid}")
             return None

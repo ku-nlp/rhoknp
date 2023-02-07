@@ -3,6 +3,7 @@ from enum import Enum
 from typing import TYPE_CHECKING, Any, Optional, Union
 
 from rhoknp.cohesion.exophora import ExophoraReferent
+from rhoknp.cohesion.predicate import Predicate
 
 if TYPE_CHECKING:
     from rhoknp.cohesion.pas import Pas
@@ -11,6 +12,10 @@ if TYPE_CHECKING:
     from rhoknp.units.document import Document
     from rhoknp.units.phrase import Phrase
     from rhoknp.units.sentence import Sentence
+
+_HIRAGANA = "ぁあぃいぅうぇえぉおかがきぎくぐけげこごさざしじすずせぜそぞただちぢっつづてでとどなにぬねのはばぱひびぴふぶぷへべぺほぼぽまみむめもゃやゅゆょよらりるれろわをんーゎゐゑゕゖゔゝゞ"
+_KATAKANA = "ァアィイゥウェエォオカガキギクグケゲコゴサザシジスズセゼソゾタダチヂッツヅテデトドナニヌネノハバパヒビピフブプヘベペホボポマミムメモャヤュユョヨラリルレロワヲンーヮヰヱヵヶヴヽヾ"
+HIRA2KATA = str.maketrans(_HIRAGANA, _KATAKANA)
 
 
 class ArgumentType(Enum):
@@ -76,8 +81,14 @@ class EndophoraArgument(BaseArgument):
         arg_type: 項のタイプ．
     """
 
-    def __init__(self, case: str, base_phrase: "BasePhrase", arg_type: ArgumentType) -> None:
-        super().__init__(case, arg_type)
+    def __init__(
+        self,
+        case: str,
+        base_phrase: "BasePhrase",
+        predicate: Predicate,
+        arg_type: Optional[ArgumentType] = None,
+    ) -> None:
+        super().__init__(case, arg_type or self._get_arg_type(predicate, base_phrase, case))
         self.base_phrase = base_phrase  #: 項の核となる基本句．
 
     def __repr__(self) -> str:
@@ -121,6 +132,21 @@ class EndophoraArgument(BaseArgument):
     def phrase(self) -> "Phrase":
         """項の核となる基本句が属する文節．"""
         return self.base_phrase.phrase
+
+    @staticmethod
+    def _get_arg_type(predicate: Predicate, arg_base_phrase: "BasePhrase", case: str) -> ArgumentType:
+        if predicate.base_phrase.parent_index is None:
+            return ArgumentType.UNASSIGNED
+        if arg_base_phrase in predicate.base_phrase.children:
+            tail_morpheme = arg_base_phrase.morphemes[-1]
+            if tail_morpheme.subpos == "格助詞" and tail_morpheme.text.translate(HIRA2KATA) == case:
+                return ArgumentType.CASE_EXPLICIT
+            else:
+                return ArgumentType.CASE_HIDDEN
+        elif predicate.base_phrase.parent and predicate.base_phrase.parent == arg_base_phrase:
+            return ArgumentType.CASE_HIDDEN
+        else:
+            return ArgumentType.OMISSION
 
 
 class ExophoraArgument(BaseArgument):

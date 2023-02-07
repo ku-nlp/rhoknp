@@ -56,17 +56,18 @@ def test_ne(case: Dict[str, Any]) -> None:
     for actual_ne, expected_ne in zip(actual_nes, expected_nes):
         assert actual_ne.category == expected_ne["category"]
         assert actual_ne.text == expected_ne["text"]
+        assert str(actual_ne) == expected_ne["text"]
         assert actual_ne.to_fstring() == expected_ne["fstring"]
 
 
 def test_from_fstring_malformed_line() -> None:
-    fstring = "MALFORMED LINE"
+    fstring = "<MALFORMED LINE>"
     ne = NamedEntity.from_fstring(fstring, [])
     assert ne is None
 
 
 def test_unknown_category() -> None:
-    fstring = "UNKNOWN:アンノウン"
+    fstring = "<NE:UNKNOWN:アンノウン>"
     sentence = Sentence.from_knp(
         textwrap.dedent(
             """\
@@ -86,7 +87,7 @@ def test_unknown_category() -> None:
 
 
 def test_span_not_found() -> None:
-    fstring = "ORGANIZATION:京都大学"
+    fstring = "<NE:ORGANIZATION:京都大学>"
     sentence = Sentence.from_knp(
         textwrap.dedent(
             """\
