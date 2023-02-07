@@ -41,7 +41,7 @@ def test_apply(kwja: KWJA) -> None:
         "\\エス'ケープ",  # backslash
         "キャリッジ\rリターン",  # carriage return
         "ライン\nフィード",  # line feed
-        # "CR\r\nLF",  # CR+LF  # TODO
+        "CR\r\nLF",  # CR+LF
     ],
 )
 def test_apply_to_sentence(kwja: KWJA, text: str) -> None:
