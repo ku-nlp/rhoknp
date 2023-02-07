@@ -105,9 +105,6 @@ class RegexSenter(Processor):
                     quotation_level = 0
                 else:
                     prefix += candidate
-
-        if prefix != "":
-            merged_candidates.append(prefix)
         return merged_candidates
 
     @staticmethod
