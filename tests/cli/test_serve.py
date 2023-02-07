@@ -41,6 +41,9 @@ def test_analyze_knp(text: str) -> None:
     assert document.text == text
 
 
+# test_analyze_kwja is in `tests/processors/test_kwja.py` to isolate tests that require KWJA installed.
+
+
 def test_index_jumanpp() -> None:
     app = create_app(AnalyzerType.JUMANPP)
     client = TestClient(app)
@@ -57,9 +60,4 @@ def test_index_knp() -> None:
         assert response.status_code == 200
 
 
-# def test_index_kwja() -> None:
-#     app = create_app(AnalyzerType.KWJA)
-#     client = TestClient(app)
-#     for text in ["こんにちは", ""]:
-#         response = client.get("/", params={"text": text})
-#         assert response.status_code == 200
+# test_index_kwja is in `tests/processors/test_kwja.py` to isolate tests that require KWJA installed.

@@ -1,0 +1,54 @@
+name: TestExample
+
+on:
+  schedule:
+    - cron: '0 3 */16 * *'  # Runs at 3:00 UTC on the 1 and 17th of every month.
+  workflow_dispatch:
+
+jobs:
+  test-example:
+    name: Run tests for examples
+    container: kunlp/jumanpp-knp:ubuntu
+    runs-on: ubuntu-20.04  # to meet the ubuntu version in the kunlp/jumanpp-knp:ubuntu container
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [ "3.8", "3.9", "3.10" ]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Install required apt packages
+        run: |
+          apt update -y
+          apt install -y curl build-essential libsqlite3-dev libffi-dev
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}-dev
+      - name: Install Poetry
+        run: |
+          python3 -m pip install --user pipx
+          python3 -m pipx ensurepath
+          python3 -m pipx install poetry
+      - name: Add path for Python packages
+        run: echo "$HOME/.local/bin" >> $GITHUB_PATH
+      - name: Install dependencies
+        run: poetry install --no-interaction --without dev,docs --extras=cli
+      - name: Install KWJA
+        run: pipx install kwja
+      - name: Run tests for all files under examples/apply_*.py
+        run: |
+          for example in examples/apply_*.py; do
+              if [[ -f "${example}" ]]; then
+                  echo "Running tests for ${example}"
+                  poetry run python "${example}" "こんにちは"
+              fi
+          done
+      - name: Run tests for examples/use_*.py
+        run: |
+          for example in examples/use_*.py; do
+              if [[ -f "${example}" ]]; then
+                  echo "Running tests for ${example}"
+                  poetry run python "${example}" "こんにちは"
+              fi
+          done
