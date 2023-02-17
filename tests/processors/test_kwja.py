@@ -1,4 +1,3 @@
-import gc
 from typing import Generator
 
 import pytest
@@ -50,8 +49,7 @@ def test_apply_to_sentence(kwja: KWJA, text: str) -> None:
     assert sent.text == text.replace('"', "”").replace(" ", "␣").replace("\r", "").replace("\n", "")
 
 
-def test_is_available() -> None:
-    kwja = KWJA(options=["--model-size", "tiny"])
+def test_is_available(kwja: KWJA) -> None:
     assert kwja.is_available() is True
 
     kwja = KWJA("kwjaaaaaaaaaaaaaaaaa")
@@ -64,17 +62,18 @@ def test_is_available() -> None:
         _ = kwja.apply_to_document("test")
 
 
-def test_repr() -> None:
-    gc.collect()  # Workaround for GitHub Actions
-    kwja = KWJA(options=["--model-size", "tiny"])
-    assert repr(kwja) == "KWJA(executable='kwja', options=['--model-size', 'tiny'])"
+def test_repr(kwja: KWJA) -> None:
+    assert repr(kwja) == "KWJA(executable='kwja', options=['--model-size', 'tiny', '--tasks', 'char,word'])"
+
+
+@pytest.fixture()
+def client() -> Generator[TestClient, None, None]:
+    app = create_app(AnalyzerType.KWJA, options=["--model-size", "tiny", "--tasks", "char,word"])
+    yield TestClient(app)
 
 
 @pytest.mark.parametrize("text", ["こんにちは", ""])
-def test_cli_serve_analyze_kwja(text: str) -> None:
-    gc.collect()  # Workaround for GitHub Actions
-    app = create_app(AnalyzerType.KWJA, options=["--model-size", "tiny", "--tasks", "char,word"])
-    client = TestClient(app)
+def test_cli_serve_analyze_kwja(client: TestClient, text: str) -> None:
     response = client.get("/analyze", params={"text": text})
     assert response.status_code == 200
     json = response.json()
@@ -84,10 +83,7 @@ def test_cli_serve_analyze_kwja(text: str) -> None:
     assert document.text == text
 
 
-def test_cli_serve_index_kwja():
-    gc.collect()  # Workaround for GitHub Actions
-    app = create_app(AnalyzerType.KWJA, options=["--model-size", "tiny", "--tasks", "char,word"])
-    client = TestClient(app)
+def test_cli_serve_index_kwja(client: TestClient) -> None:
     for text in ["こんにちは", ""]:
         response = client.get("/", params={"text": text})
         assert response.status_code == 200
