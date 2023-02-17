@@ -65,6 +65,7 @@ def test_is_available() -> None:
 
 
 def test_repr() -> None:
+    gc.collect()  # Workaround for GitHub Actions
     kwja = KWJA(options=["--model-size", "tiny"])
     assert repr(kwja) == "KWJA(executable='kwja', options=['--model-size', 'tiny'])"
 
