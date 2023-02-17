@@ -1,7 +1,7 @@
 """Example code for applying KWJA to the given sentence.
 
 Usage:
-    $ python examples/apply_knp.py "今日はいい天気ですね。"
+    $ python examples/apply_kwja.py "今日はいい天気ですね。"
 """
 import sys
 
