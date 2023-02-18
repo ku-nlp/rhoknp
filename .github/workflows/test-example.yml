@@ -37,6 +37,7 @@ jobs:
       - name: Install KWJA
         run: pipx install kwja
       - name: Run tests for all files under examples/apply_*.py
+        shell: bash
         run: |
           for example in examples/apply_*.py; do
               if [[ -f "${example}" ]]; then
@@ -45,6 +46,7 @@ jobs:
               fi
           done
       - name: Run tests for examples/use_*.py
+        shell: bash
         run: |
           for example in examples/use_*.py; do
               if [[ -f "${example}" ]]; then
