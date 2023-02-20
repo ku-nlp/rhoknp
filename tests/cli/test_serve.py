@@ -1,25 +1,21 @@
+from typing import Generator
+
 import pytest
-from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from rhoknp import Document
 from rhoknp.cli.serve import AnalyzerType, create_app
 
 
-@pytest.mark.parametrize(
-    "analyzer",
-    [AnalyzerType.JUMANPP, AnalyzerType.KNP, AnalyzerType.KWJA],
-)
-def test_create_app(analyzer: AnalyzerType) -> None:
-    app = create_app(analyzer)
-    assert isinstance(app, FastAPI)
+@pytest.fixture()
+def jumanpp_client() -> Generator[TestClient, None, None]:
+    app = create_app(AnalyzerType.JUMANPP)
+    yield TestClient(app)
 
 
 @pytest.mark.parametrize("text", ["こんにちは", ""])
-def test_analyze_jumanpp(text: str) -> None:
-    app = create_app(AnalyzerType.JUMANPP)
-    client = TestClient(app)
-    response = client.get("/analyze", params={"text": text})
+def test_analyze_jumanpp(jumanpp_client: TestClient, text: str) -> None:
+    response = jumanpp_client.get("/analyze", params={"text": text})
     assert response.status_code == 200
     json = response.json()
     assert "text" in json
@@ -29,10 +25,20 @@ def test_analyze_jumanpp(text: str) -> None:
 
 
 @pytest.mark.parametrize("text", ["こんにちは", ""])
-def test_analyze_knp(text: str) -> None:
+def test_index_jumanpp(jumanpp_client: TestClient, text: str) -> None:
+    response = jumanpp_client.get("/", params={"text": text})
+    assert response.status_code == 200
+
+
+@pytest.fixture()
+def knp_client() -> Generator[TestClient, None, None]:
     app = create_app(AnalyzerType.KNP)
-    client = TestClient(app)
-    response = client.get("/analyze", params={"text": text})
+    yield TestClient(app)
+
+
+@pytest.mark.parametrize("text", ["こんにちは", ""])
+def test_analyze_knp(knp_client: TestClient, text: str) -> None:
+    response = knp_client.get("/analyze", params={"text": text})
     assert response.status_code == 200
     json = response.json()
     assert "text" in json
@@ -41,23 +47,10 @@ def test_analyze_knp(text: str) -> None:
     assert document.text == text
 
 
-# test_analyze_kwja is in `tests/processors/test_kwja.py` to isolate tests that require KWJA installed.
+@pytest.mark.parametrize("text", ["こんにちは", ""])
+def test_index_knp(knp_client: TestClient, text: str) -> None:
+    response = knp_client.get("/", params={"text": text})
+    assert response.status_code == 200
 
 
-def test_index_jumanpp() -> None:
-    app = create_app(AnalyzerType.JUMANPP)
-    client = TestClient(app)
-    for text in ["こんにちは", ""]:
-        response = client.get("/", params={"text": text})
-        assert response.status_code == 200
-
-
-def test_index_knp() -> None:
-    app = create_app(AnalyzerType.KNP)
-    client = TestClient(app)
-    for text in ["こんにちは", ""]:
-        response = client.get("/", params={"text": text})
-        assert response.status_code == 200
-
-
-# test_index_kwja is in `tests/processors/test_kwja.py` to isolate tests that require KWJA installed.
+# KWJA is tested in `tests/processors/test_kwja.py` to isolate tests that require KWJA installed.

@@ -67,14 +67,14 @@ def test_repr(kwja: KWJA) -> None:
 
 
 @pytest.fixture()
-def client() -> Generator[TestClient, None, None]:
+def kwja_client() -> Generator[TestClient, None, None]:
     app = create_app(AnalyzerType.KWJA, options=["--model-size", "tiny", "--tasks", "char,word"])
     yield TestClient(app)
 
 
 @pytest.mark.parametrize("text", ["こんにちは", ""])
-def test_cli_serve_analyze_kwja(client: TestClient, text: str) -> None:
-    response = client.get("/analyze", params={"text": text})
+def test_cli_serve_analyze_kwja(kwja_client, text: str) -> None:
+    response = kwja_client.get("/analyze", params={"text": text})
     assert response.status_code == 200
     json = response.json()
     assert "text" in json
@@ -83,7 +83,7 @@ def test_cli_serve_analyze_kwja(client: TestClient, text: str) -> None:
     assert document.text == text
 
 
-def test_cli_serve_index_kwja(client: TestClient) -> None:
-    for text in ["こんにちは", ""]:
-        response = client.get("/", params={"text": text})
-        assert response.status_code == 200
+@pytest.mark.parametrize("text", ["こんにちは", ""])
+def test_cli_serve_index_kwja(kwja_client, text: str) -> None:
+    response = kwja_client.get("/", params={"text": text})
+    assert response.status_code == 200
