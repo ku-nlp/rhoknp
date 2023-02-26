@@ -84,12 +84,13 @@ class BasePhrase(Unit):
             if rel_tag.sid == "":
                 # The target is considered to be in the same sentence.
                 rel_tag = dataclasses.replace(rel_tag, sid=self.sentence.sid)
-            if rel_tag.type in CASE_TYPES:
-                self._add_argument(rel_tag)
-            elif rel_tag.type in COREF_TYPES and rel_tag.mode in (None, RelMode.AND):  # ignore "OR" and "?"
-                self._add_coreference(rel_tag)
+            if rel_tag.type in COREF_TYPES:
+                if rel_tag.mode not in (RelMode.OR, RelMode.AMBIGUOUS):
+                    self._add_coreference(rel_tag)
             else:
-                logger.warning(f"{rel_tag} is ignored.")
+                if rel_tag.type not in CASE_TYPES:
+                    logger.warning(f"{self.sentence.sid}: unknown rel type found: {rel_tag}")
+                self._add_argument(rel_tag)
 
     def __eq__(self, other: Any) -> bool:
         if isinstance(other, type(self)) is False:

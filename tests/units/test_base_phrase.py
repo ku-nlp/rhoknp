@@ -414,3 +414,32 @@ def test_rel_target_mismatch():
     arguments = document.base_phrases[1].pas.get_arguments("ガ")
     assert len(arguments) == 1
     assert str(arguments[0]) == "天気が"
+
+
+def test_unknown_rel_type():
+    document = Document.from_knp(
+        textwrap.dedent(
+            """\
+            # S-ID:000-0-0
+            * 3D
+            + 3D
+            日本 にほん 日本 名詞 6 地名 4 * 0 * 0
+            は は は 助詞 9 副助詞 2 * 0 * 0
+            * 3D
+            + 3D
+            京都 きょうと 京都 名詞 6 地名 4 * 0 * 0
+            が が が 助詞 9 格助詞 1 * 0 * 0
+            * 3D
+            + 3D
+            冬 ふゆ 冬 名詞 6 時相名詞 10 * 0 * 0
+            が が が 助詞 9 格助詞 1 * 0 * 0
+            * -1D
+            + -1D <rel type="ガ" target="冬" sid="000-0-0" id="2"/><rel type="ガ２" target="京都" sid="000-0-0" id="1"/><rel type="ガ３" target="日本" sid="000-0-0" id="0"/>
+            寒い さむい 寒い 形容詞 3 * 0 イ形容詞アウオ段 18 基本形 2
+            EOS
+            """
+        )
+    )
+    arguments = document.base_phrases[3].pas.get_arguments("ガ３")
+    assert len(arguments) == 1
+    assert str(arguments[0]) == "日本は"
