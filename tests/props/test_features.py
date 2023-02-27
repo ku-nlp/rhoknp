@@ -77,3 +77,14 @@ def test_ignore_tag_prefix():
 
     features["memo"] = 'text="メモ"'
     assert len(features) == 0
+
+
+def test_modification():
+    features = FeatureDict.from_fstring("""<用言:動><主節>""")
+    assert features.to_fstring() == """<用言:動><主節>"""
+    # Update
+    features["用言"] = "判"
+    assert features.to_fstring() == """<用言:判><主節>"""
+    # Insert
+    features["文末"] = True
+    assert features.to_fstring() == """<用言:判><主節><文末>"""
