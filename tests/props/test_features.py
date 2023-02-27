@@ -88,3 +88,6 @@ def test_modification():
     # Insert
     features["文末"] = True
     assert features.to_fstring() == """<用言:判><主節><文末>"""
+    # Delete
+    del features["主節"]
+    assert features.to_fstring() == """<用言:判><文末>"""
