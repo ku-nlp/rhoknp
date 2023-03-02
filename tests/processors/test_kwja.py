@@ -28,6 +28,20 @@ def test_apply(kwja: KWJA) -> None:
         kwja.apply(1)  # type: ignore
 
 
+def test_apply_only_typo() -> None:
+    kwja = KWJA(options=["--model-size", "tiny", "--tasks", "typo"])
+    text = "人口知能"
+    document = kwja.apply_to_document(text)
+    sentence = kwja.apply_to_sentence(text)
+    assert document.text == "人工知能"
+    assert sentence.text == "人工知能"
+
+
+def test_unsupported_option() -> None:
+    with pytest.raises(ValueError):
+        _ = KWJA(options=["--model-size", "tiny", "--tasks", "typo,char"])
+
+
 @pytest.mark.parametrize(
     "text",
     [
