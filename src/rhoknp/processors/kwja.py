@@ -31,7 +31,18 @@ class KWJA(Processor):
         options: Optional[List[str]] = None,
     ) -> None:
         self.executable = executable  #: KWJA のパス．
-        self.options = options  #: KWJA のオプション．
+        self.options: List[str] = options or []  #: KWJA のオプション．
+        self.output_format = "knp"  #: 出力形式．
+        if "--tasks" in self.options:
+            tasks: List[str] = self.options[self.options.index("--tasks") + 1].split(",")
+            if "word" in tasks:
+                self.output_format = "knp"
+            elif "char" in tasks:
+                raise ValueError(f"`--tasks {','.join(tasks)}` option is not supported yet in rhoknp.")
+            elif "typo" in tasks:
+                self.output_format = "raw"
+            else:
+                raise ValueError(f"invalid task: {tasks}")
         self._proc: Optional[Popen] = None
         try:
             self._proc = Popen(self.run_command, stdin=PIPE, stdout=PIPE, stderr=PIPE, encoding="utf-8")
@@ -41,7 +52,7 @@ class KWJA(Processor):
 
     def __repr__(self) -> str:
         arg_string = f"executable={repr(self.executable)}"
-        if self.options is not None:
+        if self.options:
             arg_string += f", options={repr(self.options)}"
         return f"{self.__class__.__name__}({arg_string})"
 
@@ -68,13 +79,17 @@ class KWJA(Processor):
             self._proc.stdin.write(document.text.rstrip("\n") + "\n")  # TODO: Keep the sentence IDs
             self._proc.stdin.write(Document.EOD + "\n")
             self._proc.stdin.flush()
-            knp_text = ""
+            out_text = ""
             while self.is_available():
                 line = self._proc.stdout.readline()
                 if line.strip() == Document.EOD:
                     break
-                knp_text += line
-            return Document.from_knp(knp_text)
+                out_text += line
+            if self.output_format == "raw":
+                return Document.from_raw_text(out_text)
+            else:
+                assert self.output_format == "knp"
+                return Document.from_knp(out_text)
 
     def apply_to_sentence(self, sentence: Union[Sentence, str]) -> Sentence:
         """文に KWJA を適用する．
@@ -96,13 +111,17 @@ class KWJA(Processor):
             self._proc.stdin.write(sentence.text.rstrip("\n") + "\n")  # TODO: Keep the sentence ID
             self._proc.stdin.write(Document.EOD + "\n")
             self._proc.stdin.flush()
-            knp_text = ""
+            out_text = ""
             while self.is_available():
                 line = self._proc.stdout.readline()
                 if line.strip() == Document.EOD:
                     break
-                knp_text += line
-            return Sentence.from_knp(knp_text)
+                out_text += line
+            if self.output_format == "raw":
+                return Sentence.from_raw_text(out_text)
+            else:
+                assert self.output_format == "knp"
+                return Sentence.from_knp(out_text)
 
     @property
     def run_command(self) -> List[str]:
