@@ -93,9 +93,14 @@ def test_is_available() -> None:
         _ = knp.apply_to_document("test")
 
 
+def test_invalid_option() -> None:
+    with pytest.raises(ValueError):
+        _ = KNP(options=["--anaphora"])
+
+
 def test_repr() -> None:
-    knp = KNP(options=["--tab"], senter=RegexSenter(), jumanpp=Jumanpp())
+    knp = KNP(options=["-tab"], senter=RegexSenter(), jumanpp=Jumanpp())
     assert (
         repr(knp)
-        == "KNP(executable='knp', options=['--tab'], senter=RegexSenter(), jumanpp=Jumanpp(executable='jumanpp'))"
+        == "KNP(executable='knp', options=['-tab'], senter=RegexSenter(), jumanpp=Jumanpp(executable='jumanpp'))"
     )

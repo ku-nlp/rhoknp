@@ -40,6 +40,8 @@ class KNP(Processor):
     ) -> None:
         self.executable = executable  #: KNP のパス．
         self.options = options or ["-tab"]  #: KNP のオプション．
+        if "-tab" not in self.options:
+            raise ValueError("`-tab` option is required when you use KNP. ")
         self.senter = senter
         self.jumanpp = jumanpp
         self._proc: Optional[Popen] = None
