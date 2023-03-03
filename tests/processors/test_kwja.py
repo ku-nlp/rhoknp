@@ -7,6 +7,15 @@ from rhoknp import KWJA, Document, Sentence
 from rhoknp.cli.serve import AnalyzerType, create_app
 
 
+def test_typo() -> None:
+    kwja = KWJA(options=["--model-size", "tiny", "--tasks", "typo"])
+    text = "人口知能"
+    document = kwja.apply_to_document(text)
+    sentence = kwja.apply_to_sentence(text)
+    assert document.text == "人工知能"
+    assert sentence.text == "人工知能"
+
+
 @pytest.fixture()
 def kwja() -> Generator[KWJA, None, None]:
     model = KWJA(options=["--model-size", "tiny", "--tasks", "char,word"])
@@ -26,15 +35,6 @@ def test_apply(kwja: KWJA) -> None:
     assert isinstance(kwja.apply(Sentence.from_raw_text(text)), Sentence)
     with pytest.raises(TypeError):
         kwja.apply(1)  # type: ignore
-
-
-def test_apply_only_typo() -> None:
-    kwja = KWJA(options=["--model-size", "tiny", "--tasks", "typo"])
-    text = "人口知能"
-    document = kwja.apply_to_document(text)
-    sentence = kwja.apply_to_sentence(text)
-    assert document.text == "人工知能"
-    assert sentence.text == "人工知能"
 
 
 def test_unsupported_option() -> None:
@@ -90,7 +90,7 @@ def kwja_client() -> Generator[TestClient, None, None]:
 
 
 @pytest.mark.parametrize("text", ["こんにちは", ""])
-def test_cli_serve_analyze_kwja(kwja_client, text: str) -> None:
+def test_cli_serve_analyze_kwja(kwja_client: TestClient, text: str) -> None:
     response = kwja_client.get("/analyze", params={"text": text})
     assert response.status_code == 200
     json = response.json()
@@ -101,6 +101,6 @@ def test_cli_serve_analyze_kwja(kwja_client, text: str) -> None:
 
 
 @pytest.mark.parametrize("text", ["こんにちは", ""])
-def test_cli_serve_index_kwja(kwja_client, text: str) -> None:
+def test_cli_serve_index_kwja(kwja_client: TestClient, text: str) -> None:
     response = kwja_client.get("/", params={"text": text})
     assert response.status_code == 200
