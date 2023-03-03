@@ -39,7 +39,7 @@ class KNP(Processor):
         jumanpp: Optional[Processor] = None,
     ) -> None:
         self.executable = executable  #: KNP のパス．
-        self.options = options  #: KNP のオプション．
+        self.options = options or ["-tab"]  #: KNP のオプション．
         self.senter = senter
         self.jumanpp = jumanpp
         self._proc: Optional[Popen] = None
@@ -51,7 +51,7 @@ class KNP(Processor):
 
     def __repr__(self) -> str:
         arg_string = f"executable={repr(self.executable)}"
-        if self.options is not None:
+        if self.options:
             arg_string += f", options={repr(self.options)}"
         if self.senter is not None:
             arg_string += f", senter={repr(self.senter)}"
@@ -156,9 +156,4 @@ class KNP(Processor):
     @property
     def run_command(self) -> List[str]:
         """解析時に実行するコマンド．"""
-        command = [self.executable]
-        if self.options:
-            command += self.options
-        else:
-            command += ["-tab"]
-        return command
+        return [self.executable] + self.options

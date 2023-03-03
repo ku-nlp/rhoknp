@@ -130,7 +130,4 @@ class KWJA(Processor):
     @property
     def run_command(self) -> List[str]:
         """解析時に実行するコマンド．"""
-        command = [self.executable]
-        if self.options:
-            command += self.options
-        return command
+        return [self.executable] + self.options
