@@ -33,15 +33,15 @@ class KWJA(Processor):
         self.executable = executable  #: KWJA のパス．
         self.options: List[str] = options or []  #: KWJA のオプション．
         self._proc: Optional[Popen] = None
-        self.output_format = "knp"  #: 出力形式．
+        self._output_format = "knp"
         if "--tasks" in self.options:
             tasks: List[str] = self.options[self.options.index("--tasks") + 1].split(",")
             if "word" in tasks:
-                self.output_format = "knp"
+                self._output_format = "knp"
             elif "char" in tasks:
                 raise ValueError(f"`--tasks {','.join(tasks)}` option is not supported yet in rhoknp.")
             elif "typo" in tasks:
-                self.output_format = "raw"
+                self._output_format = "raw"
             else:
                 raise ValueError(f"invalid task: {tasks}")
         try:
@@ -89,10 +89,10 @@ class KWJA(Processor):
                 if line.strip() == Document.EOD:
                     break
                 out_text += line
-            if self.output_format == "raw":
+            if self._output_format == "raw":
                 return Document.from_raw_text(out_text)
             else:
-                assert self.output_format == "knp"
+                assert self._output_format == "knp"
                 return Document.from_knp(out_text)
 
     def apply_to_sentence(self, sentence: Union[Sentence, str]) -> Sentence:
@@ -121,10 +121,10 @@ class KWJA(Processor):
                 if line.strip() == Document.EOD:
                     break
                 out_text += line
-            if self.output_format == "raw":
+            if self._output_format == "raw":
                 return Sentence.from_raw_text(out_text)
             else:
-                assert self.output_format == "knp"
+                assert self._output_format == "knp"
                 return Sentence.from_knp(out_text)
 
     @property
