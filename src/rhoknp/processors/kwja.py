@@ -32,6 +32,7 @@ class KWJA(Processor):
     ) -> None:
         self.executable = executable  #: KWJA のパス．
         self.options: List[str] = options or []  #: KWJA のオプション．
+        self._proc: Optional[Popen] = None
         self.output_format = "knp"  #: 出力形式．
         if "--tasks" in self.options:
             tasks: List[str] = self.options[self.options.index("--tasks") + 1].split(",")
@@ -43,7 +44,6 @@ class KWJA(Processor):
                 self.output_format = "raw"
             else:
                 raise ValueError(f"invalid task: {tasks}")
-        self._proc: Optional[Popen] = None
         try:
             self._proc = Popen(self.run_command, stdin=PIPE, stdout=PIPE, stderr=PIPE, encoding="utf-8")
         except Exception as e:
@@ -57,7 +57,7 @@ class KWJA(Processor):
         return f"{self.__class__.__name__}({arg_string})"
 
     def __del__(self) -> None:
-        if hasattr(self, "_proc") and self._proc is not None:
+        if self._proc is not None:
             self._proc.kill()
 
     def is_available(self) -> bool:
