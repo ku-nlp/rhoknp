@@ -49,3 +49,17 @@ def test_void():
 def test_empty_string():
     semantics = SemanticsDict.from_sstring("")
     assert semantics.to_sstring() == ""
+
+
+def test_modification():
+    features = SemanticsDict.from_sstring('"代表表記:天気/てんき カテゴリ:抽象物"')
+    assert features.to_sstring() == '"代表表記:天気/てんき カテゴリ:抽象物"'
+    # Update
+    features["代表表記"] = "転機/てんき"
+    assert features.to_sstring() == '"代表表記:転機/てんき カテゴリ:抽象物"'
+    # Insert
+    features["内容語"] = True
+    assert features.to_sstring() == '"代表表記:転機/てんき カテゴリ:抽象物 内容語"'
+    # Delete
+    del features["カテゴリ"]
+    assert features.to_sstring() == '"代表表記:転機/てんき 内容語"'

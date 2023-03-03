@@ -1,4 +1,3 @@
-import gc
 from typing import Generator
 
 import pytest
@@ -6,6 +5,15 @@ from fastapi.testclient import TestClient
 
 from rhoknp import KWJA, Document, Sentence
 from rhoknp.cli.serve import AnalyzerType, create_app
+
+
+def test_typo() -> None:
+    kwja = KWJA(options=["--model-size", "tiny", "--tasks", "typo"])
+    text = "人口知能"
+    document = kwja.apply_to_document(text)
+    sentence = kwja.apply_to_sentence(text)
+    assert document.text == "人工知能"
+    assert sentence.text == "人工知能"
 
 
 @pytest.fixture()
@@ -29,6 +37,14 @@ def test_apply(kwja: KWJA) -> None:
         kwja.apply(1)  # type: ignore
 
 
+def test_unsupported_option() -> None:
+    with pytest.raises(ValueError):
+        _ = KWJA(options=["--model-size", "tiny", "--tasks", "typo,char"])
+
+    with pytest.raises(ValueError):
+        _ = KWJA(options=["--model-size", "tiny", "--tasks", "wakati"])
+
+
 @pytest.mark.parametrize(
     "text",
     [
@@ -50,8 +66,7 @@ def test_apply_to_sentence(kwja: KWJA, text: str) -> None:
     assert sent.text == text.replace('"', "”").replace(" ", "␣").replace("\r", "").replace("\n", "")
 
 
-def test_is_available() -> None:
-    kwja = KWJA(options=["--model-size", "tiny"])
+def test_is_available(kwja: KWJA) -> None:
     assert kwja.is_available() is True
 
     kwja = KWJA("kwjaaaaaaaaaaaaaaaaa")
@@ -64,18 +79,19 @@ def test_is_available() -> None:
         _ = kwja.apply_to_document("test")
 
 
-def test_repr() -> None:
-    gc.collect()  # Workaround for GitHub Actions
-    kwja = KWJA(options=["--model-size", "tiny"])
-    assert repr(kwja) == "KWJA(executable='kwja', options=['--model-size', 'tiny'])"
+def test_repr(kwja: KWJA) -> None:
+    assert repr(kwja) == "KWJA(executable='kwja', options=['--model-size', 'tiny', '--tasks', 'char,word'])"
+
+
+@pytest.fixture()
+def kwja_client() -> Generator[TestClient, None, None]:
+    app = create_app(AnalyzerType.KWJA, options=["--model-size", "tiny", "--tasks", "char,word"])
+    yield TestClient(app)
 
 
 @pytest.mark.parametrize("text", ["こんにちは", ""])
-def test_cli_serve_analyze_kwja(text: str) -> None:
-    gc.collect()  # Workaround for GitHub Actions
-    app = create_app(AnalyzerType.KWJA, options=["--model-size", "tiny", "--tasks", "char,word"])
-    client = TestClient(app)
-    response = client.get("/analyze", params={"text": text})
+def test_cli_serve_analyze_kwja(kwja_client: TestClient, text: str) -> None:
+    response = kwja_client.get("/analyze", params={"text": text})
     assert response.status_code == 200
     json = response.json()
     assert "text" in json
@@ -84,10 +100,7 @@ def test_cli_serve_analyze_kwja(text: str) -> None:
     assert document.text == text
 
 
-def test_cli_serve_index_kwja():
-    gc.collect()  # Workaround for GitHub Actions
-    app = create_app(AnalyzerType.KWJA, options=["--model-size", "tiny", "--tasks", "char,word"])
-    client = TestClient(app)
-    for text in ["こんにちは", ""]:
-        response = client.get("/", params={"text": text})
-        assert response.status_code == 200
+@pytest.mark.parametrize("text", ["こんにちは", ""])
+def test_cli_serve_index_kwja(kwja_client: TestClient, text: str) -> None:
+    response = kwja_client.get("/", params={"text": text})
+    assert response.status_code == 200
