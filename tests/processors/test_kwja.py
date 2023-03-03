@@ -41,6 +41,9 @@ def test_unsupported_option() -> None:
     with pytest.raises(ValueError):
         _ = KWJA(options=["--model-size", "tiny", "--tasks", "typo,char"])
 
+    with pytest.raises(ValueError):
+        _ = KWJA(options=["--model-size", "tiny", "--tasks", "wakati"])
+
 
 @pytest.mark.parametrize(
     "text",
