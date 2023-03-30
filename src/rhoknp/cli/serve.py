@@ -1,12 +1,15 @@
-import html
-import textwrap
 from enum import Enum
+from pathlib import Path
 from typing import Union
 
 import fastapi
+import fastapi.staticfiles
+import fastapi.templating
 import uvicorn
 
 from rhoknp.processors import KNP, KWJA, Jumanpp
+
+here = Path(__file__).parent
 
 
 class AnalyzerType(Enum):
@@ -15,66 +18,6 @@ class AnalyzerType(Enum):
     JUMANPP = "jumanpp"
     KNP = "knp"
     KWJA = "kwja"
-
-
-BASE_TEMPLATE = textwrap.dedent(
-    """\
-    <!DOCTYPE html>
-    <html lang="ja">
-    <head>
-        <meta charset="UTF-8">
-        <title>{title}</title>
-        <link
-            rel="stylesheet"
-            href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
-            integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65"
-            crossorigin="anonymous"
-        >
-    </head>
-    <body>
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <div class="container">
-                <a class="navbar-brand" href="#">{title}</a>
-            </div>
-        </nav>
-        <div class="container mt-3">
-            <div class="row">
-                <div class="col">
-                    <form>
-                        <div>
-                            <label for="text" class="form-label">テキスト</label>
-                            <textarea class="form-control" id="text" name="text" rows="3" required></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-outline-primary mt-3">解析</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-        {result}
-    </body>
-    </html>
-    """
-)
-
-RESULT_TEMPLATE = textwrap.dedent(
-    """\
-    <div class="container mt-3">
-        <hr>
-        <div class="row">
-            <div class="col">
-                <h6>テキスト</h6>
-                <pre>{text}</pre>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col">
-                <h6>解析結果</h6>
-                <pre>{result}</pre>
-            </div>
-        </div>
-    </div>
-    """
-)
 
 
 def create_app(analyzer: AnalyzerType, *args, **kwargs) -> "fastapi.FastAPI":
@@ -96,6 +39,9 @@ def create_app(analyzer: AnalyzerType, *args, **kwargs) -> "fastapi.FastAPI":
         raise AssertionError  # unreachable
 
     app = fastapi.FastAPI()
+    app.mount("/static", fastapi.staticfiles.StaticFiles(directory=here.joinpath("static")), name="static")
+
+    templates = fastapi.templating.Jinja2Templates(directory=here.joinpath("templates"))
 
     def get_result(text: str) -> str:
         if text == "":
@@ -107,7 +53,7 @@ def create_app(analyzer: AnalyzerType, *args, **kwargs) -> "fastapi.FastAPI":
             return document.to_knp()
 
     @app.get("/", response_class=fastapi.responses.HTMLResponse)
-    async def index(text: str = ""):
+    async def index(request: fastapi.Request, text: str = ""):
         if analyzer == AnalyzerType.JUMANPP:
             title = "Juman++ Demo"
         elif analyzer == AnalyzerType.KNP:
@@ -117,10 +63,10 @@ def create_app(analyzer: AnalyzerType, *args, **kwargs) -> "fastapi.FastAPI":
         else:
             raise AssertionError  # unreachable
         if text == "":
-            result = ""
+            result = None
         else:
-            result = RESULT_TEMPLATE.format(text=html.escape(text), result=html.escape(get_result(text)))
-        return BASE_TEMPLATE.format(title=title, result=result)
+            result = {"text": text, "result": get_result(text)}
+        return templates.TemplateResponse("index.jinja2", {"request": request, "title": title, "result": result})
 
     @app.get("/analyze", response_class=fastapi.responses.JSONResponse)
     async def analyze(text: str = ""):
