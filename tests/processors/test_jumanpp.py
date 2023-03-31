@@ -119,3 +119,8 @@ def test_is_available() -> None:
 def test_repr() -> None:
     jumanpp = Jumanpp(options=["--juman"], senter=RegexSenter())
     assert repr(jumanpp) == "Jumanpp(executable='jumanpp', options=['--juman'], senter=RegexSenter())"
+
+
+def test_get_version() -> None:
+    jumanpp = Jumanpp()
+    _ = jumanpp.get_version()

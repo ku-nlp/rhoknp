@@ -104,3 +104,8 @@ def test_repr() -> None:
         repr(knp)
         == "KNP(executable='knp', options=['-tab'], senter=RegexSenter(), jumanpp=Jumanpp(executable='jumanpp'))"
     )
+
+
+def test_get_version() -> None:
+    knp = KNP()
+    _ = knp.get_version()

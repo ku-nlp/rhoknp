@@ -104,3 +104,8 @@ def test_cli_serve_analyze_kwja(kwja_client: TestClient, text: str) -> None:
 def test_cli_serve_index_kwja(kwja_client: TestClient, text: str) -> None:
     response = kwja_client.get("/", params={"text": text})
     assert response.status_code == 200
+
+
+def test_get_version() -> None:
+    kwja = KWJA()
+    _ = kwja.get_version()
