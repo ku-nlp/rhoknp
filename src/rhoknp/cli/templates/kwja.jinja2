@@ -4,6 +4,7 @@
 <div class="accordion">
     {% include "components/word_splitting.jinja2" %}
     {% include "components/morphological_analysis.jinja2" %}
+    {% include "components/named_entity_recognition.jinja2" %}
     {% with tree = draw_tree(analyzed_document, show_rel=True) %}
     {% include "components/dependency_parsing.jinja2" %}
     {% endwith %}
