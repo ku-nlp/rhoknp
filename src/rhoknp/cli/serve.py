@@ -34,7 +34,7 @@ def _draw_tree(document: Document, show_rel: bool = False, show_pas: bool = Fals
     """
     with StringIO() as buffer:
         for sentence in document.sentences:
-            draw_tree(sentence.phrases, buffer, show_rel=show_rel, show_pas=show_pas)
+            draw_tree(sentence.base_phrases, buffer, show_rel=show_rel, show_pas=show_pas)
         return buffer.getvalue()
 
 
