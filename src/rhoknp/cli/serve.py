@@ -23,7 +23,7 @@ class AnalyzerType(Enum):
     KWJA = "kwja"
 
 
-def _draw_tree(document: Document) -> str:
+def _draw_tree(document: Document, show_rel: bool = False, show_pas: bool = False) -> str:
     """rhoknp.cli.show.draw_tree の wrapper．
 
     Args:
@@ -34,7 +34,7 @@ def _draw_tree(document: Document) -> str:
     """
     with StringIO() as buffer:
         for sentence in document.sentences:
-            draw_tree(sentence.phrases, buffer)
+            draw_tree(sentence.phrases, buffer, show_rel=show_rel, show_pas=show_pas)
         return buffer.getvalue()
 
 
