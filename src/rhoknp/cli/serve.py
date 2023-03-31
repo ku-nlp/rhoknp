@@ -38,6 +38,8 @@ def create_app(analyzer: AnalyzerType, *args, **kwargs) -> "fastapi.FastAPI":
     else:
         raise AssertionError  # unreachable
 
+    version = processor.get_version()
+
     app = fastapi.FastAPI()
     app.mount("/static", fastapi.staticfiles.StaticFiles(directory=here.joinpath("static")), name="static")
 
@@ -66,7 +68,9 @@ def create_app(analyzer: AnalyzerType, *args, **kwargs) -> "fastapi.FastAPI":
             result = None
         else:
             result = {"text": text, "result": get_result(text)}
-        return templates.TemplateResponse("index.jinja2", {"request": request, "title": title, "result": result})
+        return templates.TemplateResponse(
+            "index.jinja2", {"request": request, "title": title, "version": version, "result": result}
+        )
 
     @app.get("/analyze", response_class=fastapi.responses.JSONResponse)
     async def analyze(text: str = ""):

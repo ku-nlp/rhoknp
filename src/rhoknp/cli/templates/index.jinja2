@@ -18,33 +18,22 @@
         </div>
     </nav>
     <div class="container mt-3">
-        <div class="row">
-            <div class="col">
-                <form>
-                    <div>
-                        <label for="text" class="form-label">テキスト</label>
-                        <textarea class="form-control" id="text" name="text" rows="3" required></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-outline-primary mt-3">解析</button>
-                </form>
+        <p class="text-muted text-small">Version: {{ version }}</p>
+        <form>
+            <div>
+                <label for="text" class="form-label">テキスト</label>
+                <textarea class="form-control" id="text" name="text" rows="3" required></textarea>
             </div>
-        </div>
+            <button type="submit" class="btn btn-outline-primary mt-3">解析</button>
+        </form>
     </div>
     {% if result %}
     <div class="container mt-3">
         <hr>
-        <div class="row">
-            <div class="col">
-                <h6>テキスト</h6>
-                <pre>{{ result["text"] }}</pre>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col">
-                <h6>解析結果</h6>
-                <pre>{{ result["result"] }}</pre>
-            </div>
-        </div>
+        <h6>テキスト</h6>
+        <pre>{{ result["text"] }}</pre>
+        <h6>解析結果</h6>
+        <pre>{{ result["result"] }}</pre>
     </div>
     {% endif %}
 </body>
