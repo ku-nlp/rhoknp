@@ -161,7 +161,7 @@ class KNP(Processor):
         if not self.is_available():
             raise RuntimeError("KNP is not available.")
         p = subprocess.run(self.version_command, capture_output=True, encoding="utf-8")
-        return p.stdout.strip()
+        return p.stderr.strip()
 
     @property
     def run_command(self) -> List[str]:
