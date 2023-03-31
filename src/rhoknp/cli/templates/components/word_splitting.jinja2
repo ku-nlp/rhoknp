@@ -1,17 +1,17 @@
-<div class="accordion-item">
+<div class="accordion-item" id="wordSplitting">
     <h6 class="accordion-header" id="headingWordSplitting">
         <button
-            class="accordion-button"
+            class="accordion-button collapsed"
             type="button"
             data-bs-toggle="collapse"
-            data-bs-target="#wordSplitting"
+            data-bs-target="#bodyWordSplitting"
             aria-expanded="true"
-            aria-controls="wordSplitting"
+            aria-controls="bodyWordSplitting"
         >
             分かち書き
         </button>
     </h6>
-    <div id="wordSplitting" class="accordion-collapse collapse show" aria-labelledby="headingWordSplitting">
+    <div id="bodyWordSplitting" class="accordion-collapse collapse" aria-labelledby="headingWordSplitting">
         <div class="accordion-body resultArea">{% for morpheme in analyzed_document.morphemes %}{{ morpheme.text + " " }}{% endfor %}</div>
     </div>
 </div>

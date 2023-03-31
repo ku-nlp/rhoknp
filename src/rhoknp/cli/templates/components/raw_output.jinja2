@@ -1,17 +1,17 @@
-<div class="accordion-item">
+<div class="accordion-item" id="rawOutput">
     <h6 class="accordion-header" id="headingRawOutput">
         <button
             class="accordion-button collapsed"
             type="button"
             data-bs-toggle="collapse"
-            data-bs-target="#rawOutput"
+            data-bs-target="#bodyRawOutput"
             aria-expanded="true"
-            aria-controls="rawOutput"
+            aria-controls="bodyRawOutput"
         >
             生の解析結果
         </button>
     </h6>
-    <div id="rawOutput" class="accordion-collapse collapse" aria-labelledby="headingRawOutput">
+    <div id="bodyRawOutput" class="accordion-collapse collapse" aria-labelledby="headingRawOutput">
         <div class="accordion-body resultArea">{{ raw_output }}</div>
     </div>
 </div>
