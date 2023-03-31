@@ -4,6 +4,8 @@
     <hr>
     <h6>テキスト</h6>
     <div class="resultArea">{{ text }}</div>
+    <h6>分かち書き</h6>
+    <div class="resultArea">{% for morpheme in analyzed_document.morphemes %}{{ morpheme.text + " " }}{% endfor %}</div>
     <h6>解析結果</h6>
     <div class="resultArea">{{ analyzed_document.to_jumanpp() }}</div>
 </div>
