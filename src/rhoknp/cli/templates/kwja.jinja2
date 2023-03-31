@@ -1,12 +1,8 @@
 {% extends "base.jinja2" %}
 {% block result %}
-<div class="container mt-3">
-    <hr>
-    {% include "components/raw_input.jinja2" %}
-    {% include "components/word_splitting.jinja2" %}
-    {% include "components/dependency_parsing.jinja2" %}
-    {% with raw_output = analyzed_document.to_knp() %}
-    {% include "components/raw_output.jinja2" %}
-    {% endwith %}
-</div>
+{% include "components/word_splitting.jinja2" %}
+{% include "components/dependency_parsing.jinja2" %}
+{% with raw_output = analyzed_document.to_knp() %}
+{% include "components/raw_output.jinja2" %}
+{% endwith %}
 {% endblock %}
