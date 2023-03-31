@@ -5,6 +5,7 @@ from rich.console import Console
 from rich.table import Table
 from rich.text import Text
 
+from rhoknp.cohesion import EndophoraArgument
 from rhoknp.props.dependency import DepType
 from rhoknp.units.base_phrase import BasePhrase
 from rhoknp.units.phrase import Phrase
@@ -140,8 +141,31 @@ def _feat_string(base_phrase: BasePhrase, show_rel: bool, show_pas: bool) -> str
             tag_strings.append(f"{tag.type}:{tag.target}")
     if show_pas is True:
         for case, arguments in base_phrase.pas.get_all_arguments(relax=False).items():
-            for argument in arguments:
-                tag_string = f"{case}:{argument}"
+            for arg in arguments:
+                core_text = _get_core_text(arg.base_phrase) if isinstance(arg, EndophoraArgument) else str(arg)
+                tag_string = f"{case}:{core_text}"
                 if tag_string not in tag_strings:
                     tag_strings.append(tag_string)
     return " ".join(tag_strings)
+
+
+def _get_core_text(base_phrase: BasePhrase) -> str:
+    """Get the core text without ancillary words."""
+    morphemes = base_phrase.morphemes
+    start_index = 0
+    for i, morpheme in enumerate(morphemes):
+        if morpheme.pos in ("助詞", "特殊", "判定詞"):
+            start_index += 1
+        else:
+            break
+    end_index = len(morphemes)
+    for i, morpheme in enumerate(reversed(morphemes)):
+        if morpheme.pos in ("助詞", "特殊", "判定詞"):
+            end_index -= 1
+        else:
+            break
+    ret = "".join(m.text for m in morphemes[start_index:end_index])
+    if not ret:
+        start_index = 0
+        end_index = len(morphemes)
+    return "".join(m.text for m in morphemes[start_index:end_index])
