@@ -162,6 +162,25 @@ def test_draw_base_phrase_tree(case: Dict[str, Any]) -> None:
     assert [line.rstrip() for line in tree_string.splitlines()] == [line.rstrip() for line in case["tree"].splitlines()]
 
 
+def test_draw_base_phrase_tree_show_pas() -> None:
+    sentence = Sentence.from_knp(CASES[0]["knp"])
+    with io.StringIO() as f:
+        draw_tree(sentence.base_phrases, f, show_pos=False, show_rel=False, show_pas=True)
+        tree_string_actual = f.getvalue()
+    tree_string_expected = textwrap.dedent(
+        """\
+        クロールで─┐
+          泳いでいる───┐    ガ:次郎を
+                太郎と━P
+                  次郎を─┐
+                    見た。  ガ:著者 ヲ:次郎を
+        """
+    )
+    assert [line.rstrip() for line in tree_string_actual.splitlines()] == [
+        line.rstrip() for line in tree_string_expected.splitlines()
+    ]
+
+
 def test_draw_phrase_tree() -> None:
     sentence = Sentence.from_knp(
         textwrap.dedent(
