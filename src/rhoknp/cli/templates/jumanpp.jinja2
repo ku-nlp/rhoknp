@@ -2,11 +2,10 @@
 {% block result %}
 <div class="container mt-3">
     <hr>
-    <h6>テキスト</h6>
-    <div class="resultArea">{{ text }}</div>
-    <h6>分かち書き</h6>
-    <div class="resultArea">{% for morpheme in analyzed_document.morphemes %}{{ morpheme.text + " " }}{% endfor %}</div>
-    <h6>解析結果</h6>
-    <div class="resultArea">{{ analyzed_document.to_jumanpp() }}</div>
+    {% include "components/raw_input.jinja2" %}
+    {% include "components/word_splitting.jinja2" %}
+    {% with raw_output = analyzed_document.to_jumanpp() %}
+    {% include "components/raw_output.jinja2" %}
+    {% endwith %}
 </div>
 {% endblock %}
