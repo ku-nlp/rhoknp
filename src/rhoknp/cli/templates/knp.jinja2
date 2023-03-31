@@ -1,0 +1,10 @@
+{% extends "base.jinja2" %}
+{% block result %}
+<div class="container mt-3">
+    <hr>
+    <h6>テキスト</h6>
+    <pre>{{ result["text"] }}</pre>
+    <h6>解析結果</h6>
+    <pre>{{ result["result"] }}</pre>
+</div>
+{% endblock %}

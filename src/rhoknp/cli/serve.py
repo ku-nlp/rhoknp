@@ -29,15 +29,23 @@ def create_app(analyzer: AnalyzerType, *args, **kwargs) -> "fastapi.FastAPI":
         kwargs: 解析器のオプション．
     """
     processor: Union[Jumanpp, KNP, KWJA]
+    title: str
+    template_name: str
+    version: str
     if analyzer == AnalyzerType.JUMANPP:
+        title = "Juman++ Demo"
+        template_name = "jumanpp.jinja2"
         processor = Jumanpp(*args, **kwargs)
     elif analyzer == AnalyzerType.KNP:
+        title = "KNP Demo"
+        template_name = "knp.jinja2"
         processor = KNP(*args, **kwargs)
     elif analyzer == AnalyzerType.KWJA:
+        title = "KWJA Demo"
+        template_name = "kwja.jinja2"
         processor = KWJA(*args, **kwargs)
     else:
         raise AssertionError  # unreachable
-
     version = processor.get_version()
 
     app = fastapi.FastAPI()
@@ -56,20 +64,12 @@ def create_app(analyzer: AnalyzerType, *args, **kwargs) -> "fastapi.FastAPI":
 
     @app.get("/", response_class=fastapi.responses.HTMLResponse)
     async def index(request: fastapi.Request, text: str = ""):
-        if analyzer == AnalyzerType.JUMANPP:
-            title = "Juman++ Demo"
-        elif analyzer == AnalyzerType.KNP:
-            title = "KNP Demo"
-        elif analyzer == AnalyzerType.KWJA:
-            title = "KWJA Demo"
-        else:
-            raise AssertionError  # unreachable
         if text == "":
             result = None
         else:
             result = {"text": text, "result": get_result(text)}
         return templates.TemplateResponse(
-            "index.jinja2", {"request": request, "title": title, "version": version, "result": result}
+            template_name, {"request": request, "title": title, "version": version, "result": result}
         )
 
     @app.get("/analyze", response_class=fastapi.responses.JSONResponse)
