@@ -1,4 +1,7 @@
 .resultArea {
     white-space: pre-wrap;
-    padding: 0em 1em 1em 1em;
+    margin: 0em 0.5em 1em 0.5em;
+    padding: 0.5em;
+    background-color: #f8f9fa;
+    border-radius: 0.5em;
 }
