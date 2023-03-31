@@ -1,2 +1,19 @@
-<h6>構文解析</h6>
-<pre class="resultArea">{{ draw_tree(analyzed_document) }}</pre>
+<div class="accordion-item" id="dependencyParsing">
+    <h6 class="accordion-header" id="headingDependencyParsing">
+        <button
+            class="accordion-button collapsed"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#bodyDependencyParsing"
+            aria-expanded="true"
+            aria-controls="bodyDependencyParsing"
+        >
+            構文解析
+        </button>
+    </h6>
+    <div id="bodyDependencyParsing" class="accordion-collapse collapse" aria-labelledby="headingDependencyParsing">
+        <div class="accordion-body">
+            <pre>{{ draw_tree(analyzed_document) }}</pre>
+        </div>
+    </div>
+</div>
