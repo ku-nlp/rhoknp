@@ -33,7 +33,8 @@ def _draw_tree(document: Document) -> str:
         構文木．
     """
     with StringIO() as buffer:
-        draw_tree(document.phrases, buffer)
+        for sentence in document.sentences:
+            draw_tree(sentence.phrases, buffer)
         return buffer.getvalue()
 
 
