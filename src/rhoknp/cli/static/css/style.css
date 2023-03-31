@@ -1,9 +1,5 @@
-.inputArea {
+.inputText {
     white-space: pre-wrap;
     margin: 0em 0.5em 1em;
     padding: 0.5em;
-}
-
-.resultArea {
-    white-space: pre-wrap;
 }
