@@ -79,6 +79,11 @@ def test_apply_to_document(knp: KNP, text: str) -> None:
     assert doc.text == text.replace(" ", "　").replace('"', "”").replace("\r", "").replace("\n", "")
 
 
+def test_get_version() -> None:
+    knp = KNP()
+    _ = knp.get_version()
+
+
 def test_is_available() -> None:
     knp = KNP()
     assert knp.is_available() is True
@@ -92,6 +97,9 @@ def test_is_available() -> None:
     with pytest.raises(RuntimeError):
         _ = knp.apply_to_document("test")
 
+    with pytest.raises(RuntimeError):
+        _ = knp.get_version()
+
 
 def test_invalid_option() -> None:
     with pytest.raises(ValueError):
@@ -104,8 +112,3 @@ def test_repr() -> None:
         repr(knp)
         == "KNP(executable='knp', options=['-tab'], senter=RegexSenter(), jumanpp=Jumanpp(executable='jumanpp'))"
     )
-
-
-def test_get_version() -> None:
-    knp = KNP()
-    _ = knp.get_version()

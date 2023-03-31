@@ -102,6 +102,11 @@ def test_whitespace(jumanpp: Jumanpp) -> None:
     assert sent.morphemes[1].subpos == "空白"
 
 
+def test_get_version() -> None:
+    jumanpp = Jumanpp()
+    _ = jumanpp.get_version()
+
+
 def test_is_available() -> None:
     jumanpp = Jumanpp()
     assert jumanpp.is_available() is True
@@ -115,12 +120,10 @@ def test_is_available() -> None:
     with pytest.raises(RuntimeError):
         _ = jumanpp.apply_to_document("test")
 
+    with pytest.raises(RuntimeError):
+        _ = jumanpp.get_version()
+
 
 def test_repr() -> None:
     jumanpp = Jumanpp(options=["--juman"], senter=RegexSenter())
     assert repr(jumanpp) == "Jumanpp(executable='jumanpp', options=['--juman'], senter=RegexSenter())"
-
-
-def test_get_version() -> None:
-    jumanpp = Jumanpp()
-    _ = jumanpp.get_version()

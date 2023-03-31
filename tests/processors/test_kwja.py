@@ -66,6 +66,11 @@ def test_apply_to_sentence(kwja: KWJA, text: str) -> None:
     assert sent.text == text.replace('"', "”").replace(" ", "␣").replace("\r", "").replace("\n", "")
 
 
+def test_get_version() -> None:
+    kwja = KWJA()
+    _ = kwja.get_version()
+
+
 def test_is_available(kwja: KWJA) -> None:
     assert kwja.is_available() is True
 
@@ -77,6 +82,9 @@ def test_is_available(kwja: KWJA) -> None:
 
     with pytest.raises(RuntimeError):
         _ = kwja.apply_to_document("test")
+
+    with pytest.raises(RuntimeError):
+        _ = kwja.get_version()
 
 
 def test_repr(kwja: KWJA) -> None:
@@ -104,8 +112,3 @@ def test_cli_serve_analyze_kwja(kwja_client: TestClient, text: str) -> None:
 def test_cli_serve_index_kwja(kwja_client: TestClient, text: str) -> None:
     response = kwja_client.get("/", params={"text": text})
     assert response.status_code == 200
-
-
-def test_get_version() -> None:
-    kwja = KWJA()
-    _ = kwja.get_version()
