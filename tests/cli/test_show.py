@@ -162,6 +162,72 @@ def test_draw_base_phrase_tree(case: Dict[str, Any]) -> None:
     assert [line.rstrip() for line in tree_string.splitlines()] == [line.rstrip() for line in case["tree"].splitlines()]
 
 
+def test_draw_base_phrase_tree_show_pas() -> None:
+    sentence = Sentence.from_knp(CASES[0]["knp"])
+    with io.StringIO() as f:
+        draw_tree(sentence.base_phrases, f, show_pos=False, show_rel=False, show_pas=True)
+        tree_string_actual = f.getvalue()
+    tree_string_expected = textwrap.dedent(
+        """\
+        クロールで─┐
+          泳いでいる───┐    ガ:次郎
+                太郎と━P
+                  次郎を─┐
+                    見た。  ガ:著者 ヲ:次郎
+        """
+    )
+    assert [line.rstrip() for line in tree_string_actual.splitlines()] == [
+        line.rstrip() for line in tree_string_expected.splitlines()
+    ]
+
+
+@pytest.mark.parametrize(
+    "case",
+    [
+        {
+            "knp": CASES[0]["knp"],
+            "tree": textwrap.dedent(
+                """\
+            クロールで─┐
+              泳いでいる───┐    ガ:次郎
+                    太郎と━P
+                      次郎を─┐
+                        見た。  ガ:著者 ヲ:次郎
+            """
+            ),
+        },
+        {
+            "knp": textwrap.dedent(
+                """\
+            # S-ID:1
+            * 1D
+            + 1D
+            〇〇 〇〇 〇〇 特殊 6 記号 7 * 0 * 0 "カテゴリ:数量 未知語:数字 疑似代表表記 代表表記:〇〇/〇〇"
+            を を を 助詞 9 格助詞 1 * 0 * 0 NIL
+            * -1D
+            + -1D <格解析結果:見る/みる:動23:ガ/U/-/-/-/-;ヲ/C/〇〇/0/0/1;ニ/U/-/-/-/-;デ/U/-/-/-/-;時間/U/-/-/-/->
+            見た みた 見る 動詞 2 * 0 母音動詞 1 タ形 10 "代表表記:見る/みる 自他動詞:自:見える/みえる 補文ト"
+            。 。 。 特殊 1 句点 1 * 0 * 0 NIL
+            EOS
+            """
+            ),
+            "tree": textwrap.dedent(
+                """\
+            〇〇を─┐
+              見た。  ヲ:〇〇を
+            """
+            ),
+        },
+    ],
+)
+def test_draw_base_phrase_tree_show_rel_pas(case: Dict[str, Any]) -> None:
+    sentence = Sentence.from_knp(case["knp"])
+    with io.StringIO() as f:
+        draw_tree(sentence.base_phrases, f, show_pos=False, show_rel=True, show_pas=True)
+        tree_string = f.getvalue()
+    assert [line.rstrip() for line in tree_string.splitlines()] == [line.rstrip() for line in case["tree"].splitlines()]
+
+
 def test_draw_phrase_tree() -> None:
     sentence = Sentence.from_knp(
         textwrap.dedent(
