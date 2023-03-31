@@ -1,2 +1,17 @@
-<a data-bs-toggle="collapse" href="#rawOutput"><h6>生の解析結果 (クリックして表示)</h6></a>
-<div class="resultArea collapse" id="rawOutput">{{ raw_output }}</div>
+<div class="accordion-item">
+    <h6 class="accordion-header" id="headingRawOutput">
+        <button
+            class="accordion-button collapsed"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#rawOutput"
+            aria-expanded="true"
+            aria-controls="rawOutput"
+        >
+            生の解析結果
+        </button>
+    </h6>
+    <div id="rawOutput" class="accordion-collapse collapse" aria-labelledby="headingRawOutput">
+        <div class="accordion-body resultArea">{{ raw_output }}</div>
+    </div>
+</div>
