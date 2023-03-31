@@ -28,6 +28,11 @@ def create_app(analyzer: AnalyzerType, *args, **kwargs) -> "fastapi.FastAPI":
         args: 解析器のオプション．
         kwargs: 解析器のオプション．
     """
+    app = fastapi.FastAPI()
+    app.mount("/static", fastapi.staticfiles.StaticFiles(directory=here.joinpath("static")), name="static")
+
+    templates = fastapi.templating.Jinja2Templates(directory=here.joinpath("templates"))
+
     processor: Union[Jumanpp, KNP, KWJA]
     title: str
     template_name: str
@@ -48,33 +53,30 @@ def create_app(analyzer: AnalyzerType, *args, **kwargs) -> "fastapi.FastAPI":
         raise AssertionError  # unreachable
     version = processor.get_version()
 
-    app = fastapi.FastAPI()
-    app.mount("/static", fastapi.staticfiles.StaticFiles(directory=here.joinpath("static")), name="static")
-
-    templates = fastapi.templating.Jinja2Templates(directory=here.joinpath("templates"))
-
-    def get_result(text: str) -> str:
-        if text == "":
-            return ""
-        document = processor.apply(text)
-        if analyzer == AnalyzerType.JUMANPP:
-            return document.to_jumanpp()
-        else:
-            return document.to_knp()
-
     @app.get("/", response_class=fastapi.responses.HTMLResponse)
     async def index(request: fastapi.Request, text: str = ""):
-        if text == "":
-            result = None
-        else:
-            result = {"text": text, "result": get_result(text)}
         return templates.TemplateResponse(
-            template_name, {"request": request, "title": title, "version": version, "result": result}
+            template_name,
+            {
+                "request": request,
+                "title": title,
+                "version": version,
+                "text": text,
+                "analyzed_document": None if text == "" else processor.apply(text),
+            },
         )
 
     @app.get("/analyze", response_class=fastapi.responses.JSONResponse)
     async def analyze(text: str = ""):
-        return {"text": text, "result": get_result(text)}
+        if text == "":
+            result = ""
+        else:
+            document = processor.apply(text)
+            if analyzer == AnalyzerType.JUMANPP:
+                result = document.to_jumanpp()
+            else:
+                result = document.to_knp()
+        return {"text": text, "result": result}
 
     return app
 

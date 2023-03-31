@@ -3,8 +3,8 @@
 <div class="container mt-3">
     <hr>
     <h6>テキスト</h6>
-    <pre>{{ result["text"] }}</pre>
+    <pre>{{ text }}</pre>
     <h6>解析結果</h6>
-    <pre>{{ result["result"] }}</pre>
+    <pre>{{ analyzed_document.to_jumanpp() }}</pre>
 </div>
 {% endblock %}
