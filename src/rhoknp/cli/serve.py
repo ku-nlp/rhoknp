@@ -7,6 +7,7 @@ import fastapi
 import fastapi.staticfiles
 import fastapi.templating
 import uvicorn
+from spacy.displacy import render
 
 from rhoknp import Document
 from rhoknp.cli.show import draw_tree
@@ -38,6 +39,37 @@ def _draw_tree(document: Document, show_rel: bool = False, show_pas: bool = Fals
         return buffer.getvalue()
 
 
+def _get_ner_svg(document: Document) -> str:
+    """NER の結果を spacy.displacy.render で SVG に変換．
+
+    Args:
+        document: 解析結果．
+
+    Returns:
+        NER の SVG 画像．
+    """
+    text = document.text
+    ents = []
+    for named_entity in document.named_entities:
+        start, _ = named_entity.morphemes[0].global_span
+        _, end = named_entity.morphemes[-1].global_span
+        label = named_entity.category.value
+        ents.append({"start": start, "end": end, "label": label})
+    options = {
+        "colors": {
+            "ORGANIZATION": "#7aecec",
+            "PERSON": "#aa9cfc",
+            "LOCATION": "#ff9561",
+            "ARTIFACT": "#bfeeb7",
+            "DATE": "#bfe1d9",
+            "TIME": "#bfe1d9",
+            "MONEY": "#e4e7d2",
+            "PERCENT": "#e4e7d2",
+        }
+    }
+    return render({"text": text, "ents": ents, "title": None}, style="ent", options=options, manual=True)
+
+
 def create_app(analyzer: AnalyzerType, *args, **kwargs) -> "fastapi.FastAPI":
     """解析器を起動し，HTTP サーバとして提供．
 
@@ -51,6 +83,7 @@ def create_app(analyzer: AnalyzerType, *args, **kwargs) -> "fastapi.FastAPI":
 
     templates = fastapi.templating.Jinja2Templates(directory=here.joinpath("templates"))
     templates.env.globals["draw_tree"] = _draw_tree
+    templates.env.globals["get_ner_svg"] = _get_ner_svg
 
     processor: Union[Jumanpp, KNP, KWJA]
     title: str

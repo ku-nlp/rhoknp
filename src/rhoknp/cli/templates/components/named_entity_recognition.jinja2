@@ -13,15 +13,7 @@
     </h6>
     <div id="bodyNamedEntityRecognition" class="accordion-collapse collapse" aria-labelledby="headingNamedEntityRecognition">
         <div class="accordion-body">
-            {% if analyzed_document.named_entities %}
-            <ul>
-                {% for named_entity in analyzed_document.named_entities %}
-                <li>{{ named_entity.text }}: {{ named_entity.category.value }}</li>
-                {% endfor %}
-            </ul>
-            {% else %}
-            <p>固有表現は見つかりませんでした。</p>
-            {% endif %}
+            {{ get_ner_svg(analyzed_document) | safe }}
         </div>
     </div>
 </div>
