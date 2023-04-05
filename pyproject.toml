@@ -45,7 +45,7 @@ myst-parser = "^0.19.1"
 furo = "^2022.12"
 
 [tool.poetry.extras]
-cli = ["typer", "PyYAML", "rich", "uvicorn", "fastapi", "jinja2", "spacy"]
+cli = ["typer", "PyYAML", "rich", "uvicorn", "fastapi", "jinja2"]
 
 [tool.poetry.scripts]
 rhoknp = "rhoknp.cli.cli:app"
