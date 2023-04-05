@@ -1,13 +1,13 @@
+import dataclasses
 from enum import Enum
 from io import StringIO
 from pathlib import Path
-from typing import Union
+from typing import List, Optional, Union
 
 import fastapi
 import fastapi.staticfiles
 import fastapi.templating
 import uvicorn
-from spacy.displacy import render
 
 from rhoknp import Document
 from rhoknp.cli.show import draw_tree
@@ -39,35 +39,34 @@ def _draw_tree(document: Document, show_rel: bool = False, show_pas: bool = Fals
         return buffer.getvalue()
 
 
-def _get_ner_svg(document: Document) -> str:
-    """NER の結果を spacy.displacy.render で SVG に変換．
+@dataclasses.dataclass
+class _Span:
+    text: str
+    label: Optional[str] = None
+
+
+def _get_entity_spans(document: Document) -> List[_Span]:
+    """文書をスパンに分割．
 
     Args:
         document: 解析結果．
 
     Returns:
-        NER の SVG 画像．
+        スパンのリスト．
     """
-    text = document.text
-    ents = []
+    spans: List[_Span] = []
+    offset = 0
     for named_entity in document.named_entities:
         start, _ = named_entity.morphemes[0].global_span
         _, end = named_entity.morphemes[-1].global_span
         label = named_entity.category.value
-        ents.append({"start": start, "end": end, "label": label})
-    options = {
-        "colors": {
-            "ORGANIZATION": "#7aecec",
-            "PERSON": "#aa9cfc",
-            "LOCATION": "#ff9561",
-            "ARTIFACT": "#bfeeb7",
-            "DATE": "#bfe1d9",
-            "TIME": "#bfe1d9",
-            "MONEY": "#e4e7d2",
-            "PERCENT": "#e4e7d2",
-        }
-    }
-    return render({"text": text, "ents": ents, "title": None}, style="ent", options=options, manual=True)
+        if start > offset:
+            spans.append(_Span(document.text[offset:start]))
+        spans.append(_Span(document.text[start:end], label))
+        offset = end
+    if offset < len(document.text):
+        spans.append(_Span(document.text[offset:]))
+    return spans
 
 
 def create_app(analyzer: AnalyzerType, *args, **kwargs) -> "fastapi.FastAPI":
@@ -83,7 +82,7 @@ def create_app(analyzer: AnalyzerType, *args, **kwargs) -> "fastapi.FastAPI":
 
     templates = fastapi.templating.Jinja2Templates(directory=here.joinpath("templates"))
     templates.env.globals["draw_tree"] = _draw_tree
-    templates.env.globals["get_ner_svg"] = _get_ner_svg
+    templates.env.globals["get_entity_spans"] = _get_entity_spans
 
     processor: Union[Jumanpp, KNP, KWJA]
     title: str

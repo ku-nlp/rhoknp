@@ -13,7 +13,16 @@
     </h6>
     <div id="bodyNamedEntityRecognition" class="accordion-collapse collapse" aria-labelledby="headingNamedEntityRecognition">
         <div class="accordion-body">
-            {{ get_ner_svg(analyzed_document) | safe }}
+            {% for span in get_entity_spans(analyzed_document) %}
+            {% if span.label %}
+            <mark class="entity entity-{{ span.label.lower() }}">
+                {{ span.text }}
+                <span class="entity-label">{{ span.label }}</span>
+            </mark>
+            {% else %}
+            {{ span.text }}
+            {% endif %}
+            {% endfor %}
         </div>
     </div>
 </div>
