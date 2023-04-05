@@ -7,6 +7,7 @@
     {% with tree = draw_tree(analyzed_document, show_pas=True) %}
     {% include "components/dependency_parsing.jinja2" %}
     {% endwith %}
+    {% include "components/discourse_parsing.jinja2" %}
     {% with raw_output = analyzed_document.to_knp() %}
     {% include "components/raw_output.jinja2" %}
     {% endwith %}
