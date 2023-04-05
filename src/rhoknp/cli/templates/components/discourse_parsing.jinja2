@@ -17,6 +17,7 @@
                 <thead>
                     <tr>
                         <th scope="col">談話関係</th>
+                        <th scope="col">タイプ</th>
                         <th scope="col">従属節</th>
                         <th scope="col">主節</th>
                     </tr>
@@ -26,6 +27,13 @@
                     {% for discourse_relation in clause.discourse_relations %}
                     <tr>
                         <td>{{ discourse_relation.label.value }}</td>
+                        <td>
+                            {% if discourse_relation.is_explicit %}
+                            明示的
+                            {% else %}
+                            非明示的
+                            {% endif %}
+                        </td>
                         <td>{{ discourse_relation.modifier.text }}</td>
                         <td>{{ discourse_relation.head.text }}</td>
                     </tr>
