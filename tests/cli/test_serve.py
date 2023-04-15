@@ -1,11 +1,11 @@
 import textwrap
-from typing import Generator
+from typing import Generator, List
 
 import pytest
 from fastapi.testclient import TestClient
 
 from rhoknp import Document
-from rhoknp.cli.serve import AnalyzerType, _draw_tree, _get_entity_spans, _Span, create_app
+from rhoknp.cli.serve import AnalyzerType, _draw_tree, _get_entity_spans, _get_string_diff, _Span, create_app
 
 
 @pytest.fixture()
@@ -55,6 +55,21 @@ def test_index_knp(knp_client: TestClient, text: str) -> None:
 
 
 # KWJA is tested in `tests/processors/test_kwja.py` to isolate tests that require KWJA installed.
+
+
+@pytest.mark.parametrize(
+    "pre_text, post_text, expected",
+    [
+        ("あ", "あ", [_Span("あ", "=")]),
+        ("あ", "い", [_Span("あ", "-"), _Span("い", "+")]),
+        ("あい", "あ", [_Span("あ", "="), _Span("い", "-")]),
+        ("あ", "あい", [_Span("あ", "="), _Span("い", "+")]),
+        ("人口知能", "人工知能", [_Span("人", "="), _Span("口", "-"), _Span("工", "+"), _Span("知能", "=")]),
+        ("", "", [_Span("", "=")]),
+    ],
+)
+def test_get_string_diff(pre_text: str, post_text: str, expected: List[_Span]) -> None:
+    assert _get_string_diff(pre_text, post_text) == expected
 
 
 def test_draw_tree() -> None:
