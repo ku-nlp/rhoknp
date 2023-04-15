@@ -39,7 +39,10 @@ class KWJA(Processor):
             if "word" in tasks:
                 self._output_format = "knp"
             elif "char" in tasks:
+                self._output_format = "words"
                 raise ValueError(f"`--tasks {','.join(tasks)}` option is not supported yet in rhoknp.")
+            elif "seq2seq" in tasks:
+                self._output_format = "seq2seq"
             elif "typo" in tasks:
                 self._output_format = "raw"
             else:
@@ -91,6 +94,8 @@ class KWJA(Processor):
                 out_text += line
             if self._output_format == "raw":
                 return Document.from_raw_text(out_text)
+            elif self._output_format == "seq2seq":
+                return Document.from_jumanpp(out_text)
             else:
                 assert self._output_format == "knp"
                 return Document.from_knp(out_text)
@@ -123,6 +128,8 @@ class KWJA(Processor):
                 out_text += line
             if self._output_format == "raw":
                 return Sentence.from_raw_text(out_text)
+            elif self._output_format == "seq2seq":
+                return Sentence.from_jumanpp(out_text)
             else:
                 assert self._output_format == "knp"
                 return Sentence.from_knp(out_text)

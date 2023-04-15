@@ -16,6 +16,17 @@ def test_typo() -> None:
     assert sentence.text == "人工知能"
 
 
+def test_seq2seq() -> None:
+    kwja = KWJA(options=["--model-size", "tiny", "--tasks", "seq2seq"])
+    text = "こんにちは"
+    for doc_or_sent in (kwja.apply_to_document(text), kwja.apply_to_sentence(text)):
+        assert isinstance(doc_or_sent, (Document, Sentence))
+        morphemes = doc_or_sent.morphemes
+        assert len(morphemes) == 1
+        morpheme = morphemes[0]
+        assert morpheme.text == morpheme.reading == morpheme.lemma == "こんにちは"
+
+
 @pytest.fixture()
 def kwja() -> Generator[KWJA, None, None]:
     model = KWJA(options=["--model-size", "tiny", "--tasks", "char,word"])
