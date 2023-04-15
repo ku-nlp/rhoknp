@@ -1,4 +1,5 @@
 import dataclasses
+import difflib
 from enum import Enum
 from io import StringIO
 from pathlib import Path
@@ -24,6 +25,39 @@ class AnalyzerType(Enum):
     KWJA = "kwja"
 
 
+@dataclasses.dataclass
+class _Span:
+    text: str
+    label: Optional[str] = None
+
+
+def _get_string_diff(pre_text: str, post_text) -> List[_Span]:
+    """編集前後の文字列の差分を取得．
+
+    Args:
+        pre_text: 前の文字列．
+        post_text: 後の文字列．
+
+    Returns:
+        差分．
+    """
+    spans = []
+    span = _Span("", label="=")
+    for diff in difflib.ndiff(pre_text, post_text):
+        tag, character = diff[0], diff[2:]
+        if tag == " ":
+            tag = "="
+        if tag == span.label:
+            span.text += character
+        else:
+            if span.text:
+                spans.append(span)
+            span = _Span(character, tag)
+    else:
+        spans.append(span)
+    return spans
+
+
 def _draw_tree(document: Document, show_rel: bool = False, show_pas: bool = False) -> str:
     """rhoknp.cli.show.draw_tree の wrapper．
 
@@ -37,12 +71,6 @@ def _draw_tree(document: Document, show_rel: bool = False, show_pas: bool = Fals
         for sentence in document.sentences:
             draw_tree(sentence.base_phrases, buffer, show_rel=show_rel, show_pas=show_pas)
         return buffer.getvalue()
-
-
-@dataclasses.dataclass
-class _Span:
-    text: str
-    label: Optional[str] = None
 
 
 def _get_entity_spans(document: Document) -> List[_Span]:
@@ -81,6 +109,7 @@ def create_app(analyzer: AnalyzerType, *args, **kwargs) -> "fastapi.FastAPI":
     app.mount("/static", fastapi.staticfiles.StaticFiles(directory=here.joinpath("static")), name="static")
 
     templates = fastapi.templating.Jinja2Templates(directory=here.joinpath("templates"))
+    templates.env.globals["get_string_diff"] = _get_string_diff
     templates.env.globals["draw_tree"] = _draw_tree
     templates.env.globals["get_entity_spans"] = _get_entity_spans
 

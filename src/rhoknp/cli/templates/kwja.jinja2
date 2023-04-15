@@ -2,6 +2,7 @@
 {% block result %}
 <h6>解析結果</h6>
 <div class="accordion">
+    {% include "components/typo_correction.jinja2" %}
     {% include "components/word_splitting.jinja2" %}
     {% include "components/morphological_analysis.jinja2" %}
     {% include "components/named_entity_recognition.jinja2" %}
