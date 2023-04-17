@@ -14,13 +14,13 @@
     <div id="bodyTypoCorrection" class="accordion-collapse collapse" aria-labelledby="headingTypoCorrection">
         <div class="accordion-body">
             {% for diff in get_string_diff(text, analyzed_document.text) %}
-                {% if diff.label == '+' %}
-                    <span class="bg-success bg-opacity-25">{{ diff.text }}</span>
-                {% elif diff.label == '-' %}
-                    <span class="bg-danger bg-opacity-25">{{ diff.text }}</span>
-                {% else %}
-                    {{ diff.text }}
-                {% endif %}
+            {% if diff.label == '+' %}
+            <span class="bg-success bg-opacity-25">{{ diff.text }}</span>
+            {% elif diff.label == '-' %}
+            <span class="bg-danger bg-opacity-25">{{ diff.text }}</span>
+            {% else %}
+            <span>{{ diff.text }}</span>
+            {% endif %}
             {% endfor %}
         </div>
     </div>
