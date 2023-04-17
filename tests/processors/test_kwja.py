@@ -66,6 +66,11 @@ def test_apply_to_sentence(kwja: KWJA, text: str) -> None:
     assert sent.text == text.replace('"', "”").replace(" ", "␣").replace("\r", "").replace("\n", "")
 
 
+def test_get_version() -> None:
+    kwja = KWJA()
+    _ = kwja.get_version()
+
+
 def test_is_available(kwja: KWJA) -> None:
     assert kwja.is_available() is True
 
@@ -77,6 +82,9 @@ def test_is_available(kwja: KWJA) -> None:
 
     with pytest.raises(RuntimeError):
         _ = kwja.apply_to_document("test")
+
+    with pytest.raises(RuntimeError):
+        _ = kwja.get_version()
 
 
 def test_repr(kwja: KWJA) -> None:

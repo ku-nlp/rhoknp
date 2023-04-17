@@ -1,0 +1,54 @@
+/* templates/components/raw_input.jinja2 */
+.input-text {
+    white-space: pre-wrap;
+    margin: 0em 0.5em 1em;
+    padding: 0.5em;
+}
+
+/* templates/components/named_entity_recognition.jinja2 */
+.entity {
+    padding: 0.45em 0.6em;
+    margin: 0 0.25em;
+    line-height: 1;
+    border-radius: 0.35em;
+}
+
+.entity-organization {
+    background: #7aecec;
+}
+
+.entity-person {
+    background: #aa9cfc;
+}
+
+.entity-location {
+    background: #ff9561;
+}
+
+.entity-artifact {
+    background: #bfeeb7;
+}
+
+.entity-date {
+    background: #bfe1d9;
+}
+
+.entity-time {
+    background: #bfe1d9;
+}
+
+.entity-money {
+    background: #e4e7d2;
+}
+
+.entity-percent {
+    background: #e4e7d2;
+}
+
+.entity-label {
+    font-size: 0.8em;
+    font-weight: bold;
+    line-height: 1;
+    border-radius: 0.35em;
+    vertical-align: middle;
+}
