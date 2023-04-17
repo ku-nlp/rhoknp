@@ -35,21 +35,19 @@ def main(
 def show(
     knp_path: Path = typer.Argument(..., exists=True, dir_okay=False, help="Path to knp file to show"),
     pos: bool = typer.Option(False, "--pos", "-p", help="Show POS characters."),
-    rel: bool = typer.Option(False, "--rel", "-r", help="Show contents of <rel> tags."),
-    pas: bool = typer.Option(False, "--pas", help="Show predicate-argument structures."),
+    rel: bool = typer.Option(False, "--rel", "-r", help="Show <rel> tags."),
 ) -> None:
     """KNP ファイルを読み込み係り受けを可視化．
 
     Args:
         knp_path: KNP ファイルのパス．
         pos: True なら同時に品詞を表示．
-        rel: True なら同時に <rel> タグの内容を表示．
-        pas: True なら同時に述語項構造を表示．
+        rel: True なら同時に <rel> タグを表示．
     """
     doc = Document.from_knp(knp_path.read_text())
     for sent in doc.sentences:
         print(sent.comment)
-        draw_tree(sent.base_phrases, show_pos=pos, show_rel=rel, show_pas=pas)
+        draw_tree(sent.base_phrases, show_pos=pos, show_rel=rel)
 
 
 @app.command(help="Show statistics of given KNP file.")

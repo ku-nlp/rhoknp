@@ -1,5 +1,4 @@
 import logging
-import subprocess
 from subprocess import PIPE, Popen
 from threading import Lock
 from typing import List, Optional, Union
@@ -125,19 +124,7 @@ class Jumanpp(Processor):
                     break
             return Sentence.from_jumanpp(jumanpp_text)
 
-    def get_version(self) -> str:
-        """Juman++ のバージョンを返す．"""
-        if not self.is_available():
-            raise RuntimeError("Juman++ is not available.")
-        p = subprocess.run(self.version_command, capture_output=True, encoding="utf-8")
-        return p.stdout.strip()
-
     @property
     def run_command(self) -> List[str]:
         """解析時に実行するコマンド．"""
         return [self.executable] + self.options
-
-    @property
-    def version_command(self) -> List[str]:
-        """バージョンを確認するコマンド．"""
-        return [self.executable, "--version"]

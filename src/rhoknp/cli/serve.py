@@ -1,20 +1,12 @@
-import dataclasses
-import difflib
+import html
+import textwrap
 from enum import Enum
-from io import StringIO
-from pathlib import Path
-from typing import List, Optional, Union
+from typing import Union
 
 import fastapi
-import fastapi.staticfiles
-import fastapi.templating
 import uvicorn
 
-from rhoknp import Document
-from rhoknp.cli.show import draw_tree
 from rhoknp.processors import KNP, KWJA, Jumanpp
-
-here = Path(__file__).parent
 
 
 class AnalyzerType(Enum):
@@ -25,76 +17,64 @@ class AnalyzerType(Enum):
     KWJA = "kwja"
 
 
-@dataclasses.dataclass
-class _Span:
-    text: str
-    label: Optional[str] = None
-
-
-def _get_string_diff(pre_text: str, post_text) -> List[_Span]:
-    """編集前後の文字列の差分を取得．
-
-    Args:
-        pre_text: 前の文字列．
-        post_text: 後の文字列．
-
-    Returns:
-        差分．
+BASE_TEMPLATE = textwrap.dedent(
+    """\
+    <!DOCTYPE html>
+    <html lang="ja">
+    <head>
+        <meta charset="UTF-8">
+        <title>{title}</title>
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
+            integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65"
+            crossorigin="anonymous"
+        >
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container">
+                <a class="navbar-brand" href="#">{title}</a>
+            </div>
+        </nav>
+        <div class="container mt-3">
+            <div class="row">
+                <div class="col">
+                    <form>
+                        <div>
+                            <label for="text" class="form-label">テキスト</label>
+                            <textarea class="form-control" id="text" name="text" rows="3" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-outline-primary mt-3">解析</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {result}
+    </body>
+    </html>
     """
-    spans = []
-    span = _Span("", label="=")
-    for diff in difflib.ndiff(pre_text, post_text):
-        tag, character = diff[0], diff[2:]
-        if tag == " ":
-            tag = "="
-        if tag == span.label:
-            span.text += character
-        else:
-            if span.text:
-                spans.append(span)
-            span = _Span(character, tag)
-    else:
-        spans.append(span)
-    return spans
+)
 
-
-def _draw_tree(document: Document, show_rel: bool = False, show_pas: bool = False) -> str:
-    """rhoknp.cli.show.draw_tree の wrapper．
-
-    Args:
-        document: 解析結果．
-
-    Returns:
-        構文木．
+RESULT_TEMPLATE = textwrap.dedent(
+    """\
+    <div class="container mt-3">
+        <hr>
+        <div class="row">
+            <div class="col">
+                <h6>テキスト</h6>
+                <pre>{text}</pre>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <h6>解析結果</h6>
+                <pre>{result}</pre>
+            </div>
+        </div>
+    </div>
     """
-    with StringIO() as buffer:
-        for sentence in document.sentences:
-            draw_tree(sentence.base_phrases, buffer, show_rel=show_rel, show_pas=show_pas)
-        return buffer.getvalue()
-
-
-def _get_entity_spans(document: Document) -> List[_Span]:
-    """文書をスパンに分割．
-
-    Args:
-        document: 解析結果．
-
-    Returns:
-        スパンのリスト．
-    """
-    spans: List[_Span] = []
-    offset = 0
-    for named_entity in document.named_entities:
-        start, _ = named_entity.morphemes[0].global_span
-        _, end = named_entity.morphemes[-1].global_span
-        label = named_entity.category.value
-        if start > offset:
-            spans.append(_Span(document.text[offset:start]))
-        spans.append(_Span(document.text[start:end], label))
-        offset = end
-    if offset < len(document.text):
-        spans.append(_Span(document.text[offset:]))
-    return spans
+)
 
 
 def create_app(analyzer: AnalyzerType, *args, **kwargs) -> "fastapi.FastAPI":
@@ -105,58 +85,46 @@ def create_app(analyzer: AnalyzerType, *args, **kwargs) -> "fastapi.FastAPI":
         args: 解析器のオプション．
         kwargs: 解析器のオプション．
     """
-    app = fastapi.FastAPI()
-    app.mount("/static", fastapi.staticfiles.StaticFiles(directory=here.joinpath("static")), name="static")
-
-    templates = fastapi.templating.Jinja2Templates(directory=here.joinpath("templates"))
-    templates.env.globals["get_string_diff"] = _get_string_diff
-    templates.env.globals["draw_tree"] = _draw_tree
-    templates.env.globals["get_entity_spans"] = _get_entity_spans
-
     processor: Union[Jumanpp, KNP, KWJA]
-    title: str
-    template_name: str
-    version: str
     if analyzer == AnalyzerType.JUMANPP:
-        title = "Juman++ Demo"
-        template_name = "jumanpp.jinja2"
         processor = Jumanpp(*args, **kwargs)
     elif analyzer == AnalyzerType.KNP:
-        title = "KNP Demo"
-        template_name = "knp.jinja2"
         processor = KNP(*args, **kwargs)
     elif analyzer == AnalyzerType.KWJA:
-        title = "KWJA Demo"
-        template_name = "kwja.jinja2"
         processor = KWJA(*args, **kwargs)
     else:
         raise AssertionError  # unreachable
-    version = processor.get_version()
+
+    app = fastapi.FastAPI()
+
+    def get_result(text: str) -> str:
+        if text == "":
+            return ""
+        document = processor.apply(text)
+        if analyzer == AnalyzerType.JUMANPP:
+            return document.to_jumanpp()
+        else:
+            return document.to_knp()
 
     @app.get("/", response_class=fastapi.responses.HTMLResponse)
-    async def index(request: fastapi.Request, text: str = ""):
-        return templates.TemplateResponse(
-            template_name,
-            {
-                "request": request,
-                "title": title,
-                "version": version,
-                "text": text,
-                "analyzed_document": None if text == "" else processor.apply(text),
-            },
-        )
-
-    @app.get("/analyze", response_class=fastapi.responses.JSONResponse)
-    async def analyze(text: str = ""):
+    async def index(text: str = ""):
+        if analyzer == AnalyzerType.JUMANPP:
+            title = "Juman++ Demo"
+        elif analyzer == AnalyzerType.KNP:
+            title = "KNP Demo"
+        elif analyzer == AnalyzerType.KWJA:
+            title = "KWJA Demo"
+        else:
+            raise AssertionError  # unreachable
         if text == "":
             result = ""
         else:
-            document = processor.apply(text)
-            if analyzer == AnalyzerType.JUMANPP:
-                result = document.to_jumanpp()
-            else:
-                result = document.to_knp()
-        return {"text": text, "result": result}
+            result = RESULT_TEMPLATE.format(text=html.escape(text), result=html.escape(get_result(text)))
+        return BASE_TEMPLATE.format(title=title, result=result)
+
+    @app.get("/analyze", response_class=fastapi.responses.JSONResponse)
+    async def analyze(text: str = ""):
+        return {"text": text, "result": get_result(text)}
 
     return app
 

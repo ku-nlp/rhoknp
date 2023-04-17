@@ -1,5 +1,4 @@
 import logging
-import subprocess
 from subprocess import PIPE, Popen
 from threading import Lock
 from typing import List, Optional, Union
@@ -128,19 +127,7 @@ class KWJA(Processor):
                 assert self._output_format == "knp"
                 return Sentence.from_knp(out_text)
 
-    def get_version(self) -> str:
-        """Juman++ のバージョンを返す．"""
-        if not self.is_available():
-            raise RuntimeError("KWJA is not available.")
-        p = subprocess.run(self.version_command, capture_output=True, encoding="utf-8")
-        return p.stdout.strip()
-
     @property
     def run_command(self) -> List[str]:
         """解析時に実行するコマンド．"""
         return [self.executable] + self.options
-
-    @property
-    def version_command(self) -> List[str]:
-        """バージョンを確認するコマンド．"""
-        return [self.executable, "--version"]
