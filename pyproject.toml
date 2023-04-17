@@ -33,7 +33,7 @@ ipdb = "^0.13.9"
 [tool.poetry.group.test.dependencies]
 pytest = "^7.2"
 pytest-cov = "^4.0"
-httpx = "^0.23.1"
+httpx = "^0.24.0"
 
 [tool.poetry.group.docs]
 
@@ -41,8 +41,8 @@ httpx = "^0.23.1"
 Sphinx = "^5.3"
 sphinx-prompt = "^1.5"
 sphinx-copybutton = "^0.5.0"
-myst-parser = "^0.19.1"
-furo = "^2022.12"
+myst-parser = "^1.0"
+furo = "^2023.3"
 
 [tool.poetry.extras]
 cli = ["typer", "PyYAML", "rich", "uvicorn", "fastapi", "jinja2"]
