@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
 import typer
 import yaml
@@ -79,7 +79,7 @@ def serve(
     analyzer: AnalyzerType = typer.Argument(..., help="Analyzer to use. Choose from jumanpp, knp, kwja."),
     host: str = typer.Option("localhost", "--host", "-h", help="Host to listen on."),
     port: int = typer.Option(8000, "--port", "-p", help="Port to listen on."),
-    analyzer_args: List[str] = typer.Argument(..., help="Additional arguments for the analyzer."),
+    analyzer_args: Optional[List[str]] = typer.Argument(None, help="Additional arguments for the analyzer."),
 ) -> None:
     """解析器を起動し，HTTP サーバとして提供．
 

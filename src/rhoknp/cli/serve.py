@@ -161,7 +161,9 @@ def create_app(analyzer: AnalyzerType, *args, **kwargs) -> "fastapi.FastAPI":
     return app
 
 
-def serve_analyzer(analyzer: AnalyzerType, host: str, port: int, analyzer_args: List[str]) -> None:  # pragma: no cover
+def serve_analyzer(
+    analyzer: AnalyzerType, host: str, port: int, analyzer_args: Optional[List[str]]
+) -> None:  # pragma: no cover
     """解析器を起動し，HTTP サーバとして提供．
 
     Args:
