@@ -161,15 +161,16 @@ def create_app(analyzer: AnalyzerType, *args, **kwargs) -> "fastapi.FastAPI":
     return app
 
 
-def serve_analyzer(analyzer: AnalyzerType, host: str, port: int) -> None:  # pragma: no cover
+def serve_analyzer(analyzer: AnalyzerType, host: str, port: int, analyzer_args: List[str]) -> None:  # pragma: no cover
     """解析器を起動し，HTTP サーバとして提供．
 
     Args:
         analyzer: 解析器の種類．
         host: ホスト．
         port: ポート．
+        analyzer_args: 解析器のオプション．
     """
-    app = create_app(analyzer)
+    app = create_app(analyzer, options=analyzer_args)
     config = uvicorn.Config(app, host=host, port=port)
     server = uvicorn.Server(config)
     server.run()
