@@ -27,6 +27,9 @@
         {% block result %}
         {% endblock %}
         {% endif %}
+        {% if error %}
+        {% include "components/error.jinja2" %}
+        {% endif %}
     </div>
 </body>
 </html>

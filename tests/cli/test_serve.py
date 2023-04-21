@@ -48,9 +48,25 @@ def test_analyze_knp(knp_client: TestClient, text: str) -> None:
     assert document.text == text
 
 
+def test_analyze_knp_error(knp_client: TestClient) -> None:
+    error_causing_text = "http://localhost:8000" * 30
+    response = knp_client.get("/analyze", params={"text": error_causing_text})
+    assert response.status_code == 500
+    json = response.json()
+    assert "error" in json
+    assert json["error"]["type"] == "ValueError"
+    assert json["error"]["message"] == "malformed phrase line: "
+
+
 @pytest.mark.parametrize("text", ["こんにちは", ""])
 def test_index_knp(knp_client: TestClient, text: str) -> None:
     response = knp_client.get("/", params={"text": text})
+    assert response.status_code == 200
+
+
+def test_index_knp_error(knp_client: TestClient) -> None:
+    error_causing_text = "http://localhost:8000" * 30
+    response = knp_client.get("/", params={"text": error_causing_text})
     assert response.status_code == 200
 
 

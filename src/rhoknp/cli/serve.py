@@ -1,5 +1,6 @@
 import dataclasses
 import difflib
+import logging
 from enum import Enum
 from io import StringIO
 from pathlib import Path
@@ -13,6 +14,8 @@ import uvicorn
 from rhoknp import Document
 from rhoknp.cli.show import draw_tree
 from rhoknp.processors import KNP, KWJA, Jumanpp
+
+logger = logging.getLogger(__name__)
 
 here = Path(__file__).parent
 
@@ -135,6 +138,18 @@ def create_app(analyzer: AnalyzerType, *args, **kwargs) -> "fastapi.FastAPI":
 
     @app.get("/", response_class=fastapi.responses.HTMLResponse)
     async def index(request: fastapi.Request, text: str = ""):
+        analyzed_document: Optional[Document]
+        error: str
+        error_message: str
+        try:
+            analyzed_document = processor.apply(text)
+            error = ""
+            error_message = ""
+        except Exception as e:
+            logger.error(e)
+            analyzed_document = None
+            error = e.__class__.__name__
+            error_message = str(e)
         return templates.TemplateResponse(
             template_name,
             {
@@ -142,20 +157,30 @@ def create_app(analyzer: AnalyzerType, *args, **kwargs) -> "fastapi.FastAPI":
                 "title": title,
                 "version": version,
                 "text": text,
-                "analyzed_document": None if text == "" else processor.apply(text),
+                "analyzed_document": analyzed_document,
+                "error": error,
+                "error_message": error_message,
             },
         )
 
     @app.get("/analyze", response_class=fastapi.responses.JSONResponse)
-    async def analyze(text: str = ""):
+    async def analyze(text, response: fastapi.Response):
         if text == "":
             result = ""
         else:
-            document = processor.apply(text)
-            if analyzer == AnalyzerType.JUMANPP:
-                result = document.to_jumanpp()
-            else:
-                result = document.to_knp()
+            try:
+                analyzed_document = processor.apply(text)
+                if analyzer == AnalyzerType.JUMANPP:
+                    result = analyzed_document.to_jumanpp()
+                else:
+                    result = analyzed_document.to_knp()
+            except Exception as e:
+                logger.error(e)
+                response.status_code = fastapi.status.HTTP_500_INTERNAL_SERVER_ERROR
+                return {
+                    "text": text,
+                    "error": {"type": e.__class__.__name__, "message": str(e)},
+                }
         return {"text": text, "result": result}
 
     return app
