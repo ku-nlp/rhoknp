@@ -138,18 +138,17 @@ def create_app(analyzer: AnalyzerType, *args, **kwargs) -> "fastapi.FastAPI":
 
     @app.get("/", response_class=fastapi.responses.HTMLResponse)
     async def index(request: fastapi.Request, text: str = ""):
-        analyzed_document: Optional[Document]
-        error: str
-        error_message: str
-        try:
-            analyzed_document = processor.apply(text)
-            error = ""
-            error_message = ""
-        except Exception as e:
-            logger.error(e)
-            analyzed_document = None
-            error = e.__class__.__name__
-            error_message = str(e)
+        analyzed_document: Optional[Document] = None
+        error: str = ""
+        error_message: str = ""
+        if text != "":
+            try:
+                analyzed_document = processor.apply(text)
+            except Exception as e:
+                logger.error(e)
+                analyzed_document = None
+                error = e.__class__.__name__
+                error_message = str(e)
         return templates.TemplateResponse(
             template_name,
             {
