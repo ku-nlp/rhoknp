@@ -5,6 +5,11 @@
     padding: 0.5em;
 }
 
+.result {
+    margin: 0em 0.5em 1em;
+    padding: 0.5em;
+}
+
 /* templates/components/named_entity_recognition.jinja2 */
 .entity {
     padding: 0.45em 0.6em;

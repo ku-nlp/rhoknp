@@ -24,8 +24,13 @@
         {% if analyzed_document %}
         <hr>
         {% include "components/raw_input.jinja2" %}
-        {% block result %}
-        {% endblock %}
+        <h6>解析結果</h6>
+        <div class="result">
+            {% include "components/show_all_button.jinja2" %}
+            {% include "components/hide_all_button.jinja2" %}
+            {% block result %}
+            {% endblock %}
+        </div>
         {% endif %}
         {% if error %}
         {% include "components/error.jinja2" %}
