@@ -44,7 +44,9 @@ class RegexSenter(Processor):
         return sentence
 
     def _split_document(self, text: str) -> List[str]:
-        regex = re.compile(rf"[^{self.PERIODS}]*[{self.PERIODS}$]")
+        base = f"[^{self.PERIODS}]*[{self.PERIODS}]"
+        eol = f"[^{self.PERIODS}]*$"
+        regex = re.compile(f"{base}|{eol}$")
         candidates = []
         for line in text.split("\n"):
             candidates += re.findall(regex, line + "\n")
