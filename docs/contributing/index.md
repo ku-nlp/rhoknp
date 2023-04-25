@@ -1,7 +1,7 @@
 # Contributing
 
-Thank you for your interest in improving *rhoknp*!
-We give an overview on contributing to the *rhoknp* project.
+Thank you for your interest in improving _rhoknp_!
+We give an overview on contributing to the _rhoknp_ project.
 
 ## Development Environment
 
