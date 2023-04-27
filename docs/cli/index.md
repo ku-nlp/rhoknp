@@ -1,8 +1,8 @@
 # CLI Tools
 
-*rhoknp* provides a command-line interface (CLI).
+_rhoknp_ provides a command-line interface (CLI).
 
-Before using the CLI, you need to install *rhoknp* with the following command:
+Before using the CLI, you need to install _rhoknp_ with the following command:
 
 ```{eval-rst}
 .. prompt::
