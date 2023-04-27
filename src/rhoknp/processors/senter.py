@@ -17,7 +17,7 @@ class RegexSenter(Processor):
         >>> document = senter.apply("天気が良かったので散歩した。途中で先生に会った。")
     """
 
-    PERIODS = "。．？！♪☆★…?!"  #: ピリオドとみなす文字．
+    _PERIOD_PAT = re.compile(r"[。．？！♪☆★…?!]+")  #: ピリオドとみなすパターン．
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}()"
@@ -44,69 +44,40 @@ class RegexSenter(Processor):
         return sentence
 
     def _split_document(self, text: str) -> List[str]:
-        base = f"[^{self.PERIODS}]*[{self.PERIODS}]"
-        eol = f"[^{self.PERIODS}]*$"
-        regex = re.compile(f"{base}|{eol}$")
-        candidates = []
+        if text == "":
+            return []
+
+        sentences: List[str] = []
         for line in text.split("\n"):
-            candidates += re.findall(regex, line + "\n")
-        candidates = self._merge_candidates(candidates)
-        return self._clean_up_candidates(candidates)
+            # Split by periods
+            sentence_candidates: List[str] = []
+            start: int = 0
+            for match in self._PERIOD_PAT.finditer(line):
+                end: int = match.end()
+                sentence_candidates.append(line[start:end])
+                start = end
+            if start < len(line):
+                sentence_candidates.append(line[start:])
 
-    def _merge_candidates(self, candidates: List[str]) -> List[str]:
-        """Merge sentence candidates."""
-        candidates = self._merge_single_periods(candidates)
-        candidates = self._merge_parenthesis(candidates)
-        return candidates
+            # Merge sentence candidates so that strings in parentheses or brackets are not split
+            parenthesis_level: int = 0
+            hook_bracket_level: int = 0
+            double_hook_bracket_level: int = 0
+            sentence: str = ""
+            while sentence_candidates:
+                sentence_candidate: str = sentence_candidates.pop(0)
 
-    def _merge_single_periods(self, candidates: List[str]) -> List[str]:
-        """Merge sentence candidates that consist of just a single period."""
-        regex = re.compile(f"^[{self.PERIODS}]$")
-        merged_candidates = [""]
-        for candidate in candidates:
-            if re.match(regex, candidate) is not None:
-                merged_candidates[-1] += candidate
-            else:
-                merged_candidates.append(candidate)
-        if merged_candidates[0] == "":
-            merged_candidates.pop(0)  # remove the dummy sentence
-        return merged_candidates
+                sentence += sentence_candidate
 
-    @staticmethod
-    def _merge_parenthesis(sentence_candidates: List[str]) -> List[str]:
-        """Merge sentence candidates so that strings in parentheses or brackets are not split."""
-        parenthesis_level = 0
-        quotation_level = 0
+                parenthesis_level += sentence_candidate.count("（") - sentence_candidate.count("）")
+                parenthesis_level += sentence_candidate.count("(") - sentence_candidate.count(")")
+                hook_bracket_level += sentence_candidate.count("「") - sentence_candidate.count("」")
+                double_hook_bracket_level += sentence_candidate.count("『") - sentence_candidate.count("』")
+                if parenthesis_level == hook_bracket_level == double_hook_bracket_level == 0:
+                    if sentence.strip():
+                        sentences.append(sentence.strip())
+                    sentence = ""
+            if sentence.strip():
+                sentences.append(sentence.strip())
 
-        merged_candidates = []
-        prefix = ""
-        while sentence_candidates:
-            candidate = sentence_candidates.pop(0)
-
-            parenthesis_level += candidate.count("（") + candidate.count("(")
-            parenthesis_level -= candidate.count("）") + candidate.count(")")
-
-            quotation_level += candidate.count("「") + candidate.count("“")
-            quotation_level -= candidate.count("」") + candidate.count("”")
-
-            if parenthesis_level == 0 and quotation_level == 0:
-                candidate = prefix + candidate
-                merged_candidates.append(candidate)
-                prefix = ""
-            else:
-                if "\n" in candidate:
-                    candidate, rest = candidate.split("\n", maxsplit=1)
-                    candidate = prefix + candidate
-                    merged_candidates.append(candidate)
-                    prefix = ""
-                    sentence_candidates.insert(0, rest)
-                    parenthesis_level = 0
-                    quotation_level = 0
-                else:
-                    prefix += candidate
-        return merged_candidates
-
-    @staticmethod
-    def _clean_up_candidates(sentence_candidates: List[str]) -> List[str]:
-        """Remove empty sentence candidates."""
-        return [sentence_candidate.strip() for sentence_candidate in sentence_candidates if sentence_candidate.strip()]
+        return sentences

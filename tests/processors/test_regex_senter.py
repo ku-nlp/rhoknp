@@ -72,6 +72,10 @@ from rhoknp import RegexSenter
             "そんな（笑\n安心してください（笑",
             ["そんな（笑", "安心してください（笑"],
         ),
+        (
+            "『君の名は。』は良い作品でした。",
+            ["『君の名は。』は良い作品でした。"],
+        ),
     ],
 )
 def test_apply_to_document(document: str, sentence_strings: List[str]) -> None:
