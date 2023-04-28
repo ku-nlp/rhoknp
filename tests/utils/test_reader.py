@@ -1,12 +1,10 @@
-import re
 import textwrap
 from io import StringIO
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 import pytest
 
-from rhoknp import Sentence
-from rhoknp.utils.reader import _extract_doc_id, chunk_by_document, chunk_by_sentence
+from rhoknp.utils.reader import chunk_by_document, chunk_by_sentence
 
 CASES = [
     {
@@ -194,19 +192,3 @@ def test_chunk_by_document_value_error() -> None:
 def test_chunk_by_document_type_error() -> None:
     with pytest.raises(TypeError):
         _ = list(chunk_by_document(StringIO(""), doc_id_format=1))  # type: ignore
-
-
-@pytest.mark.parametrize(
-    "pat, line, doc_id",
-    [
-        (Sentence.SID_PAT, "# S-ID:1", "1"),
-        (Sentence.SID_PAT, "# S-ID:1-1", "1"),
-        (Sentence.SID_PAT, "# S-ID:1-2", "1"),
-        (Sentence.SID_PAT, "# S-ID:a-1", "a"),
-        (Sentence.SID_PAT, "# S-ID:a-2", "a"),
-        (Sentence.SID_PAT_KWDLC, "# S-ID:w201106-0000060050-1", "w201106-0000060050"),
-        (Sentence.SID_PAT_WAC, "# S-ID:wiki00100176-00", "wiki00100176"),
-    ],
-)
-def test_extract_doc_id(pat: re.Pattern, line: str, doc_id: Optional[str]) -> None:
-    assert _extract_doc_id(line, pat) == doc_id
