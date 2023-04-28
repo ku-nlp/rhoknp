@@ -187,7 +187,6 @@ def test_from_sentences(case: Dict[str, str]) -> None:
     # from_sentences() allows Sentence objects as input.
     doc2 = Document.from_sentences(list(map(Sentence.from_raw_text, case["sentences"])))
     assert doc1 == doc2
-    doc1.doc_id = "1"
     doc3 = Document.from_sentences(Document.from_jumanpp(case["jumanpp"]).sentences)
     assert doc1 == doc3
     doc4 = Document.from_sentences(Document.from_knp(case["knp"]).sentences)
