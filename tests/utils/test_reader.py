@@ -209,4 +209,4 @@ def test_chunk_by_document_type_error() -> None:
     ],
 )
 def test_extract_doc_id(pat: re.Pattern, line: str, doc_id: Optional[str]) -> None:
-    assert _extract_doc_id(pat)(line) == doc_id
+    assert _extract_doc_id(line, pat) == doc_id
