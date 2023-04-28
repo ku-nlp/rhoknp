@@ -710,6 +710,19 @@ def test_update_id() -> None:
             misc_comment="括弧始:（ 括弧終:） 括弧位置:2 KNP:5.0-6a1f607d DATE:2022/04/11 SCORE:0.00000 MOD:2022/04/14 MEMO:",
             comment="# S-ID:wiki00100205-00-02 括弧始:（ 括弧終:） 括弧位置:2 KNP:5.0-6a1f607d DATE:2022/04/11 SCORE:0.00000 MOD:2022/04/14 MEMO:",
         ),
+        # KNP output
+        dict(
+            raw_text=textwrap.dedent(
+                """\
+                # S-ID:1 KNP:5.0-25425d33 DATE:2023/04/28 SCORE:-1.02623
+                じょうおう
+                """
+            ),
+            did="",
+            sid="1",
+            misc_comment="KNP:5.0-25425d33 DATE:2023/04/28 SCORE:-1.02623",
+            comment="# S-ID:1 KNP:5.0-25425d33 DATE:2023/04/28 SCORE:-1.02623",
+        ),
     ],
 )
 def test_comment(case: Dict[str, str]) -> None:
