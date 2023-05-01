@@ -166,6 +166,7 @@ def create_app(analyzer: AnalyzerType, *args, **kwargs) -> "fastapi.FastAPI":
                 "version": version,
                 "error": exc.detail,
             },
+            status_code=exc.status_code,
         )
 
     @app.get("/", response_class=fastapi.responses.HTMLResponse)

@@ -67,7 +67,7 @@ def test_index_knp(knp_client: TestClient, text: str) -> None:
 def test_index_knp_error(knp_client: TestClient) -> None:
     error_causing_text = "http://localhost:8000" * 30
     response = knp_client.get("/", params={"text": error_causing_text})
-    assert response.status_code == 200
+    assert response.status_code == 500
 
 
 # KWJA is tested in `tests/processors/test_kwja.py` to isolate tests that require KWJA installed.
