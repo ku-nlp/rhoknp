@@ -55,9 +55,7 @@ class Document(Unit):
     def __eq__(self, other: Any) -> bool:
         if isinstance(other, Document) is False:
             return False
-        if self.doc_id and other.doc_id and self.doc_id != other.doc_id:
-            return False
-        return self.text == other.text
+        return self.doc_id == other.doc_id and self.text == other.text
 
     @property
     def parent_unit(self) -> None:

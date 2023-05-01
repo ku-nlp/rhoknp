@@ -282,14 +282,11 @@ def test_from_raw_text_parallel(case: Dict[str, str]) -> None:
 
 @pytest.mark.parametrize("case", CASES)
 def test_from_sentences(case: Dict[str, str]) -> None:
-    doc1 = Document.from_sentences(case["sentences"])
+    _ = Document.from_sentences(case["sentences"])
     # from_sentences() allows Sentence objects as input.
-    doc2 = Document.from_sentences(list(map(Sentence.from_raw_text, case["sentences"])))
-    assert doc1 == doc2
-    doc3 = Document.from_sentences(Document.from_jumanpp(case["jumanpp"]).sentences)
-    assert doc1 == doc3
-    doc4 = Document.from_sentences(Document.from_knp(case["knp"]).sentences)
-    assert doc1 == doc4
+    _ = Document.from_sentences(list(map(Sentence.from_raw_text, case["sentences"])))
+    _ = Document.from_sentences(Document.from_jumanpp(case["jumanpp"]).sentences)
+    _ = Document.from_sentences(Document.from_knp(case["knp"]).sentences)
 
 
 @pytest.mark.parametrize("case", CASES)
@@ -882,14 +879,14 @@ def test_eq() -> None:
 
 
 def test_eq_doc_id() -> None:
+    doc0 = Document.from_raw_text("天気がいいので散歩した。")
     doc1 = Document.from_raw_text("天気がいいので散歩した。")
     doc1.doc_id = "1"
     doc2 = Document.from_raw_text("天気がいいので散歩した。")
     doc2.doc_id = "2"
-    doc3 = Document.from_raw_text("天気がいいので散歩した。")
+    assert doc0 != doc1
+    assert doc0 != doc2
     assert doc1 != doc2
-    assert doc1 == doc3
-    assert doc2 == doc3
 
 
 def test_eq_knp() -> None:
