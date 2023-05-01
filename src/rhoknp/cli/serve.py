@@ -4,7 +4,7 @@ import logging
 from enum import Enum
 from io import StringIO
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import List, Optional, Union
 
 import fastapi
 import fastapi.staticfiles
@@ -35,23 +35,13 @@ class _Span:
 
 
 class _HTTPExceptionForIndex(fastapi.HTTPException):
-    def __init__(
-        self,
-        status_code: int,
-        detail: Optional[Any] = None,
-        headers: Optional[Dict[str, Any]] = None,
-    ) -> None:
-        super().__init__(status_code, detail=detail, headers=headers)
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
 
 class _HTTPExceptionForAnalyze(fastapi.HTTPException):
-    def __init__(
-        self,
-        status_code: int,
-        detail: Optional[Any] = None,
-        headers: Optional[Dict[str, Any]] = None,
-    ) -> None:
-        super().__init__(status_code, detail=detail, headers=headers)
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
 
 def _get_string_diff(pre_text: str, post_text) -> List[_Span]:
@@ -191,24 +181,23 @@ def create_app(analyzer: AnalyzerType, *args, **kwargs) -> "fastapi.FastAPI":
     @app.exception_handler(_HTTPExceptionForAnalyze)
     async def http_exception_handler_for_analyze(request: fastapi.Request, exc: _HTTPExceptionForAnalyze):
         return fastapi.responses.JSONResponse(
-            status_code=exc.status_code,
             content={"error": {"code": exc.status_code, "message": exc.detail}},
+            status_code=exc.status_code,
         )
 
     @app.get("/analyze", response_class=fastapi.responses.JSONResponse)
     async def analyze(text: str):
         if text == "":
-            result = ""
-        else:
-            try:
-                analyzed_document = processor.apply(text)
-                if analyzer == AnalyzerType.JUMANPP:
-                    result = analyzed_document.to_jumanpp()
-                else:
-                    result = analyzed_document.to_knp()
-            except Exception as e:
-                raise _HTTPExceptionForAnalyze(fastapi.status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
-        return {"text": text, "result": result}
+            raise _HTTPExceptionForAnalyze(fastapi.status.HTTP_400_BAD_REQUEST, detail="text is empty")
+        try:
+            analyzed_document = processor.apply(text)
+            if analyzer == AnalyzerType.JUMANPP:
+                result = analyzed_document.to_jumanpp()
+            else:
+                result = analyzed_document.to_knp()
+            return {"text": text, "result": result}
+        except Exception as e:
+            raise _HTTPExceptionForAnalyze(fastapi.status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
     return app
 
