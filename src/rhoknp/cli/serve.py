@@ -136,19 +136,26 @@ def create_app(analyzer: AnalyzerType, *args, **kwargs) -> "fastapi.FastAPI":
         raise AssertionError  # unreachable
     version = processor.get_version()
 
+    @app.exception_handler(fastapi.HTTPException)
+    async def http_exception_handler(request: fastapi.Request, exc: fastapi.HTTPException):
+        return templates.TemplateResponse(
+            template_name,
+            {
+                "request": request,
+                "title": title,
+                "version": version,
+                "error": exc.detail,
+            },
+        )
+
     @app.get("/", response_class=fastapi.responses.HTMLResponse)
     async def index(request: fastapi.Request, text: str = ""):
         analyzed_document: Optional[Document] = None
-        error: str = ""
-        error_message: str = ""
         if text != "":
             try:
                 analyzed_document = processor.apply(text)
             except Exception as e:
-                logger.error(e)
-                analyzed_document = None
-                error = e.__class__.__name__
-                error_message = str(e)
+                raise fastapi.HTTPException(fastapi.status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
         return templates.TemplateResponse(
             template_name,
             {
@@ -157,13 +164,11 @@ def create_app(analyzer: AnalyzerType, *args, **kwargs) -> "fastapi.FastAPI":
                 "version": version,
                 "text": text,
                 "analyzed_document": analyzed_document,
-                "error": error,
-                "error_message": error_message,
             },
         )
 
     @app.get("/analyze", response_class=fastapi.responses.JSONResponse)
-    async def analyze(text, response: fastapi.Response):
+    async def analyze(response: fastapi.Response, text: str):
         if text == "":
             result = ""
         else:
