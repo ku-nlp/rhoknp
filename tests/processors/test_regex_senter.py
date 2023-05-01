@@ -9,6 +9,10 @@ from rhoknp import RegexSenter
     "document, sentence_strings",
     [
         (
+            "",
+            [],
+        ),
+        (
             "天気がいいので散歩した。",
             ["天気がいいので散歩した。"],
         ),
