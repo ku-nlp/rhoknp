@@ -4,7 +4,7 @@ import logging
 from enum import Enum
 from io import StringIO
 from pathlib import Path
-from typing import List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 import fastapi
 import fastapi.staticfiles
@@ -32,6 +32,26 @@ class AnalyzerType(Enum):
 class _Span:
     text: str
     label: Optional[str] = None
+
+
+class _HTTPExceptionForIndex(fastapi.HTTPException):
+    def __init__(
+        self,
+        status_code: int,
+        detail: Optional[Any] = None,
+        headers: Optional[Dict[str, Any]] = None,
+    ) -> None:
+        super().__init__(status_code, detail=detail, headers=headers)
+
+
+class _HTTPExceptionForAnalyze(fastapi.HTTPException):
+    def __init__(
+        self,
+        status_code: int,
+        detail: Optional[Any] = None,
+        headers: Optional[Dict[str, Any]] = None,
+    ) -> None:
+        super().__init__(status_code, detail=detail, headers=headers)
 
 
 def _get_string_diff(pre_text: str, post_text) -> List[_Span]:
@@ -136,8 +156,8 @@ def create_app(analyzer: AnalyzerType, *args, **kwargs) -> "fastapi.FastAPI":
         raise AssertionError  # unreachable
     version = processor.get_version()
 
-    @app.exception_handler(fastapi.HTTPException)
-    async def http_exception_handler(request: fastapi.Request, exc: fastapi.HTTPException):
+    @app.exception_handler(_HTTPExceptionForIndex)
+    async def http_exception_handler_for_index(request: fastapi.Request, exc: _HTTPExceptionForIndex):
         return templates.TemplateResponse(
             template_name,
             {
@@ -155,7 +175,7 @@ def create_app(analyzer: AnalyzerType, *args, **kwargs) -> "fastapi.FastAPI":
             try:
                 analyzed_document = processor.apply(text)
             except Exception as e:
-                raise fastapi.HTTPException(fastapi.status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+                raise _HTTPExceptionForIndex(fastapi.status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
         return templates.TemplateResponse(
             template_name,
             {
@@ -167,8 +187,15 @@ def create_app(analyzer: AnalyzerType, *args, **kwargs) -> "fastapi.FastAPI":
             },
         )
 
+    @app.exception_handler(_HTTPExceptionForAnalyze)
+    async def http_exception_handler_for_analyze(request: fastapi.Request, exc: _HTTPExceptionForAnalyze):
+        return fastapi.responses.JSONResponse(
+            status_code=exc.status_code,
+            content={"error": {"code": exc.status_code, "message": exc.detail}},
+        )
+
     @app.get("/analyze", response_class=fastapi.responses.JSONResponse)
-    async def analyze(response: fastapi.Response, text: str):
+    async def analyze(text: str):
         if text == "":
             result = ""
         else:
@@ -179,12 +206,7 @@ def create_app(analyzer: AnalyzerType, *args, **kwargs) -> "fastapi.FastAPI":
                 else:
                     result = analyzed_document.to_knp()
             except Exception as e:
-                logger.error(e)
-                response.status_code = fastapi.status.HTTP_500_INTERNAL_SERVER_ERROR
-                return {
-                    "text": text,
-                    "error": {"type": e.__class__.__name__, "message": str(e)},
-                }
+                raise _HTTPExceptionForAnalyze(fastapi.status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
         return {"text": text, "result": result}
 
     return app

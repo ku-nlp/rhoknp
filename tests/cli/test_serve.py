@@ -54,7 +54,7 @@ def test_analyze_knp_error(knp_client: TestClient) -> None:
     assert response.status_code == 500
     json = response.json()
     assert "error" in json
-    assert json["error"]["type"] == "ValueError"
+    assert json["error"]["code"] == 500
     assert json["error"]["message"] == "malformed phrase line: "
 
 
