@@ -889,7 +889,7 @@ def test_eq_doc_id() -> None:
     doc3 = Document.from_raw_text("天気がいいので散歩した。")
     assert doc1 != doc2
     assert doc1 == doc3
-    assert doc2 != doc3
+    assert doc2 == doc3
 
 
 def test_eq_knp() -> None:
