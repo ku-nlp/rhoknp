@@ -1,6 +1,6 @@
 name: Lint
 
-on: [ push, pull_request ]
+on: [push, pull_request]
 
 jobs:
   lint:
@@ -8,11 +8,11 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-      - name: Set up Python 3.8
+      - name: Set up Python 3.7
         uses: actions/setup-python@v4
         with:
-          python-version: 3.8
+          python-version: "3.7"
       - name: Run linters
         run: |
-          python3 -m pip install --user pre-commit
+          pipx install pre-commit
           pre-commit run --all-files

@@ -8,9 +8,12 @@ updates:
   - package-ecosystem: "pip"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "daily" # TODO: Change to "monthly"
       timezone: "Asia/Tokyo"
     target-branch: "develop"
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: "github-actions"
     # Workflow files stored in the

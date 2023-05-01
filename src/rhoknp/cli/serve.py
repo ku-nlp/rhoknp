@@ -1,5 +1,6 @@
 import dataclasses
 import difflib
+import logging
 from enum import Enum
 from io import StringIO
 from pathlib import Path
@@ -13,6 +14,8 @@ import uvicorn
 from rhoknp import Document
 from rhoknp.cli.show import draw_tree
 from rhoknp.processors import KNP, KWJA, Jumanpp
+
+logger = logging.getLogger(__name__)
 
 here = Path(__file__).parent
 
@@ -29,6 +32,16 @@ class AnalyzerType(Enum):
 class _Span:
     text: str
     label: Optional[str] = None
+
+
+class _HTTPExceptionForIndex(fastapi.HTTPException):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+
+class _HTTPExceptionForAnalyze(fastapi.HTTPException):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
 
 def _get_string_diff(pre_text: str, post_text) -> List[_Span]:
@@ -133,8 +146,27 @@ def create_app(analyzer: AnalyzerType, *args, **kwargs) -> "fastapi.FastAPI":
         raise AssertionError  # unreachable
     version = processor.get_version()
 
+    @app.exception_handler(_HTTPExceptionForIndex)
+    async def http_exception_handler_for_index(request: fastapi.Request, exc: _HTTPExceptionForIndex):
+        return templates.TemplateResponse(
+            template_name,
+            {
+                "request": request,
+                "title": title,
+                "version": version,
+                "error": exc.detail,
+            },
+            status_code=exc.status_code,
+        )
+
     @app.get("/", response_class=fastapi.responses.HTMLResponse)
     async def index(request: fastapi.Request, text: str = ""):
+        analyzed_document: Optional[Document] = None
+        if text != "":
+            try:
+                analyzed_document = processor.apply(text)
+            except Exception as e:
+                raise _HTTPExceptionForIndex(fastapi.status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
         return templates.TemplateResponse(
             template_name,
             {
@@ -142,34 +174,46 @@ def create_app(analyzer: AnalyzerType, *args, **kwargs) -> "fastapi.FastAPI":
                 "title": title,
                 "version": version,
                 "text": text,
-                "analyzed_document": None if text == "" else processor.apply(text),
+                "analyzed_document": analyzed_document,
             },
         )
 
+    @app.exception_handler(_HTTPExceptionForAnalyze)
+    async def http_exception_handler_for_analyze(request: fastapi.Request, exc: _HTTPExceptionForAnalyze):
+        return fastapi.responses.JSONResponse(
+            content={"error": {"code": exc.status_code, "message": exc.detail}},
+            status_code=exc.status_code,
+        )
+
     @app.get("/analyze", response_class=fastapi.responses.JSONResponse)
-    async def analyze(text: str = ""):
+    async def analyze(text: str):
         if text == "":
-            result = ""
-        else:
-            document = processor.apply(text)
+            raise _HTTPExceptionForAnalyze(fastapi.status.HTTP_400_BAD_REQUEST, detail="text is empty")
+        try:
+            analyzed_document = processor.apply(text)
             if analyzer == AnalyzerType.JUMANPP:
-                result = document.to_jumanpp()
+                result = analyzed_document.to_jumanpp()
             else:
-                result = document.to_knp()
-        return {"text": text, "result": result}
+                result = analyzed_document.to_knp()
+            return {"text": text, "result": result}
+        except Exception as e:
+            raise _HTTPExceptionForAnalyze(fastapi.status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
     return app
 
 
-def serve_analyzer(analyzer: AnalyzerType, host: str, port: int) -> None:  # pragma: no cover
+def serve_analyzer(
+    analyzer: AnalyzerType, host: str, port: int, analyzer_args: Optional[List[str]]
+) -> None:  # pragma: no cover
     """解析器を起動し，HTTP サーバとして提供．
 
     Args:
         analyzer: 解析器の種類．
         host: ホスト．
         port: ポート．
+        analyzer_args: 解析器のオプション．
     """
-    app = create_app(analyzer)
+    app = create_app(analyzer, options=analyzer_args)
     config = uvicorn.Config(app, host=host, port=port)
     server = uvicorn.Server(config)
     server.run()

@@ -16,7 +16,7 @@
 <a href="https://github.com/psf/black"><img alt="Code style - black" src="https://img.shields.io/badge/code%20style-black-222222?style=flat-square"></a>
 </p>
 
-*rhoknp* is a Python binding for [Juman++](https://github.com/ku-nlp/jumanpp), [KNP](https://github.com/ku-nlp/knp), and [KWJA](https://github.com/ku-nlp/kwja).[^1]
+_rhoknp_ is a Python binding for [Juman++](https://github.com/ku-nlp/jumanpp), [KNP](https://github.com/ku-nlp/knp), and [KWJA](https://github.com/ku-nlp/kwja).[^1]
 
 [^1]: The logo was originally generated using OpenAI DALL·E 2
 
@@ -64,7 +64,7 @@ pip install rhoknp
 
 ## Quick tour
 
-Let's start with using Juman++ with *rhoknp*.
+Let's start with using Juman++ with _rhoknp_.
 Here is a simple example of using Juman++ to analyze a sentence.
 
 ```python
@@ -125,7 +125,7 @@ with open("sentence.knp", "rt") as f:
     sentence = rhoknp.Sentence.from_knp(f.read())
 ```
 
-*rhoknp* also provides APIs for document-level language analysis.
+_rhoknp_ also provides APIs for document-level language analysis.
 
 ```python
 document = rhoknp.Document.from_raw_text(
@@ -165,13 +165,13 @@ For more information, explore the [examples](./examples) and [documentation](htt
 
 ## Main differences from [pyknp](https://github.com/ku-nlp/pyknp/)
 
-[*pyknp*](https://pypi.org/project/pyknp/) has been developed as the official Python binding for Juman++ and KNP.
-In *rhoknp*, we redesigned the API from the top-down, taking into account the current use cases of *pyknp*.
+[_pyknp_](https://pypi.org/project/pyknp/) has been developed as the official Python binding for Juman++ and KNP.
+In _rhoknp_, we redesigned the API from the top-down, taking into account the current use cases of _pyknp_.
 The main differences are as follows:
 
-- **Support for document-level language analysis**: *rhoknp* can load and instantiate the result of document-level language analysis (i.e., cohesion analysis and discourse relation analysis).
-- **Strictly type-aware**: *rhoknp* is thoroughly annotated with type annotations.
-- **Extensive test suite**: *rhoknp* is tested with an extensive test suite. See the code coverage at [Codecov](https://app.codecov.io/gh/ku-nlp/rhoknp).
+- **Support for document-level language analysis**: _rhoknp_ can load and instantiate the result of document-level language analysis (i.e., cohesion analysis and discourse relation analysis).
+- **Strictly type-aware**: _rhoknp_ is thoroughly annotated with type annotations.
+- **Extensive test suite**: _rhoknp_ is tested with an extensive test suite. See the code coverage at [Codecov](https://app.codecov.io/gh/ku-nlp/rhoknp).
 
 ## License
 
@@ -179,7 +179,7 @@ MIT
 
 ## Contributing
 
-We welcome contributions to *rhoknp*.
+We welcome contributions to _rhoknp_.
 You can get started by reading the [contribution guide](https://rhoknp.readthedocs.io/en/latest/contributing/index.html).
 
 ## Reference

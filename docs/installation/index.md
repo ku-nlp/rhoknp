@@ -15,7 +15,7 @@ If you just would like to load the result of language analysis by Juman++ and KN
 
 ## Installation
 
-We recommend installing *rhoknp* with pip:
+We recommend installing _rhoknp_ with pip:
 
 ```{eval-rst}
 .. prompt::

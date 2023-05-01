@@ -14,7 +14,7 @@ def jumanpp_client() -> Generator[TestClient, None, None]:
     yield TestClient(app)
 
 
-@pytest.mark.parametrize("text", ["こんにちは", ""])
+@pytest.mark.parametrize("text", ["こんにちは"])
 def test_analyze_jumanpp(jumanpp_client: TestClient, text: str) -> None:
     response = jumanpp_client.get("/analyze", params={"text": text})
     assert response.status_code == 200
@@ -23,6 +23,16 @@ def test_analyze_jumanpp(jumanpp_client: TestClient, text: str) -> None:
     assert "result" in json
     document = Document.from_jumanpp(json["result"])
     assert document.text == text
+
+
+def test_analyze_jumanpp_error_empty(jumanpp_client: TestClient) -> None:
+    error_causing_text = ""
+    response = jumanpp_client.get("/analyze", params={"text": error_causing_text})
+    assert response.status_code == 400
+    json = response.json()
+    assert "error" in json
+    assert json["error"]["code"] == 400
+    assert json["error"]["message"] == "text is empty"
 
 
 @pytest.mark.parametrize("text", ["こんにちは", ""])
@@ -37,7 +47,7 @@ def knp_client() -> Generator[TestClient, None, None]:
     yield TestClient(app)
 
 
-@pytest.mark.parametrize("text", ["こんにちは", ""])
+@pytest.mark.parametrize("text", ["こんにちは"])
 def test_analyze_knp(knp_client: TestClient, text: str) -> None:
     response = knp_client.get("/analyze", params={"text": text})
     assert response.status_code == 200
@@ -48,10 +58,36 @@ def test_analyze_knp(knp_client: TestClient, text: str) -> None:
     assert document.text == text
 
 
+def test_analyze_knp_error_empty(knp_client: TestClient) -> None:
+    error_causing_text = ""
+    response = knp_client.get("/analyze", params={"text": error_causing_text})
+    assert response.status_code == 400
+    json = response.json()
+    assert "error" in json
+    assert json["error"]["code"] == 400
+    assert json["error"]["message"] == "text is empty"
+
+
+def test_analyze_knp_error_long(knp_client: TestClient) -> None:
+    error_causing_text = "http://localhost:8000" * 30
+    response = knp_client.get("/analyze", params={"text": error_causing_text})
+    assert response.status_code == 500
+    json = response.json()
+    assert "error" in json
+    assert json["error"]["code"] == 500
+    assert json["error"]["message"] == "malformed phrase line: "
+
+
 @pytest.mark.parametrize("text", ["こんにちは", ""])
 def test_index_knp(knp_client: TestClient, text: str) -> None:
     response = knp_client.get("/", params={"text": text})
     assert response.status_code == 200
+
+
+def test_index_knp_error(knp_client: TestClient) -> None:
+    error_causing_text = "http://localhost:8000" * 30
+    response = knp_client.get("/", params={"text": error_causing_text})
+    assert response.status_code == 500
 
 
 # KWJA is tested in `tests/processors/test_kwja.py` to isolate tests that require KWJA installed.

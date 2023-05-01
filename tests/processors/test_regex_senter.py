@@ -9,6 +9,10 @@ from rhoknp import RegexSenter
     "document, sentence_strings",
     [
         (
+            "",
+            [],
+        ),
+        (
             "天気がいいので散歩した。",
             ["天気がいいので散歩した。"],
         ),
@@ -71,6 +75,10 @@ from rhoknp import RegexSenter
         (
             "そんな（笑\n安心してください（笑",
             ["そんな（笑", "安心してください（笑"],
+        ),
+        (
+            "『君の名は。』は良い作品でした。",
+            ["『君の名は。』は良い作品でした。"],
         ),
     ],
 )

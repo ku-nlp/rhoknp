@@ -1,17 +1,17 @@
-<div class="accordion-item" id="namedEntityRecognition">
-    <h6 class="accordion-header" id="headingNamedEntityRecognition">
+<div class="accordion-item" id="named-entity-recognition">
+    <h6 class="accordion-header" id="heading-named-entity-recognition">
         <button
             class="accordion-button collapsed"
             type="button"
             data-bs-toggle="collapse"
-            data-bs-target="#bodyNamedEntityRecognition"
+            data-bs-target="#body-named-entity-recognition"
             aria-expanded="true"
-            aria-controls="bodyNamedEntityRecognition"
+            aria-controls="body-named-entity-recognition"
         >
             固有表現認識
         </button>
     </h6>
-    <div id="bodyNamedEntityRecognition" class="accordion-collapse collapse" aria-labelledby="headingNamedEntityRecognition">
+    <div id="body-named-entity-recognition" class="accordion-collapse collapse" aria-labelledby="heading-named-entity-recognition">
         <div class="accordion-body">
             {% for span in get_entity_spans(analyzed_document) %}
             {% if span.label %}

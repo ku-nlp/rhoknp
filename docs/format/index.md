@@ -20,7 +20,7 @@ We show an example of the result of Juman++:
 EOS
 ```
 
-Each line represents a morpheme (a.k.a. *keitai-so*) and formatted as `[surface form] [reading] [lemma] [pos] [pos ID] [pos subcategory] [pos subcategory ID] [conjugation type] [conjugation type ID] [conjugation form] [conjugation form ID] [semantic information]`.
+Each line represents a morpheme (a.k.a. _keitai-so_) and formatted as `[surface form] [reading] [lemma] [pos] [pos ID] [pos subcategory] [pos subcategory ID] [conjugation type] [conjugation type ID] [conjugation form] [conjugation form ID] [semantic information]`.
 For example, `飲んだ のんだ 飲む 動詞 2 * 0 子音動詞マ行 9 タ形 10 "代表表記:飲む/のむ ドメイン:料理・食事"` indicates that the surface form is `飲んだ`, the reading is `のんだ`, the lemma is `飲む`, and the pos (part-of-speech) is `動詞`, and so forth.
 
 ## KNP
@@ -50,10 +50,10 @@ We show an example of the result of KNP:
 EOS
 ```
 
-The line starting with `*` represents the beginning of a phrase (a.k.a. *bunsetsu*) and formatted as `* [parent phrase index][dependency type] [semantic information]`.
+The line starting with `*` represents the beginning of a phrase (a.k.a. _bunsetsu_) and formatted as `* [parent phrase index][dependency type] [semantic information]`.
 For example, the line `* 3D <文頭><人名>` indicates that the phrase modifies the `3`rd phrase with the dependency type of `D` includes the semantic information of `<文頭>` and `<人名>`.
 
-The line starting with `+` represents the beginning of a base-phrase (a.k.a. *kihon-ku*) and formatted as `+ [parent base-phrase index][dependency type] [semantic information]`.
+The line starting with `+` represents the beginning of a base-phrase (a.k.a. _kihon-ku_) and formatted as `+ [parent base-phrase index][dependency type] [semantic information]`.
 For example, the line `+ 1D <文節内><係:文節内>` indicates that the base-phrase modifies the `1`st base-phrase with the dependency type of `D` includes the semantic information of `<文節内>` and `<係:文節内>`.
 
 Lines with neither `*` nor `+` represent morphemes.
@@ -68,4 +68,4 @@ The format is almost the same as Juman++'s one, except that the column of repres
 
 ## Reference
 
-- [KNPの基本的な出力の読み方 (in Japanese)](http://cr.fvcrc.i.nagoya-u.ac.jp/~sasano/knp/format.html)
+- [KNP の基本的な出力の読み方 (in Japanese)](http://cr.fvcrc.i.nagoya-u.ac.jp/~sasano/knp/format.html)

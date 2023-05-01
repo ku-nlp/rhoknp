@@ -1,8 +1,10 @@
 import logging
 import re
+from functools import partial
 from typing import Callable, Iterator, List, Optional, TextIO, Union
 
 from rhoknp import Sentence
+from rhoknp.utils.util import _extract_did_and_sid
 
 logger = logging.getLogger(__name__)
 
@@ -61,13 +63,14 @@ def chunk_by_document(f: TextIO, doc_id_format: Union[str, Callable] = "default"
             >>> def default_doc_id_format(line: str) -> str:
             ...     return line.lstrip("# S-ID:").rsplit("-", maxsplit=1)[0]
     """
+    extract_doc_id: Callable[[str], Optional[str]]
     if isinstance(doc_id_format, str):
         if doc_id_format == "default":
-            extract_doc_id = _extract_doc_id(Sentence.SID_PAT)
+            extract_doc_id = partial(_extract_doc_id, pat=Sentence.SID_PAT)
         elif doc_id_format == "kwdlc":
-            extract_doc_id = _extract_doc_id(Sentence.SID_PAT_KWDLC)
+            extract_doc_id = partial(_extract_doc_id, pat=Sentence.SID_PAT_KWDLC)
         elif doc_id_format == "wac":
-            extract_doc_id = _extract_doc_id(Sentence.SID_PAT_WAC)
+            extract_doc_id = partial(_extract_doc_id, pat=Sentence.SID_PAT_WAC)
         else:
             raise ValueError(f"Invalid doc_id_format: {doc_id_format}")
     elif callable(doc_id_format):
@@ -88,22 +91,12 @@ def chunk_by_document(f: TextIO, doc_id_format: Union[str, Callable] = "default"
         yield "".join(buffer)
 
 
-def _extract_doc_id(pat: re.Pattern) -> Callable[[str], Optional[str]]:
-    """文書IDを抽出する関数を返す．
+def _extract_doc_id(line: str, pat: re.Pattern) -> Optional[str]:
+    """文書IDを抽出する．
 
     Args:
+        line: 文IDが含まれるコメント行．
         pat: 文書IDを抽出する正規表現．
     """
-
-    def extract_doc_id(line: str) -> Optional[str]:
-        match_sid = re.match(r"# S-ID: ?(\S*)( .+)?$", line)
-        if match_sid:
-            sid_string = match_sid[1]
-            match = pat.match(sid_string)
-            if match is None:
-                logger.warning(f"Invalid S-ID: {sid_string}")
-                return None
-            return match["did"]
-        return None
-
-    return extract_doc_id
+    did, _, _ = _extract_did_and_sid(line, [pat])
+    return did

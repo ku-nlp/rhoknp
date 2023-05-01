@@ -1,6 +1,6 @@
 import logging
 import re
-from typing import TYPE_CHECKING, Any, List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Any, List, Optional, Union
 
 from rhoknp.cohesion import EntityManager, Pas
 from rhoknp.props.named_entity import NamedEntity
@@ -9,6 +9,7 @@ from rhoknp.units.clause import Clause
 from rhoknp.units.morpheme import Morpheme
 from rhoknp.units.phrase import Phrase
 from rhoknp.units.unit import Unit
+from rhoknp.utils.util import _extract_did_and_sid
 
 if TYPE_CHECKING:
     from rhoknp.units.document import Document
@@ -24,7 +25,7 @@ class Sentence(Unit):
     """
 
     EOS = "EOS"
-    SID_PAT = re.compile(r"^(?P<sid>(?P<did>[a-zA-Z\d\-_]+?)(-(\d+))?)$")
+    SID_PAT = re.compile(r"^(?P<sid>(?P<did>[a-zA-Z\d\-_]*?)-?\d*)$")
     SID_PAT_KWDLC = re.compile(r"^(?P<sid>(?P<did>w\d{6}-\d{10})(-\d+){1,2})$")
     SID_PAT_WAC = re.compile(r"^(?P<sid>(?P<did>wiki\d{8})(-\d{2})(-\d{2})?)$")
     count = 0
@@ -251,7 +252,9 @@ class Sentence(Unit):
         Args:
             comment: コメント行．
         """
-        doc_id, sent_id, rest = self._extract_sid(comment)
+        doc_id, sent_id, rest = _extract_did_and_sid(
+            comment, patterns=[self.SID_PAT_KWDLC, self.SID_PAT_WAC, self.SID_PAT]
+        )
         if sent_id is not None:
             self.sent_id = sent_id
         if doc_id is not None:
@@ -443,37 +446,6 @@ class Sentence(Unit):
         if post_init is True:
             sentence.__post_init__()
         return sentence
-
-    @staticmethod
-    def _extract_sid(comment: str) -> Tuple[Optional[str], Optional[str], str]:
-        """Extract sentence id and document id from comment line.
-
-        Args:
-            comment: A comment line.
-
-        Returns:
-            Optional[str]: Document id if exists; otherwise, None.
-            Optional[str]: Sentence id if exists; otherwise, None.
-            str: The rest of the comment line.
-        """
-        assert comment.startswith("#")
-        match_sid = re.match(r"# S-ID: ?(\S*)( .+)?$", comment)
-        if match_sid is not None:
-            sid_string = match_sid[1]
-            match = (
-                Sentence.SID_PAT_KWDLC.match(sid_string)
-                or Sentence.SID_PAT_WAC.match(sid_string)
-                or Sentence.SID_PAT.match(sid_string)
-            )
-            if match is not None:
-                return (
-                    match["did"],
-                    match["sid"],
-                    match_sid[2].lstrip() if match_sid[2] else "",
-                )
-            else:
-                logger.warning(f"unsupported S-ID format: {sid_string}")
-        return None, None, comment.lstrip("#").lstrip()
 
     def to_raw_text(self) -> str:
         """生テキストフォーマットに変換．"""
