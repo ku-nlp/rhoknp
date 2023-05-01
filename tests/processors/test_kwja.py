@@ -108,7 +108,7 @@ def kwja_client() -> Generator[TestClient, None, None]:
     yield TestClient(app)
 
 
-@pytest.mark.parametrize("text", ["こんにちは", ""])
+@pytest.mark.parametrize("text", ["こんにちは"])
 def test_cli_serve_analyze_kwja(kwja_client: TestClient, text: str) -> None:
     response = kwja_client.get("/analyze", params={"text": text})
     assert response.status_code == 200
@@ -117,6 +117,16 @@ def test_cli_serve_analyze_kwja(kwja_client: TestClient, text: str) -> None:
     assert "result" in json
     document = Document.from_knp(json["result"])
     assert document.text == text
+
+
+def test_analyze_kwja_error_empty(kwja_client: TestClient) -> None:
+    error_causing_text = ""
+    response = kwja_client.get("/analyze", params={"text": error_causing_text})
+    assert response.status_code == 400
+    json = response.json()
+    assert "error" in json
+    assert json["error"]["code"] == 400
+    assert json["error"]["message"] == "text is empty"
 
 
 @pytest.mark.parametrize("text", ["こんにちは", ""])
