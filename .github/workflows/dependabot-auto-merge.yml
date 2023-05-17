@@ -20,8 +20,8 @@ jobs:
         uses: lewagon/wait-on-check-action@v1.3.1
         with:
           ref: ${{ github.event.pull_request.head.sha }}
-          check-name: "Test" # Replace 'test' with the name of the required check
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          check-name: "Test" # the name of the required check
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
           wait-interval: 60 # Check every 60 seconds
       - name: Enable auto-merge for Dependabot PRs
         if: ${{ steps.metadata.outputs.update-type == 'version-update:semver-patch' }}
