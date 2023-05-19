@@ -102,7 +102,7 @@ class Morpheme(Unit):
         if homograph is False:
             Morpheme.count += 1
 
-        # Resume text if it is substituted
+        # Resume text if it is escaped
         if self.semantics.get("元半角") is True:
             self.text = self._ESCAPE_REVERSE_MAP.get(self.text, self.text)
 
