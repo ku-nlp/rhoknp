@@ -211,9 +211,7 @@ class Morpheme(Unit):
     @property
     def _surf(self) -> str:
         """表層表現（Juman/KNP フォーマット出力用）．"""
-        if self.semantics.get("元半角") is True:
-            return self._ESCAPE_MAP.get(self.text, self.text)
-        return self.text
+        return self._ESCAPE_MAP.get(self.text, self.text)
 
     @property
     def canon(self) -> Optional[str]:
@@ -323,6 +321,8 @@ class Morpheme(Unit):
     def to_jumanpp(self) -> str:
         """Juman++ フォーマットに変換．"""
         ret = " ".join(str(getattr(self, attr)) for attr in self._ATTRIBUTES)
+        if self.surf in self._ESCAPE_MAP:
+            self.semantics["元半角"] = True
         if self.semantics or self.semantics.is_nil is True:
             ret += f" {self.semantics.to_sstring()}"
         if self.features:
@@ -335,6 +335,8 @@ class Morpheme(Unit):
     def to_knp(self) -> str:
         """KNP フォーマットに変換．"""
         ret = " ".join(str(getattr(self, attr)) for attr in self._ATTRIBUTES)
+        if self.surf in self._ESCAPE_MAP:
+            self.semantics["元半角"] = True
         if self.semantics or self.semantics.is_nil is True:
             ret += f" {self.semantics.to_sstring()}"
         features = FeatureDict(self.features)  # deep copy
