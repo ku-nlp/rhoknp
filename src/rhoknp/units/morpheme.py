@@ -22,7 +22,7 @@ class Morpheme(Unit):
     """形態素クラス．"""
 
     _ATTRIBUTES = (
-        "surf",
+        "_surf",
         "reading",
         "lemma",
         "pos",
@@ -54,6 +54,9 @@ class Morpheme(Unit):
         + rf"( {SemanticsDict.PAT.pattern})?"
         + rf"( {FeatureDict.PAT.pattern})?$"
     )
+
+    _ESCAPE_MAP = {" ": "　", '"': "”"}
+    _ESCAPE_REVERSE_MAP = {v: k for k, v in _ESCAPE_MAP.items()}
 
     count = 0
 
@@ -98,6 +101,10 @@ class Morpheme(Unit):
         self.index = self.count  #: 文内におけるインデックス．
         if homograph is False:
             Morpheme.count += 1
+
+        # Resume text if it is escaped
+        if self.semantics.get("元半角") is True:
+            self.text = self._ESCAPE_REVERSE_MAP.get(self.text, self.text)
 
     def __eq__(self, other: Any) -> bool:
         if isinstance(other, type(self)) is False:
@@ -199,6 +206,13 @@ class Morpheme(Unit):
     @property
     def surf(self) -> str:
         """表層表現．"""
+        return self.text
+
+    @property
+    def _surf(self) -> str:
+        """表層表現（Juman/KNP フォーマット出力用）．"""
+        if self.semantics.get("元半角") is True:
+            return self._ESCAPE_MAP.get(self.text, self.text)
         return self.text
 
     @property
