@@ -211,7 +211,7 @@ class Morpheme(Unit):
     @property
     def _surf(self) -> str:
         """表層表現（Juman/KNP フォーマット出力用）．"""
-        return self._ESCAPE_MAP.get(self.text, self.text)
+        return self._ESCAPE_MAP.get(self.surf, self.surf)
 
     @property
     def canon(self) -> Optional[str]:
