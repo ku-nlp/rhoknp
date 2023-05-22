@@ -56,7 +56,7 @@ class Morpheme(Unit):
     )
 
     _ESCAPE_MAP = {" ": "　", '"': "”"}
-    _ESCAPE_REVERSE_MAP = {v: k for k, v in _ESCAPE_MAP.items()}
+    _UNESCAPE_MAP = {v: k for k, v in _ESCAPE_MAP.items()}
 
     count = 0
 
@@ -79,6 +79,7 @@ class Morpheme(Unit):
     ) -> None:
         super().__init__()
         self.text = text
+        self._text_escaped = text
         self.reading = reading  #: 読み．
         self.lemma = lemma  #: 原形．
         self.pos = pos  #: 品詞．
@@ -104,7 +105,7 @@ class Morpheme(Unit):
 
         # Resume text if it is escaped
         if self.semantics.get("元半角") is True:
-            self.text = self._ESCAPE_REVERSE_MAP.get(self.text, self.text)
+            self.text = self._UNESCAPE_MAP.get(self.text, self.text)
 
     def __eq__(self, other: Any) -> bool:
         if isinstance(other, type(self)) is False:
@@ -211,9 +212,7 @@ class Morpheme(Unit):
     @property
     def _surf(self) -> str:
         """表層表現（Juman/KNP フォーマット出力用）．"""
-        if self.semantics.get("元半角") is True:
-            return self._ESCAPE_MAP.get(self.text, self.text)
-        return self.text
+        return self._text_escaped
 
     @property
     def canon(self) -> Optional[str]:
