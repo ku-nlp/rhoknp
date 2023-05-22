@@ -56,7 +56,7 @@ class Morpheme(Unit):
     )
 
     _ESCAPE_MAP = {" ": "　", '"': "”"}
-    _ESCAPE_REVERSE_MAP = {v: k for k, v in _ESCAPE_MAP.items()}
+    _UNESCAPE_MAP = {v: k for k, v in _ESCAPE_MAP.items()}
 
     count = 0
 
@@ -105,7 +105,7 @@ class Morpheme(Unit):
 
         # Resume text if it is escaped
         if self.semantics.get("元半角") is True:
-            self.text = self._ESCAPE_REVERSE_MAP.get(self.text, self.text)
+            self.text = self._UNESCAPE_MAP.get(self.text, self.text)
 
     def __eq__(self, other: Any) -> bool:
         if isinstance(other, type(self)) is False:
