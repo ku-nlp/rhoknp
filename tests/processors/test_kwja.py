@@ -29,14 +29,7 @@ def test_seq2seq() -> None:
 
 @pytest.fixture()
 def kwja() -> Generator[KWJA, None, None]:
-    model = KWJA(options=["--model-size", "tiny", "--tasks", "char,word"])
-    # Workaround for the formatting error due to the debug message emitted from transformers
-    # TODO: Remove this after KWJA that depends on transformers>=4.27.0 is released
-    try:
-        _ = model.apply("...")
-    except ValueError:
-        pass
-    yield model
+    yield KWJA(options=["--model-size", "tiny", "--tasks", "char,word"])
 
 
 def test_apply(kwja: KWJA) -> None:

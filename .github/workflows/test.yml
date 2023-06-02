@@ -37,14 +37,13 @@ jobs:
           path: /tmp/kwja
           key: kwja-${{ env.KWJA_VERSION }}
       - name: Run tests with KWJA
-        # KWJA does not support Python 3.7 and 3.11
-        if: ${{ matrix.python-version != 3.7 && matrix.python-version != 3.11 }}
+        # KWJA does not support Python 3.7
+        if: ${{ matrix.python-version != 3.7 }}
         run: |
           pipx install kwja
-          ulimit -n 4096
           poetry run pytest --cov=./ --cov-report=xml -v ./tests
       - name: Run tests without KWJA
-        if: ${{ matrix.python-version == 3.7 || matrix.python-version == 3.11 }}
+        if: ${{ matrix.python-version == 3.7 }}
         run: |
           poetry run pytest -v --ignore ./tests/processors/test_kwja.py ./tests
       - name: Upload coverage to Codecov
