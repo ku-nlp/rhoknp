@@ -110,11 +110,12 @@ def _get_entity_spans(document: Document) -> List[_Span]:
     return spans
 
 
-def create_app(analyzer: AnalyzerType, *args, **kwargs) -> "fastapi.FastAPI":
+def create_app(analyzer: AnalyzerType, base_url: str = "/", *args, **kwargs) -> "fastapi.FastAPI":
     """解析器を起動し，HTTP サーバとして提供．
 
     Args:
         analyzer: 解析器の種類．
+        base_url: ベース URL．
         args: 解析器のオプション．
         kwargs: 解析器のオプション．
     """
@@ -153,6 +154,7 @@ def create_app(analyzer: AnalyzerType, *args, **kwargs) -> "fastapi.FastAPI":
             {
                 "request": request,
                 "title": title,
+                "base_url": base_url,
                 "version": version,
                 "error": exc.detail,
             },
@@ -172,6 +174,7 @@ def create_app(analyzer: AnalyzerType, *args, **kwargs) -> "fastapi.FastAPI":
             {
                 "request": request,
                 "title": title,
+                "base_url": base_url,
                 "version": version,
                 "text": text,
                 "analyzed_document": analyzed_document,
@@ -203,7 +206,7 @@ def create_app(analyzer: AnalyzerType, *args, **kwargs) -> "fastapi.FastAPI":
 
 
 def serve_analyzer(
-    analyzer: AnalyzerType, host: str, port: int, analyzer_args: Optional[List[str]]
+    analyzer: AnalyzerType, host: str, port: int, base_url: str, analyzer_args: Optional[List[str]]
 ) -> None:  # pragma: no cover
     """解析器を起動し，HTTP サーバとして提供．
 
@@ -211,9 +214,10 @@ def serve_analyzer(
         analyzer: 解析器の種類．
         host: ホスト．
         port: ポート．
+        base_url: ベース URL．
         analyzer_args: 解析器のオプション．
     """
-    app = create_app(analyzer, options=analyzer_args)
+    app = create_app(analyzer, base_url, options=analyzer_args)
     config = uvicorn.Config(app, host=host, port=port)
     server = uvicorn.Server(config)
     server.run()
