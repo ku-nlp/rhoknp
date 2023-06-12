@@ -46,7 +46,7 @@ def test_apply(knp: KNP) -> None:
 )
 def test_apply_to_sentence(knp: KNP, text: str) -> None:
     sent = knp.apply_to_sentence(text)
-    assert sent.text == text.replace(" ", "　").replace('"', "”").replace("\r", "").replace("\n", "")
+    assert sent.text == text.replace("\r", "").replace("\n", "")
 
 
 def test_thread_safe(knp: KNP) -> None:
@@ -76,7 +76,7 @@ def test_thread_safe(knp: KNP) -> None:
 )
 def test_apply_to_document(knp: KNP, text: str) -> None:
     doc = knp.apply_to_document(text)
-    assert doc.text == text.replace(" ", "　").replace('"', "”").replace("\r", "").replace("\n", "")
+    assert doc.text == text.replace("\r", "").replace("\n", "")
 
 
 def test_get_version() -> None:

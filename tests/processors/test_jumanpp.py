@@ -45,7 +45,7 @@ def test_apply(jumanpp: Jumanpp) -> None:
 )
 def test_apply_to_sentence(jumanpp: Jumanpp, text: str) -> None:
     sent = jumanpp.apply_to_sentence(text)
-    assert sent.text == text.replace(" ", "　").replace('"', "”").replace("\r", "").replace("\n", "")
+    assert sent.text == text.replace("\r", "").replace("\n", "")
 
 
 @pytest.mark.parametrize(
@@ -64,7 +64,7 @@ def test_apply_to_sentence(jumanpp: Jumanpp, text: str) -> None:
 )
 def test_apply_to_document(jumanpp: Jumanpp, text: str) -> None:
     doc = jumanpp.apply_to_document(text)
-    assert doc.text == text.replace(" ", "　").replace('"', "”").replace("\r", "").replace("\n", "")
+    assert doc.text == text.replace("\r", "").replace("\n", "")
 
 
 def test_thread_safe(jumanpp: Jumanpp) -> None:
@@ -97,7 +97,7 @@ def test_whitespace(jumanpp: Jumanpp) -> None:
     text = "半角 スペース"
     sent = jumanpp.apply(text)
     assert len(sent.morphemes) == 3
-    assert "".join(m.text for m in sent.morphemes) == text.replace(" ", "　")
+    assert "".join(m.text for m in sent.morphemes) == text
     assert sent.morphemes[1].pos == "特殊"
     assert sent.morphemes[1].subpos == "空白"
 
