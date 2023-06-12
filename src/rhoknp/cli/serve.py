@@ -153,6 +153,7 @@ def create_app(analyzer: AnalyzerType, *args, **kwargs) -> "fastapi.FastAPI":
             {
                 "request": request,
                 "title": title,
+                "base_url": request.scope.get("root_path", "/"),
                 "version": version,
                 "error": exc.detail,
             },
@@ -172,6 +173,7 @@ def create_app(analyzer: AnalyzerType, *args, **kwargs) -> "fastapi.FastAPI":
             {
                 "request": request,
                 "title": title,
+                "base_url": request.scope.get("root_path", "/"),
                 "version": version,
                 "text": text,
                 "analyzed_document": analyzed_document,
@@ -203,7 +205,7 @@ def create_app(analyzer: AnalyzerType, *args, **kwargs) -> "fastapi.FastAPI":
 
 
 def serve_analyzer(
-    analyzer: AnalyzerType, host: str, port: int, analyzer_args: Optional[List[str]]
+    analyzer: AnalyzerType, host: str, port: int, root_path: str, analyzer_args: Optional[List[str]]
 ) -> None:  # pragma: no cover
     """解析器を起動し，HTTP サーバとして提供．
 
@@ -211,9 +213,10 @@ def serve_analyzer(
         analyzer: 解析器の種類．
         host: ホスト．
         port: ポート．
+        root_path: ベース URL．
         analyzer_args: 解析器のオプション．
     """
     app = create_app(analyzer, options=analyzer_args)
-    config = uvicorn.Config(app, host=host, port=port)
+    config = uvicorn.Config(app, host=host, port=port, root_path=root_path)
     server = uvicorn.Server(config)
     server.run()

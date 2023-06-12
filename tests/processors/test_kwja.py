@@ -17,7 +17,7 @@ def test_typo() -> None:
 
 
 def test_seq2seq() -> None:
-    kwja = KWJA(options=["--model-size", "tiny", "--tasks", "seq2seq"])
+    kwja = KWJA(options=["--model-size", "tiny", "--tasks", "senter,seq2seq"])
     text = "こんにちは"
     for doc_or_sent in (kwja.apply_to_document(text), kwja.apply_to_sentence(text)):
         assert isinstance(doc_or_sent, (Document, Sentence))
@@ -29,7 +29,7 @@ def test_seq2seq() -> None:
 
 @pytest.fixture()
 def kwja() -> Generator[KWJA, None, None]:
-    yield KWJA(options=["--model-size", "tiny", "--tasks", "char,word"])
+    yield KWJA(options=["--model-size", "tiny", "--tasks", "senter,char,word"])
 
 
 def test_apply(kwja: KWJA) -> None:
@@ -92,12 +92,12 @@ def test_is_available(kwja: KWJA) -> None:
 
 
 def test_repr(kwja: KWJA) -> None:
-    assert repr(kwja) == "KWJA(executable='kwja', options=['--model-size', 'tiny', '--tasks', 'char,word'])"
+    assert repr(kwja) == "KWJA(executable='kwja', options=['--model-size', 'tiny', '--tasks', 'senter,char,word'])"
 
 
 @pytest.fixture()
 def kwja_client() -> Generator[TestClient, None, None]:
-    app = create_app(AnalyzerType.KWJA, options=["--model-size", "tiny", "--tasks", "char,word"])
+    app = create_app(AnalyzerType.KWJA, options=["--model-size", "tiny", "--tasks", "senter,char,word"])
     yield TestClient(app)
 
 
