@@ -79,7 +79,7 @@ def serve(
     analyzer: AnalyzerType = typer.Argument(..., help="Analyzer to use. Choose from jumanpp, knp, kwja."),
     host: str = typer.Option("localhost", "--host", "-h", help="Host to listen on."),
     port: int = typer.Option(8000, "--port", "-p", help="Port to listen on."),
-    root_path: str = typer.Option("/", "--root-path", help="Root path of the server."),
+    base_url: str = typer.Option("/", "--base-url", help="Root path of the server."),
     analyzer_args: Optional[List[str]] = typer.Argument(None, help="Additional arguments for the analyzer."),
 ) -> None:
     """解析器を起動し，HTTP サーバとして提供．
@@ -88,10 +88,10 @@ def serve(
         analyzer: 解析器の種類．
         host: ホスト．
         port: ポート．
-        root_path: ルートパス．
+        base_url: ベース URL．
         analyzer_args: 解析器のオプション．
     """
-    serve_analyzer(analyzer, host, port, root_path, analyzer_args)  # pragma: no cover
+    serve_analyzer(analyzer, host, port, base_url, analyzer_args)  # pragma: no cover
 
 
 if __name__ == "__main__":

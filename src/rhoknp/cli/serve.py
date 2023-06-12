@@ -110,22 +110,15 @@ def _get_entity_spans(document: Document) -> List[_Span]:
     return spans
 
 
-def create_app(analyzer: AnalyzerType, *args, **kwargs) -> "fastapi.FastAPI":
+def create_app(analyzer: AnalyzerType, base_url: str = "/", *args, **kwargs) -> "fastapi.FastAPI":
     """解析器を起動し，HTTP サーバとして提供．
 
     Args:
         analyzer: 解析器の種類．
+        base_url: ベース URL．
         args: 解析器のオプション．
         kwargs: 解析器のオプション．
     """
-    app = fastapi.FastAPI()
-    app.mount("/static", fastapi.staticfiles.StaticFiles(directory=here.joinpath("static")), name="static")
-
-    templates = fastapi.templating.Jinja2Templates(directory=here.joinpath("templates"))
-    templates.env.globals["get_string_diff"] = _get_string_diff
-    templates.env.globals["draw_tree"] = _draw_tree
-    templates.env.globals["get_entity_spans"] = _get_entity_spans
-
     processor: Union[Jumanpp, KNP, KWJA]
     title: str
     template_name: str
@@ -146,17 +139,22 @@ def create_app(analyzer: AnalyzerType, *args, **kwargs) -> "fastapi.FastAPI":
         raise AssertionError  # unreachable
     version = processor.get_version()
 
+    app = fastapi.FastAPI()
+    app.mount("/static", fastapi.staticfiles.StaticFiles(directory=here.joinpath("static")), name="static")
+
+    templates = fastapi.templating.Jinja2Templates(directory=here.joinpath("templates"))
+    templates.env.globals["get_string_diff"] = _get_string_diff
+    templates.env.globals["draw_tree"] = _draw_tree
+    templates.env.globals["get_entity_spans"] = _get_entity_spans
+    templates.env.globals["title"] = title
+    templates.env.globals["version"] = version
+    templates.env.globals["base_url"] = base_url
+
     @app.exception_handler(_HTTPExceptionForIndex)
     async def http_exception_handler_for_index(request: fastapi.Request, exc: _HTTPExceptionForIndex):
         return templates.TemplateResponse(
             template_name,
-            {
-                "request": request,
-                "title": title,
-                "base_url": request.scope.get("root_path", "/"),
-                "version": version,
-                "error": exc.detail,
-            },
+            {"request": request, "error": exc.detail},
             status_code=exc.status_code,
         )
 
@@ -170,14 +168,7 @@ def create_app(analyzer: AnalyzerType, *args, **kwargs) -> "fastapi.FastAPI":
                 raise _HTTPExceptionForIndex(fastapi.status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
         return templates.TemplateResponse(
             template_name,
-            {
-                "request": request,
-                "title": title,
-                "base_url": request.scope.get("root_path", "/"),
-                "version": version,
-                "text": text,
-                "analyzed_document": analyzed_document,
-            },
+            {"request": request, "text": text, "analyzed_document": analyzed_document},
         )
 
     @app.exception_handler(_HTTPExceptionForAnalyze)
@@ -205,7 +196,7 @@ def create_app(analyzer: AnalyzerType, *args, **kwargs) -> "fastapi.FastAPI":
 
 
 def serve_analyzer(
-    analyzer: AnalyzerType, host: str, port: int, root_path: str, analyzer_args: Optional[List[str]]
+    analyzer: AnalyzerType, host: str, port: int, base_url: str, analyzer_args: Optional[List[str]]
 ) -> None:  # pragma: no cover
     """解析器を起動し，HTTP サーバとして提供．
 
@@ -213,10 +204,10 @@ def serve_analyzer(
         analyzer: 解析器の種類．
         host: ホスト．
         port: ポート．
-        root_path: ベース URL．
+        base_url: ベース URL．
         analyzer_args: 解析器のオプション．
     """
-    app = create_app(analyzer, options=analyzer_args)
-    config = uvicorn.Config(app, host=host, port=port, root_path=root_path)
+    app = create_app(analyzer, base_url, options=analyzer_args)
+    config = uvicorn.Config(app, host=host, port=port)
     server = uvicorn.Server(config)
     server.run()
