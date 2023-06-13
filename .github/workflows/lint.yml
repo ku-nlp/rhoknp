@@ -14,7 +14,5 @@ jobs:
           python-version: "3.7"
       - name: Run linters
         run: |
-          python3 -m pip install --user pipx
-          python3 -m pipx ensurepath
-          python3 -m pipx install pre-commit
+          pipx install pre-commit
           pre-commit run --all-files
