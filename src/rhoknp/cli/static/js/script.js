@@ -1,6 +1,6 @@
 /* Keep the status of the accordion to show analysis results */
 const defaultOpenAccordionItems = document.querySelectorAll(
-  ".accordion-item-default-open"
+  ".accordion-item-default-open",
 );
 defaultOpenAccordionItems.forEach((item) => {
   const itemId = `accordion-${item.id}`;
