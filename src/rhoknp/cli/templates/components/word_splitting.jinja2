@@ -1,17 +1,18 @@
-<div class="accordion-item accordion-item-default-open" id="word-splitting">
+<div class="accordion-item accordion-item-default-open"
+     id="word-splitting">
     <h6 class="accordion-header" id="heading-word-splitting">
-        <button
-            class="accordion-button collapsed"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#body-word-splitting"
-            aria-expanded="true"
-            aria-controls="body-word-splitting"
-        >
-            分かち書き
-        </button>
+        <button class="accordion-button collapsed"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#body-word-splitting"
+                aria-expanded="true"
+                aria-controls="body-word-splitting">分かち書き</button>
     </h6>
-    <div id="body-word-splitting" class="accordion-collapse collapse" aria-labelledby="heading-word-splitting">
-        <div class="accordion-body">{% for morpheme in analyzed_document.morphemes %}{{ morpheme.text + " " }}{% endfor %}</div>
+    <div id="body-word-splitting"
+         class="accordion-collapse collapse"
+         aria-labelledby="heading-word-splitting">
+        <div class="accordion-body">
+            {% for morpheme in analyzed_document.morphemes %}{{ morpheme.text + " " }}{% endfor %}
+        </div>
     </div>
 </div>

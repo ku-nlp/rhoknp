@@ -1,17 +1,16 @@
-<div class="accordion-item accordion-item-default-open" id="morphological-analysis">
+<div class="accordion-item accordion-item-default-open"
+     id="morphological-analysis">
     <h6 class="accordion-header" id="heading-morphological-analysis">
-        <button
-            class="accordion-button collapsed"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#body-morphological-analysis"
-            aria-expanded="true"
-            aria-controls="body-morphological-analysis"
-        >
-            形態素解析
-        </button>
+        <button class="accordion-button collapsed"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#body-morphological-analysis"
+                aria-expanded="true"
+                aria-controls="body-morphological-analysis">形態素解析</button>
     </h6>
-    <div id="body-morphological-analysis" class="accordion-collapse collapse" aria-labelledby="heading-morphological-analysis">
+    <div id="body-morphological-analysis"
+         class="accordion-collapse collapse"
+         aria-labelledby="heading-morphological-analysis">
         <div class="accordion-body">
             <table class="table table-sm table-bordered">
                 <thead>
@@ -28,16 +27,16 @@
                 </thead>
                 <tbody>
                     {% for morpheme in analyzed_document.morphemes %}
-                    <tr>
-                        <td>{{ morpheme.text }}</td>
-                        <td>{{ morpheme.reading }}</td>
-                        <td>{{ morpheme.lemma }}</td>
-                        <td>{{ morpheme.pos }}</td>
-                        <td>{{ morpheme.subpos }}</td>
-                        <td>{{ morpheme.conjtype }}</td>
-                        <td>{{ morpheme.conjform }}</td>
-                        <td>{{ morpheme.semantics.to_sstring().strip('"') }}</td>
-                    </tr>
+                        <tr>
+                            <td>{{ morpheme.text }}</td>
+                            <td>{{ morpheme.reading }}</td>
+                            <td>{{ morpheme.lemma }}</td>
+                            <td>{{ morpheme.pos }}</td>
+                            <td>{{ morpheme.subpos }}</td>
+                            <td>{{ morpheme.conjtype }}</td>
+                            <td>{{ morpheme.conjform }}</td>
+                            <td>{{ morpheme.semantics.to_sstring() .strip('"') }}</td>
+                        </tr>
                     {% endfor %}
                 </tbody>
             </table>
