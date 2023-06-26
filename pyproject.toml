@@ -27,8 +27,8 @@ fastapi = { version = ">=0.92.0,<1", optional = true }
 jinja2 = { version = "^3.1", optional = true }
 
 [tool.poetry.group.dev.dependencies]
+python = "^3.8"
 ipython = [
-    { version = "^7.34", python = "<3.8" },
     { version = "~8.12.1", python = "3.8" },
     { version = "^8.13", python = ">=3.9" },
 ]
