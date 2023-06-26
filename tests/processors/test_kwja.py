@@ -7,13 +7,47 @@ from rhoknp import KWJA, Document, Sentence
 from rhoknp.cli.serve import AnalyzerType, create_app
 
 
+@pytest.fixture
+def kwja() -> Generator[KWJA, None, None]:
+    yield KWJA(options=["--model-size", "tiny", "--tasks", "senter,char,word"])
+
+
+def test_get_version() -> None:
+    kwja = KWJA()
+    _ = kwja.get_version()
+
+
+def test_is_available(kwja: KWJA) -> None:
+    assert kwja.is_available() is True
+
+    kwja = KWJA("kwjaaaaaaaaaaaaaaaaa")
+    assert kwja.is_available() is False
+
+    with pytest.raises(RuntimeError):
+        _ = kwja.apply_to_sentence("test")
+
+    with pytest.raises(RuntimeError):
+        _ = kwja.apply_to_document("test")
+
+    with pytest.raises(RuntimeError):
+        _ = kwja.get_version()
+
+
 def test_typo() -> None:
     kwja = KWJA(options=["--model-size", "tiny", "--tasks", "typo"])
     text = "人口知能"
+    for doc_or_sent in (kwja.apply_to_document(text), kwja.apply_to_sentence(text)):
+        assert doc_or_sent.text == "人工知能"
+
+
+def test_senter() -> None:
+    kwja = KWJA(options=["--model-size", "tiny", "--tasks", "senter"])
+    text = "こんにちは。さようなら。"
     document = kwja.apply_to_document(text)
-    sentence = kwja.apply_to_sentence(text)
-    assert document.text == "人工知能"
-    assert sentence.text == "人工知能"
+    sentences = document.sentences
+    assert len(sentences) == 2
+    assert sentences[0].text == "こんにちは。"
+    assert sentences[1].text == "さようなら。"
 
 
 def test_seq2seq() -> None:
@@ -27,9 +61,36 @@ def test_seq2seq() -> None:
         assert morpheme.text == morpheme.reading == morpheme.lemma == "こんにちは"
 
 
-@pytest.fixture()
-def kwja() -> Generator[KWJA, None, None]:
-    yield KWJA(options=["--model-size", "tiny", "--tasks", "senter,char,word"])
+def test_char() -> None:
+    kwja = KWJA(options=["--model-size", "tiny", "--tasks", "senter,char"])
+    text = "こんにちは"
+    for doc_or_sent in (kwja.apply_to_document(text), kwja.apply_to_sentence(text)):
+        assert isinstance(doc_or_sent, (Document, Sentence))
+        morphemes = doc_or_sent.morphemes
+        assert len(morphemes) > 0
+        morpheme = morphemes[0]
+        assert text.startswith(morpheme.text)
+        assert morpheme.reading == "*"
+        assert morpheme.lemma == "*"
+
+
+def test_word() -> None:
+    kwja = KWJA(options=["--model-size", "tiny", "--tasks", "senter,char,word"])
+    text = "こんにちは"
+    for doc_or_sent in (kwja.apply_to_document(text), kwja.apply_to_sentence(text)):
+        assert isinstance(doc_or_sent, (Document, Sentence))
+        morphemes = doc_or_sent.morphemes
+        assert len(morphemes) > 0
+        assert text.startswith(morphemes[0].text)
+        base_phrases = doc_or_sent.base_phrases
+        assert len(base_phrases) > 0
+        assert text.startswith(base_phrases[0].text)
+        phrases = doc_or_sent.phrases
+        assert len(phrases) > 0
+        assert text.startswith(phrases[0].text)
+        clauses = doc_or_sent.clauses
+        assert len(clauses) > 0
+        assert text.startswith(clauses[0].text)
 
 
 def test_apply(kwja: KWJA) -> None:
@@ -42,9 +103,6 @@ def test_apply(kwja: KWJA) -> None:
 
 
 def test_unsupported_option() -> None:
-    with pytest.raises(ValueError):
-        _ = KWJA(options=["--model-size", "tiny", "--tasks", "typo,char"])
-
     with pytest.raises(ValueError):
         _ = KWJA(options=["--model-size", "tiny", "--tasks", "wakati"])
 
@@ -68,27 +126,6 @@ def test_unsupported_option() -> None:
 def test_apply_to_sentence(kwja: KWJA, text: str) -> None:
     sent = kwja.apply_to_sentence(text)
     assert sent.text == text.replace('"', "”").replace(" ", "␣").replace("\r", "").replace("\n", "")
-
-
-def test_get_version() -> None:
-    kwja = KWJA()
-    _ = kwja.get_version()
-
-
-def test_is_available(kwja: KWJA) -> None:
-    assert kwja.is_available() is True
-
-    kwja = KWJA("kwjaaaaaaaaaaaaaaaaa")
-    assert kwja.is_available() is False
-
-    with pytest.raises(RuntimeError):
-        _ = kwja.apply_to_sentence("test")
-
-    with pytest.raises(RuntimeError):
-        _ = kwja.apply_to_document("test")
-
-    with pytest.raises(RuntimeError):
-        _ = kwja.get_version()
 
 
 def test_repr(kwja: KWJA) -> None:

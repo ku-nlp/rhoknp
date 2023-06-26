@@ -5,7 +5,7 @@ from threading import Lock
 from typing import List, Optional, Union
 
 from rhoknp.processors.processor import Processor
-from rhoknp.units import Document, Sentence
+from rhoknp.units import Document, Morpheme, Sentence
 
 logger = logging.getLogger(__name__)
 
@@ -41,9 +41,10 @@ class KWJA(Processor):
                 self._output_format = "knp"
             elif "char" in tasks:
                 self._output_format = "words"
-                raise ValueError(f"`--tasks {','.join(tasks)}` option is not supported yet in rhoknp.")
             elif "seq2seq" in tasks:
-                self._output_format = "seq2seq"
+                self._output_format = "jumanpp"
+            elif "senter" in tasks:
+                self._output_format = "line_by_line"
             elif "typo" in tasks:
                 self._output_format = "raw"
             else:
@@ -95,8 +96,29 @@ class KWJA(Processor):
                 out_text += line
             if self._output_format == "raw":
                 return Document.from_raw_text(out_text)
-            elif self._output_format == "seq2seq":
+            elif self._output_format == "line_by_line":
+                return Document.from_line_by_line_text(out_text)
+            elif self._output_format == "jumanpp":
                 return Document.from_jumanpp(out_text)
+            elif self._output_format == "words":
+                document = Document()
+                sentences = []
+                sentence_lines: List[str] = []
+                for line in out_text.split("\n"):
+                    if line.strip() == "":
+                        continue
+                    if Sentence.is_comment_line(line) and sentence_lines:
+                        sentences.append(
+                            self._create_sentence_from_words_format("\n".join(sentence_lines) + "\n", post_init=False)
+                        )
+                        sentence_lines = []
+                    sentence_lines.append(line)
+                sentences.append(
+                    self._create_sentence_from_words_format("\n".join(sentence_lines) + "\n", post_init=False)
+                )
+                document.sentences = sentences
+                document.__post_init__()
+                return document
             else:
                 assert self._output_format == "knp"
                 return Document.from_knp(out_text)
@@ -129,11 +151,47 @@ class KWJA(Processor):
                 out_text += line
             if self._output_format == "raw":
                 return Sentence.from_raw_text(out_text)
-            elif self._output_format == "seq2seq":
+            elif self._output_format == "line_by_line":
+                return Sentence.from_raw_text(out_text)
+            elif self._output_format == "jumanpp":
                 return Sentence.from_jumanpp(out_text)
+            elif self._output_format == "words":
+                return self._create_sentence_from_words_format(out_text)
             else:
                 assert self._output_format == "knp"
                 return Sentence.from_knp(out_text)
+
+    @staticmethod
+    def _create_sentence_from_words_format(text: str, post_init: bool = True) -> Sentence:
+        sentence = Sentence()
+        morphemes: List[Morpheme] = []
+        for line in text.split("\n"):
+            if line.strip() == "":
+                continue
+            if Sentence.is_comment_line(line):
+                sentence.comment = line
+                continue
+            words: List[str] = line.split(" ")
+            morphemes += [
+                Morpheme(
+                    text=word,
+                    reading="*",
+                    lemma="*",
+                    pos="未定義語",
+                    pos_id=15,
+                    subpos="その他",
+                    subpos_id=1,
+                    conjtype="*",
+                    conjtype_id=0,
+                    conjform="*",
+                    conjform_id=0,
+                )
+                for word in words
+            ]
+        sentence.morphemes = morphemes
+        if post_init is True:
+            sentence.__post_init__()
+        return sentence
 
     def get_version(self) -> str:
         """Juman++ のバージョンを返す．"""
