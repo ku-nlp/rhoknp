@@ -38,6 +38,7 @@ class KNP(Processor):
         options: Optional[List[str]] = None,
         senter: Optional[Processor] = None,
         jumanpp: Optional[Processor] = None,
+        skip_sanity_check: bool = False,
     ) -> None:
         self.executable = executable  #: KNP のパス．
         self.options = options or ["-tab"]  #: KNP のオプション．
@@ -46,11 +47,13 @@ class KNP(Processor):
         self.senter = senter
         self.jumanpp = jumanpp
         self._proc: Optional[Popen] = None
+        self._lock = Lock()
         try:
             self._proc = Popen(self.run_command, stdin=PIPE, stdout=PIPE, stderr=PIPE, encoding="utf-8")
+            if skip_sanity_check is False:
+                _ = self.apply(Sentence.from_jumanpp(""))
         except Exception as e:
             logger.warning(f"failed to start KNP: {e}")
-        self._lock = Lock()
 
     def __repr__(self) -> str:
         arg_string = f"executable={repr(self.executable)}"

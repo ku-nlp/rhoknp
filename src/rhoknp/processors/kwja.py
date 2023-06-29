@@ -30,6 +30,7 @@ class KWJA(Processor):
         self,
         executable: str = "kwja",
         options: Optional[List[str]] = None,
+        skip_sanity_check: bool = False,
     ) -> None:
         self.executable = executable  #: KWJA のパス．
         self.options: List[str] = options or []  #: KWJA のオプション．
@@ -51,6 +52,8 @@ class KWJA(Processor):
                 raise ValueError(f"invalid task: {tasks}")
         try:
             self._proc = Popen(self.run_command, stdin=PIPE, stdout=PIPE, stderr=PIPE, encoding="utf-8")
+            if skip_sanity_check is False:
+                _ = self.apply(Sentence.from_raw_text(""))
         except Exception as e:
             logger.warning(f"failed to start KWJA: {e}")
         self._lock = Lock()

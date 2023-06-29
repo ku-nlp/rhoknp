@@ -34,16 +34,19 @@ class Jumanpp(Processor):
         executable: str = "jumanpp",
         options: Optional[List[str]] = None,
         senter: Optional[Processor] = None,
+        skip_sanity_check: bool = False,
     ) -> None:
         self.executable = executable  #: Juman++ のパス．
         self.options: List[str] = options or []  #: Juman++ のオプション．
         self.senter = senter
         self._proc: Optional[Popen] = None
+        self._lock = Lock()
         try:
             self._proc = Popen(self.run_command, stdin=PIPE, stdout=PIPE, stderr=PIPE, encoding="utf-8")
+            if skip_sanity_check is False:
+                _ = self.apply(Sentence.from_raw_text(""))
         except Exception as e:
             logger.warning(f"failed to start Juman++: {e}")
-        self._lock = Lock()
 
     def __repr__(self) -> str:
         arg_string = f"executable={repr(self.executable)}"
