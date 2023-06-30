@@ -6,15 +6,16 @@ from fastapi.testclient import TestClient
 from rhoknp import KWJA, Document, Sentence
 from rhoknp.cli.serve import AnalyzerType, create_app
 
-kwja = KWJA(options=["--model-size", "tiny", "--tasks", "senter,char,word"])
+is_kwja_available = KWJA(options=["--model-size", "tiny"]).is_available()
 
 
-@pytest.mark.skipif(not kwja.is_available(), reason="KWJA is not available")
+@pytest.mark.skipif(not is_kwja_available, reason="KWJA is not available")
 def test_get_version() -> None:
+    kwja = KWJA(options=["--model-size", "tiny"])
     _ = kwja.get_version()
 
 
-@pytest.mark.skipif(not kwja.is_available(), reason="KWJA is not available")
+@pytest.mark.skipif(not is_kwja_available, reason="KWJA is not available")
 def test_is_available() -> None:
     kwja = KWJA(options=["--model-size", "tiny"])
     assert kwja.is_available() is True
@@ -32,7 +33,7 @@ def test_is_available() -> None:
         _ = kwja.get_version()
 
 
-@pytest.mark.skipif(not kwja.is_available(), reason="KWJA is not available")
+@pytest.mark.skipif(not is_kwja_available, reason="KWJA is not available")
 def test_typo() -> None:
     kwja = KWJA(options=["--model-size", "tiny", "--tasks", "typo"])
     text = "人口知能"
@@ -40,7 +41,7 @@ def test_typo() -> None:
         assert doc_or_sent.text == "人工知能"
 
 
-@pytest.mark.skipif(not kwja.is_available(), reason="KWJA is not available")
+@pytest.mark.skipif(not is_kwja_available, reason="KWJA is not available")
 def test_senter() -> None:
     kwja = KWJA(options=["--model-size", "tiny", "--tasks", "senter"])
     text = "こんにちは。さようなら。"
@@ -51,7 +52,7 @@ def test_senter() -> None:
     assert sentences[1].text == "さようなら。"
 
 
-@pytest.mark.skipif(not kwja.is_available(), reason="KWJA is not available")
+@pytest.mark.skipif(not is_kwja_available, reason="KWJA is not available")
 def test_seq2seq() -> None:
     kwja = KWJA(options=["--model-size", "tiny", "--tasks", "senter,seq2seq"])
     text = "こんにちは"
@@ -63,7 +64,7 @@ def test_seq2seq() -> None:
         assert morpheme.text == morpheme.reading == morpheme.lemma == "こんにちは"
 
 
-@pytest.mark.skipif(not kwja.is_available(), reason="KWJA is not available")
+@pytest.mark.skipif(not is_kwja_available, reason="KWJA is not available")
 def test_char() -> None:
     kwja = KWJA(options=["--model-size", "tiny", "--tasks", "senter,char"])
     text = "こんにちは"
@@ -77,7 +78,7 @@ def test_char() -> None:
         assert morpheme.lemma == "*"
 
 
-@pytest.mark.skipif(not kwja.is_available(), reason="KWJA is not available")
+@pytest.mark.skipif(not is_kwja_available, reason="KWJA is not available")
 def test_word() -> None:
     kwja = KWJA(options=["--model-size", "tiny", "--tasks", "senter,char,word"])
     text = "こんにちは"
@@ -97,8 +98,9 @@ def test_word() -> None:
         assert text.startswith(clauses[0].text)
 
 
-@pytest.mark.skipif(not kwja.is_available(), reason="KWJA is not available")
+@pytest.mark.skipif(not is_kwja_available, reason="KWJA is not available")
 def test_apply() -> None:
+    kwja = KWJA(options=["--model-size", "tiny"])
     text = "外国人参政権"
     assert isinstance(kwja.apply(text), Document)
     assert isinstance(kwja.apply(Document.from_raw_text(text)), Document)
@@ -112,7 +114,7 @@ def test_unsupported_option() -> None:
         _ = KWJA(options=["--model-size", "tiny", "--tasks", "wakati"])
 
 
-@pytest.mark.skipif(not kwja.is_available(), reason="KWJA is not available")
+@pytest.mark.skipif(not is_kwja_available, reason="KWJA is not available")
 @pytest.mark.parametrize(
     "text",
     [
@@ -130,6 +132,7 @@ def test_unsupported_option() -> None:
     ],
 )
 def test_apply_to_sentence(text: str) -> None:
+    kwja = KWJA(options=["--model-size", "tiny"])
     sent = kwja.apply_to_sentence(text)
     assert sent.text == text.replace('"', "”").replace(" ", "␣").replace("\r", "").replace("\n", "")
 
@@ -139,14 +142,14 @@ def test_repr() -> None:
     assert repr(kwja) == "KWJA(executable='kwja', options=['--model-size', 'tiny', '--tasks', 'senter,char,word'])"
 
 
-@pytest.mark.skipif(not kwja.is_available(), reason="KWJA is not available")
+@pytest.mark.skipif(not is_kwja_available, reason="KWJA is not available")
 @pytest.fixture()
 def kwja_client() -> Generator[TestClient, None, None]:
     app = create_app(AnalyzerType.KWJA, options=["--model-size", "tiny", "--tasks", "senter,char,word"])
     yield TestClient(app)
 
 
-@pytest.mark.skipif(not kwja.is_available(), reason="KWJA is not available")
+@pytest.mark.skipif(not is_kwja_available, reason="KWJA is not available")
 @pytest.mark.parametrize("text", ["こんにちは"])
 def test_cli_serve_analyze_kwja(kwja_client: TestClient, text: str) -> None:
     response = kwja_client.get("/analyze", params={"text": text})
@@ -158,7 +161,7 @@ def test_cli_serve_analyze_kwja(kwja_client: TestClient, text: str) -> None:
     assert document.text == text
 
 
-@pytest.mark.skipif(not kwja.is_available(), reason="KWJA is not available")
+@pytest.mark.skipif(not is_kwja_available, reason="KWJA is not available")
 def test_analyze_kwja_error_empty(kwja_client: TestClient) -> None:
     error_causing_text = ""
     response = kwja_client.get("/analyze", params={"text": error_causing_text})
@@ -169,7 +172,7 @@ def test_analyze_kwja_error_empty(kwja_client: TestClient) -> None:
     assert json["error"]["message"] == "text is empty"
 
 
-@pytest.mark.skipif(not kwja.is_available(), reason="KWJA is not available")
+@pytest.mark.skipif(not is_kwja_available, reason="KWJA is not available")
 @pytest.mark.parametrize("text", ["こんにちは", ""])
 def test_cli_serve_index_kwja(kwja_client: TestClient, text: str) -> None:
     response = kwja_client.get("/", params={"text": text})

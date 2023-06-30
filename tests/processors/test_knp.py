@@ -4,11 +4,12 @@ import pytest
 
 from rhoknp import KNP, Document, Jumanpp, RegexSenter, Sentence
 
-knp = KNP(options=["-tab"])
+is_knp_available = KNP().is_available()
 
 
-@pytest.mark.skipif(not knp.is_available(), reason="KNP is not available")
+@pytest.mark.skipif(not is_knp_available, reason="KNP is not available")
 def test_call() -> None:
+    knp = KNP()
     text = "外国人参政権"
     assert isinstance(knp(text), Document)
     assert isinstance(knp(Document.from_raw_text(text)), Document)
@@ -17,8 +18,9 @@ def test_call() -> None:
         knp(1)  # type: ignore
 
 
-@pytest.mark.skipif(not knp.is_available(), reason="KNP is not available")
+@pytest.mark.skipif(not is_knp_available, reason="KNP is not available")
 def test_apply() -> None:
+    knp = KNP()
     text = "外国人参政権"
     assert isinstance(knp.apply(text), Document)
     assert isinstance(knp.apply(Document.from_raw_text(text)), Document)
@@ -27,7 +29,7 @@ def test_apply() -> None:
         knp.apply(1)  # type: ignore
 
 
-@pytest.mark.skipif(not knp.is_available(), reason="KNP is not available")
+@pytest.mark.skipif(not is_knp_available, reason="KNP is not available")
 @pytest.mark.parametrize(
     "text",
     [
@@ -44,12 +46,14 @@ def test_apply() -> None:
     ],
 )
 def test_apply_to_sentence(text: str) -> None:
+    knp = KNP()
     sent = knp.apply_to_sentence(text)
     assert sent.text == text.replace("\r", "").replace("\n", "")
 
 
-@pytest.mark.skipif(not knp.is_available(), reason="KNP is not available")
+@pytest.mark.skipif(not is_knp_available, reason="KNP is not available")
 def test_thread_safe() -> None:
+    knp = KNP()
     texts = ["外国人参政権", "望遠鏡で泳いでいる少女を見た。", "エネルギーを素敵にENEOS"]
     texts *= 10
     with concurrent.futures.ThreadPoolExecutor() as executor:
@@ -59,7 +63,7 @@ def test_thread_safe() -> None:
             assert sentence.text == texts[i]
 
 
-@pytest.mark.skipif(not knp.is_available(), reason="KNP is not available")
+@pytest.mark.skipif(not is_knp_available, reason="KNP is not available")
 @pytest.mark.parametrize(
     "text",
     [
@@ -76,16 +80,18 @@ def test_thread_safe() -> None:
     ],
 )
 def test_apply_to_document(text: str) -> None:
+    knp = KNP()
     doc = knp.apply_to_document(text)
     assert doc.text == text.replace("\r", "").replace("\n", "")
 
 
-@pytest.mark.skipif(not knp.is_available(), reason="KNP is not available")
+@pytest.mark.skipif(not is_knp_available, reason="KNP is not available")
 def test_get_version() -> None:
+    knp = KNP()
     _ = knp.get_version()
 
 
-@pytest.mark.skipif(not knp.is_available(), reason="KNP is not available")
+@pytest.mark.skipif(not is_knp_available, reason="KNP is not available")
 def test_is_available() -> None:
     knp = KNP()
     assert knp.is_available() is True
