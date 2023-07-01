@@ -40,12 +40,13 @@ def test_typo() -> None:
 @pytest.mark.skipif(not is_kwja_available, reason="KWJA is not available")
 def test_senter() -> None:
     kwja = KWJA(options=["--model-size", "tiny", "--tasks", "senter"])
-    text = "こんにちは。さようなら。"
-    document = kwja.apply_to_document(text)
+    document = kwja.apply_to_document("こんにちは。さようなら。")
     sentences = document.sentences
     assert len(sentences) == 2
     assert sentences[0].text == "こんにちは。"
     assert sentences[1].text == "さようなら。"
+    sentence = kwja.apply_to_sentence("こんにちは。")
+    assert sentence.text == "こんにちは。"
 
 
 @pytest.mark.skipif(not is_kwja_available, reason="KWJA is not available")
