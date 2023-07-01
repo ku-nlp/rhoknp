@@ -38,7 +38,7 @@ jobs:
         if: ${{ matrix.os == 'windows-latest' }}
         run: |
           $wheelFile = (Get-ChildItem -Path dist -Filter *.whl).FullName
-          pip3 install $wheelFile + "[cli]"
+          pip3 install "${wheelFile}[cli]"
         shell: pwsh
       - name: Run rhoknp
         run: |
