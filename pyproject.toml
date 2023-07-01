@@ -42,11 +42,18 @@ httpx = "^0.24.0"
 [tool.poetry.group.docs.dependencies]
 Sphinx = [
     { version = "^5.3", python = "<3.8" },
-    { version = "^6.2", python = ">=3.8" },
+    { version = "^7.0", python = ">=3.8" },
 ]
 sphinx-prompt = "^1.5"
 sphinx-copybutton = "^0.5.0"
-myst-parser = "^1.0"
+myst-parser = [
+    { version = "^1.0", python = "<3.8" },
+    { version = "^2.0", python = ">=3.8" },
+]
+markdown-it-py = [
+    { version = "^2.2", python = "<3.8" },
+    { version = "^3.0", python = ">=3.8" },
+]
 furo = "^2023.3"
 
 [tool.poetry.extras]
