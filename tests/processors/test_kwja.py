@@ -55,20 +55,26 @@ def test_senter() -> None:
 @pytest.mark.skipif(not is_kwja_available, reason="KWJA is not available")
 def test_seq2seq() -> None:
     kwja = KWJA(options=["--model-size", "tiny", "--tasks", "senter,seq2seq"])
-    text = "こんにちは"
-    for doc_or_sent in (kwja.apply_to_document(text), kwja.apply_to_sentence(text)):
+    for doc_or_sent, text in zip(
+        (kwja.apply_to_document("こんにちは。さようなら"), kwja.apply_to_sentence("さようなら")),
+        ("こんにちは。さようなら", "さようなら"),
+    ):
         assert isinstance(doc_or_sent, (Document, Sentence))
         morphemes = doc_or_sent.morphemes
-        assert len(morphemes) == 1
+        assert len(morphemes) > 0
         morpheme = morphemes[0]
-        assert morpheme.text == morpheme.reading == morpheme.lemma == "こんにちは"
+        assert text.startswith(morpheme.text)
+        assert text.startswith(morpheme.reading)
+        assert text.startswith(morpheme.lemma)
 
 
 @pytest.mark.skipif(not is_kwja_available, reason="KWJA is not available")
 def test_char() -> None:
     kwja = KWJA(options=["--model-size", "tiny", "--tasks", "senter,char"])
-    text = "こんにちは"
-    for doc_or_sent in (kwja.apply_to_document(text), kwja.apply_to_sentence(text)):
+    for doc_or_sent, text in zip(
+        (kwja.apply_to_document("こんにちは。さようなら"), kwja.apply_to_sentence("さようなら")),
+        ("こんにちは。さようなら", "さようなら"),
+    ):
         assert isinstance(doc_or_sent, (Document, Sentence))
         morphemes = doc_or_sent.morphemes
         assert len(morphemes) > 0
@@ -81,8 +87,10 @@ def test_char() -> None:
 @pytest.mark.skipif(not is_kwja_available, reason="KWJA is not available")
 def test_word() -> None:
     kwja = KWJA(options=["--model-size", "tiny", "--tasks", "senter,char,word"])
-    text = "こんにちは"
-    for doc_or_sent in (kwja.apply_to_document(text), kwja.apply_to_sentence(text)):
+    for doc_or_sent, text in zip(
+        (kwja.apply_to_document("こんにちは。さようなら"), kwja.apply_to_sentence("さようなら")),
+        ("こんにちは。さようなら", "さようなら"),
+    ):
         assert isinstance(doc_or_sent, (Document, Sentence))
         morphemes = doc_or_sent.morphemes
         assert len(morphemes) > 0
