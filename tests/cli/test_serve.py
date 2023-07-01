@@ -4,18 +4,22 @@ from typing import Generator, List
 import pytest
 from fastapi.testclient import TestClient
 
-from rhoknp import KWJA, Document
+from rhoknp import KNP, KWJA, Document, Jumanpp
 from rhoknp.cli.serve import AnalyzerType, _draw_tree, _get_entity_spans, _get_string_diff, _Span, create_app
 
+is_jumanpp_available = Jumanpp(options=["--juman"]).is_available()
+is_knp_available = KNP().is_available()
 is_kwja_available = KWJA(options=["--model-size", "tiny"]).is_available()
 
 
+@pytest.mark.skipif(not is_jumanpp_available, reason="Juman++ is not available")
 @pytest.fixture
 def jumanpp_client() -> Generator[TestClient, None, None]:
     app = create_app(AnalyzerType.JUMANPP)
     yield TestClient(app)
 
 
+@pytest.mark.skipif(not is_jumanpp_available, reason="Juman++ is not available")
 @pytest.mark.parametrize("text", ["こんにちは"])
 def test_analyze_jumanpp(jumanpp_client: TestClient, text: str) -> None:
     response = jumanpp_client.get("/analyze", params={"text": text})
@@ -27,6 +31,7 @@ def test_analyze_jumanpp(jumanpp_client: TestClient, text: str) -> None:
     assert document.text == text
 
 
+@pytest.mark.skipif(not is_jumanpp_available, reason="Juman++ is not available")
 def test_analyze_jumanpp_error_empty(jumanpp_client: TestClient) -> None:
     error_causing_text = ""
     response = jumanpp_client.get("/analyze", params={"text": error_causing_text})
@@ -37,18 +42,21 @@ def test_analyze_jumanpp_error_empty(jumanpp_client: TestClient) -> None:
     assert json["error"]["message"] == "text is empty"
 
 
+@pytest.mark.skipif(not is_jumanpp_available, reason="Juman++ is not available")
 @pytest.mark.parametrize("text", ["こんにちは", ""])
 def test_index_jumanpp(jumanpp_client: TestClient, text: str) -> None:
     response = jumanpp_client.get("/", params={"text": text})
     assert response.status_code == 200
 
 
+@pytest.mark.skipif(not is_knp_available, reason="KNP is not available")
 @pytest.fixture
 def knp_client() -> Generator[TestClient, None, None]:
     app = create_app(AnalyzerType.KNP)
     yield TestClient(app)
 
 
+@pytest.mark.skipif(not is_knp_available, reason="KNP is not available")
 @pytest.mark.parametrize("text", ["こんにちは"])
 def test_analyze_knp(knp_client: TestClient, text: str) -> None:
     response = knp_client.get("/analyze", params={"text": text})
@@ -60,6 +68,7 @@ def test_analyze_knp(knp_client: TestClient, text: str) -> None:
     assert document.text == text
 
 
+@pytest.mark.skipif(not is_knp_available, reason="KNP is not available")
 def test_analyze_knp_error_empty(knp_client: TestClient) -> None:
     error_causing_text = ""
     response = knp_client.get("/analyze", params={"text": error_causing_text})
@@ -70,6 +79,7 @@ def test_analyze_knp_error_empty(knp_client: TestClient) -> None:
     assert json["error"]["message"] == "text is empty"
 
 
+@pytest.mark.skipif(not is_knp_available, reason="KNP is not available")
 def test_analyze_knp_error_long(knp_client: TestClient) -> None:
     error_causing_text = "http://localhost:8000" * 30
     response = knp_client.get("/analyze", params={"text": error_causing_text})
@@ -80,12 +90,14 @@ def test_analyze_knp_error_long(knp_client: TestClient) -> None:
     assert json["error"]["message"] == "malformed phrase line: "
 
 
+@pytest.mark.skipif(not is_knp_available, reason="KNP is not available")
 @pytest.mark.parametrize("text", ["こんにちは", ""])
 def test_index_knp(knp_client: TestClient, text: str) -> None:
     response = knp_client.get("/", params={"text": text})
     assert response.status_code == 200
 
 
+@pytest.mark.skipif(not is_knp_available, reason="KNP is not available")
 def test_index_knp_error(knp_client: TestClient) -> None:
     error_causing_text = "http://localhost:8000" * 30
     response = knp_client.get("/", params={"text": error_causing_text})
