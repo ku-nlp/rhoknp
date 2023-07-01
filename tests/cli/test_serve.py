@@ -4,8 +4,10 @@ from typing import Generator, List
 import pytest
 from fastapi.testclient import TestClient
 
-from rhoknp import Document
+from rhoknp import KWJA, Document
 from rhoknp.cli.serve import AnalyzerType, _draw_tree, _get_entity_spans, _get_string_diff, _Span, create_app
+
+is_kwja_available = KWJA(options=["--model-size", "tiny"]).is_available()
 
 
 @pytest.fixture
@@ -90,7 +92,41 @@ def test_index_knp_error(knp_client: TestClient) -> None:
     assert response.status_code == 500
 
 
-# KWJA is tested in `tests/processors/test_kwja.py` to isolate tests that require KWJA installed.
+@pytest.mark.skipif(not is_kwja_available, reason="KWJA is not available")
+@pytest.fixture
+def kwja_client() -> Generator[TestClient, None, None]:
+    app = create_app(AnalyzerType.KWJA, options=["--model-size", "tiny", "--tasks", "senter,char,word"])
+    yield TestClient(app)
+
+
+@pytest.mark.skipif(not is_kwja_available, reason="KWJA is not available")
+@pytest.mark.parametrize("text", ["こんにちは"])
+def test_cli_serve_analyze_kwja(kwja_client: TestClient, text: str) -> None:
+    response = kwja_client.get("/analyze", params={"text": text})
+    assert response.status_code == 200
+    json = response.json()
+    assert "text" in json
+    assert "result" in json
+    document = Document.from_knp(json["result"])
+    assert document.text == text
+
+
+@pytest.mark.skipif(not is_kwja_available, reason="KWJA is not available")
+def test_analyze_kwja_error_empty(kwja_client: TestClient) -> None:
+    error_causing_text = ""
+    response = kwja_client.get("/analyze", params={"text": error_causing_text})
+    assert response.status_code == 400
+    json = response.json()
+    assert "error" in json
+    assert json["error"]["code"] == 400
+    assert json["error"]["message"] == "text is empty"
+
+
+@pytest.mark.skipif(not is_kwja_available, reason="KWJA is not available")
+@pytest.mark.parametrize("text", ["こんにちは", ""])
+def test_cli_serve_index_kwja(kwja_client: TestClient, text: str) -> None:
+    response = kwja_client.get("/", params={"text": text})
+    assert response.status_code == 200
 
 
 @pytest.mark.parametrize(
