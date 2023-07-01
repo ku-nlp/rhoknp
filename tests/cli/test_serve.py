@@ -8,7 +8,7 @@ from rhoknp import Document
 from rhoknp.cli.serve import AnalyzerType, _draw_tree, _get_entity_spans, _get_string_diff, _Span, create_app
 
 
-@pytest.fixture()
+@pytest.fixture
 def jumanpp_client() -> Generator[TestClient, None, None]:
     app = create_app(AnalyzerType.JUMANPP)
     yield TestClient(app)
@@ -41,7 +41,7 @@ def test_index_jumanpp(jumanpp_client: TestClient, text: str) -> None:
     assert response.status_code == 200
 
 
-@pytest.fixture()
+@pytest.fixture
 def knp_client() -> Generator[TestClient, None, None]:
     app = create_app(AnalyzerType.KNP)
     yield TestClient(app)

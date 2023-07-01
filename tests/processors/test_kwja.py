@@ -151,7 +151,7 @@ def test_repr() -> None:
 
 
 @pytest.mark.skipif(not is_kwja_available, reason="KWJA is not available")
-@pytest.fixture()
+@pytest.fixture
 def kwja_client() -> Generator[TestClient, None, None]:
     app = create_app(AnalyzerType.KWJA, options=["--model-size", "tiny", "--tasks", "senter,char,word"])
     yield TestClient(app)
