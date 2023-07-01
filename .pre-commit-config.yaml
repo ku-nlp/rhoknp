@@ -34,7 +34,7 @@ repos:
           - rich
           - uvicorn
           - fastapi
-          - markdown-it-py==2.2.0
+          - markdown-it-py==2.2.0 # markdown-it-py 3.0.0 requires Python 3.8+
   - repo: https://github.com/asottile/pyupgrade
     rev: v3.7.0
     hooks:
