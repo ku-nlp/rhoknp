@@ -102,7 +102,7 @@ class BasePhrase(Unit):
     @cached_property
     def global_index(self) -> int:
         """文書全体におけるインデックス．"""
-        if self.sentence.has_document is False:
+        if self.sentence.has_document() is False:
             return self.index
         if self.index > 0:
             return self.sentence.base_phrases[self.index - 1].global_index + 1
@@ -332,7 +332,7 @@ class BasePhrase(Unit):
 
     def _get_target_base_phrase(self, rel_tag: RelTag) -> Optional["BasePhrase"]:
         """rel_tag が指す基本句を返す．見つからなければ None を返す．"""
-        sentences = self.document.sentences if self.sentence.has_document else [self.sentence]
+        sentences = self.document.sentences if self.sentence.has_document() else [self.sentence]
         sentences = [sent for sent in sentences if sent.sid == rel_tag.sid]
         if not sentences:
             logger.warning(f"{self.sentence.sid}: relation with unknown sid found: {rel_tag.sid}")

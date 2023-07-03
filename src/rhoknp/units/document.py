@@ -44,7 +44,7 @@ class Document(Unit):
         super().__post_init__()
 
         # Set doc_id.
-        if self.need_senter is False and len(self.sentences) > 0:
+        if self.is_senter_required() is False and len(self.sentences) > 0:
             doc_ids = [sentence.doc_id for sentence in self.sentences]
             self.doc_id = doc_ids[0]
             if not all(doc_id == self.doc_id for doc_id in doc_ids):
@@ -157,26 +157,6 @@ class Document(Unit):
         """
         return [pas for sentence in self.sentences for pas in sentence.pas_list]
 
-    @property
-    def need_senter(self) -> bool:
-        """文分割がまだなら True．"""
-        return self._sentences is None
-
-    @property
-    def need_jumanpp(self) -> bool:
-        """Juman++ による形態素解析がまだなら True．"""
-        return self.need_senter or any(sentence.need_jumanpp for sentence in self.sentences)
-
-    @property
-    def need_knp(self) -> bool:
-        """KNP による構文解析がまだなら True．"""
-        return self.need_senter or any(sentence.need_knp for sentence in self.sentences)
-
-    @property
-    def need_clause_tag(self) -> bool:
-        """KNP による節-主辞・節-区切のタグ付与がまだなら True．"""
-        return self.need_senter or any(sentence.need_clause_tag for sentence in self.sentences)
-
     @classmethod
     def from_raw_text(cls, text: str) -> "Document":
         """文書クラスのインスタンスを文書の生テキストから初期化．
@@ -244,9 +224,9 @@ class Document(Unit):
         sentences_ = []
         for sentence in sentences:
             if isinstance(sentence, Sentence):
-                if sentence.need_jumanpp is True:
+                if sentence.is_jumanpp_required() is True:
                     sentences_.append(Sentence.from_raw_text(sentence.text, post_init=False))
-                elif sentence.need_knp is True:
+                elif sentence.is_knp_required() is True:
                     sentences_.append(Sentence.from_jumanpp(sentence.to_jumanpp(), post_init=False))
                 else:
                     sentences_.append(Sentence.from_knp(sentence.to_knp(), post_init=False))
@@ -367,17 +347,33 @@ class Document(Unit):
         document.__post_init__()
         return document
 
+    def is_senter_required(self) -> bool:
+        """文分割がまだなら True．"""
+        return self._sentences is None
+
+    def is_jumanpp_required(self) -> bool:
+        """Juman++ による形態素解析がまだなら True．"""
+        return self.is_senter_required() or any(sentence.is_jumanpp_required() for sentence in self.sentences)
+
+    def is_knp_required(self) -> bool:
+        """KNP による構文解析がまだなら True．"""
+        return self.is_senter_required() or any(sentence.is_knp_required() for sentence in self.sentences)
+
+    def is_clause_tag_required(self) -> bool:
+        """KNP による節-主辞・節-区切のタグ付与がまだなら True．"""
+        return self.is_senter_required() or any(sentence.is_clause_tag_required() for sentence in self.sentences)
+
     def reparse(self) -> "Document":
         """文書を再構築．
 
         .. note::
             解析結果に対する編集を有効にする際に実行する必要がある．
         """
-        if self.need_knp is False:
+        if self.is_knp_required() is False:
             return Document.from_knp(self.to_knp())
-        if self.need_jumanpp is False:
+        if self.is_jumanpp_required() is False:
             return Document.from_jumanpp(self.to_jumanpp())
-        if self.need_senter is False:
+        if self.is_senter_required() is False:
             return Document.from_line_by_line_text(self.to_raw_text())
         return Document.from_raw_text(self.to_raw_text())
 
@@ -387,7 +383,7 @@ class Document(Unit):
         .. note::
             文分割済みの場合は一行一文の形式で出力．
         """
-        if self.need_senter is True:
+        if self.is_senter_required() is True:
             return self.text.rstrip() + "\n"
         return "".join(sentence.to_raw_text() for sentence in self.sentences)
 

@@ -78,7 +78,7 @@ class Clause(Unit):
     @cached_property
     def global_index(self) -> int:
         """文書全体におけるインデックス．"""
-        if self.sentence.has_document is False:
+        if self.sentence.has_document() is False:
             return self.index
         if self.index > 0:
             return self.sentence.clauses[self.index - 1].global_index + 1
@@ -184,12 +184,10 @@ class Clause(Unit):
         """この節に係っている節のリスト．"""
         return [clause for clause in self.sentence.clauses if clause.parent == self]
 
-    @cached_property
     def is_adnominal(self) -> bool:
         """連体修飾節なら True．"""
         return self.end.features.get("節-区切", "") == "連体修飾"
 
-    @cached_property
     def is_sentential_complement(self) -> bool:
         """補文節なら True．"""
         return self.end.features.get("節-区切", "") == "補文"

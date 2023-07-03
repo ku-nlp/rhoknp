@@ -63,7 +63,7 @@ class Sentence(Unit):
 
         # Find named entities in the sentence.
         self.named_entities = []
-        if self.need_knp is False:
+        if self.is_knp_required() is False:
             for base_phrase in self.base_phrases:
                 if "NE" not in base_phrase.features:
                     continue
@@ -268,27 +268,7 @@ class Sentence(Unit):
         Raises:
             AttributeError: 解析結果にアクセスできない場合．
         """
-        return [base_phrase.pas for base_phrase in self.base_phrases if base_phrase.pas.is_empty is False]
-
-    @property
-    def has_document(self) -> bool:
-        """文書が設定されていたら True．"""
-        return self._document is not None
-
-    @property
-    def need_jumanpp(self) -> bool:
-        """Juman++ による形態素解析がまだなら True．"""
-        return self._morphemes is None and self._phrases is None and self._clauses is None
-
-    @property
-    def need_knp(self) -> bool:
-        """KNP による構文解析がまだなら True．"""
-        return self._phrases is None and self._clauses is None
-
-    @property
-    def need_clause_tag(self) -> bool:
-        """KNP による節-主辞・節-区切のタグ付与がまだなら True．"""
-        return self._clauses is None
+        return [base_phrase.pas for base_phrase in self.base_phrases if base_phrase.pas.is_empty() is False]
 
     @classmethod
     def from_raw_text(cls, text: str, post_init: bool = True) -> "Sentence":
@@ -447,6 +427,22 @@ class Sentence(Unit):
             sentence.__post_init__()
         return sentence
 
+    def has_document(self) -> bool:
+        """文書が設定されていたら True．"""
+        return self._document is not None
+
+    def is_jumanpp_required(self) -> bool:
+        """Juman++ による形態素解析がまだなら True．"""
+        return self._morphemes is None and self._phrases is None and self._clauses is None
+
+    def is_knp_required(self) -> bool:
+        """KNP による構文解析がまだなら True．"""
+        return self._phrases is None and self._clauses is None
+
+    def is_clause_tag_required(self) -> bool:
+        """KNP による節-主辞・節-区切のタグ付与がまだなら True．"""
+        return self._clauses is None
+
     def to_raw_text(self) -> str:
         """生テキストフォーマットに変換．"""
         ret = ""
@@ -486,9 +482,9 @@ class Sentence(Unit):
         .. note::
             解析結果に対する編集を有効にする際に実行する必要がある．
         """
-        if self.need_knp is False:
+        if self.is_knp_required() is False:
             return Sentence.from_knp(self.to_knp())
-        elif self.need_jumanpp is False:
+        elif self.is_jumanpp_required() is False:
             return Sentence.from_jumanpp(self.to_jumanpp())
         return Sentence.from_raw_text(self.to_raw_text())
 

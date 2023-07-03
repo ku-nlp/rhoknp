@@ -56,11 +56,6 @@ class BaseArgument(ABC):
         raise NotImplementedError
 
     @property
-    def is_special(self) -> bool:
-        """外界照応なら True．"""
-        return self.type == ArgumentType.EXOPHORA
-
-    @property
     def pas(self) -> "Pas":
         """述語項構造．"""
         assert self._pas is not None
@@ -70,6 +65,10 @@ class BaseArgument(ABC):
     def pas(self, pas: "Pas") -> None:
         """述語項構造．"""
         self._pas = pas
+
+    def is_special(self) -> bool:
+        """外界照応なら True．"""
+        return self.type == ArgumentType.EXOPHORA
 
 
 class EndophoraArgument(BaseArgument):

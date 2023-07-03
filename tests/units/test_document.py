@@ -423,65 +423,65 @@ def test_from_knp_error():
 @pytest.mark.parametrize("case", CASES)
 def test_need_senter(case: Dict[str, str]) -> None:
     doc = Document.from_raw_text(case["raw_text"])
-    assert doc.need_senter is True
+    assert doc.is_senter_required() is True
     doc = Document.from_sentences(case["sentences"])
-    assert doc.need_senter is False
+    assert doc.is_senter_required() is False
     doc = Document.from_line_by_line_text(case["line_by_line_text"])
-    assert doc.need_senter is False
+    assert doc.is_senter_required() is False
     doc = Document.from_jumanpp(case["jumanpp"])
-    assert doc.need_senter is False
+    assert doc.is_senter_required() is False
     doc = Document.from_knp(case["knp_with_no_clause_tag"])
-    assert doc.need_senter is False
+    assert doc.is_senter_required() is False
     doc = Document.from_knp(case["knp"])
-    assert doc.need_senter is False
+    assert doc.is_senter_required() is False
 
 
 @pytest.mark.parametrize("case", CASES)
 def test_need_jumanpp(case: Dict[str, str]) -> None:
     doc = Document.from_raw_text(case["raw_text"])
-    assert doc.need_jumanpp is True
+    assert doc.is_jumanpp_required() is True
     doc = Document.from_sentences(case["sentences"])
-    assert doc.need_jumanpp is True
+    assert doc.is_jumanpp_required() is True
     doc = Document.from_line_by_line_text(case["line_by_line_text"])
-    assert doc.need_jumanpp is True
+    assert doc.is_jumanpp_required() is True
     doc = Document.from_jumanpp(case["jumanpp"])
-    assert doc.need_jumanpp is False
+    assert doc.is_jumanpp_required() is False
     doc = Document.from_knp(case["knp_with_no_clause_tag"])
-    assert doc.need_jumanpp is False
+    assert doc.is_jumanpp_required() is False
     doc = Document.from_knp(case["knp"])
-    assert doc.need_jumanpp is False
+    assert doc.is_jumanpp_required() is False
 
 
 @pytest.mark.parametrize("case", CASES)
 def test_need_knp(case: Dict[str, str]) -> None:
     doc = Document.from_raw_text(case["raw_text"])
-    assert doc.need_knp is True
+    assert doc.is_knp_required() is True
     doc = Document.from_sentences(case["sentences"])
-    assert doc.need_knp is True
+    assert doc.is_knp_required() is True
     doc = Document.from_line_by_line_text(case["line_by_line_text"])
-    assert doc.need_knp is True
+    assert doc.is_knp_required() is True
     doc = Document.from_jumanpp(case["jumanpp"])
-    assert doc.need_knp is True
+    assert doc.is_knp_required() is True
     doc = Document.from_knp(case["knp_with_no_clause_tag"])
-    assert doc.need_knp is False
+    assert doc.is_knp_required() is False
     doc = Document.from_knp(case["knp"])
-    assert doc.need_knp is False
+    assert doc.is_knp_required() is False
 
 
 @pytest.mark.parametrize("case", CASES)
 def test_need_clause_tag(case: Dict[str, str]) -> None:
     doc = Document.from_raw_text(case["raw_text"])
-    assert doc.need_clause_tag is True
+    assert doc.is_clause_tag_required() is True
     doc = Document.from_sentences(case["sentences"])
-    assert doc.need_clause_tag is True
+    assert doc.is_clause_tag_required() is True
     doc = Document.from_line_by_line_text(case["line_by_line_text"])
-    assert doc.need_clause_tag is True
+    assert doc.is_clause_tag_required() is True
     doc = Document.from_jumanpp(case["jumanpp"])
-    assert doc.need_clause_tag is True
+    assert doc.is_clause_tag_required() is True
     doc = Document.from_knp(case["knp_with_no_clause_tag"])
-    assert doc.need_clause_tag is True
+    assert doc.is_clause_tag_required() is True
     doc = Document.from_knp(case["knp"])
-    assert doc.need_clause_tag is False
+    assert doc.is_clause_tag_required() is False
 
 
 @pytest.mark.parametrize("case", CASES)
@@ -806,12 +806,12 @@ def test_cut_paste(case: Dict[str, str]) -> None:
     sub_docs = list(map(Document.from_sentences, [[sent] for sent in doc.sentences]))
     for sub_doc in sub_docs:
         assert len(sub_doc.sentences) == 1
-        assert sub_doc.need_knp is False
+        assert sub_doc.is_knp_required() is False
 
     # Merge the sub-documents into a new document
     new_doc = Document.from_sentences([sent for sub_doc in sub_docs for sent in sub_doc.sentences])
     assert len(new_doc.sentences) == len(doc.sentences)
-    assert new_doc.need_knp is False
+    assert new_doc.is_knp_required() is False
 
 
 @pytest.mark.parametrize("case", CASES)

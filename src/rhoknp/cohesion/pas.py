@@ -57,7 +57,6 @@ class Pas:
         """文 ID．"""
         return self._predicate.sid
 
-    @property
     def is_empty(self) -> bool:
         """述語が項を持たなければ True．"""
         for args in self._arguments.values():

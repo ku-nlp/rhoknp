@@ -108,7 +108,7 @@ class EntityManager:
         Returns:
              Entity: 作成されたエンティティ．
         """
-        if exophora_referent is not None and exophora_referent.is_singleton is True:
+        if exophora_referent is not None and exophora_referent.is_singleton() is True:
             entities = [e for e in cls.entities.values() if exophora_referent == e.exophora_referent]
             # If a singleton entity already exists, do not create a new entity, but return that entity.
             if entities:
@@ -178,7 +178,7 @@ class EntityManager:
             source_entity.add_mention(tm, is_nonidentical=target_entity in tm.entities_nonidentical)
         # Arguments also have entity ids and will be updated.
         source_sentence = source_mention.sentence
-        pas_list = source_mention.document.pas_list if source_sentence.has_document else source_sentence.pas_list
+        pas_list = source_mention.document.pas_list if source_sentence.has_document() else source_sentence.pas_list
         for arg in [arg for pas in pas_list for args in pas.get_all_arguments(relax=False).values() for arg in args]:
             if isinstance(arg, ExophoraArgument) and arg.eid == target_entity.eid:
                 arg.eid = source_entity.eid

@@ -103,8 +103,7 @@ class DiscourseRelationTag(Enum):
             return DiscourseRelationLabel.EVIDENCE
         raise AssertionError  # unreachable
 
-    @property
-    def need_swap(self) -> bool:
+    def is_swap_needed(self) -> bool:
         """談話関係が逆方向であれば True．"""
         return self in {
             DiscourseRelationTag.CAUSE_REASON_BACKWARD,
@@ -161,7 +160,7 @@ class DiscourseRelation:
         head = modifier.parent
         if head is None:
             return None
-        if tag.need_swap:
+        if tag.is_swap_needed():
             # NOTE: Currently, no clause function requires swap.
             modifier, head = head, modifier  # pragma: no cover
         return cls(
@@ -193,12 +192,12 @@ class DiscourseRelation:
             return None
         tag = DiscourseRelationTag(label)
         label = tag.label
-        if head.sentence.has_document is False:
+        if head.sentence.has_document() is False:
             return None  # cannot find modifier
         if head.sentence.index == 0:
             return None  # cannot find modifier
         modifier = head.sentence.document.sentences[head.sentence.index - 1].clauses[-1]
-        if tag.need_swap:
+        if tag.is_swap_needed():
             modifier, head = head, modifier
         return cls(
             sid=head.sentence.sid,
@@ -231,7 +230,7 @@ class DiscourseRelation:
         tag = DiscourseRelationTag(tag)
         category = tag.label
         head_sentence: Optional["Sentence"] = None
-        if modifier.sentence.has_document:
+        if modifier.sentence.has_document():
             sentences = modifier.document.sentences
         else:
             sentences = [modifier.sentence]
@@ -250,7 +249,7 @@ class DiscourseRelation:
         if head.end != head_base_phrase:
             logger.warning(f"invalid clause tag in {sid}")
             return None
-        if tag.need_swap:
+        if tag.is_swap_needed():
             modifier, head = head, modifier
         return cls(sid, base_phrase_index, category, tag, modifier, head)
 

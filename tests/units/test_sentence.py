@@ -395,43 +395,43 @@ def test_from_knp_invalid_input():
 @pytest.mark.parametrize("case", CASES)
 def test_need_jumanpp(case: Dict[str, str]) -> None:
     sent = Sentence.from_raw_text(case["raw_text"])
-    assert sent.need_jumanpp is True
+    assert sent.is_jumanpp_required() is True
     sent = Sentence.from_raw_text(case["line_by_line_text"])
-    assert sent.need_jumanpp is True
+    assert sent.is_jumanpp_required() is True
     sent = Sentence.from_jumanpp(case["jumanpp"])
-    assert sent.need_jumanpp is False
+    assert sent.is_jumanpp_required() is False
     sent = Sentence.from_knp(case["knp_with_no_clause_tag"])
-    assert sent.need_jumanpp is False
+    assert sent.is_jumanpp_required() is False
     sent = Sentence.from_knp(case["knp"])
-    assert sent.need_jumanpp is False
+    assert sent.is_jumanpp_required() is False
 
 
 @pytest.mark.parametrize("case", CASES)
 def test_need_knp(case: Dict[str, str]) -> None:
     sent = Sentence.from_raw_text(case["raw_text"])
-    assert sent.need_knp is True
+    assert sent.is_knp_required() is True
     sent = Sentence.from_raw_text(case["line_by_line_text"])
-    assert sent.need_knp is True
+    assert sent.is_knp_required() is True
     sent = Sentence.from_jumanpp(case["jumanpp"])
-    assert sent.need_knp is True
+    assert sent.is_knp_required() is True
     sent = Sentence.from_knp(case["knp_with_no_clause_tag"])
-    assert sent.need_knp is False
+    assert sent.is_knp_required() is False
     sent = Sentence.from_knp(case["knp"])
-    assert sent.need_knp is False
+    assert sent.is_knp_required() is False
 
 
 @pytest.mark.parametrize("case", CASES)
 def test_need_clause_tag(case: Dict[str, str]) -> None:
     sent = Sentence.from_raw_text(case["raw_text"])
-    assert sent.need_clause_tag is True
+    assert sent.is_clause_tag_required() is True
     sent = Sentence.from_raw_text(case["line_by_line_text"])
-    assert sent.need_clause_tag is True
+    assert sent.is_clause_tag_required() is True
     sent = Sentence.from_jumanpp(case["jumanpp"])
-    assert sent.need_clause_tag is True
+    assert sent.is_clause_tag_required() is True
     sent = Sentence.from_knp(case["knp_with_no_clause_tag"])
-    assert sent.need_clause_tag is True
+    assert sent.is_clause_tag_required() is True
     sent = Sentence.from_knp(case["knp"])
-    assert sent.need_clause_tag is False
+    assert sent.is_clause_tag_required() is False
 
 
 @pytest.mark.parametrize("case", CASES)

@@ -39,7 +39,7 @@ def test_endophora_argument() -> None:
     assert argument.case == "ガ"
     assert argument.type == arg_type
     assert argument.optional is False
-    assert argument.is_special is False
+    assert argument.is_special() is False
     assert argument.pas == pas
     assert argument.base_phrase == argument_base_phrase
     with pytest.raises(AssertionError):
@@ -87,7 +87,7 @@ def test_exophora_argument() -> None:
     assert argument.case == "ガ"
     assert argument.type == ArgumentType.EXOPHORA
     assert argument.optional is False
-    assert argument.is_special is True
+    assert argument.is_special() is True
     assert argument.pas == pas
     assert argument.exophora_referent == exophora_referent
     assert argument.eid == 3
