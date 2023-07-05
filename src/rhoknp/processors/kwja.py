@@ -6,6 +6,7 @@ from typing import List, Optional, Union
 
 from rhoknp.processors.processor import Processor
 from rhoknp.units import Document, Morpheme, Sentence
+from rhoknp.utils.comment import is_comment_line
 
 logger = logging.getLogger(__name__)
 
@@ -110,7 +111,7 @@ class KWJA(Processor):
                 for line in out_text.split("\n"):
                     if line.strip() == "":
                         continue
-                    if Sentence.is_comment_line(line) and sentence_lines:
+                    if is_comment_line(line) and sentence_lines:
                         sentences.append(
                             self._create_sentence_from_words_format("\n".join(sentence_lines) + "\n", post_init=False)
                         )
@@ -171,7 +172,7 @@ class KWJA(Processor):
         for line in text.split("\n"):
             if line.strip() == "":
                 continue
-            if Sentence.is_comment_line(line):
+            if is_comment_line(line):
                 sentence.comment = line
                 continue
             words: List[str] = line.split(" ")

@@ -9,7 +9,7 @@ from rhoknp.units.clause import Clause
 from rhoknp.units.morpheme import Morpheme
 from rhoknp.units.phrase import Phrase
 from rhoknp.units.unit import Unit
-from rhoknp.utils.util import _extract_did_and_sid
+from rhoknp.utils.comment import extract_did_and_sid, is_comment_line
 
 if TYPE_CHECKING:
     from rhoknp.units.document import Document
@@ -252,7 +252,7 @@ class Sentence(Unit):
         Args:
             comment: コメント行．
         """
-        doc_id, sent_id, rest = _extract_did_and_sid(
+        doc_id, sent_id, rest = extract_did_and_sid(
             comment, patterns=[self.SID_PAT_KWDLC, self.SID_PAT_WAC, self.SID_PAT]
         )
         if sent_id is not None:
@@ -287,7 +287,7 @@ class Sentence(Unit):
         for line in text.split("\n"):
             if line.strip() == "":
                 continue
-            if cls.is_comment_line(line):
+            if is_comment_line(line):
                 sentence.comment = line
             else:
                 sentence.text += line.replace("\r", "")
@@ -327,7 +327,7 @@ class Sentence(Unit):
         for line in jumanpp_text.split("\n"):
             if line.strip() == "":
                 continue
-            if cls.is_comment_line(line):
+            if is_comment_line(line):
                 sentence.comment = line
                 continue
             if Morpheme.is_morpheme_line(line):
@@ -391,7 +391,7 @@ class Sentence(Unit):
         for line in lines:
             if line.strip() == "":
                 continue
-            if cls.is_comment_line(line):
+            if is_comment_line(line):
                 sentence.comment = line
                 continue
             if Phrase.is_phrase_line(line):
@@ -487,15 +487,3 @@ class Sentence(Unit):
         elif self.is_jumanpp_required() is False:
             return Sentence.from_jumanpp(self.to_jumanpp())
         return Sentence.from_raw_text(self.to_raw_text())
-
-    @staticmethod
-    def is_comment_line(line: str) -> bool:
-        """コメント行なら True を返す．
-
-        Args:
-            line: 解析結果の一行．
-
-        .. note::
-            JUMAN/KNP では # から始まる行がコメントとみなされる．
-        """
-        return line.startswith("#") and not Morpheme.is_morpheme_line(line)

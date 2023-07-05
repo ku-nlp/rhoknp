@@ -2,10 +2,24 @@ import logging
 import re
 from typing import List, Optional, Tuple
 
+from rhoknp.units.morpheme import Morpheme
+
 logger = logging.getLogger(__name__)
 
 
-def _extract_did_and_sid(comment_line: str, patterns: List[re.Pattern]) -> Tuple[Optional[str], Optional[str], str]:
+def is_comment_line(line: str) -> bool:
+    """行がコメント行かどうかを判定する．
+
+    Args:
+        line: 行．
+
+    Returns:
+        bool: コメント行ならTrue．
+    """
+    return line.startswith("#") and not Morpheme.is_morpheme_line(line)
+
+
+def extract_did_and_sid(comment_line: str, patterns: List[re.Pattern]) -> Tuple[Optional[str], Optional[str], str]:
     """コメント行から文書IDおよび文IDを抽出する．
 
     Args:

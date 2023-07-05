@@ -4,7 +4,23 @@ from typing import Optional
 import pytest
 
 from rhoknp import Sentence
-from rhoknp.utils.util import _extract_did_and_sid
+from rhoknp.utils.comment import extract_did_and_sid, is_comment_line
+
+
+@pytest.mark.parametrize(
+    "line, expected",
+    [
+        ("# S-ID:1", True),
+        ("# foo-bar", True),
+        ("#", True),
+        ("// S-ID:1", False),
+        ("// foo-bar", False),
+        ("//", False),
+        ('# # # 未定義語 15 その他 1 * 0 * 0 "未知語:その他 品詞推定:特殊"', False),
+    ],
+)
+def test_is_comment_line(line: str, expected: bool) -> None:
+    assert is_comment_line(line) == expected
 
 
 @pytest.mark.parametrize(
@@ -24,6 +40,6 @@ from rhoknp.utils.util import _extract_did_and_sid
     ],
 )
 def test_extract_doc_id(pat: re.Pattern, line: str, doc_id: Optional[str], sent_id: Optional[str]) -> None:
-    did, sid, _ = _extract_did_and_sid(line, [pat])
+    did, sid, _ = extract_did_and_sid(line, [pat])
     assert did == doc_id
     assert sid == sent_id
