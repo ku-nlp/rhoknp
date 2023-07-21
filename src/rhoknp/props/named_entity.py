@@ -37,7 +37,7 @@ class NamedEntityCategory(Enum):
 class NamedEntity:
     """固有表現を表すクラス．"""
 
-    PAT: ClassVar[re.Pattern] = re.compile(r"<NE:(?P<cat>\w+):(?P<name>[^>]+)>")
+    PAT: ClassVar[re.Pattern] = re.compile(r"<NE:(?P<cat>\w+):(?P<name>([^>\\]|\\>?)+)>")
 
     category: NamedEntityCategory
     morphemes: List["Morpheme"]
@@ -61,7 +61,7 @@ class NamedEntity:
         if not NamedEntityCategory.has_value(category):
             logger.warning(f"{candidate_morphemes[0].sentence.sid}: unknown NE category: {category}")
             return None
-        name: str = match["name"]
+        name: str = match["name"].replace(r"\>", ">")
         span = cls._find_morpheme_span(name, candidate_morphemes)
         if span is None:
             logger.warning(f"{candidate_morphemes[0].sentence.sid}: morpheme span of '{name}' not found")
@@ -70,7 +70,8 @@ class NamedEntity:
 
     def to_fstring(self) -> str:
         """素性文字列に変換．"""
-        return f"<NE:{self.category.value}:{self.text}>"
+        escaped_text = self.text.replace(">", r"\>")  # escape ">"
+        return f"<NE:{self.category.value}:{escaped_text}>"
 
     @staticmethod
     def _find_morpheme_span(name: str, candidates: List["Morpheme"]) -> Optional[range]:

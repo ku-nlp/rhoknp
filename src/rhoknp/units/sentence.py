@@ -67,7 +67,9 @@ class Sentence(Unit):
             for base_phrase in self.base_phrases:
                 if "NE" not in base_phrase.features:
                     continue
-                fstring = f'<NE:{base_phrase.features["NE"]}>'
+                assert isinstance(base_phrase.features["NE"], str)
+                ne_value = base_phrase.features["NE"].replace(">", r"\>")
+                fstring = f"<NE:{ne_value}>"
                 candidate_morphemes = self.morphemes[: base_phrase.morphemes[-1].index + 1]
                 named_entity = NamedEntity.from_fstring(fstring, candidate_morphemes)
                 if named_entity is not None:
