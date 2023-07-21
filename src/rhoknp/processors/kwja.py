@@ -37,6 +37,7 @@ class KWJA(Processor):
         self.options: List[str] = options or []  #: KWJA のオプション．
         self._proc: Optional[Popen] = None
         self._output_format = "knp"
+        self._lock = Lock()
         if "--tasks" in self.options:
             tasks: List[str] = self.options[self.options.index("--tasks") + 1].split(",")
             if "word" in tasks:
@@ -57,7 +58,6 @@ class KWJA(Processor):
                 _ = self.apply(Sentence.from_raw_text(""))
         except Exception as e:
             logger.warning(f"failed to start KWJA: {e}")
-        self._lock = Lock()
 
     def __repr__(self) -> str:
         arg_string = f"executable={repr(self.executable)}"
