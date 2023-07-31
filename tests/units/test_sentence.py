@@ -353,6 +353,18 @@ def test_from_knp_with_no_clause_tag(case: Dict[str, str]) -> None:
     _ = Sentence.from_knp(case["knp_with_no_clause_tag"])
 
 
+def test_from_knp_empty():
+    _ = Sentence.from_knp("")
+    _ = Sentence.from_knp(
+        textwrap.dedent(
+            """\
+            # S-ID:1
+            EOS
+            """
+        )
+    )
+
+
 def test_from_knp_empty_line():
     _ = Sentence.from_knp(
         textwrap.dedent(

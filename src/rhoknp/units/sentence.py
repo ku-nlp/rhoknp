@@ -415,10 +415,11 @@ class Sentence(Unit):
                 child_lines.append(line)
                 continue
             if line.strip() == cls.EOS:
-                if has_clause_boundary:
-                    clauses.append(Clause.from_knp("\n".join(child_lines)))
-                else:
-                    phrases.append(Phrase.from_knp("\n".join(child_lines)))
+                if child_lines:
+                    if has_clause_boundary:
+                        clauses.append(Clause.from_knp("\n".join(child_lines)))
+                    else:
+                        phrases.append(Phrase.from_knp("\n".join(child_lines)))
                 break
             raise ValueError(f"malformed line: {line}")
         if has_clause_boundary is True:
