@@ -1,3 +1,4 @@
+import pickle
 import textwrap
 from typing import Dict
 
@@ -762,3 +763,10 @@ def test_eq_raw_text(case: Dict[str, str]) -> None:
     sent1 = Sentence.from_raw_text(case["raw_text"])
     sent2 = Sentence.from_raw_text(case["raw_text"])
     assert sent1 == sent2
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_pickle_unpickle(case: Dict[str, str]) -> None:
+    sent1 = Sentence.from_knp(case["knp"])
+    sent2 = pickle.loads(pickle.dumps(sent1))
+    assert sent1.to_knp() == sent2.to_knp()

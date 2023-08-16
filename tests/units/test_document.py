@@ -1,4 +1,5 @@
 import multiprocessing
+import pickle
 import textwrap
 from pathlib import Path
 from typing import Dict
@@ -901,3 +902,17 @@ def test_eq_raw_text() -> None:
     doc1 = Document.from_raw_text("天気がいいので散歩した。")
     doc2 = Document.from_raw_text("天気がいいので散歩した。")
     assert doc1 == doc2
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_pickle_unpickle(case: Dict[str, str]) -> None:
+    doc1 = Document.from_knp(case["knp"])
+    doc2 = pickle.loads(pickle.dumps(doc1))
+    assert doc1.to_knp() == doc2.to_knp()
+
+
+@pytest.mark.parametrize("path", Path("tests/data").glob("*.knp"))
+def test_pickle_unpickle_annotated_corpora(path: Path) -> None:
+    doc1 = Document.from_knp(path.read_text())
+    doc2 = pickle.loads(pickle.dumps(doc1))
+    assert doc1.to_knp() == doc2.to_knp()
