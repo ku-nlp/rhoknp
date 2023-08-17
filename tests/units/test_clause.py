@@ -32,23 +32,21 @@ CASES = [
     },
     {
         "knp": textwrap.dedent(
-            textwrap.dedent(
-                """\
-                # S-ID:1
-                * 1D
-                + 2D
-                EOS EOS EOS 名詞 6 組織名 6 * 0 * 0
-                は は は 助詞 9 副助詞 2 * 0 * 0
-                * -1D
-                + 2D
-                特殊 とくしゅ 特殊だ 形容詞 3 * 0 ナノ形容詞 22 語幹 1
-                + -1D <節-区切><節-主辞>
-                記号 きごう 記号 名詞 6 普通名詞 1 * 0 * 0 "代表表記:記号/きごう カテゴリ:抽象物"
-                です です だ 判定詞 4 * 0 判定詞 25 デス列基本形 27
-                。 。 。 特殊 1 句点 1 * 0 * 0
-                EOS
-                """
-            )
+            """\
+            # S-ID:1
+            * 1D
+            + 2D
+            EOS EOS EOS 名詞 6 組織名 6 * 0 * 0
+            は は は 助詞 9 副助詞 2 * 0 * 0
+            * -1D
+            + 2D
+            特殊 とくしゅ 特殊だ 形容詞 3 * 0 ナノ形容詞 22 語幹 1
+            + -1D <節-区切><節-主辞>
+            記号 きごう 記号 名詞 6 普通名詞 1 * 0 * 0 "代表表記:記号/きごう カテゴリ:抽象物"
+            です です だ 判定詞 4 * 0 判定詞 25 デス列基本形 27
+            。 。 。 特殊 1 句点 1 * 0 * 0
+            EOS
+            """
         ),
         "num": 1,
         "parent_ids": [-1],
@@ -56,38 +54,35 @@ CASES = [
     },
     {
         "knp": textwrap.dedent(
-            textwrap.dedent(
-                """\
-                # S-ID:1
-                * 1D
-                + 1D
-                ご飯 ごはん ご飯 名詞 6 普通名詞 1 * 0 * 0
-                を を を 助詞 9 格助詞 1 * 0 * 0
-                * 2D
-                + 2D <節-主辞>
-                食べて たべて 食べる 動詞 2 * 0 母音動詞 1 タ系連用テ形 14
-                いる いる いる 接尾辞 14 動詞性接尾辞 7 母音動詞 1 基本形 2
-                * 4D
-                + 4D <節-区切>
-                ところ ところ ところ 名詞 6 副詞的名詞 9 * 0 * 0
-                に に に 助詞 9 格助詞 1 * 0 * 0
-                * 4D
-                + 4D
-                彼 かれ 彼 名詞 6 普通名詞 1 * 0 * 0
-                が が が 助詞 9 格助詞 1 * 0 * 0
-                * -1D
-                + -1D <節-区切><節-主辞>
-                来た 来た 来る 動詞 2 * 0 カ変動詞来 15 タ形 10
-                EOS
-                """
-            )
+            """\
+            # S-ID:1
+            * 1D
+            + 1D
+            ご飯 ごはん ご飯 名詞 6 普通名詞 1 * 0 * 0
+            を を を 助詞 9 格助詞 1 * 0 * 0
+            * 2D
+            + 2D <節-主辞>
+            食べて たべて 食べる 動詞 2 * 0 母音動詞 1 タ系連用テ形 14
+            いる いる いる 接尾辞 14 動詞性接尾辞 7 母音動詞 1 基本形 2
+            * 4D
+            + 4D <節-区切>
+            ところ ところ ところ 名詞 6 副詞的名詞 9 * 0 * 0
+            に に に 助詞 9 格助詞 1 * 0 * 0
+            * 4D
+            + 4D
+            彼 かれ 彼 名詞 6 普通名詞 1 * 0 * 0
+            が が が 助詞 9 格助詞 1 * 0 * 0
+            * -1D
+            + -1D <節-区切><節-主辞>
+            来た 来た 来る 動詞 2 * 0 カ変動詞来 15 タ形 10
+            EOS
+            """
         ),
         "num": 2,
         "parent_ids": [1, -1],
         "children_ids": [[], [0]],
     },
 ]
-
 
 KNP_SNIPPETS = [
     {
@@ -352,17 +347,17 @@ def test_end_text(case: Dict[str, str]) -> None:
 @pytest.mark.parametrize("case", KNP_SNIPPETS)
 def test_is_adnominal(case: Dict[str, str]) -> None:
     clause = Clause.from_knp(case["knp"])
-    assert clause.is_adnominal == case["is_adnominal"]
+    assert clause.is_adnominal() == case["is_adnominal"]
 
 
 @pytest.mark.parametrize("case", KNP_SNIPPETS)
 def test_is_sentential_complement(case: Dict[str, str]) -> None:
     clause = Clause.from_knp(case["knp"])
-    assert clause.is_sentential_complement == case["is_sentential_complement"]
+    assert clause.is_sentential_complement() == case["is_sentential_complement"]
 
 
 def test_invalid_head_0() -> None:
-    knp_text = textwrap.dedent(
+    clause = Clause.from_knp(
         textwrap.dedent(
             """\
             * 1D
@@ -376,12 +371,11 @@ def test_invalid_head_0() -> None:
             """
         )
     )
-    clause = Clause.from_knp(knp_text)
     assert clause.head.text == "いいので"
 
 
 def test_invalid_head_1() -> None:
-    knp_text = textwrap.dedent(
+    clause = Clause.from_knp(
         textwrap.dedent(
             """\
             * 1D
@@ -395,5 +389,4 @@ def test_invalid_head_1() -> None:
             """
         )
     )
-    clause = Clause.from_knp(knp_text)
     assert clause.head.text == "いいので"

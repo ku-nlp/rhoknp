@@ -319,7 +319,7 @@ def test_attribute(case: Dict[str, Any]) -> None:
     assert pas.sid == case["sid"]
     assert pas.predicate.cfid == case["cfid"]
     assert set(pas.cases) == set(case["arguments"].keys())
-    assert pas.is_empty == (len(case["arguments"]) == 0)
+    assert pas.is_empty() == (len(case["arguments"]) == 0)
 
 
 @pytest.mark.parametrize("case", CASES)

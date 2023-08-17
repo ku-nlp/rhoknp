@@ -35,6 +35,13 @@ cases = [
         },
         length=1,
     ),
+    FeaturesTestCase(
+        fstring=r"""<NE:OPTIONAL:html\>タグ>""",
+        features={
+            "NE": r"OPTIONAL:html>タグ",
+        },
+        length=1,
+    ),
 ]
 
 
@@ -55,7 +62,6 @@ cases_with_ignored_tag = [
 def test_from_fstring(fstring: str, features: Dict[str, Union[str, bool]], length: int) -> None:
     fs = FeatureDict.from_fstring(fstring)
     assert len(fs) == length
-    print(dict(fs))
     assert dict(fs) == features
     assert fs.get("dummy") is None
 

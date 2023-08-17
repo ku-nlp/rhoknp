@@ -9,8 +9,10 @@ class FeatureDict(Dict[str, Union[str, bool]]):
     """文節，基本句，形態素の素性情報を表すクラス．"""
 
     IGNORE_TAG_PREFIXES = {"rel ", "memo "}
-    PAT = re.compile(r'(?P<feats>(<([^>"]|"[^"]*?")+>)*)')
-    FEATURE_PAT = re.compile(rf"<(?!({'|'.join(IGNORE_TAG_PREFIXES)}))(?P<key>([^:\"]|\".*?\")+?)(:(?P<value>.+?))?>")
+    PAT = re.compile(r'(?P<feats>(<([^>"\\]|"[^"]*?"|\\>?)+>)*)')
+    FEATURE_PAT = re.compile(
+        rf"<(?!({'|'.join(IGNORE_TAG_PREFIXES)}))(?P<key>([^:\"]|\".*?\")+?)(:(?P<value>([^>\\]|\\>?)+))?>"
+    )
 
     def __setitem__(self, key: str, value: Union[str, bool]) -> None:
         if key == "rel":
@@ -36,10 +38,10 @@ class FeatureDict(Dict[str, Union[str, bool]]):
         Args:
             fstring: KNP 形式における素性文字列．
         """
-        features = {}
+        features = cls()
         for match in cls.FEATURE_PAT.finditer(fstring):
-            features[match["key"]] = match["value"] or True
-        return cls(features)
+            features[match["key"]] = match["value"].replace(r"\>", ">") if match["value"] is not None else True
+        return features
 
     def to_fstring(self) -> str:
         """素性文字列に変換．"""
@@ -51,4 +53,5 @@ class FeatureDict(Dict[str, Union[str, bool]]):
             return ""
         if value is True:
             return f"<{key}>"
-        return f"<{key}:{value}>"
+        escaped_value = value.replace(">", r"\>")  # escape ">"
+        return f"<{key}:{escaped_value}>"

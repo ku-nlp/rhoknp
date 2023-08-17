@@ -1,26 +1,24 @@
 <div class="accordion-item" id="typo-correction">
     <h6 class="accordion-header" id="heading-typo-correction">
-        <button
-            class="accordion-button collapsed"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#body-typo-correction"
-            aria-expanded="true"
-            aria-controls="typo-correction"
-        >
-            タイポ修正
-        </button>
+        <button class="accordion-button collapsed"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#body-typo-correction"
+                aria-expanded="true"
+                aria-controls="typo-correction">タイポ修正</button>
     </h6>
-    <div id="body-typo-correction" class="accordion-collapse collapse" aria-labelledby="heading-typo-correction">
+    <div id="body-typo-correction"
+         class="accordion-collapse collapse"
+         aria-labelledby="heading-typo-correction">
         <div class="accordion-body">
             {% for diff in get_string_diff(text, analyzed_document.text) %}
-            {% if diff.label == '+' %}
-            <span class="bg-success bg-opacity-25">{{ diff.text }}</span>
-            {% elif diff.label == '-' %}
-            <span class="bg-danger bg-opacity-25">{{ diff.text }}</span>
-            {% else %}
-            <span>{{ diff.text }}</span>
-            {% endif %}
+                {% if diff.label == '+' %}
+                    <span class="bg-success bg-opacity-25">{{ diff.text }}</span>
+                {% elif diff.label == '-' %}
+                    <span class="bg-danger bg-opacity-25">{{ diff.text }}</span>
+                {% else %}
+                    <span>{{ diff.text }}</span>
+                {% endif %}
             {% endfor %}
         </div>
     </div>

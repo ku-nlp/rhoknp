@@ -18,7 +18,7 @@ sent = kwja.apply_to_sentence(sys.argv[1])
 # Get information.
 for base_phrase in sent.base_phrases:
     pas = base_phrase.pas
-    if pas.is_empty is True:
+    if pas.is_empty() is True:
         continue
     all_arguments: Dict[str, List[Argument]] = pas.get_all_arguments()
     print(f"Predicate: {pas.predicate}")

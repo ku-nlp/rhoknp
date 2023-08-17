@@ -1,27 +1,25 @@
 <div class="accordion-item" id="named-entity-recognition">
     <h6 class="accordion-header" id="heading-named-entity-recognition">
-        <button
-            class="accordion-button collapsed"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#body-named-entity-recognition"
-            aria-expanded="true"
-            aria-controls="body-named-entity-recognition"
-        >
-            固有表現認識
-        </button>
+        <button class="accordion-button collapsed"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#body-named-entity-recognition"
+                aria-expanded="true"
+                aria-controls="body-named-entity-recognition">固有表現認識</button>
     </h6>
-    <div id="body-named-entity-recognition" class="accordion-collapse collapse" aria-labelledby="heading-named-entity-recognition">
+    <div id="body-named-entity-recognition"
+         class="accordion-collapse collapse"
+         aria-labelledby="heading-named-entity-recognition">
         <div class="accordion-body">
             {% for span in get_entity_spans(analyzed_document) %}
-            {% if span.label %}
-            <mark class="entity entity-{{ span.label.lower() }}">
-                {{ span.text }}
-                <span class="entity-label">{{ span.label }}</span>
-            </mark>
-            {% else %}
-            {{ span.text }}
-            {% endif %}
+                {% if span.label %}
+                    <mark class="entity entity-{{ span.label.lower() }}">
+                        {{ span.text }}
+                        <span class="entity-label">{{ span.label }}</span>
+                    </mark>
+                {% else %}
+                    {{ span.text }}
+                {% endif %}
             {% endfor %}
         </div>
     </div>

@@ -5,7 +5,8 @@ from threading import Lock
 from typing import List, Optional, Union
 
 from rhoknp.processors.processor import Processor
-from rhoknp.units import Document, Sentence
+from rhoknp.units import Document, Morpheme, Sentence
+from rhoknp.utils.comment import is_comment_line
 
 logger = logging.getLogger(__name__)
 
@@ -30,29 +31,34 @@ class KWJA(Processor):
         self,
         executable: str = "kwja",
         options: Optional[List[str]] = None,
+        skip_sanity_check: bool = False,
     ) -> None:
         self.executable = executable  #: KWJA のパス．
         self.options: List[str] = options or []  #: KWJA のオプション．
         self._proc: Optional[Popen] = None
         self._output_format = "knp"
+        self._lock = Lock()
         if "--tasks" in self.options:
             tasks: List[str] = self.options[self.options.index("--tasks") + 1].split(",")
             if "word" in tasks:
                 self._output_format = "knp"
             elif "char" in tasks:
                 self._output_format = "words"
-                raise ValueError(f"`--tasks {','.join(tasks)}` option is not supported yet in rhoknp.")
             elif "seq2seq" in tasks:
-                self._output_format = "seq2seq"
+                self._output_format = "jumanpp"
+            elif "senter" in tasks:
+                self._output_format = "line_by_line"
             elif "typo" in tasks:
                 self._output_format = "raw"
             else:
                 raise ValueError(f"invalid task: {tasks}")
         try:
             self._proc = Popen(self.run_command, stdin=PIPE, stdout=PIPE, stderr=PIPE, encoding="utf-8")
+            if skip_sanity_check is False:
+                # TODO: replace "あ" with an empty string after KWJA v2.2.0 is released
+                _ = self.apply(Document.from_raw_text("あ"))
         except Exception as e:
             logger.warning(f"failed to start KWJA: {e}")
-        self._lock = Lock()
 
     def __repr__(self) -> str:
         arg_string = f"executable={repr(self.executable)}"
@@ -95,8 +101,25 @@ class KWJA(Processor):
                 out_text += line
             if self._output_format == "raw":
                 return Document.from_raw_text(out_text)
-            elif self._output_format == "seq2seq":
+            elif self._output_format == "line_by_line":
+                return Document.from_line_by_line_text(out_text)
+            elif self._output_format == "jumanpp":
                 return Document.from_jumanpp(out_text)
+            elif self._output_format == "words":
+                document = Document()
+                sentences = []
+                sentence_lines: List[str] = []
+                for line in out_text.split("\n"):
+                    if line.strip() == "":
+                        continue
+                    if is_comment_line(line) and sentence_lines:
+                        sentences.append(self._create_sentence_from_words_format("\n".join(sentence_lines) + "\n"))
+                        sentence_lines = []
+                    sentence_lines.append(line)
+                sentences.append(self._create_sentence_from_words_format("\n".join(sentence_lines) + "\n"))
+                document.sentences = sentences
+                document.__post_init__()
+                return document
             else:
                 assert self._output_format == "knp"
                 return Document.from_knp(out_text)
@@ -107,33 +130,37 @@ class KWJA(Processor):
         Args:
             sentence: 文．
         """
-        if not self.is_available():
-            raise RuntimeError("KWJA is not available.")
-        assert self._proc is not None
-        assert self._proc.stdin is not None
-        assert self._proc.stdout is not None
+        raise NotImplementedError("KWJA does not support apply_to_sentence() currently.")
 
-        if isinstance(sentence, str):
-            sentence = Sentence(sentence)
-
-        with self._lock:
-            self._proc.stdout.flush()
-            self._proc.stdin.write(sentence.text.rstrip("\n") + "\n")  # TODO: Keep the sentence ID
-            self._proc.stdin.write(Document.EOD + "\n")
-            self._proc.stdin.flush()
-            out_text = ""
-            while self.is_available():
-                line = self._proc.stdout.readline()
-                if line.strip() == Document.EOD:
-                    break
-                out_text += line
-            if self._output_format == "raw":
-                return Sentence.from_raw_text(out_text)
-            elif self._output_format == "seq2seq":
-                return Sentence.from_jumanpp(out_text)
-            else:
-                assert self._output_format == "knp"
-                return Sentence.from_knp(out_text)
+    @staticmethod
+    def _create_sentence_from_words_format(text: str) -> Sentence:
+        sentence = Sentence()
+        morphemes: List[Morpheme] = []
+        for line in text.split("\n"):
+            if line.strip() == "":
+                continue
+            if is_comment_line(line):
+                sentence.comment = line
+                continue
+            words: List[str] = line.split(" ")
+            morphemes += [
+                Morpheme(
+                    text=word,
+                    reading="*",
+                    lemma="*",
+                    pos="未定義語",
+                    pos_id=15,
+                    subpos="その他",
+                    subpos_id=1,
+                    conjtype="*",
+                    conjtype_id=0,
+                    conjform="*",
+                    conjform_id=0,
+                )
+                for word in words
+            ]
+        sentence.morphemes = morphemes
+        return sentence
 
     def get_version(self) -> str:
         """Juman++ のバージョンを返す．"""

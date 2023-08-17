@@ -9,7 +9,7 @@ from rhoknp.units.clause import Clause
 from rhoknp.units.morpheme import Morpheme
 from rhoknp.units.phrase import Phrase
 from rhoknp.units.unit import Unit
-from rhoknp.utils.util import _extract_did_and_sid
+from rhoknp.utils.comment import extract_did_and_sid, is_comment_line
 
 if TYPE_CHECKING:
     from rhoknp.units.document import Document
@@ -63,11 +63,13 @@ class Sentence(Unit):
 
         # Find named entities in the sentence.
         self.named_entities = []
-        if self.need_knp is False:
+        if self.is_knp_required() is False:
             for base_phrase in self.base_phrases:
                 if "NE" not in base_phrase.features:
                     continue
-                fstring = f'<NE:{base_phrase.features["NE"]}>'
+                assert isinstance(base_phrase.features["NE"], str)
+                ne_value = base_phrase.features["NE"].replace(">", r"\>")
+                fstring = f"<NE:{ne_value}>"
                 candidate_morphemes = self.morphemes[: base_phrase.morphemes[-1].index + 1]
                 named_entity = NamedEntity.from_fstring(fstring, candidate_morphemes)
                 if named_entity is not None:
@@ -252,7 +254,7 @@ class Sentence(Unit):
         Args:
             comment: コメント行．
         """
-        doc_id, sent_id, rest = _extract_did_and_sid(
+        doc_id, sent_id, rest = extract_did_and_sid(
             comment, patterns=[self.SID_PAT_KWDLC, self.SID_PAT_WAC, self.SID_PAT]
         )
         if sent_id is not None:
@@ -268,27 +270,7 @@ class Sentence(Unit):
         Raises:
             AttributeError: 解析結果にアクセスできない場合．
         """
-        return [base_phrase.pas for base_phrase in self.base_phrases if base_phrase.pas.is_empty is False]
-
-    @property
-    def has_document(self) -> bool:
-        """文書が設定されていたら True．"""
-        return self._document is not None
-
-    @property
-    def need_jumanpp(self) -> bool:
-        """Juman++ による形態素解析がまだなら True．"""
-        return self._morphemes is None and self._phrases is None and self._clauses is None
-
-    @property
-    def need_knp(self) -> bool:
-        """KNP による構文解析がまだなら True．"""
-        return self._phrases is None and self._clauses is None
-
-    @property
-    def need_clause_tag(self) -> bool:
-        """KNP による節-主辞・節-区切のタグ付与がまだなら True．"""
-        return self._clauses is None
+        return [base_phrase.pas for base_phrase in self.base_phrases if base_phrase.pas.is_empty() is False]
 
     @classmethod
     def from_raw_text(cls, text: str, post_init: bool = True) -> "Sentence":
@@ -307,7 +289,7 @@ class Sentence(Unit):
         for line in text.split("\n"):
             if line.strip() == "":
                 continue
-            if cls.is_comment_line(line):
+            if is_comment_line(line):
                 sentence.comment = line
             else:
                 sentence.text += line.replace("\r", "")
@@ -347,7 +329,7 @@ class Sentence(Unit):
         for line in jumanpp_text.split("\n"):
             if line.strip() == "":
                 continue
-            if cls.is_comment_line(line):
+            if is_comment_line(line):
                 sentence.comment = line
                 continue
             if Morpheme.is_morpheme_line(line):
@@ -411,7 +393,7 @@ class Sentence(Unit):
         for line in lines:
             if line.strip() == "":
                 continue
-            if cls.is_comment_line(line):
+            if is_comment_line(line):
                 sentence.comment = line
                 continue
             if Phrase.is_phrase_line(line):
@@ -433,10 +415,11 @@ class Sentence(Unit):
                 child_lines.append(line)
                 continue
             if line.strip() == cls.EOS:
-                if has_clause_boundary:
-                    clauses.append(Clause.from_knp("\n".join(child_lines)))
-                else:
-                    phrases.append(Phrase.from_knp("\n".join(child_lines)))
+                if child_lines:
+                    if has_clause_boundary:
+                        clauses.append(Clause.from_knp("\n".join(child_lines)))
+                    else:
+                        phrases.append(Phrase.from_knp("\n".join(child_lines)))
                 break
             raise ValueError(f"malformed line: {line}")
         if has_clause_boundary is True:
@@ -446,6 +429,22 @@ class Sentence(Unit):
         if post_init is True:
             sentence.__post_init__()
         return sentence
+
+    def has_document(self) -> bool:
+        """文書が設定されていたら True．"""
+        return self._document is not None
+
+    def is_jumanpp_required(self) -> bool:
+        """Juman++ による形態素解析がまだなら True．"""
+        return self._morphemes is None and self._phrases is None and self._clauses is None
+
+    def is_knp_required(self) -> bool:
+        """KNP による構文解析がまだなら True．"""
+        return self._phrases is None and self._clauses is None
+
+    def is_clause_tag_required(self) -> bool:
+        """KNP による節-主辞・節-区切のタグ付与がまだなら True．"""
+        return self._clauses is None
 
     def to_raw_text(self) -> str:
         """生テキストフォーマットに変換．"""
@@ -486,20 +485,8 @@ class Sentence(Unit):
         .. note::
             解析結果に対する編集を有効にする際に実行する必要がある．
         """
-        if self.need_knp is False:
+        if self.is_knp_required() is False:
             return Sentence.from_knp(self.to_knp())
-        elif self.need_jumanpp is False:
+        elif self.is_jumanpp_required() is False:
             return Sentence.from_jumanpp(self.to_jumanpp())
         return Sentence.from_raw_text(self.to_raw_text())
-
-    @staticmethod
-    def is_comment_line(line: str) -> bool:
-        """コメント行なら True を返す．
-
-        Args:
-            line: 解析結果の一行．
-
-        .. note::
-            JUMAN/KNP では # から始まる行がコメントとみなされる．
-        """
-        return line.startswith("#") and not Morpheme.is_morpheme_line(line)

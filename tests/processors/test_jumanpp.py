@@ -1,17 +1,15 @@
 import concurrent.futures
-from typing import Generator
 
 import pytest
 
 from rhoknp import Document, Jumanpp, RegexSenter, Sentence
 
-
-@pytest.fixture()
-def jumanpp() -> Generator[Jumanpp, None, None]:
-    yield Jumanpp(options=["--juman"])
+is_jumanpp_available = Jumanpp(options=["--juman"]).is_available()
 
 
-def test_call(jumanpp: Jumanpp) -> None:
+@pytest.mark.skipif(not is_jumanpp_available, reason="Juman++ is not available")
+def test_call() -> None:
+    jumanpp = Jumanpp()
     text = "外国人参政権"
     assert isinstance(jumanpp(text), Document)
     assert isinstance(jumanpp(Document.from_raw_text(text)), Document)
@@ -20,7 +18,9 @@ def test_call(jumanpp: Jumanpp) -> None:
         jumanpp(1)  # type: ignore
 
 
-def test_apply(jumanpp: Jumanpp) -> None:
+@pytest.mark.skipif(not is_jumanpp_available, reason="Juman++ is not available")
+def test_apply() -> None:
+    jumanpp = Jumanpp()
     text = "外国人参政権"
     assert isinstance(jumanpp.apply(text), Document)
     assert isinstance(jumanpp.apply(Document.from_raw_text(text)), Document)
@@ -29,6 +29,7 @@ def test_apply(jumanpp: Jumanpp) -> None:
         jumanpp.apply(1)  # type: ignore
 
 
+@pytest.mark.skipif(not is_jumanpp_available, reason="Juman++ is not available")
 @pytest.mark.parametrize(
     "text",
     [
@@ -43,11 +44,13 @@ def test_apply(jumanpp: Jumanpp) -> None:
         "CR\r\nLF",  # CR+LF
     ],
 )
-def test_apply_to_sentence(jumanpp: Jumanpp, text: str) -> None:
+def test_apply_to_sentence(text: str) -> None:
+    jumanpp = Jumanpp()
     sent = jumanpp.apply_to_sentence(text)
     assert sent.text == text.replace("\r", "").replace("\n", "")
 
 
+@pytest.mark.skipif(not is_jumanpp_available, reason="Juman++ is not available")
 @pytest.mark.parametrize(
     "text",
     [
@@ -62,12 +65,15 @@ def test_apply_to_sentence(jumanpp: Jumanpp, text: str) -> None:
         "CR\r\nLF",  # CR+LF
     ],
 )
-def test_apply_to_document(jumanpp: Jumanpp, text: str) -> None:
+def test_apply_to_document(text: str) -> None:
+    jumanpp = Jumanpp()
     doc = jumanpp.apply_to_document(text)
     assert doc.text == text.replace("\r", "").replace("\n", "")
 
 
-def test_thread_safe(jumanpp: Jumanpp) -> None:
+@pytest.mark.skipif(not is_jumanpp_available, reason="Juman++ is not available")
+def test_thread_safe() -> None:
+    jumanpp = Jumanpp()
     texts = ["外国人参政権", "望遠鏡で泳いでいる少女を見た。", "エネルギーを素敵にENEOS"]
     texts *= 10
     with concurrent.futures.ThreadPoolExecutor() as executor:
@@ -77,14 +83,18 @@ def test_thread_safe(jumanpp: Jumanpp) -> None:
             assert sentence.text == texts[i]
 
 
-def test_normal(jumanpp: Jumanpp) -> None:
+@pytest.mark.skipif(not is_jumanpp_available, reason="Juman++ is not available")
+def test_normal() -> None:
+    jumanpp = Jumanpp()
     text = "この文を解析してください。"
     sent = jumanpp.apply(text)
     assert len(sent.morphemes) == 7
     assert "".join(m.text for m in sent.morphemes) == text
 
 
-def test_nominalization(jumanpp: Jumanpp) -> None:
+@pytest.mark.skipif(not is_jumanpp_available, reason="Juman++ is not available")
+def test_nominalization() -> None:
+    jumanpp = Jumanpp()
     text = "音の響きを感じる。"
     sent = jumanpp.apply(text)
     assert len(sent.morphemes) == 6
@@ -93,7 +103,9 @@ def test_nominalization(jumanpp: Jumanpp) -> None:
     assert sent.morphemes[2].pos == "名詞"
 
 
-def test_whitespace(jumanpp: Jumanpp) -> None:
+@pytest.mark.skipif(not is_jumanpp_available, reason="Juman++ is not available")
+def test_whitespace() -> None:
+    jumanpp = Jumanpp()
     text = "半角 スペース"
     sent = jumanpp.apply(text)
     assert len(sent.morphemes) == 3
@@ -102,11 +114,13 @@ def test_whitespace(jumanpp: Jumanpp) -> None:
     assert sent.morphemes[1].subpos == "空白"
 
 
+@pytest.mark.skipif(not is_jumanpp_available, reason="Juman++ is not available")
 def test_get_version() -> None:
     jumanpp = Jumanpp()
     _ = jumanpp.get_version()
 
 
+@pytest.mark.skipif(not is_jumanpp_available, reason="Juman++ is not available")
 def test_is_available() -> None:
     jumanpp = Jumanpp()
     assert jumanpp.is_available() is True

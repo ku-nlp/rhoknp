@@ -1,17 +1,15 @@
 import concurrent.futures
-from typing import Generator
 
 import pytest
 
 from rhoknp import KNP, Document, Jumanpp, RegexSenter, Sentence
 
-
-@pytest.fixture()
-def knp() -> Generator[KNP, None, None]:
-    yield KNP(options=["-tab"])
+is_knp_available = KNP().is_available()
 
 
-def test_call(knp: KNP) -> None:
+@pytest.mark.skipif(not is_knp_available, reason="KNP is not available")
+def test_call() -> None:
+    knp = KNP()
     text = "外国人参政権"
     assert isinstance(knp(text), Document)
     assert isinstance(knp(Document.from_raw_text(text)), Document)
@@ -20,7 +18,9 @@ def test_call(knp: KNP) -> None:
         knp(1)  # type: ignore
 
 
-def test_apply(knp: KNP) -> None:
+@pytest.mark.skipif(not is_knp_available, reason="KNP is not available")
+def test_apply() -> None:
+    knp = KNP()
     text = "外国人参政権"
     assert isinstance(knp.apply(text), Document)
     assert isinstance(knp.apply(Document.from_raw_text(text)), Document)
@@ -29,6 +29,7 @@ def test_apply(knp: KNP) -> None:
         knp.apply(1)  # type: ignore
 
 
+@pytest.mark.skipif(not is_knp_available, reason="KNP is not available")
 @pytest.mark.parametrize(
     "text",
     [
@@ -44,12 +45,15 @@ def test_apply(knp: KNP) -> None:
         "CR\r\nLF",  # CR+LF
     ],
 )
-def test_apply_to_sentence(knp: KNP, text: str) -> None:
+def test_apply_to_sentence(text: str) -> None:
+    knp = KNP()
     sent = knp.apply_to_sentence(text)
     assert sent.text == text.replace("\r", "").replace("\n", "")
 
 
-def test_thread_safe(knp: KNP) -> None:
+@pytest.mark.skipif(not is_knp_available, reason="KNP is not available")
+def test_thread_safe() -> None:
+    knp = KNP()
     texts = ["外国人参政権", "望遠鏡で泳いでいる少女を見た。", "エネルギーを素敵にENEOS"]
     texts *= 10
     with concurrent.futures.ThreadPoolExecutor() as executor:
@@ -59,6 +63,7 @@ def test_thread_safe(knp: KNP) -> None:
             assert sentence.text == texts[i]
 
 
+@pytest.mark.skipif(not is_knp_available, reason="KNP is not available")
 @pytest.mark.parametrize(
     "text",
     [
@@ -74,16 +79,19 @@ def test_thread_safe(knp: KNP) -> None:
         "CR\r\nLF",  # CR+LF
     ],
 )
-def test_apply_to_document(knp: KNP, text: str) -> None:
+def test_apply_to_document(text: str) -> None:
+    knp = KNP()
     doc = knp.apply_to_document(text)
     assert doc.text == text.replace("\r", "").replace("\n", "")
 
 
+@pytest.mark.skipif(not is_knp_available, reason="KNP is not available")
 def test_get_version() -> None:
     knp = KNP()
     _ = knp.get_version()
 
 
+@pytest.mark.skipif(not is_knp_available, reason="KNP is not available")
 def test_is_available() -> None:
     knp = KNP()
     assert knp.is_available() is True

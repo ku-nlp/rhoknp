@@ -2,7 +2,7 @@ import dataclasses
 import itertools
 import logging
 import re
-from typing import TYPE_CHECKING, Any, List, Optional, Set
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set
 
 try:
     from functools import cached_property  # type: ignore
@@ -66,6 +66,24 @@ class BasePhrase(Unit):
         self.index = self.count  #: 文内におけるインデックス．
         BasePhrase.count += 1
 
+    def __getstate__(self) -> Dict[str, Any]:
+        state = self.__dict__.copy()
+        # Dump a tuple instead of a set so that the __hash__ function won't be called.
+        # `eids` is used to hash uninitialized Entity objects.
+        state["entities"] = tuple(self.entities)
+        state["eids"] = tuple(entity.eid for entity in state["entities"])
+        state["entities_nonidentical"] = tuple(self.entities_nonidentical)
+        state["eids_nonidentical"] = tuple(entity.eid for entity in state["entities_nonidentical"])
+        return state
+
+    def __setstate__(self, state) -> None:
+        # Restore eids to Entity objects for hashing.
+        for entity, eid in zip(state["entities"], state.pop("eids")):
+            entity.eid = eid
+        for entity, eid in zip(state["entities_nonidentical"], state.pop("eids_nonidentical")):
+            entity.eid = eid
+        self.__dict__.update(state)  # Entity objects are hashed by eid.
+
     def __post_init__(self) -> None:
         super().__post_init__()
 
@@ -102,7 +120,7 @@ class BasePhrase(Unit):
     @cached_property
     def global_index(self) -> int:
         """文書全体におけるインデックス．"""
-        if self.sentence.has_document is False:
+        if self.sentence.has_document() is False:
             return self.index
         if self.index > 0:
             return self.sentence.base_phrases[self.index - 1].global_index + 1
@@ -259,7 +277,7 @@ class BasePhrase(Unit):
         ret += "".join(morpheme.to_knp() for morpheme in self.morphemes)
         return ret
 
-    def get_coreferents(self, include_nonidentical: bool = False, include_self: bool = False) -> Set["BasePhrase"]:
+    def get_coreferents(self, include_nonidentical: bool = False, include_self: bool = False) -> List["BasePhrase"]:
         """この基本句と共参照している基本句の集合を返却．
 
         Args:
@@ -269,14 +287,17 @@ class BasePhrase(Unit):
         Returns:
             共参照している基本句の集合．
         """
-        mentions: Set["BasePhrase"] = set()
-        for entity in self.entities:
-            mentions.update(entity.mentions)
+        mentions: List["BasePhrase"] = []
+        for mention in itertools.chain.from_iterable(entity.mentions for entity in self.entities):
+            if mention not in mentions:
+                mentions.append(mention)
         if include_nonidentical is True:
-            for entity in self.entities_nonidentical:
-                mentions.update(entity.mentions)
-        if include_self is False and self in mentions:
-            mentions.remove(self)
+            for mention in itertools.chain.from_iterable(entity.mentions for entity in self.entities_nonidentical):
+                if mention not in mentions:
+                    mentions.append(mention)
+        if include_self is False:
+            while self in mentions:
+                mentions.remove(self)
         return mentions
 
     def _add_argument(self, rel_tag: RelTag) -> None:
@@ -332,7 +353,7 @@ class BasePhrase(Unit):
 
     def _get_target_base_phrase(self, rel_tag: RelTag) -> Optional["BasePhrase"]:
         """rel_tag が指す基本句を返す．見つからなければ None を返す．"""
-        sentences = self.document.sentences if self.sentence.has_document else [self.sentence]
+        sentences = self.document.sentences if self.sentence.has_document() else [self.sentence]
         sentences = [sent for sent in sentences if sent.sid == rel_tag.sid]
         if not sentences:
             logger.warning(f"{self.sentence.sid}: relation with unknown sid found: {rel_tag.sid}")
@@ -348,9 +369,6 @@ class BasePhrase(Unit):
                 f"{self.sentence.sid}: rel target mismatch; '{rel_tag.target}' vs '{target_base_phrase.text}'"
             )
         return target_base_phrase
-
-    def __hash__(self) -> int:
-        return hash((self.global_index, self.sentence.sid))
 
     @staticmethod
     def is_base_phrase_line(line: str) -> bool:

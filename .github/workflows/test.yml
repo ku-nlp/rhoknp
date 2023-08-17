@@ -28,24 +28,24 @@ jobs:
           python3 -m pipx ensurepath
           python3 -m pipx install poetry
       - name: Add path for Python packages
-        run: echo "$HOME/.local/bin" >> $GITHUB_PATH
+        run: |
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
       - name: Install dependencies
-        run: poetry install --no-interaction --without dev,docs --extras=cli
-      - name: Cache KWJA checkpoints
-        uses: actions/cache@v3
-        with:
-          path: /tmp/kwja
-          key: kwja-${{ env.KWJA_VERSION }}
-      - name: Run tests with KWJA
+        run: |
+          poetry install --no-interaction --without dev,docs --extras=cli
+      - name: Install KWJA
         # KWJA does not support Python 3.7
         if: ${{ matrix.python-version != 3.7 }}
         run: |
           pipx install kwja
-          poetry run pytest --cov=./ --cov-report=xml -v ./tests
-      - name: Run tests without KWJA
-        if: ${{ matrix.python-version == 3.7 }}
+      - name: Run tests with coverage
+        if: ${{ matrix.python-version == 3.9 }}
         run: |
-          poetry run pytest -v --ignore ./tests/processors/test_kwja.py ./tests
+          poetry run pytest --cov=./ --cov-report=xml -v ./tests
+      - name: Run tests without coverage
+        if: ${{ matrix.python-version != 3.9 }}
+        run: |
+          poetry run pytest -v ./tests
       - name: Upload coverage to Codecov
         if: ${{ matrix.python-version == 3.9 }}
         uses: codecov/codecov-action@v3

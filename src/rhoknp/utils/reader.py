@@ -4,7 +4,7 @@ from functools import partial
 from typing import Callable, Iterator, List, Optional, TextIO, Union
 
 from rhoknp import Sentence
-from rhoknp.utils.util import _extract_did_and_sid
+from rhoknp.utils.comment import extract_did_and_sid
 
 logger = logging.getLogger(__name__)
 
@@ -98,5 +98,5 @@ def _extract_doc_id(line: str, pat: re.Pattern) -> Optional[str]:
         line: 文IDが含まれるコメント行．
         pat: 文書IDを抽出する正規表現．
     """
-    did, _, _ = _extract_did_and_sid(line, [pat])
+    did, _, _ = extract_did_and_sid(line, [pat])
     return did

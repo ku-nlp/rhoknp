@@ -1,4 +1,5 @@
 import logging
+import select
 import subprocess
 from subprocess import PIPE, Popen
 from threading import Lock
@@ -38,6 +39,7 @@ class KNP(Processor):
         options: Optional[List[str]] = None,
         senter: Optional[Processor] = None,
         jumanpp: Optional[Processor] = None,
+        skip_sanity_check: bool = False,
     ) -> None:
         self.executable = executable  #: KNP のパス．
         self.options = options or ["-tab"]  #: KNP のオプション．
@@ -46,11 +48,13 @@ class KNP(Processor):
         self.senter = senter
         self.jumanpp = jumanpp
         self._proc: Optional[Popen] = None
+        self._lock = Lock()
         try:
             self._proc = Popen(self.run_command, stdin=PIPE, stdout=PIPE, stderr=PIPE, encoding="utf-8")
+            if skip_sanity_check is False:
+                _ = self.apply(Sentence.from_jumanpp(""))
         except Exception as e:
             logger.warning(f"failed to start KNP: {e}")
-        self._lock = Lock()
 
     def __repr__(self) -> str:
         arg_string = f"executable={repr(self.executable)}"
@@ -91,7 +95,7 @@ class KNP(Processor):
         if isinstance(document, str):
             document = Document(document)
 
-        if document.need_senter is True:
+        if document.is_senter_required() is True:
             logger.debug("document needs to be split into sentences")
             if self.senter is None:
                 logger.debug("senter is not specified; use RegexSenter")
@@ -99,25 +103,10 @@ class KNP(Processor):
                 logger.debug(self.senter)
             document = self.senter.apply_to_document(document)
 
-        if document.need_jumanpp is True:
-            logger.debug("document needs to be processed by Juman++")
-            if self.jumanpp is None:
-                logger.info("jumanpp is not specified; use Jumanpp")
-                self.jumanpp = Jumanpp()
-                logger.debug(self.jumanpp)
-            document = self.jumanpp.apply_to_document(document)
-
-        with self._lock:
-            knp_text = ""
-            for sentence in document.sentences:
-                self._proc.stdin.write(sentence.to_jumanpp() if sentence.need_knp is True else sentence.to_knp())
-                self._proc.stdin.flush()
-                while self.is_available():
-                    line = self._proc.stdout.readline()
-                    knp_text += line
-                    if line.strip() == Sentence.EOS:
-                        break
-            return Document.from_knp(knp_text)
+        sentences: List[Sentence] = []
+        for sentence in document.sentences:
+            sentences.append(self.apply_to_sentence(sentence))
+        return Document.from_sentences(sentences)
 
     def apply_to_sentence(self, sentence: Union[Sentence, str]) -> Sentence:
         """文に KNP を適用する．
@@ -134,11 +123,12 @@ class KNP(Processor):
         assert self._proc is not None
         assert self._proc.stdin is not None
         assert self._proc.stdout is not None
+        assert self._proc.stderr is not None
 
         if isinstance(sentence, str):
             sentence = Sentence(sentence)
 
-        if sentence.need_jumanpp is True:
+        if sentence.is_jumanpp_required() is True:
             logger.debug("sentence needs to be processed by Juman++")
             if self.jumanpp is None:
                 logger.info("jumanpp is not specified when initializing KNP: use Jumanpp with no option")
@@ -146,15 +136,22 @@ class KNP(Processor):
             sentence = self.jumanpp.apply_to_sentence(sentence)
 
         with self._lock:
-            self._proc.stdin.write(sentence.to_jumanpp() if sentence.need_knp is True else sentence.to_knp())
+            self._proc.stdin.write(sentence.to_jumanpp() if sentence.is_knp_required() is True else sentence.to_knp())
             self._proc.stdin.flush()
-            knp_text = ""
+            stdout_text = ""
             while self.is_available():
                 line = self._proc.stdout.readline()
-                knp_text += line
+                stdout_text += line
                 if line.strip() == Sentence.EOS:
                     break
-            return Sentence.from_knp(knp_text)
+
+                # Non-blocking read from stderr
+                stderr_text = ""
+                while self._proc.stderr in select.select([self._proc.stderr], [], [], 0)[0]:
+                    stderr_text += self._proc.stderr.readline()
+                if stderr_text.strip() != "":
+                    raise ValueError(line.strip())
+            return Sentence.from_knp(stdout_text)
 
     def get_version(self) -> str:
         """Juman++ のバージョンを返す．"""

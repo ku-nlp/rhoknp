@@ -1,5 +1,5 @@
 import logging
-from typing import TYPE_CHECKING, Dict, Optional, Set
+from typing import TYPE_CHECKING, Dict, List, Optional
 
 from rhoknp.cohesion.argument import ExophoraArgument
 from rhoknp.cohesion.exophora import ExophoraReferent
@@ -21,13 +21,17 @@ class Entity:
     def __init__(self, eid: int, exophora_referent: Optional[ExophoraReferent] = None) -> None:
         self.eid = eid  #: エンティティ ID．
         self.exophora_referent = exophora_referent  #: 外界照応の照応先．対応するものがなければ None．
-        self.mentions: Set["BasePhrase"] = set()  #: このエンティティを参照するメンションの集合．
-        self.mentions_nonidentical: Set["BasePhrase"] = set()  #: このエンティティを≒関係で参照するメンションの集合．
+        self.mentions: List["BasePhrase"] = []  #: このエンティティを参照するメンションのリスト．
+        self.mentions_nonidentical: List["BasePhrase"] = []  #: このエンティティを≒関係で参照するメンションのリスト．
 
     @property
-    def mentions_all(self) -> Set["BasePhrase"]:
-        """nonidentical を含めたこのエンティティを参照する全てのメンションの集合．"""
-        return self.mentions | self.mentions_nonidentical
+    def mentions_all(self) -> List["BasePhrase"]:
+        """nonidentical を含めたこのエンティティを参照する全てのメンションのリスト．"""
+        ret = self.mentions.copy()
+        for mention in self.mentions_nonidentical:
+            if mention not in ret:
+                ret.append(mention)
+        return ret
 
     def add_mention(self, mention: "BasePhrase", is_nonidentical: bool = False) -> None:
         """このエンティティを参照するメンションを追加．
@@ -44,12 +48,14 @@ class Entity:
             if mention in self.mentions_all:
                 return
             mention.entities_nonidentical.add(self)
-            self.mentions_nonidentical.add(mention)
+            self.mentions_nonidentical.append(mention)
         else:
             if mention in self.mentions_nonidentical:
                 self.remove_mention(mention)
+            if mention in self.mentions:
+                return
             mention.entities.add(self)
-            self.mentions.add(mention)
+            self.mentions.append(mention)
 
     def remove_mention(self, mention: "BasePhrase") -> None:
         """このエンティティを参照するメンションを削除．
@@ -108,7 +114,7 @@ class EntityManager:
         Returns:
              Entity: 作成されたエンティティ．
         """
-        if exophora_referent is not None and exophora_referent.is_singleton is True:
+        if exophora_referent is not None and exophora_referent.is_singleton() is True:
             entities = [e for e in cls.entities.values() if exophora_referent == e.exophora_referent]
             # If a singleton entity already exists, do not create a new entity, but return that entity.
             if entities:
@@ -178,7 +184,7 @@ class EntityManager:
             source_entity.add_mention(tm, is_nonidentical=target_entity in tm.entities_nonidentical)
         # Arguments also have entity ids and will be updated.
         source_sentence = source_mention.sentence
-        pas_list = source_mention.document.pas_list if source_sentence.has_document else source_sentence.pas_list
+        pas_list = source_mention.document.pas_list if source_sentence.has_document() else source_sentence.pas_list
         for arg in [arg for pas in pas_list for args in pas.get_all_arguments(relax=False).values() for arg in args]:
             if isinstance(arg, ExophoraArgument) and arg.eid == target_entity.eid:
                 arg.eid = source_entity.eid

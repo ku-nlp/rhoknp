@@ -15,17 +15,17 @@ def get_document_statistics(document: Document) -> Dict[str, Dict[str, int]]:
     """
     stats: Dict[str, Any] = {"unit": {}, "cohesion": {}, "other": {}}
     # Unit
-    if document.need_senter is False:
+    if document.is_senter_required() is False:
         stats["unit"]["sentence"] = len(document.sentences)
-    if document.need_clause_tag is False:
+    if document.is_clause_tag_required() is False:
         stats["unit"]["clause"] = len(document.clauses)
-    if document.need_knp is False:
+    if document.is_knp_required() is False:
         stats["unit"]["phrase"] = len(document.phrases)
         stats["unit"]["base_phrase"] = len(document.base_phrases)
-    if document.need_jumanpp is False:
+    if document.is_jumanpp_required() is False:
         stats["unit"]["morpheme"] = len(document.morphemes)
     # Cohesion
-    if document.need_knp is False:
+    if document.is_knp_required() is False:
         stats["cohesion"]["predicate"] = sum(
             len([rel_tag for rel_tag in bp.rel_tags if rel_tag.type in CASE_TYPES]) > 0 for bp in document.base_phrases
         )
@@ -35,8 +35,8 @@ def get_document_statistics(document: Document) -> Dict[str, Dict[str, int]]:
         stats["cohesion"]["coreference"] = sum(
             len([rel_tag for rel_tag in bp.rel_tags if rel_tag.type in COREF_TYPES]) for bp in document.base_phrases
         )
-    if document.need_clause_tag is False:
+    if document.is_clause_tag_required() is False:
         stats["cohesion"]["discourse"] = sum(len(clause.discourse_relations) for clause in document.clauses)
-    if document.need_senter is False:
+    if document.is_senter_required() is False:
         stats["other"]["named_entity"] = sum(len(sentence.named_entities) for sentence in document.sentences)
     return stats
