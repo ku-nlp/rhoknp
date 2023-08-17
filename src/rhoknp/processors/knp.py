@@ -138,21 +138,20 @@ class KNP(Processor):
         with self._lock:
             self._proc.stdin.write(sentence.to_jumanpp() if sentence.is_knp_required() is True else sentence.to_knp())
             self._proc.stdin.flush()
-            knp_text = ""
+            stdout_text = ""
             while self.is_available():
                 line = self._proc.stdout.readline()
-                knp_text += line
+                stdout_text += line
                 if line.strip() == Sentence.EOS:
                     break
 
                 # Non-blocking read from stderr
+                stderr_text = ""
                 while self._proc.stderr in select.select([self._proc.stderr], [], [], 0)[0]:
-                    line = self._proc.stderr.readline()
-                    if line.strip() != "":
-                        raise ValueError(line.strip())
-                    else:
-                        break
-            return Sentence.from_knp(knp_text)
+                    stderr_text += self._proc.stderr.readline()
+                if stderr_text.strip() != "":
+                    raise ValueError(line.strip())
+            return Sentence.from_knp(stdout_text)
 
     def get_version(self) -> str:
         """Juman++ のバージョンを返す．"""
