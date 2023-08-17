@@ -15,7 +15,7 @@ keywords = ["NLP"]
 [tool.poetry.dependencies]
 python = "^3.7"
 cached-property = { version = "^1.5", python = "<3.8" }
-importlib-metadata = { version = ">=5.2", python = "<3.8" }
+importlib-metadata = { version = ">=5.2,<6.8", python = "<3.8" }
 typer = [
     { version = ">=0.7,<0.9", python = "<3.8", optional = true },
     { version = ">=0.7", python = ">=3.8", optional = true },
@@ -47,7 +47,11 @@ Sphinx = [
     { version = "^5.3", python = "<3.8" },
     { version = "^7.0", python = ">=3.8" },
 ]
-sphinx-prompt = "^1.5"
+# sphinx-prompt 1.7.0 requires python < 3.11, which will be fixed in the next version
+sphinx-prompt = [
+    { version = "~1.5.0", python = "<3.8" },
+    { version = "^1.6", python = ">=3.8,<3.11" },
+]
 sphinx-copybutton = "^0.5.0"
 myst-parser = [
     { version = "^1.0", python = "<3.8" },
