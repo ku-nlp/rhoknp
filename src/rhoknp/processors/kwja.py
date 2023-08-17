@@ -113,14 +113,10 @@ class KWJA(Processor):
                     if line.strip() == "":
                         continue
                     if is_comment_line(line) and sentence_lines:
-                        sentences.append(
-                            self._create_sentence_from_words_format("\n".join(sentence_lines) + "\n", post_init=False)
-                        )
+                        sentences.append(self._create_sentence_from_words_format("\n".join(sentence_lines) + "\n"))
                         sentence_lines = []
                     sentence_lines.append(line)
-                sentences.append(
-                    self._create_sentence_from_words_format("\n".join(sentence_lines) + "\n", post_init=False)
-                )
+                sentences.append(self._create_sentence_from_words_format("\n".join(sentence_lines) + "\n"))
                 document.sentences = sentences
                 document.__post_init__()
                 return document
@@ -137,7 +133,7 @@ class KWJA(Processor):
         raise NotImplementedError("KWJA does not support apply_to_sentence() currently.")
 
     @staticmethod
-    def _create_sentence_from_words_format(text: str, post_init: bool = True) -> Sentence:
+    def _create_sentence_from_words_format(text: str) -> Sentence:
         sentence = Sentence()
         morphemes: List[Morpheme] = []
         for line in text.split("\n"):
@@ -164,8 +160,6 @@ class KWJA(Processor):
                 for word in words
             ]
         sentence.morphemes = morphemes
-        if post_init is True:
-            sentence.__post_init__()
         return sentence
 
     def get_version(self) -> str:
