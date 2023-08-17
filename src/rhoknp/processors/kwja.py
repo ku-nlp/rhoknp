@@ -55,7 +55,7 @@ class KWJA(Processor):
         try:
             self._proc = Popen(self.run_command, stdin=PIPE, stdout=PIPE, stderr=PIPE, encoding="utf-8")
             if skip_sanity_check is False:
-                _ = self.apply(Sentence.from_raw_text(""))
+                _ = self.apply(Document.from_raw_text(""))
         except Exception as e:
             logger.warning(f"failed to start KWJA: {e}")
 
@@ -133,37 +133,7 @@ class KWJA(Processor):
         Args:
             sentence: 文．
         """
-        if not self.is_available():
-            raise RuntimeError("KWJA is not available.")
-        assert self._proc is not None
-        assert self._proc.stdin is not None
-        assert self._proc.stdout is not None
-
-        if isinstance(sentence, str):
-            sentence = Sentence(sentence)
-
-        with self._lock:
-            self._proc.stdout.flush()
-            self._proc.stdin.write(sentence.text.rstrip("\n") + "\n")  # TODO: Keep the sentence ID
-            self._proc.stdin.write(Document.EOD + "\n")
-            self._proc.stdin.flush()
-            out_text = ""
-            while self.is_available():
-                line = self._proc.stdout.readline()
-                if line.strip() == Document.EOD:
-                    break
-                out_text += line
-            if self._output_format == "raw":
-                return Sentence.from_raw_text(out_text)
-            elif self._output_format == "line_by_line":
-                return Sentence.from_raw_text(out_text)
-            elif self._output_format == "jumanpp":
-                return Sentence.from_jumanpp(out_text)
-            elif self._output_format == "words":
-                return self._create_sentence_from_words_format(out_text)
-            else:
-                assert self._output_format == "knp"
-                return Sentence.from_knp(out_text)
+        raise NotImplementedError("KWJA does not support apply_to_sentence() currently.")
 
     @staticmethod
     def _create_sentence_from_words_format(text: str, post_init: bool = True) -> Sentence:
