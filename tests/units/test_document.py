@@ -907,12 +907,12 @@ def test_eq_raw_text() -> None:
 @pytest.mark.parametrize("case", CASES)
 def test_pickle_unpickle(case: Dict[str, str]) -> None:
     doc1 = Document.from_knp(case["knp"])
-    doc2 = pickle.loads(pickle.dumps(doc1))  # nosec B301
+    doc2 = pickle.loads(pickle.dumps(doc1))  # nosec pickle
     assert doc1.to_knp() == doc2.to_knp()
 
 
 @pytest.mark.parametrize("path", Path("tests/data").glob("*.knp"))
 def test_pickle_unpickle_annotated_corpora(path: Path) -> None:
     doc1 = Document.from_knp(path.read_text())
-    doc2 = pickle.loads(pickle.dumps(doc1))  # nosec B301
+    doc2 = pickle.loads(pickle.dumps(doc1))  # nosec pickle
     assert doc1.to_knp() == doc2.to_knp()
