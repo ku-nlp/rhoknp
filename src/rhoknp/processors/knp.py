@@ -1,4 +1,5 @@
 import logging
+import select
 import subprocess
 from subprocess import PIPE, Popen
 from threading import Lock
@@ -122,6 +123,7 @@ class KNP(Processor):
         assert self._proc is not None
         assert self._proc.stdin is not None
         assert self._proc.stdout is not None
+        assert self._proc.stderr is not None
 
         if isinstance(sentence, str):
             sentence = Sentence(sentence)
@@ -142,6 +144,14 @@ class KNP(Processor):
                 knp_text += line
                 if line.strip() == Sentence.EOS:
                     break
+
+                # Non-blocking read from stderr
+                while self._proc.stderr in select.select([self._proc.stderr], [], [], 0)[0]:
+                    line = self._proc.stderr.readline()
+                    if line.strip() != "":
+                        raise ValueError(line.strip())
+                    else:
+                        break
             return Sentence.from_knp(knp_text)
 
     def get_version(self) -> str:

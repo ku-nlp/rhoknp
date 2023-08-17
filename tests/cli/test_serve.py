@@ -87,7 +87,6 @@ def test_analyze_knp_error_long(knp_client: TestClient) -> None:
     json = response.json()
     assert "error" in json
     assert json["error"]["code"] == 500
-    assert json["error"]["message"] == "malformed phrase line: "
 
 
 @pytest.mark.skipif(not is_knp_available, reason="KNP is not available")
