@@ -90,17 +90,10 @@ class Jumanpp(Processor):
                 self.senter = RegexSenter()
             document = self.senter.apply_to_document(document)
 
-        with self._lock:
-            jumanpp_text = ""
-            for sentence in document.sentences:
-                self._proc.stdin.write(sentence.to_raw_text())
-                self._proc.stdin.flush()
-                while self.is_available():
-                    line = self._proc.stdout.readline()
-                    jumanpp_text += line
-                    if line.strip() == Sentence.EOS:
-                        break
-            return Document.from_jumanpp(jumanpp_text)
+        sentences: List[Sentence] = []
+        for sentence in document.sentences:
+            sentences.append(self.apply_to_sentence(sentence))
+        return Document.from_sentences(sentences)
 
     def apply_to_sentence(self, sentence: Union[Sentence, str]) -> Sentence:
         """文に Jumanpp を適用する．

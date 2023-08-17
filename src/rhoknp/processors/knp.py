@@ -102,27 +102,10 @@ class KNP(Processor):
                 logger.debug(self.senter)
             document = self.senter.apply_to_document(document)
 
-        if document.is_jumanpp_required() is True:
-            logger.debug("document needs to be processed by Juman++")
-            if self.jumanpp is None:
-                logger.info("jumanpp is not specified; use Jumanpp")
-                self.jumanpp = Jumanpp()
-                logger.debug(self.jumanpp)
-            document = self.jumanpp.apply_to_document(document)
-
-        with self._lock:
-            knp_text = ""
-            for sentence in document.sentences:
-                self._proc.stdin.write(
-                    sentence.to_jumanpp() if sentence.is_knp_required() is True else sentence.to_knp()
-                )
-                self._proc.stdin.flush()
-                while self.is_available():
-                    line = self._proc.stdout.readline()
-                    knp_text += line
-                    if line.strip() == Sentence.EOS:
-                        break
-            return Document.from_knp(knp_text)
+        sentences: List[Sentence] = []
+        for sentence in document.sentences:
+            sentences.append(self.apply_to_sentence(sentence))
+        return Document.from_sentences(sentences)
 
     def apply_to_sentence(self, sentence: Union[Sentence, str]) -> Sentence:
         """文に KNP を適用する．
