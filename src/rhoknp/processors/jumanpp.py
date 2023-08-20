@@ -1,5 +1,7 @@
 import logging
+import select
 import subprocess
+import sys
 from subprocess import PIPE, Popen
 from threading import Lock
 from typing import List, Optional, Union
@@ -35,12 +37,14 @@ class Jumanpp(Processor):
         options: Optional[List[str]] = None,
         senter: Optional[Processor] = None,
         skip_sanity_check: bool = False,
+        debug: bool = False,
     ) -> None:
         self.executable = executable  #: Juman++ のパス．
         self.options: List[str] = options or []  #: Juman++ のオプション．
         self.senter = senter
-        self._proc: Optional[Popen] = None
+        self.debug: bool = debug  #: True ならデバッグモード．
         self._lock = Lock()
+        self._proc: Optional[Popen] = None
         try:
             self._proc = Popen(self.run_command, stdin=PIPE, stdout=PIPE, stderr=PIPE, encoding="utf-8")
             if skip_sanity_check is False:
@@ -106,6 +110,7 @@ class Jumanpp(Processor):
         assert self._proc is not None
         assert self._proc.stdin is not None
         assert self._proc.stdout is not None
+        assert self._proc.stderr is not None
 
         if isinstance(sentence, str):
             sentence = Sentence(sentence)
@@ -113,13 +118,21 @@ class Jumanpp(Processor):
         with self._lock:
             self._proc.stdin.write(sentence.to_raw_text())
             self._proc.stdin.flush()
-            jumanpp_text = ""
+            stdout_text = ""
             while self.is_available():
                 line = self._proc.stdout.readline()
-                jumanpp_text += line
+                stdout_text += line
                 if line.strip() == Sentence.EOS:
                     break
-            return Sentence.from_jumanpp(jumanpp_text)
+
+                # Non-blocking read from stderr
+                stderr_text = ""
+                while self._proc.stderr in select.select([self._proc.stderr], [], [], 0)[0]:
+                    stderr_text += self._proc.stderr.readline()
+                if self.debug is True and stderr_text.strip() != "":
+                    print(stderr_text.strip(), file=sys.stderr)
+
+            return Sentence.from_jumanpp(stdout_text)
 
     def get_version(self) -> str:
         """Juman++ のバージョンを返す．"""

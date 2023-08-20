@@ -1,5 +1,7 @@
 import logging
+import select
 import subprocess
+import sys
 from subprocess import PIPE, Popen
 from threading import Lock
 from typing import List, Optional, Union
@@ -32,12 +34,14 @@ class KWJA(Processor):
         executable: str = "kwja",
         options: Optional[List[str]] = None,
         skip_sanity_check: bool = False,
+        debug: bool = False,
     ) -> None:
         self.executable = executable  #: KWJA のパス．
         self.options: List[str] = options or []  #: KWJA のオプション．
+        self.debug: bool = debug  #: True ならデバッグモード．
         self._proc: Optional[Popen] = None
-        self._output_format = "knp"
         self._lock = Lock()
+        self._output_format = "knp"
         if "--tasks" in self.options:
             tasks: List[str] = self.options[self.options.index("--tasks") + 1].split(",")
             if "word" in tasks:
@@ -85,6 +89,7 @@ class KWJA(Processor):
         assert self._proc is not None
         assert self._proc.stdin is not None
         assert self._proc.stdout is not None
+        assert self._proc.stderr is not None
 
         if isinstance(document, str):
             document = Document(document)
@@ -93,36 +98,21 @@ class KWJA(Processor):
             self._proc.stdin.write(document.text.rstrip("\n") + "\n")  # TODO: Keep the sentence IDs
             self._proc.stdin.write(Document.EOD + "\n")
             self._proc.stdin.flush()
-            out_text = ""
+            stdout_text = ""
             while self.is_available():
                 line = self._proc.stdout.readline()
                 if line.strip() == Document.EOD:
                     break
-                out_text += line
-            if self._output_format == "raw":
-                return Document.from_raw_text(out_text)
-            elif self._output_format == "line_by_line":
-                return Document.from_line_by_line_text(out_text)
-            elif self._output_format == "jumanpp":
-                return Document.from_jumanpp(out_text)
-            elif self._output_format == "words":
-                document = Document()
-                sentences = []
-                sentence_lines: List[str] = []
-                for line in out_text.split("\n"):
-                    if line.strip() == "":
-                        continue
-                    if is_comment_line(line) and sentence_lines:
-                        sentences.append(self._create_sentence_from_words_format("\n".join(sentence_lines) + "\n"))
-                        sentence_lines = []
-                    sentence_lines.append(line)
-                sentences.append(self._create_sentence_from_words_format("\n".join(sentence_lines) + "\n"))
-                document.sentences = sentences
-                document.__post_init__()
-                return document
-            else:
-                assert self._output_format == "knp"
-                return Document.from_knp(out_text)
+                stdout_text += line
+
+                # Non-blocking read from stderr
+                stderr_text = ""
+                while self._proc.stderr in select.select([self._proc.stderr], [], [], 0)[0]:
+                    stderr_text += self._proc.stderr.readline()
+                if self.debug is True and stderr_text.strip() != "":
+                    print(stderr_text.strip(), file=sys.stderr)
+
+            return self._create_document(stdout_text)
 
     def apply_to_sentence(self, sentence: Union[Sentence, str]) -> Sentence:
         """文に KWJA を適用する．
@@ -131,6 +121,32 @@ class KWJA(Processor):
             sentence: 文．
         """
         raise NotImplementedError("KWJA does not support apply_to_sentence() currently.")
+
+    def _create_document(self, text: str) -> Document:
+        if self._output_format == "raw":
+            return Document.from_raw_text(text)
+        elif self._output_format == "line_by_line":
+            return Document.from_line_by_line_text(text)
+        elif self._output_format == "jumanpp":
+            return Document.from_jumanpp(text)
+        elif self._output_format == "words":
+            document = Document()
+            sentences = []
+            sentence_lines: List[str] = []
+            for line in text.split("\n"):
+                if line.strip() == "":
+                    continue
+                if is_comment_line(line) and sentence_lines:
+                    sentences.append(self._create_sentence_from_words_format("\n".join(sentence_lines) + "\n"))
+                    sentence_lines = []
+                sentence_lines.append(line)
+            sentences.append(self._create_sentence_from_words_format("\n".join(sentence_lines) + "\n"))
+            document.sentences = sentences
+            document.__post_init__()
+            return document
+        else:
+            assert self._output_format == "knp"
+            return Document.from_knp(text)
 
     @staticmethod
     def _create_sentence_from_words_format(text: str) -> Sentence:

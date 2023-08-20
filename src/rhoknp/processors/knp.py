@@ -47,8 +47,8 @@ class KNP(Processor):
             raise ValueError("`-tab` option is required when you use KNP. ")
         self.senter = senter
         self.jumanpp = jumanpp
-        self._proc: Optional[Popen] = None
         self._lock = Lock()
+        self._proc: Optional[Popen] = None
         try:
             self._proc = Popen(self.run_command, stdin=PIPE, stdout=PIPE, stderr=PIPE, encoding="utf-8")
             if skip_sanity_check is False:
