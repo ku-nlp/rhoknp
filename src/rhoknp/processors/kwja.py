@@ -56,7 +56,7 @@ class KWJA(Processor):
             self._proc = Popen(self.run_command, stdin=PIPE, stdout=PIPE, stderr=PIPE, encoding="utf-8")
             if skip_sanity_check is False:
                 # TODO: replace "あ" with an empty string after KWJA v2.2.0 is released
-                _ = self.apply(Document.from_raw_text("あ"))
+                _ = self.apply(Document.from_raw_text("こんにちは"))
         except Exception as e:
             logger.warning(f"failed to start KWJA: {e}")
 
