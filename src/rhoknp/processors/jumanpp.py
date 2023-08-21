@@ -1,7 +1,6 @@
 import logging
 import select
 import subprocess
-import sys
 from subprocess import PIPE, Popen
 from threading import Lock
 from typing import List, Optional, Union
@@ -130,7 +129,7 @@ class Jumanpp(Processor):
                 while self._proc.stderr in select.select([self._proc.stderr], [], [], 0)[0]:
                     stderr_text += self._proc.stderr.readline()
                 if self.debug is True and stderr_text.strip() != "":
-                    print(stderr_text.strip(), file=sys.stderr)
+                    logger.debug(stderr_text.strip())
 
             return Sentence.from_jumanpp(stdout_text)
 
