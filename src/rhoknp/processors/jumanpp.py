@@ -60,9 +60,11 @@ class Jumanpp(Processor):
             self._proc.kill()
 
     def start_process(self) -> None:
-        """Juman++ プロセスを開始する．"""
-        if self.is_available():
-            return
+        """Juman++ プロセスを開始する．
+
+        .. note::
+            Juman++ プロセスが既に開始されている場合は再起動する．
+        """
         if self._proc is not None:
             self._proc.kill()
         try:
@@ -86,12 +88,6 @@ class Jumanpp(Processor):
             文分割がまだなら，先に初期化時に設定した senter で文分割する．
             未設定なら RegexSenter で文分割する．
         """
-        if not self.is_available():
-            raise RuntimeError("Juman++ is not available.")
-        assert self._proc is not None
-        assert self._proc.stdin is not None
-        assert self._proc.stdout is not None
-
         if isinstance(document, str):
             document = Document(document)
 
@@ -113,17 +109,19 @@ class Jumanpp(Processor):
         Args:
             sentence: 文．
         """
-        if not self.is_available():
-            raise RuntimeError("Juman++ is not available.")
-        assert self._proc is not None
-        assert self._proc.stdin is not None
-        assert self._proc.stdout is not None
-        assert self._proc.stderr is not None
-
         if isinstance(sentence, str):
             sentence = Sentence(sentence)
 
         with self._lock:
+            if self.is_available() is False:
+                self.start_process()
+            if self.is_available() is False:
+                raise RuntimeError("Juman++ is not available.")
+            assert self._proc is not None
+            assert self._proc.stdin is not None
+            assert self._proc.stdout is not None
+            assert self._proc.stderr is not None
+
             self._proc.stdin.write(sentence.to_raw_text())
             self._proc.stdin.flush()
             stdout_text = ""
