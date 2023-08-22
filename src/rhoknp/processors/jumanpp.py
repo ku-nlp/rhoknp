@@ -44,12 +44,8 @@ class Jumanpp(Processor):
         self.debug: bool = debug  #: True ならデバッグモード．
         self._lock = Lock()
         self._proc: Optional[Popen] = None
-        try:
-            self._proc = Popen(self.run_command, stdin=PIPE, stdout=PIPE, stderr=PIPE, encoding="utf-8")
-            if skip_sanity_check is False:
-                _ = self.apply(Sentence.from_raw_text(""))
-        except Exception as e:
-            logger.warning(f"failed to start Juman++: {e}")
+        self.skip_sanity_check = skip_sanity_check
+        self.start_process()
 
     def __repr__(self) -> str:
         arg_string = f"executable={repr(self.executable)}"
@@ -62,6 +58,19 @@ class Jumanpp(Processor):
     def __del__(self) -> None:
         if self._proc is not None:
             self._proc.kill()
+
+    def start_process(self) -> None:
+        """Juman++ プロセスを開始する．"""
+        if self.is_available():
+            return
+        if self._proc is not None:
+            self._proc.kill()
+        try:
+            self._proc = Popen(self.run_command, stdin=PIPE, stdout=PIPE, stderr=PIPE, encoding="utf-8")
+            if self.skip_sanity_check is False:
+                _ = self.apply(Sentence.from_raw_text(""))
+        except Exception as e:
+            logger.warning(f"failed to start Juman++: {e}")
 
     def is_available(self) -> bool:
         """Jumanpp が利用可能であれば True を返す．"""
