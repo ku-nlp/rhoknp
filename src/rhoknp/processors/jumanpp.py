@@ -1,6 +1,7 @@
 import logging
 import select
 import subprocess
+import threading
 from subprocess import PIPE, Popen
 from threading import Lock
 from typing import List, Optional, Union
@@ -78,11 +79,12 @@ class Jumanpp(Processor):
         """Jumanpp が利用可能であれば True を返す．"""
         return self._proc is not None and self._proc.poll() is None
 
-    def apply_to_document(self, document: Union[Document, str]) -> Document:
+    def apply_to_document(self, document: Union[Document, str], timeout: int = 10) -> Document:
         """文書に Jumanpp を適用する．
 
         Args:
             document: 文書．
+            timeout: 1文あたりの最大処理時間．
 
         .. note::
             文分割がまだなら，先に初期化時に設定した senter で文分割する．
@@ -103,42 +105,65 @@ class Jumanpp(Processor):
             sentences.append(self.apply_to_sentence(sentence))
         return Document.from_sentences(sentences)
 
-    def apply_to_sentence(self, sentence: Union[Sentence, str]) -> Sentence:
+    def apply_to_sentence(self, sentence: Union[Sentence, str], timeout: int = 10) -> Sentence:
         """文に Jumanpp を適用する．
 
         Args:
             sentence: 文．
+            timeout: 1文あたりの最大処理時間．
         """
         if isinstance(sentence, str):
             sentence = Sentence(sentence)
 
+        stdout_text: str = ""
+        exception: Optional[Exception] = None
+
+        def worker() -> None:
+            nonlocal stdout_text
+            try:
+                if self.is_available() is False:
+                    self.start_process()
+                if self.is_available() is False:
+                    raise RuntimeError("Juman++ is not available.")
+                assert self._proc is not None
+                assert self._proc.stdin is not None
+                assert self._proc.stdout is not None
+                assert self._proc.stderr is not None
+
+                self._proc.stdin.write(sentence.to_raw_text())
+                self._proc.stdin.flush()
+                while self.is_available():
+                    line = self._proc.stdout.readline()
+                    stdout_text += line
+                    if line.strip() == Sentence.EOS:
+                        break
+
+                    # Non-blocking read from stderr
+                    stderr_text: str = ""
+                    while self._proc.stderr in select.select([self._proc.stderr], [], [], 0)[0]:
+                        stderr_text += self._proc.stderr.readline()
+                    if self.debug is True and stderr_text.strip() != "":
+                        logger.debug(stderr_text.strip())
+            except Exception as e:
+                nonlocal exception
+                exception = e
+
+                assert self._proc is not None
+                self._proc.kill()  # Kill the process if something goes wrong
+
+        thread = threading.Thread(target=worker)
         with self._lock:
-            if self.is_available() is False:
-                self.start_process()
-            if self.is_available() is False:
-                raise RuntimeError("Juman++ is not available.")
-            assert self._proc is not None
-            assert self._proc.stdin is not None
-            assert self._proc.stdout is not None
-            assert self._proc.stderr is not None
+            thread.start()
+            thread.join(timeout)
+            if thread.is_alive():
+                thread.join()
+                assert self._proc is not None
+                self._proc.kill()
+                raise TimeoutError(f"Operation timed out after {timeout} seconds.")
 
-            self._proc.stdin.write(sentence.to_raw_text())
-            self._proc.stdin.flush()
-            stdout_text = ""
-            while self.is_available():
-                line = self._proc.stdout.readline()
-                stdout_text += line
-                if line.strip() == Sentence.EOS:
-                    break
-
-                # Non-blocking read from stderr
-                stderr_text = ""
-                while self._proc.stderr in select.select([self._proc.stderr], [], [], 0)[0]:
-                    stderr_text += self._proc.stderr.readline()
-                if self.debug is True and stderr_text.strip() != "":
-                    logger.debug(stderr_text.strip())
-
-            return Sentence.from_jumanpp(stdout_text)
+        if exception:
+            raise exception
+        return Sentence.from_jumanpp(stdout_text)
 
     def get_version(self) -> str:
         """Juman++ のバージョンを返す．"""
