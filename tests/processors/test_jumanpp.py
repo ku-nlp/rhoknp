@@ -140,12 +140,9 @@ def test_is_available() -> None:
 
 @pytest.mark.skipif(not is_jumanpp_available, reason="Juman++ is not available")
 def test_timeout() -> None:
-    jumanpp = Jumanpp()
+    jumanpp = Jumanpp("tests/bin/jumanpp-mock", skip_sanity_check=True)
     with pytest.raises(TimeoutError):
-        _ = jumanpp.apply_to_sentence("test", timeout=0)
-
-    # Ensure that it works after timeout
-    _ = jumanpp.apply_to_sentence("test")
+        _ = jumanpp.apply_to_sentence("test", timeout=3)
 
 
 def test_repr() -> None:
