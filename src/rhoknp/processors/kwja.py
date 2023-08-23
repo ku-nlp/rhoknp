@@ -1,6 +1,7 @@
 import logging
 import select
 import subprocess
+import threading
 from subprocess import PIPE, Popen
 from threading import Lock
 from typing import List, Optional, Union
@@ -40,7 +41,7 @@ class KWJA(Processor):
         self.debug: bool = debug  #: True ならデバッグモード．
         self._proc: Optional[Popen] = None
         self._lock = Lock()
-        self._output_format = "knp"
+        self._output_format: str = "knp"
         if "--tasks" in self.options:
             tasks: List[str] = self.options[self.options.index("--tasks") + 1].split(",")
             if "word" in tasks:
@@ -55,13 +56,8 @@ class KWJA(Processor):
                 self._output_format = "raw"
             else:
                 raise ValueError(f"invalid task: {tasks}")
-        try:
-            self._proc = Popen(self.run_command, stdin=PIPE, stdout=PIPE, stderr=PIPE, encoding="utf-8")
-            if skip_sanity_check is False:
-                # TODO: replace "こんにちは" with an empty string after KWJA v2.2.0 is released
-                _ = self.apply(Document.from_raw_text("こんにちは"))
-        except Exception as e:
-            logger.warning(f"failed to start KWJA: {e}")
+        self.skip_sanity_check = skip_sanity_check
+        self.start_process()
 
     def __repr__(self) -> str:
         arg_string = f"executable={repr(self.executable)}"
@@ -73,51 +69,92 @@ class KWJA(Processor):
         if self._proc is not None:
             self._proc.kill()
 
+    def start_process(self) -> None:
+        """KWJA を起動する．
+
+        .. note::
+            KWJA がすでに起動している場合は再起動する．
+        """
+        if self._proc is not None:
+            self._proc.kill()
+        try:
+            self._proc = Popen(self.run_command, stdin=PIPE, stdout=PIPE, stderr=PIPE, encoding="utf-8")
+            if self.skip_sanity_check is False:
+                # TODO: replace "こんにちは" with an empty string after KWJA v2.2.0 is released
+                _ = self.apply(Document.from_raw_text("こんにちは"))
+        except Exception as e:
+            logger.warning(f"failed to start KWJA: {e}")
+
     def is_available(self) -> bool:
         """KWJA が利用可能であれば True を返す．"""
         return self._proc is not None and self._proc.poll() is None
 
-    def apply_to_document(self, document: Union[Document, str]) -> Document:
+    def apply_to_document(self, document: Union[Document, str], timeout: int = 10) -> Document:
         """文書に KWJA を適用する．
 
         Args:
             document: 文書．
+            timeout: 1文書あたりの最大処理時間．
         """
-        if not self.is_available():
-            raise RuntimeError("KWJA is not available.")
-        assert self._proc is not None
-        assert self._proc.stdin is not None
-        assert self._proc.stdout is not None
-        assert self._proc.stderr is not None
-
         if isinstance(document, str):
             document = Document(document)
 
+        stdout_text: str = ""
+        exception: Optional[Exception] = None
+
+        def worker() -> None:
+            nonlocal stdout_text, exception
+            try:
+                if self.is_available() is False:
+                    self.start_process()
+                if not self.is_available():
+                    raise RuntimeError("KWJA is not available.")
+                assert self._proc is not None
+                assert self._proc.stdin is not None
+                assert self._proc.stdout is not None
+                assert self._proc.stderr is not None
+
+                self._proc.stdin.write(document.text.rstrip("\n") + "\n")  # TODO: Keep the sentence IDs
+                self._proc.stdin.write(Document.EOD + "\n")
+                self._proc.stdin.flush()
+                while self.is_available():
+                    line = self._proc.stdout.readline()
+                    if line.strip() == Document.EOD:
+                        break
+                    stdout_text += line
+
+                    # Non-blocking read from stderr
+                    stderr_text = ""
+                    while self._proc.stderr in select.select([self._proc.stderr], [], [], 0)[0]:
+                        stderr_text += self._proc.stderr.readline()
+                    if self.debug is True and stderr_text.strip() != "":
+                        logger.warning(stderr_text.strip())
+            except Exception as e:
+                exception = e
+
+                assert self._proc is not None
+                self._proc.kill()  # Kill the process if something goes wrong
+
+        thread = threading.Thread(target=worker)
         with self._lock:
-            self._proc.stdin.write(document.text.rstrip("\n") + "\n")  # TODO: Keep the sentence IDs
-            self._proc.stdin.write(Document.EOD + "\n")
-            self._proc.stdin.flush()
-            stdout_text = ""
-            while self.is_available():
-                line = self._proc.stdout.readline()
-                if line.strip() == Document.EOD:
-                    break
-                stdout_text += line
+            thread.start()
+            thread.join(timeout)
+            if thread.is_alive():
+                thread.join()
+                assert self._proc is not None
+                self._proc.kill()
+                raise TimeoutError(f"Operation timed out after {timeout} seconds.")
 
-                # Non-blocking read from stderr
-                stderr_text = ""
-                while self._proc.stderr in select.select([self._proc.stderr], [], [], 0)[0]:
-                    stderr_text += self._proc.stderr.readline()
-                if self.debug is True and stderr_text.strip() != "":
-                    logger.warning(stderr_text.strip())
+        if exception:
+            raise exception
+        return self._create_document(stdout_text)
 
-            return self._create_document(stdout_text)
-
-    def apply_to_sentence(self, sentence: Union[Sentence, str]) -> Sentence:
+    def apply_to_sentence(self, sentence: Union[Sentence, str], timeout: int = 10) -> Sentence:
         """文に KWJA を適用する．
 
         Args:
             sentence: 文．
+            timeout: 1文あたりの最大処理時間．
         """
         raise NotImplementedError("KWJA does not support apply_to_sentence() currently.")
 

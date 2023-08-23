@@ -108,6 +108,13 @@ def test_apply() -> None:
         _ = kwja.apply(1)  # type: ignore
 
 
+@pytest.mark.skipif(not is_kwja_available, reason="KWJA is not available")
+def test_timeout() -> None:
+    kwja = KWJA("tests/bin/kwja-mock", skip_sanity_check=True)
+    with pytest.raises(TimeoutError):
+        _ = kwja.apply_to_document("test", timeout=3)
+
+
 def test_unsupported_option() -> None:
     with pytest.raises(ValueError):
         _ = KWJA(options=["--model-size", "tiny", "--tasks", "wakati"])
