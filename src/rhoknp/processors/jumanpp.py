@@ -61,10 +61,10 @@ class Jumanpp(Processor):
             self._proc.kill()
 
     def start_process(self) -> None:
-        """Juman++ プロセスを開始する．
+        """Juman++ を開始する．
 
         .. note::
-            Juman++ プロセスが既に開始されている場合は再起動する．
+            Juman++ が既に起動している場合は再起動する．
         """
         if self._proc is not None:
             self._proc.kill()
@@ -119,7 +119,7 @@ class Jumanpp(Processor):
         exception: Optional[Exception] = None
 
         def worker() -> None:
-            nonlocal stdout_text
+            nonlocal stdout_text, exception
             try:
                 if self.is_available() is False:
                     self.start_process()
@@ -145,7 +145,6 @@ class Jumanpp(Processor):
                     if self.debug is True and stderr_text.strip() != "":
                         logger.debug(stderr_text.strip())
             except Exception as e:
-                nonlocal exception
                 exception = e
 
                 assert self._proc is not None
