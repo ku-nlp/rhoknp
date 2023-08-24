@@ -2,6 +2,7 @@ import logging
 import select
 import subprocess
 import threading
+import time
 from subprocess import PIPE, Popen
 from threading import Lock
 from typing import List, Optional, Union
@@ -21,6 +22,7 @@ class Jumanpp(Processor):
         options: Juman++ のオプション．
         senter: 文分割器のインスタンス．文分割がまだなら，先にこのインスタンスを用いて文分割する．
             未設定なら RegexSenter を使って文分割する．
+        skip_sanity_check: True なら，Juman++ の起動時に sanity check をスキップする．
 
     Example:
         >>> from rhoknp import Jumanpp
@@ -45,8 +47,7 @@ class Jumanpp(Processor):
         self.debug: bool = debug  #: True ならデバッグモード．
         self._lock = Lock()
         self._proc: Optional[Popen] = None
-        self.skip_sanity_check = skip_sanity_check
-        self.start_process()
+        self.start_process(skip_sanity_check)
 
     def __repr__(self) -> str:
         arg_string = f"executable={repr(self.executable)}"
@@ -60,17 +61,18 @@ class Jumanpp(Processor):
         if self._proc is not None:
             self._proc.kill()
 
-    def start_process(self) -> None:
+    def start_process(self, skip_sanity_check: bool = False) -> None:
         """Juman++ を開始する．
 
         .. note::
             Juman++ が既に起動している場合は再起動する．
+            skip_sanity_check: True なら，Juman++ の起動時に sanity check をスキップする．
         """
         if self._proc is not None:
             self._proc.kill()
         try:
             self._proc = Popen(self.run_command, stdin=PIPE, stdout=PIPE, stderr=PIPE, encoding="utf-8")
-            if self.skip_sanity_check is False:
+            if skip_sanity_check is False:
                 _ = self.apply(Sentence.from_raw_text(""))
         except Exception as e:
             logger.warning(f"failed to start Juman++: {e}")
@@ -79,30 +81,38 @@ class Jumanpp(Processor):
         """Jumanpp が利用可能であれば True を返す．"""
         return self._proc is not None and self._proc.poll() is None
 
+    def is_debug(self) -> bool:
+        """デバッグモードなら True を返す．"""
+        return self.debug
+
     def apply_to_document(self, document: Union[Document, str], timeout: int = 10) -> Document:
         """文書に Jumanpp を適用する．
 
         Args:
             document: 文書．
-            timeout: 1文あたりの最大処理時間．
+            timeout: 最大処理時間．
 
         .. note::
             文分割がまだなら，先に初期化時に設定した senter で文分割する．
             未設定なら RegexSenter で文分割する．
         """
+        if not self.is_available():
+            raise RuntimeError("Juman++ is not available.")
+
+        start = time.time()
+
         if isinstance(document, str):
             document = Document(document)
 
         if document.is_senter_required() is True:
-            logger.debug("document needs to be split into sentences")
             if self.senter is None:
                 logger.debug("senter is not specified; use RegexSenter")
                 self.senter = RegexSenter()
-            document = self.senter.apply_to_document(document)
+            document = self.senter.apply_to_document(document, timeout=timeout - int(time.time() - start))
 
         sentences: List[Sentence] = []
         for sentence in document.sentences:
-            sentences.append(self.apply_to_sentence(sentence))
+            sentences.append(self.apply_to_sentence(sentence, timeout=timeout - int(time.time() - start)))
         return Document.from_sentences(sentences)
 
     def apply_to_sentence(self, sentence: Union[Sentence, str], timeout: int = 10) -> Sentence:
@@ -110,21 +120,21 @@ class Jumanpp(Processor):
 
         Args:
             sentence: 文．
-            timeout: 1文あたりの最大処理時間．
+            timeout: 最大処理時間．
         """
+        if not self.is_available():
+            raise RuntimeError("Juman++ is not available.")
+
         if isinstance(sentence, str):
             sentence = Sentence(sentence)
 
         stdout_text: str = ""
         exception: Optional[Exception] = None
+        done_event: threading.Event = threading.Event()
 
         def worker() -> None:
             nonlocal stdout_text, exception
             try:
-                if self.is_available() is False:
-                    self.start_process()
-                if self.is_available() is False:
-                    raise RuntimeError("Juman++ is not available.")
                 assert self._proc is not None
                 assert self._proc.stdin is not None
                 assert self._proc.stdout is not None
@@ -132,6 +142,8 @@ class Jumanpp(Processor):
 
                 self._proc.stdin.write(sentence.to_raw_text())
                 self._proc.stdin.flush()
+
+                stdout_text = ""
                 while self.is_available():
                     line = self._proc.stdout.readline()
                     stdout_text += line
@@ -142,26 +154,27 @@ class Jumanpp(Processor):
                     stderr_text: str = ""
                     while self._proc.stderr in select.select([self._proc.stderr], [], [], 0)[0]:
                         stderr_text += self._proc.stderr.readline()
-                    if self.debug is True and stderr_text.strip() != "":
+                    if self.is_debug() and stderr_text.strip() != "":
                         logger.debug(stderr_text.strip())
             except Exception as e:
                 exception = e
+            finally:
+                done_event.set()
 
-                assert self._proc is not None
-                self._proc.kill()  # Kill the process if something goes wrong
-
-        thread = threading.Thread(target=worker)
         with self._lock:
+            thread = threading.Thread(target=worker)
             thread.start()
-            thread.join(timeout)
+            done_event.wait(timeout)
+
             if thread.is_alive():
                 thread.join()
-                assert self._proc is not None
-                self._proc.kill()
-                raise TimeoutError(f"Operation timed out after {timeout} seconds.")
+                self.start_process(skip_sanity_check=True)
+                raise TimeoutError("Operation timed out.")
 
-        if exception:
-            raise exception
+            if exception:
+                self.start_process(skip_sanity_check=True)
+                raise exception
+
         return Sentence.from_jumanpp(stdout_text)
 
     def get_version(self) -> str:

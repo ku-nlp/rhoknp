@@ -19,6 +19,7 @@ class KWJA(Processor):
     Args:
         executable: KWJA のパス．
         options: KWJA のオプション．
+        skip_sanity_check: True なら，KWJA の起動時に sanity check をスキップする．
 
     Example:
         >>> from rhoknp import KWJA
@@ -56,8 +57,7 @@ class KWJA(Processor):
                 self._output_format = "raw"
             else:
                 raise ValueError(f"invalid task: {tasks}")
-        self.skip_sanity_check = skip_sanity_check
-        self.start_process()
+        self.start_process(skip_sanity_check)
 
     def __repr__(self) -> str:
         arg_string = f"executable={repr(self.executable)}"
@@ -69,17 +69,18 @@ class KWJA(Processor):
         if self._proc is not None:
             self._proc.kill()
 
-    def start_process(self) -> None:
+    def start_process(self, skip_sanity_check: bool = False) -> None:
         """KWJA を起動する．
 
         .. note::
             KWJA がすでに起動している場合は再起動する．
+            skip_sanity_check: True なら，KWJA の起動時に sanity check をスキップする．
         """
         if self._proc is not None:
             self._proc.kill()
         try:
             self._proc = Popen(self.run_command, stdin=PIPE, stdout=PIPE, stderr=PIPE, encoding="utf-8")
-            if self.skip_sanity_check is False:
+            if skip_sanity_check is False:
                 # TODO: replace "こんにちは" with an empty string after KWJA v2.2.0 is released
                 _ = self.apply(Document.from_raw_text("こんにちは"))
         except Exception as e:
@@ -89,26 +90,30 @@ class KWJA(Processor):
         """KWJA が利用可能であれば True を返す．"""
         return self._proc is not None and self._proc.poll() is None
 
+    def is_debug(self) -> bool:
+        """デバッグモードであれば True を返す．"""
+        return self.debug
+
     def apply_to_document(self, document: Union[Document, str], timeout: int = 10) -> Document:
         """文書に KWJA を適用する．
 
         Args:
             document: 文書．
-            timeout: 1文書あたりの最大処理時間．
+            timeout: 最大処理時間．
         """
+        if not self.is_available():
+            raise RuntimeError("KWJA is not available.")
+
         if isinstance(document, str):
             document = Document(document)
 
         stdout_text: str = ""
         exception: Optional[Exception] = None
+        done_event: threading.Event = threading.Event()
 
         def worker() -> None:
             nonlocal stdout_text, exception
             try:
-                if self.is_available() is False:
-                    self.start_process()
-                if not self.is_available():
-                    raise RuntimeError("KWJA is not available.")
                 assert self._proc is not None
                 assert self._proc.stdin is not None
                 assert self._proc.stdout is not None
@@ -117,6 +122,8 @@ class KWJA(Processor):
                 self._proc.stdin.write(document.text.rstrip("\n") + "\n")  # TODO: Keep the sentence IDs
                 self._proc.stdin.write(Document.EOD + "\n")
                 self._proc.stdin.flush()
+
+                stdout_text = ""
                 while self.is_available():
                     line = self._proc.stdout.readline()
                     if line.strip() == Document.EOD:
@@ -127,26 +134,27 @@ class KWJA(Processor):
                     stderr_text = ""
                     while self._proc.stderr in select.select([self._proc.stderr], [], [], 0)[0]:
                         stderr_text += self._proc.stderr.readline()
-                    if self.debug is True and stderr_text.strip() != "":
+                    if self.is_debug() and stderr_text.strip() != "":
                         logger.warning(stderr_text.strip())
             except Exception as e:
                 exception = e
+            finally:
+                done_event.set()
 
-                assert self._proc is not None
-                self._proc.kill()  # Kill the process if something goes wrong
-
-        thread = threading.Thread(target=worker)
         with self._lock:
+            thread = threading.Thread(target=worker)
             thread.start()
-            thread.join(timeout)
+            done_event.wait(timeout)
+
             if thread.is_alive():
                 thread.join()
-                assert self._proc is not None
-                self._proc.kill()
+                self.start_process(skip_sanity_check=True)
                 raise TimeoutError(f"Operation timed out after {timeout} seconds.")
 
-        if exception:
-            raise exception
+            if exception:
+                self.start_process(skip_sanity_check=True)
+                raise exception
+
         return self._create_document(stdout_text)
 
     def apply_to_sentence(self, sentence: Union[Sentence, str], timeout: int = 10) -> Sentence:
@@ -154,7 +162,7 @@ class KWJA(Processor):
 
         Args:
             sentence: 文．
-            timeout: 1文あたりの最大処理時間．
+            timeout: 最大処理時間．
         """
         raise NotImplementedError("KWJA does not support apply_to_sentence() currently.")
 

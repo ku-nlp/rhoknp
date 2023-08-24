@@ -2,6 +2,7 @@ import logging
 import select
 import subprocess
 import threading
+import time
 from subprocess import PIPE, Popen
 from threading import Lock
 from typing import List, Optional, Union
@@ -24,6 +25,7 @@ class KNP(Processor):
             未設定なら RegexSenter を使って文分割する．
         jumanpp: Jumanpp のインスタンス．形態素解析がまだなら，先にこのインスタンスを用いて形態素解析する．
             未設定なら Jumanpp （オプションなし）を使って形態素解析する．
+        skip_sanity_check: True なら，KNP の起動時に sanity check をスキップする．
 
     Example:
         >>> from rhoknp import KNP
@@ -48,10 +50,9 @@ class KNP(Processor):
         self.jumanpp = jumanpp
         self._lock = Lock()
         self._proc: Optional[Popen] = None
-        self.skip_sanity_check = skip_sanity_check
         if "-tab" not in self.options:
             raise ValueError("`-tab` option is required when you use KNP.")
-        self.start_process()
+        self.start_process(skip_sanity_check)
 
     def __repr__(self) -> str:
         arg_string = f"executable={repr(self.executable)}"
@@ -67,17 +68,18 @@ class KNP(Processor):
         if self._proc is not None:
             self._proc.kill()
 
-    def start_process(self) -> None:
+    def start_process(self, skip_sanity_check: bool = False) -> None:
         """KNP を起動する．
 
         .. note::
             KNP がすでに起動している場合は再起動する．
+            skip_sanity_check: True なら，KNP の起動時に sanity check をスキップする．
         """
         if self._proc is not None:
             self._proc.kill()
         try:
             self._proc = Popen(self.run_command, stdin=PIPE, stdout=PIPE, stderr=PIPE, encoding="utf-8")
-            if self.skip_sanity_check is False:
+            if skip_sanity_check is False:
                 _ = self.apply(Sentence.from_jumanpp(""))
         except Exception as e:
             logger.warning(f"failed to start KNP: {e}")
@@ -91,7 +93,7 @@ class KNP(Processor):
 
         Args:
             document: 文書．
-            timeout: 1文あたりの最大処理時間．
+            timeout: 最大処理時間．
 
         .. note::
             文分割がまだなら，先に初期化時に設定した senter で文分割する．
@@ -101,24 +103,21 @@ class KNP(Processor):
         """
         if not self.is_available():
             raise RuntimeError("KNP is not available.")
-        assert self._proc is not None
-        assert self._proc.stdin is not None
-        assert self._proc.stdout is not None
+
+        start: float = time.time()
 
         if isinstance(document, str):
             document = Document(document)
 
-        if document.is_senter_required() is True:
-            logger.debug("document needs to be split into sentences")
+        if document.is_senter_required():
             if self.senter is None:
                 logger.debug("senter is not specified; use RegexSenter")
                 self.senter = RegexSenter()
-                logger.debug(self.senter)
-            document = self.senter.apply_to_document(document)
+            document = self.senter.apply_to_document(document, timeout=timeout - int(time.time() - start))
 
         sentences: List[Sentence] = []
         for sentence in document.sentences:
-            sentences.append(self.apply_to_sentence(sentence))
+            sentences.append(self.apply_to_sentence(sentence, timeout=timeout - int(time.time() - start)))
         return Document.from_sentences(sentences)
 
     def apply_to_sentence(self, sentence: Union[Sentence, str], timeout: int = 10) -> Sentence:
@@ -126,32 +125,31 @@ class KNP(Processor):
 
         Args:
             sentence: 文．
-            timeout: 1文あたりの最大処理時間．
+            timeout: 最大処理時間．
 
         .. note::
             形態素解析がまだなら，先に初期化時に設定した jumanpp で形態素解析する．
             未設定なら Jumanpp （オプションなし）で形態素解析する．
         """
+        if self.is_available() is False:
+            raise RuntimeError("KNP is not available.")
+
         if isinstance(sentence, str):
             sentence = Sentence(sentence)
 
         if sentence.is_jumanpp_required() is True:
-            logger.debug("sentence needs to be processed by Juman++")
             if self.jumanpp is None:
-                logger.info("jumanpp is not specified when initializing KNP: use Jumanpp with no option")
+                logger.debug("jumanpp is not specified when initializing KNP: use Jumanpp with no option")
                 self.jumanpp = Jumanpp()
             sentence = self.jumanpp.apply_to_sentence(sentence)
 
         stdout_text: str = ""
         exception: Optional[Exception] = None
+        done_event: threading.Event = threading.Event()
 
         def worker() -> None:
             nonlocal stdout_text, exception
             try:
-                if self.is_available() is False:
-                    self.start_process()
-                if self.is_available() is False:
-                    raise RuntimeError("KNP is not available.")
                 assert self._proc is not None
                 assert self._proc.stdin is not None
                 assert self._proc.stdout is not None
@@ -162,6 +160,8 @@ class KNP(Processor):
                 else:
                     self._proc.stdin.write(sentence.to_knp())
                 self._proc.stdin.flush()
+
+                stdout_text = ""
                 while self.is_available():
                     line = self._proc.stdout.readline()
                     stdout_text += line
@@ -176,22 +176,23 @@ class KNP(Processor):
                         raise ValueError(line.strip())
             except Exception as e:
                 exception = e
+            finally:
+                done_event.set()
 
-                assert self._proc is not None
-                self._proc.kill()  # Kill the process if something goes wrong
-
-        thread = threading.Thread(target=worker)
         with self._lock:
+            thread = threading.Thread(target=worker)
             thread.start()
-            thread.join(timeout)
+            done_event.wait(timeout)
+
             if thread.is_alive():
                 thread.join()
-                assert self._proc is not None
-                self._proc.kill()
-                raise TimeoutError(f"Operation timed out after {timeout} seconds.")
+                self.start_process(skip_sanity_check=True)
+                raise TimeoutError("Operation timed out.")
 
-        if exception:
-            raise exception
+            if exception:
+                self.start_process(skip_sanity_check=True)
+                raise exception
+
         return Sentence.from_knp(stdout_text)
 
     def get_version(self) -> str:
