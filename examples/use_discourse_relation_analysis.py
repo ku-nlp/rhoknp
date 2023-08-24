@@ -14,7 +14,7 @@ knp = KNP()
 sent = knp.apply_to_sentence(sys.argv[1])
 
 # Get information.
-if sent.is_clause_tag_required is True:
+if sent.is_clause_tag_required() is True:
     print("KNP might be too old; please update it.")
     sys.exit(1)
 
