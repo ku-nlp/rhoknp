@@ -2,7 +2,7 @@ import pytest
 
 from rhoknp import KWJA, Document, Sentence
 
-is_kwja_available = KWJA(options=["--model-size", "tiny"]).is_available()
+is_kwja_available = KWJA(options=["--model-size", "tiny", "--tasks", "senter"]).is_available()
 
 
 @pytest.mark.skipif(not is_kwja_available, reason="KWJA is not available")
