@@ -35,7 +35,8 @@ jobs:
       - name: Install dependencies
         run: poetry install --no-interaction --without dev,docs --extras=cli
       - name: Install KWJA
-        run: pipx install kwja
+        # TODO: remove `--pip-args rhoknp==1.3.2` after KWJA v2.2.0 is released
+        run: pipx install kwja --pip-args rhoknp==1.3.2
       - name: Run tests for all files under examples/apply_*.py
         shell: bash
         run: |

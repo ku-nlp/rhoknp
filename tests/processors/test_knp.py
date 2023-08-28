@@ -109,6 +109,13 @@ def test_is_available() -> None:
         _ = knp.get_version()
 
 
+@pytest.mark.skipif(not is_knp_available, reason="KNP is not available")
+def test_timeout() -> None:
+    knp = KNP("tests/bin/knp-mock", skip_sanity_check=True)
+    with pytest.raises(TimeoutError):
+        _ = knp.apply_to_sentence("test", timeout=3)
+
+
 def test_invalid_option() -> None:
     with pytest.raises(ValueError):
         _ = KNP(options=["--anaphora"])

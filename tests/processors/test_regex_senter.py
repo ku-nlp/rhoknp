@@ -1,4 +1,6 @@
+import time
 from typing import List
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -107,3 +109,10 @@ def test_apply_to_sentence() -> None:
 def test_repr() -> None:
     senter = RegexSenter()
     assert repr(senter) == "RegexSenter()"
+
+
+def test_timeout() -> None:
+    senter = RegexSenter()
+    senter._split_document = MagicMock(side_effect=lambda x: time.sleep(5))  # type: ignore
+    with pytest.raises(TimeoutError):
+        senter.apply_to_document("天気がいいので散歩した。", timeout=3)

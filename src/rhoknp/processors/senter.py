@@ -1,5 +1,6 @@
 import logging
 import re
+import threading
 from typing import ClassVar, List, Union
 
 from rhoknp.processors.processor import Processor
@@ -22,22 +23,39 @@ class RegexSenter(Processor):
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}()"
 
-    def apply_to_document(self, document: Union[Document, str]) -> Document:
+    def apply_to_document(self, document: Union[Document, str], timeout: int = 10) -> Document:
         """文書に RegexSenter を適用する．
 
         Args:
             document: 文書．
+            timeout: 最大処理時間．．
         """
         if isinstance(document, str):
             document = Document(document)
-        sentence_texts: List[str] = self._split_document(document.text)
-        return Document.from_sentences(sentence_texts)
 
-    def apply_to_sentence(self, sentence: Union[Sentence, str]) -> Sentence:
+        sentences: List[str] = []
+        done_event: threading.Event = threading.Event()
+
+        def worker() -> None:
+            nonlocal sentences
+            sentences = self._split_document(document.text)
+            done_event.set()
+
+        thread = threading.Thread(target=worker)
+        thread.start()
+        done_event.wait(timeout)
+
+        if thread.is_alive():
+            raise TimeoutError("Operation timed out.")
+
+        return Document.from_sentences(sentences)
+
+    def apply_to_sentence(self, sentence: Union[Sentence, str], timeout: int = 10) -> Sentence:
         """文に RegexSenter を適用する．
 
         Args:
             sentence: 文．
+            timeout: 最大処理時間．
         """
         if isinstance(sentence, str):
             sentence = Sentence(sentence)
