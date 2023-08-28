@@ -38,6 +38,7 @@ jobs:
         if: ${{ matrix.python-version != 3.7 }}
         run: |
           pipx install kwja
+          kwja --model-size tiny --text "テスト"
       - name: Run tests with coverage
         if: ${{ matrix.python-version == 3.9 }}
         run: |
