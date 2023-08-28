@@ -299,6 +299,14 @@ def test_from_jumanpp(case: Dict[str, str]) -> None:
     _ = Sentence.from_jumanpp(case["jumanpp"])
 
 
+@pytest.mark.parametrize("case", CASES)
+def test_from_jumanpp_without_last_eos(case: Dict[str, str]) -> None:
+    jumanpp_lines = case["jumanpp"].rstrip().split("\n")
+    assert jumanpp_lines[-1] == "EOS"
+    sent = Sentence.from_jumanpp("\n".join(jumanpp_lines[:-1]) + "\n")
+    assert sent.text == case["raw_text"]
+
+
 def test_from_jumanpp_empty_line():
     sent = Sentence.from_jumanpp(
         textwrap.dedent(
@@ -352,6 +360,14 @@ def test_from_knp(case: Dict[str, str]) -> None:
 @pytest.mark.parametrize("case", CASES)
 def test_from_knp_with_no_clause_tag(case: Dict[str, str]) -> None:
     _ = Sentence.from_knp(case["knp_with_no_clause_tag"])
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_from_knp_without_last_eos(case: Dict[str, str]) -> None:
+    knp_lines = case["knp"].rstrip().split("\n")
+    assert knp_lines[-1] == "EOS"
+    sent = Sentence.from_knp("\n".join(knp_lines[:-1]) + "\n")
+    assert sent.text == case["raw_text"]
 
 
 def test_from_knp_empty():

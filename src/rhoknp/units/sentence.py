@@ -342,10 +342,13 @@ class Sentence(Unit):
                 jumanpp_lines.append(line)
                 continue
             if line.strip() == cls.EOS:
-                if jumanpp_lines:
-                    morphemes.append(Morpheme.from_jumanpp("\n".join(jumanpp_lines)))
                 break
             raise ValueError(f"malformed line: {line}")
+        else:
+            logger.warning(f"sentence does not end with EOS: {jumanpp_lines}")
+
+        if jumanpp_lines:
+            morphemes.append(Morpheme.from_jumanpp("\n".join(jumanpp_lines)))
         sentence.morphemes = morphemes
         if post_init is True:
             sentence.__post_init__()
@@ -415,13 +418,16 @@ class Sentence(Unit):
                 child_lines.append(line)
                 continue
             if line.strip() == cls.EOS:
-                if child_lines:
-                    if has_clause_boundary:
-                        clauses.append(Clause.from_knp("\n".join(child_lines)))
-                    else:
-                        phrases.append(Phrase.from_knp("\n".join(child_lines)))
                 break
             raise ValueError(f"malformed line: {line}")
+        else:
+            logger.warning(f"sentence does not end with EOS: {child_lines}")
+
+        if child_lines:
+            if has_clause_boundary is True:
+                clauses.append(Clause.from_knp("\n".join(child_lines)))
+            else:
+                phrases.append(Phrase.from_knp("\n".join(child_lines)))
         if has_clause_boundary is True:
             sentence.clauses = clauses
         else:
