@@ -2,7 +2,7 @@ import pytest
 
 from rhoknp import KWJA, Document, Sentence
 
-is_kwja_available = KWJA(options=["--model-size", "tiny"]).is_available()
+is_kwja_available = KWJA(options=["--model-size", "tiny", "--tasks", "senter"]).is_available()
 
 
 @pytest.mark.skipif(not is_kwja_available, reason="KWJA is not available")
@@ -106,6 +106,13 @@ def test_apply() -> None:
         _ = kwja.apply(Sentence.from_raw_text(text))
     with pytest.raises(TypeError):
         _ = kwja.apply(1)  # type: ignore
+
+
+@pytest.mark.skipif(not is_kwja_available, reason="KWJA is not available")
+def test_timeout() -> None:
+    kwja = KWJA("tests/bin/kwja-mock", skip_sanity_check=True)
+    with pytest.raises(TimeoutError):
+        _ = kwja.apply_to_document("test", timeout=3)
 
 
 def test_unsupported_option() -> None:

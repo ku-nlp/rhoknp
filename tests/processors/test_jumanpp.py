@@ -138,6 +138,13 @@ def test_is_available() -> None:
         _ = jumanpp.get_version()
 
 
+@pytest.mark.skipif(not is_jumanpp_available, reason="Juman++ is not available")
+def test_timeout() -> None:
+    jumanpp = Jumanpp("tests/bin/jumanpp-mock", skip_sanity_check=True)
+    with pytest.raises(TimeoutError):
+        _ = jumanpp.apply_to_sentence("test", timeout=3)
+
+
 def test_repr() -> None:
     jumanpp = Jumanpp(options=["--juman"], senter=RegexSenter())
     assert repr(jumanpp) == "Jumanpp(executable='jumanpp', options=['--juman'], senter=RegexSenter())"

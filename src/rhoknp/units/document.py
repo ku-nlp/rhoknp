@@ -282,6 +282,10 @@ class Document(Unit):
             if line.strip() == Sentence.EOS:
                 sentences.append(Sentence.from_jumanpp("\n".join(sentence_lines) + "\n", post_init=False))
                 sentence_lines = []
+        if sentence_lines:
+            logger.warning(f"the last sentence does not end with EOS: {sentence_lines}")
+            sentence_lines.append(Sentence.EOS)
+            sentences.append(Sentence.from_jumanpp("\n".join(sentence_lines) + "\n", post_init=False))
         document.sentences = sentences
         document.__post_init__()
         return document
@@ -344,6 +348,10 @@ class Document(Unit):
             if line.strip() == Sentence.EOS:
                 sentences.append(Sentence.from_knp("\n".join(sentence_lines) + "\n", post_init=False))
                 sentence_lines = []
+        if sentence_lines:
+            logger.warning(f"the last sentence does not end with EOS: {sentence_lines}")
+            sentence_lines.append(Sentence.EOS)
+            sentences.append(Sentence.from_knp("\n".join(sentence_lines) + "\n", post_init=False))
         document.sentences = sentences
         document.__post_init__()
         return document
