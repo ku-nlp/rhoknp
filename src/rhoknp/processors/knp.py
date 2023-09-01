@@ -171,7 +171,10 @@ class KNP(Processor):
                     # Non-blocking read from stderr
                     stderr_text = ""
                     while self._proc.stderr in select.select([self._proc.stderr], [], [], 0)[0]:
-                        stderr_text += self._proc.stderr.readline()
+                        line = self._proc.stderr.readline()
+                        if line.strip() == "":
+                            break
+                        stderr_text += line
                     if stderr_text.strip() != "":
                         raise ValueError(line.strip())
             except Exception as e:
