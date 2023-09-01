@@ -1,9 +1,17 @@
 #!/usr/bin/env bash
 
 while true; do
-  read -r _
+  read -r line
 
-  sleep 5
+  if [ "$line" = "time consuming input" ]; then
+    sleep 5
+  fi
+
+  if [ "$line" = "error causing input" ]; then
+    echo 'エラー1' >&2
+    echo 'エラー2' >&2
+    exit 0
+  fi
 
   echo '# S-ID:1 KNP:5.0-5c637eb DATE:2023/08/23 SCORE:-22.40768'
   echo '* -1D <BGH:こんにちは/こんにちは><文頭><文末><体言><用言:判><体言止><レベル:C><区切:5-5><ID:（文末）><裸名詞><提題受:30><主節><状態述語><正規化代表表記:こんにちは/こんにちは><主辞代表表記:こんにちは/こんにちは>'
