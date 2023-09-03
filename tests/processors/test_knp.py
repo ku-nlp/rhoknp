@@ -9,22 +9,46 @@ is_knp_available = KNP().is_available()
 
 @pytest.mark.skipif(not is_knp_available, reason="KNP is not available")
 def test_call() -> None:
+    jumanpp = Jumanpp()
     knp = KNP()
     text = "外国人参政権"
+    sentence = Sentence.from_raw_text(text)
+    document = Document.from_raw_text(text)
     assert isinstance(knp(text), Document)
-    assert isinstance(knp(Document.from_raw_text(text)), Document)
-    assert isinstance(knp(Sentence.from_raw_text(text)), Sentence)
+    assert isinstance(knp(sentence), Sentence)
+    assert isinstance(knp(document), Document)
+
+    assert isinstance(knp(jumanpp(text)), Document)
+    assert isinstance(knp(jumanpp(sentence)), Sentence)
+    assert isinstance(knp(jumanpp(document)), Document)
+
+    assert isinstance(knp(knp(text)), Document)
+    assert isinstance(knp(knp(sentence)), Sentence)
+    assert isinstance(knp(knp(document)), Document)
+
     with pytest.raises(TypeError):
         knp(1)  # type: ignore
 
 
 @pytest.mark.skipif(not is_knp_available, reason="KNP is not available")
 def test_apply() -> None:
+    jumanpp = Jumanpp()
     knp = KNP()
     text = "外国人参政権"
+    sentence = Sentence.from_raw_text(text)
+    document = Document.from_raw_text(text)
     assert isinstance(knp.apply(text), Document)
-    assert isinstance(knp.apply(Document.from_raw_text(text)), Document)
-    assert isinstance(knp.apply(Sentence.from_raw_text(text)), Sentence)
+    assert isinstance(knp.apply(sentence), Sentence)
+    assert isinstance(knp.apply(document), Document)
+
+    assert isinstance(knp.apply(jumanpp.apply(text)), Document)
+    assert isinstance(knp.apply(jumanpp.apply(sentence)), Sentence)
+    assert isinstance(knp.apply(jumanpp.apply(document)), Document)
+
+    assert isinstance(knp.apply(knp.apply(text)), Document)
+    assert isinstance(knp.apply(knp.apply(sentence)), Sentence)
+    assert isinstance(knp.apply(knp.apply(document)), Document)
+
     with pytest.raises(TypeError):
         knp.apply(1)  # type: ignore
 
