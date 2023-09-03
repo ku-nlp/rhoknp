@@ -140,14 +140,14 @@ def test_is_available() -> None:
 
 @pytest.mark.skipif(not is_jumanpp_available, reason="Juman++ is not available")
 def test_timeout_error() -> None:
-    jumanpp = Jumanpp("tests/bin/jumanpp-mock.sh", skip_sanity_check=True)
+    jumanpp = Jumanpp("tests/bin/jumanpp-mock.sh", skip_sanity_check=True, debug=True)
     with pytest.raises(TimeoutError):
         _ = jumanpp.apply_to_sentence("time consuming input", timeout=1)
 
 
 @pytest.mark.skipif(not is_jumanpp_available, reason="Juman++ is not available")
 def test_runtime_error() -> None:
-    jumanpp = Jumanpp("tests/bin/jumanpp-mock.sh", skip_sanity_check=True)
+    jumanpp = Jumanpp("tests/bin/jumanpp-mock.sh", skip_sanity_check=True, debug=True)
     with pytest.raises(RuntimeError):
         _ = jumanpp.apply_to_sentence("error causing input")
 

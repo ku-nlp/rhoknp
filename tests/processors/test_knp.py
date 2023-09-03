@@ -135,16 +135,16 @@ def test_is_available() -> None:
 
 @pytest.mark.skipif(not is_knp_available, reason="KNP is not available")
 def test_timeout_error() -> None:
-    jumanpp = Jumanpp("tests/bin/jumanpp-mock.sh", skip_sanity_check=True)
-    knp = KNP("tests/bin/knp-mock.sh", jumanpp=jumanpp, skip_sanity_check=True)
+    jumanpp = Jumanpp("tests/bin/jumanpp-mock.sh", skip_sanity_check=True, debug=True)
+    knp = KNP("tests/bin/knp-mock.sh", jumanpp=jumanpp, skip_sanity_check=True, debug=True)
     with pytest.raises(TimeoutError):
         _ = knp.apply_to_sentence("knp time consuming input", timeout=1)
 
 
 @pytest.mark.skipif(not is_knp_available, reason="KNP is not available")
 def test_runtime_error() -> None:
-    jumanpp = Jumanpp("tests/bin/jumanpp-mock.sh", skip_sanity_check=True)
-    knp = KNP("tests/bin/knp-mock.sh", jumanpp=jumanpp, skip_sanity_check=True)
+    jumanpp = Jumanpp("tests/bin/jumanpp-mock.sh", skip_sanity_check=True, debug=True)
+    knp = KNP("tests/bin/knp-mock.sh", jumanpp=jumanpp, skip_sanity_check=True, debug=True)
     with pytest.raises(RuntimeError):
         _ = knp.apply_to_sentence("knp error causing input", timeout=1)
 
