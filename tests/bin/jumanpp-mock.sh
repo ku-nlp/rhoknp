@@ -10,19 +10,15 @@ while true; do
   if [ "$line" = "error causing input" ]; then
     echo 'エラー1' >&2
     echo 'エラー2' >&2
-    exit 0
+    exit 1
   fi
 
   if [ "$line" = "knp time consuming input" ]; then
     echo '# knp time consuming input'
-    echo 'EOS'
-    continue
   fi
 
   if [ "$line" = "knp error causing input" ]; then
     echo '# knp error causing input'
-    echo 'EOS'
-    continue
   fi
 
   echo 'こんにちは こんにちは こんにちは 感動詞 12 * 0 * 0 * 0 "代表表記:こんにちは/こんにちは"'

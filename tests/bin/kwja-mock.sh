@@ -10,7 +10,7 @@ while true; do
   if [ "$line" = "error causing input" ]; then
     echo 'エラー1' >&2
     echo 'エラー2' >&2
-    exit 0
+    exit 1
   fi
 
   echo '# S-ID:1 KNP:5.0-5c637eb DATE:2023/08/23 SCORE:-22.40768'

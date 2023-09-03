@@ -199,7 +199,6 @@ class KNP(Processor):
 
         ret = Sentence.from_knp(stdout_text)
         if sentence.text and not ret.text:
-            # This happens when too much input is given.
             raise RuntimeError(f"KNP returned empty result for input: '{sentence.text}'")
 
         return ret

@@ -173,7 +173,11 @@ class Jumanpp(Processor):
                 self.start_process(skip_sanity_check=True)
                 raise RuntimeError("Juman++ exited unexpectedly.")
 
-        return Sentence.from_jumanpp(stdout_text)
+        ret = Sentence.from_jumanpp(stdout_text)
+        if sentence.text and not ret.text:
+            raise RuntimeError(f"Juman++ returned empty result for input: '{sentence.text}'")
+
+        return ret
 
     def get_version(self) -> str:
         """Juman++ のバージョンを返す．"""
