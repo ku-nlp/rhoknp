@@ -108,11 +108,16 @@ def test_apply() -> None:
         _ = kwja.apply(1)  # type: ignore
 
 
-@pytest.mark.skipif(not is_kwja_available, reason="KWJA is not available")
-def test_timeout() -> None:
-    kwja = KWJA("tests/bin/kwja-mock", skip_sanity_check=True)
+def test_timeout_error() -> None:
+    kwja = KWJA("tests/bin/kwja-mock.sh", skip_sanity_check=True, debug=True)
     with pytest.raises(TimeoutError):
-        _ = kwja.apply_to_document("test", timeout=3)
+        _ = kwja.apply_to_document("time consuming input", timeout=1)
+
+
+def test_runtime_error() -> None:
+    kwja = KWJA("tests/bin/kwja-mock.sh", skip_sanity_check=True, debug=True)
+    with pytest.raises(RuntimeError):
+        _ = kwja.apply_to_document("error causing input")
 
 
 def test_unsupported_option() -> None:

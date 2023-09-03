@@ -108,41 +108,36 @@ class KWJA(Processor):
             document = Document(document)
 
         stdout_text: str = ""
-        exception: Optional[Exception] = None
         done_event: threading.Event = threading.Event()
 
         def worker() -> None:
-            nonlocal stdout_text, exception
-            try:
-                assert self._proc is not None
-                assert self._proc.stdin is not None
-                assert self._proc.stdout is not None
-                assert self._proc.stderr is not None
+            nonlocal stdout_text
+            assert self._proc is not None
+            assert self._proc.stdin is not None
+            assert self._proc.stdout is not None
+            assert self._proc.stderr is not None
 
-                self._proc.stdin.write(document.text.rstrip("\n") + "\n")  # TODO: Keep the sentence IDs
-                self._proc.stdin.write(Document.EOD + "\n")
-                self._proc.stdin.flush()
+            self._proc.stdin.write(document.text.rstrip("\n") + "\n")  # TODO: Keep the sentence IDs
+            self._proc.stdin.write(Document.EOD + "\n")
+            self._proc.stdin.flush()
 
-                stdout_text = ""
-                while self.is_available():
-                    line = self._proc.stdout.readline()
-                    if line.strip() == Document.EOD:
+            stdout_text = ""
+            while self.is_available():
+                line = self._proc.stdout.readline()
+                if line.strip() == Document.EOD:
+                    break
+                stdout_text += line
+
+                # Non-blocking read from stderr
+                stderr_text = ""
+                while self._proc.stderr in select.select([self._proc.stderr], [], [], 0)[0]:
+                    line = self._proc.stderr.readline()
+                    if line.strip() == "":
                         break
-                    stdout_text += line
-
-                    # Non-blocking read from stderr
-                    stderr_text = ""
-                    while self._proc.stderr in select.select([self._proc.stderr], [], [], 0)[0]:
-                        line = self._proc.stderr.readline()
-                        if line.strip() == "":
-                            break
-                        stderr_text += line
-                    if self.is_debug() and stderr_text.strip() != "":
-                        logger.warning(stderr_text.strip())
-            except Exception as e:
-                exception = e
-            finally:
-                done_event.set()
+                    stderr_text += line
+                if self.is_debug() and stderr_text.strip() != "":
+                    logger.warning(stderr_text.strip())
+            done_event.set()
 
         with self._lock:
             thread = threading.Thread(target=worker)
@@ -154,9 +149,9 @@ class KWJA(Processor):
                 self.start_process(skip_sanity_check=True)
                 raise TimeoutError(f"Operation timed out after {timeout} seconds.")
 
-            if exception:
+            if not self.is_available():
                 self.start_process(skip_sanity_check=True)
-                raise exception
+                raise RuntimeError("KWJA exited unexpectedly.")
 
         return self._create_document(stdout_text)
 

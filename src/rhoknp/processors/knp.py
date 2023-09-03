@@ -43,11 +43,13 @@ class KNP(Processor):
         senter: Optional[Processor] = None,
         jumanpp: Optional[Processor] = None,
         skip_sanity_check: bool = False,
+        debug: bool = False,
     ) -> None:
         self.executable = executable  #: KNP のパス．
         self.options = options or ["-tab"]  #: KNP のオプション．
         self.senter = senter
         self.jumanpp = jumanpp
+        self.debug = debug
         self._lock = Lock()
         self._proc: Optional[Popen] = None
         if "-tab" not in self.options:
@@ -87,6 +89,10 @@ class KNP(Processor):
     def is_available(self) -> bool:
         """KNP が利用可能であれば True を返す．"""
         return self._proc is not None and self._proc.poll() is None
+
+    def is_debug(self) -> bool:
+        """デバッグモードなら True を返す．"""
+        return self.debug
 
     def apply_to_document(self, document: Union[Document, str], timeout: int = 10) -> Document:
         """文書に KNP を適用する．
@@ -144,43 +150,38 @@ class KNP(Processor):
             sentence = self.jumanpp.apply_to_sentence(sentence)
 
         stdout_text: str = ""
-        exception: Optional[Exception] = None
         done_event: threading.Event = threading.Event()
 
         def worker() -> None:
-            nonlocal stdout_text, exception
-            try:
-                assert self._proc is not None
-                assert self._proc.stdin is not None
-                assert self._proc.stdout is not None
-                assert self._proc.stderr is not None
+            nonlocal stdout_text
+            assert self._proc is not None
+            assert self._proc.stdin is not None
+            assert self._proc.stdout is not None
+            assert self._proc.stderr is not None
 
-                if sentence.is_knp_required():
-                    self._proc.stdin.write(sentence.to_jumanpp())
-                else:
-                    self._proc.stdin.write(sentence.to_knp())
-                self._proc.stdin.flush()
+            if sentence.is_knp_required():
+                self._proc.stdin.write(sentence.to_jumanpp())
+            else:
+                self._proc.stdin.write(sentence.to_knp())
+            self._proc.stdin.flush()
 
-                stdout_text = ""
-                while self.is_available():
-                    line = self._proc.stdout.readline()
-                    stdout_text += line
-                    if line.strip() == Sentence.EOS:
+            stdout_text = ""
+            while self.is_available():
+                line = self._proc.stdout.readline()
+                stdout_text += line
+                if line.strip() == Sentence.EOS:
+                    break
+
+                # Non-blocking read from stderr
+                stderr_text = ""
+                while self._proc.stderr in select.select([self._proc.stderr], [], [], 0)[0]:
+                    line = self._proc.stderr.readline()
+                    if line.strip() == "":
                         break
-
-                    # Non-blocking read from stderr
-                    stderr_text = ""
-                    while self._proc.stderr in select.select([self._proc.stderr], [], [], 0)[0]:
-                        line = self._proc.stderr.readline()
-                        if line.strip() == "":
-                            break
-                        stderr_text += line
-                    if stderr_text.strip() != "":
-                        raise ValueError(line.strip())
-            except Exception as e:
-                exception = e
-            finally:
-                done_event.set()
+                    stderr_text += line
+                if self.is_debug() and stderr_text.strip() != "":
+                    logger.debug(stderr_text.strip())
+            done_event.set()
 
         with self._lock:
             thread = threading.Thread(target=worker)
@@ -192,11 +193,15 @@ class KNP(Processor):
                 self.start_process(skip_sanity_check=True)
                 raise TimeoutError("Operation timed out.")
 
-            if exception:
+            if not self.is_available():
                 self.start_process(skip_sanity_check=True)
-                raise exception
+                raise RuntimeError("KNP exited unexpectedly.")
 
-        return Sentence.from_knp(stdout_text)
+        ret = Sentence.from_knp(stdout_text)
+        if sentence.text and not ret.text:
+            raise RuntimeError(f"KNP returned empty result for input: '{sentence.text}'")
+
+        return ret
 
     def get_version(self) -> str:
         """Juman++ のバージョンを返す．"""
