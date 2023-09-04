@@ -35,11 +35,9 @@ class KWJA(Processor):
         executable: str = "kwja",
         options: Optional[List[str]] = None,
         skip_sanity_check: bool = False,
-        debug: bool = False,
     ) -> None:
         self.executable = executable  #: KWJA のパス．
         self.options: List[str] = options or []  #: KWJA のオプション．
-        self.debug: bool = debug  #: True ならデバッグモード．
         self._proc: Optional[Popen] = None
         self._lock = Lock()
         self._output_format: str = "knp"
@@ -90,10 +88,6 @@ class KWJA(Processor):
         """KWJA が利用可能であれば True を返す．"""
         return self._proc is not None and self._proc.poll() is None
 
-    def is_debug(self) -> bool:
-        """デバッグモードであれば True を返す．"""
-        return self.debug
-
     def apply_to_document(self, document: Union[Document, str], timeout: int = 10) -> Document:
         """文書に KWJA を適用する．
 
@@ -135,7 +129,7 @@ class KWJA(Processor):
                     if line.strip() == "":
                         break
                     stderr_text += line
-                if self.is_debug() and stderr_text.strip() != "":
+                if stderr_text.strip() != "":
                     logger.warning(stderr_text.strip())
             done_event.set()
 

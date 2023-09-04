@@ -109,13 +109,13 @@ def test_apply() -> None:
 
 
 def test_timeout_error() -> None:
-    kwja = KWJA("tests/bin/kwja-mock.sh", skip_sanity_check=True, debug=True)
+    kwja = KWJA("tests/bin/kwja-mock.sh", skip_sanity_check=True)
     with pytest.raises(TimeoutError):
         _ = kwja.apply_to_document("time consuming input", timeout=1)
 
 
 def test_runtime_error() -> None:
-    kwja = KWJA("tests/bin/kwja-mock.sh", skip_sanity_check=True, debug=True)
+    kwja = KWJA("tests/bin/kwja-mock.sh", skip_sanity_check=True)
     with pytest.raises(RuntimeError):
         _ = kwja.apply_to_document("error causing input")
 

@@ -43,13 +43,11 @@ class KNP(Processor):
         senter: Optional[Processor] = None,
         jumanpp: Optional[Processor] = None,
         skip_sanity_check: bool = False,
-        debug: bool = False,
     ) -> None:
         self.executable = executable  #: KNP のパス．
         self.options = options or ["-tab"]  #: KNP のオプション．
         self.senter = senter
         self.jumanpp = jumanpp
-        self.debug = debug
         self._lock = Lock()
         self._proc: Optional[Popen] = None
         if "-tab" not in self.options:
@@ -89,10 +87,6 @@ class KNP(Processor):
     def is_available(self) -> bool:
         """KNP が利用可能であれば True を返す．"""
         return self._proc is not None and self._proc.poll() is None
-
-    def is_debug(self) -> bool:
-        """デバッグモードなら True を返す．"""
-        return self.debug
 
     def apply_to_document(self, document: Union[Document, str], timeout: int = 10) -> Document:
         """文書に KNP を適用する．
@@ -179,7 +173,7 @@ class KNP(Processor):
                     if line.strip() == "":
                         break
                     stderr_text += line
-                if self.is_debug() and stderr_text.strip() != "":
+                if stderr_text.strip() != "":
                     logger.debug(stderr_text.strip())
             done_event.set()
 

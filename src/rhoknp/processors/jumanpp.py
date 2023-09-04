@@ -39,12 +39,10 @@ class Jumanpp(Processor):
         options: Optional[List[str]] = None,
         senter: Optional[Processor] = None,
         skip_sanity_check: bool = False,
-        debug: bool = False,
     ) -> None:
         self.executable = executable  #: Juman++ のパス．
         self.options: List[str] = options or []  #: Juman++ のオプション．
         self.senter = senter
-        self.debug: bool = debug  #: True ならデバッグモード．
         self._lock = Lock()
         self._proc: Optional[Popen] = None
         self.start_process(skip_sanity_check)
@@ -80,10 +78,6 @@ class Jumanpp(Processor):
     def is_available(self) -> bool:
         """Jumanpp が利用可能であれば True を返す．"""
         return self._proc is not None and self._proc.poll() is None
-
-    def is_debug(self) -> bool:
-        """デバッグモードなら True を返す．"""
-        return self.debug
 
     def apply_to_document(self, document: Union[Document, str], timeout: int = 10) -> Document:
         """文書に Jumanpp を適用する．
@@ -155,7 +149,7 @@ class Jumanpp(Processor):
                     if line.strip() == "":
                         break
                     stderr_text += line
-                if self.is_debug() and stderr_text.strip() != "":
+                if stderr_text.strip() != "":
                     logger.debug(stderr_text.strip())
             done_event.set()
 
