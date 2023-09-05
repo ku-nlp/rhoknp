@@ -88,7 +88,7 @@ class KWJA(Processor):
         """KWJA が利用可能であれば True を返す．"""
         return self._proc is not None and self._proc.poll() is None
 
-    def apply_to_document(self, document: Union[Document, str], timeout: int = 10) -> Document:
+    def apply_to_document(self, document: Union[Document, str], timeout: int = 30) -> Document:
         """文書に KWJA を適用する．
 
         Args:
