@@ -134,6 +134,8 @@ class KNP(Processor):
         if self.is_available() is False:
             raise RuntimeError("KNP is not available.")
 
+        start: float = time.time()
+
         if isinstance(sentence, str):
             sentence = Sentence(sentence)
 
@@ -141,7 +143,7 @@ class KNP(Processor):
             if self.jumanpp is None:
                 logger.debug("jumanpp is not specified when initializing KNP: use Jumanpp with no option")
                 self.jumanpp = Jumanpp()
-            sentence = self.jumanpp.apply_to_sentence(sentence)
+            sentence = self.jumanpp.apply_to_sentence(sentence, timeout=timeout - int(time.time() - start))
 
         stdout_text: str = ""
         done_event: threading.Event = threading.Event()
@@ -180,7 +182,7 @@ class KNP(Processor):
         with self._lock:
             thread = threading.Thread(target=worker)
             thread.start()
-            done_event.wait(timeout)
+            done_event.wait(timeout - int(time.time() - start))
 
             if thread.is_alive():
                 thread.join()
