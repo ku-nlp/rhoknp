@@ -80,11 +80,12 @@ class Clause(Unit):
         """文書全体におけるインデックス．"""
         if self.sentence.has_document() is False:
             return self.index
-        if self.index > 0:
-            return self.sentence.clauses[self.index - 1].global_index + 1
         if self.sentence.index == 0:
             return self.index
-        return self.document.sentences[self.sentence.index - 1].clauses[-1].global_index + 1
+        if self.index > 0:
+            return self.sentence.clauses[0].global_index + self.index
+        prev_sentence = self.document.sentences[self.sentence.index - 1]
+        return prev_sentence.clauses[0].global_index + len(prev_sentence.clauses)
 
     @property
     def parent_unit(self) -> Optional["Sentence"]:

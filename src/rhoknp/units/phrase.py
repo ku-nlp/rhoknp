@@ -58,11 +58,12 @@ class Phrase(Unit):
         """文書全体におけるインデックス．"""
         if self.sentence.has_document() is False:
             return self.index
-        if self.index > 0:
-            return self.sentence.phrases[self.index - 1].global_index + 1
         if self.sentence.index == 0:
             return self.index
-        return self.document.sentences[self.sentence.index - 1].phrases[-1].global_index + 1
+        if self.index > 0:
+            return self.sentence.phrases[0].global_index + self.index
+        prev_sentence = self.document.sentences[self.sentence.index - 1]
+        return prev_sentence.phrases[0].global_index + len(prev_sentence.phrases)
 
     @property
     def parent_unit(self) -> Optional[Union["Clause", "Sentence"]]:
