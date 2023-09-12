@@ -13,7 +13,11 @@ class SemanticsDict(Dict[str, Union[str, bool]]):
         if semantics is None:
             semantics = {}
         super().__init__(semantics)
-        self.is_nil: bool = is_nil
+        self.nil: bool = is_nil
+
+    def is_nil(self) -> bool:
+        """NIL なら True．"""
+        return self.nil
 
     @classmethod
     def from_sstring(cls, sstring: str) -> "SemanticsDict":
@@ -34,7 +38,7 @@ class SemanticsDict(Dict[str, Union[str, bool]]):
     def to_sstring(self) -> str:
         """意味情報文字列に変換．"""
         if len(self) == 0:
-            return "" if self.is_nil is False else self.NIL
+            return "" if not self.is_nil() else self.NIL
         return f'"{" ".join(self._item_to_sstring(k, v) for k, v in self.items())}"'
 
     @staticmethod

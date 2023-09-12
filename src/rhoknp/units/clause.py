@@ -69,7 +69,7 @@ class Clause(Unit):
                         relation.modifier.discourse_relations.append(relation)
 
     def __eq__(self, other: Any) -> bool:
-        if isinstance(other, type(self)) is False:
+        if not isinstance(other, type(self)):
             return False
         if self.parent_unit != other.parent_unit:
             return False
@@ -78,7 +78,7 @@ class Clause(Unit):
     @cached_property
     def global_index(self) -> int:
         """文書全体におけるインデックス．"""
-        if self.sentence.has_document() is False:
+        if not self.sentence.has_document():
             return self.index
         if self.sentence.index == 0:
             return self.index

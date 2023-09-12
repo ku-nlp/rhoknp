@@ -45,7 +45,7 @@ class Document(Unit):
         super().__post_init__()
 
         # Set doc_id.
-        if self.is_senter_required() is False and len(self.sentences) > 0:
+        if not self.is_senter_required() and len(self.sentences) > 0:
             doc_ids = [sentence.doc_id for sentence in self.sentences]
             self.doc_id = doc_ids[0]
             if not all(doc_id == self.doc_id for doc_id in doc_ids):
@@ -54,7 +54,7 @@ class Document(Unit):
                 )
 
     def __eq__(self, other: Any) -> bool:
-        if isinstance(other, Document) is False:
+        if not isinstance(other, Document):
             return False
         return self.doc_id == other.doc_id and self.text == other.text
 
@@ -225,9 +225,9 @@ class Document(Unit):
         sentences_ = []
         for sentence in sentences:
             if isinstance(sentence, Sentence):
-                if sentence.is_jumanpp_required() is True:
+                if sentence.is_jumanpp_required():
                     sentences_.append(Sentence.from_raw_text(sentence.text, post_init=False))
-                elif sentence.is_knp_required() is True:
+                elif sentence.is_knp_required():
                     sentences_.append(Sentence.from_jumanpp(sentence.to_jumanpp(), post_init=False))
                 else:
                     sentences_.append(Sentence.from_knp(sentence.to_knp(), post_init=False))
@@ -378,11 +378,11 @@ class Document(Unit):
         .. note::
             解析結果に対する編集を有効にする際に実行する必要がある．
         """
-        if self.is_knp_required() is False:
+        if not self.is_knp_required():
             return Document.from_knp(self.to_knp())
-        if self.is_jumanpp_required() is False:
+        if not self.is_jumanpp_required():
             return Document.from_jumanpp(self.to_jumanpp())
-        if self.is_senter_required() is False:
+        if not self.is_senter_required():
             return Document.from_line_by_line_text(self.to_raw_text())
         return Document.from_raw_text(self.to_raw_text())
 
@@ -392,7 +392,7 @@ class Document(Unit):
         .. note::
             文分割済みの場合は一行一文の形式で出力．
         """
-        if self.is_senter_required() is True:
+        if self.is_senter_required():
             return self.text.rstrip() + "\n"
         return "".join(sentence.to_raw_text() for sentence in self.sentences)
 

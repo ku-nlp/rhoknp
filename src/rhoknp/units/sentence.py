@@ -63,7 +63,7 @@ class Sentence(Unit):
 
         # Find named entities in the sentence.
         self.named_entities = []
-        if self.is_knp_required() is False:
+        if not self.is_knp_required():
             for base_phrase in self.base_phrases:
                 if "NE" not in base_phrase.features:
                     continue
@@ -76,7 +76,7 @@ class Sentence(Unit):
                     self.named_entities.append(named_entity)
 
     def __eq__(self, other: Any) -> bool:
-        if isinstance(other, type(self)) is False:
+        if not isinstance(other, type(self)):
             return False
         return self.sent_id == other.sent_id and self.text == other.text
 
@@ -270,7 +270,7 @@ class Sentence(Unit):
         Raises:
             AttributeError: 解析結果にアクセスできない場合．
         """
-        return [base_phrase.pas for base_phrase in self.base_phrases if base_phrase.pas.is_empty() is False]
+        return [base_phrase.pas for base_phrase in self.base_phrases if not base_phrase.pas.is_empty()]
 
     @classmethod
     def from_raw_text(cls, text: str, post_init: bool = True) -> "Sentence":
@@ -424,11 +424,11 @@ class Sentence(Unit):
             logger.warning(f"sentence does not end with EOS: {child_lines}")
 
         if child_lines:
-            if has_clause_boundary is True:
+            if has_clause_boundary:
                 clauses.append(Clause.from_knp("\n".join(child_lines)))
             else:
                 phrases.append(Phrase.from_knp("\n".join(child_lines)))
-        if has_clause_boundary is True:
+        if has_clause_boundary:
             sentence.clauses = clauses
         else:
             sentence.phrases = phrases
@@ -491,8 +491,8 @@ class Sentence(Unit):
         .. note::
             解析結果に対する編集を有効にする際に実行する必要がある．
         """
-        if self.is_knp_required() is False:
+        if not self.is_knp_required():
             return Sentence.from_knp(self.to_knp())
-        elif self.is_jumanpp_required() is False:
+        if not self.is_jumanpp_required():
             return Sentence.from_jumanpp(self.to_jumanpp())
         return Sentence.from_raw_text(self.to_raw_text())

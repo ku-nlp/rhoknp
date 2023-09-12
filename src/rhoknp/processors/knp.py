@@ -139,7 +139,7 @@ class KNP(Processor):
         if isinstance(sentence, str):
             sentence = Sentence(sentence)
 
-        if sentence.is_jumanpp_required() is True:
+        if sentence.is_jumanpp_required():
             if self.jumanpp is None:
                 logger.debug("jumanpp is not specified when initializing KNP: use Jumanpp with no option")
                 self.jumanpp = Jumanpp()
