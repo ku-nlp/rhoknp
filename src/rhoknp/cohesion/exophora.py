@@ -65,7 +65,7 @@ class ExophoraReferent:
         return f"{self.__class__.__name__}(text={repr(self.text)})"
 
     def __eq__(self, other: Any) -> bool:
-        if isinstance(other, type(self)) is False or self.type != other.type:
+        if not isinstance(other, type(self)) or self.type != other.type:
             return False
         if self.type == ExophoraReferentType.OTHER:
             return self._other_text == other._other_text

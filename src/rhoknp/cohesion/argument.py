@@ -97,7 +97,7 @@ class EndophoraArgument(BaseArgument):
         return self.base_phrase.text
 
     def __eq__(self, other: Any) -> bool:
-        if isinstance(other, type(self)) is False:
+        if not isinstance(other, type(self)):
             return False
         if self._pas is not None and other._pas is not None:
             if self.pas.predicate != other.pas.predicate:
@@ -172,7 +172,7 @@ class ExophoraArgument(BaseArgument):
         return str(self.exophora_referent)
 
     def __eq__(self, other: Any) -> bool:
-        if isinstance(other, type(self)) is False:
+        if not isinstance(other, type(self)):
             return False
         if self._pas is not None and other._pas is not None:
             if self.pas.predicate != other.pas.predicate:

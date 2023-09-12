@@ -98,7 +98,7 @@ class Jumanpp(Processor):
         if isinstance(document, str):
             document = Document(document)
 
-        if document.is_senter_required() is True:
+        if document.is_senter_required():
             if self.senter is None:
                 logger.debug("senter is not specified; use RegexSenter")
                 self.senter = RegexSenter()
