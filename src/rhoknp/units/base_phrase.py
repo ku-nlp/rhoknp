@@ -111,7 +111,7 @@ class BasePhrase(Unit):
                 self._add_argument(rel_tag)
 
     def __eq__(self, other: Any) -> bool:
-        if isinstance(other, type(self)) is False:
+        if not isinstance(other, type(self)):
             return False
         if self.parent_unit != other.parent_unit:
             return False
@@ -120,13 +120,14 @@ class BasePhrase(Unit):
     @cached_property
     def global_index(self) -> int:
         """文書全体におけるインデックス．"""
-        if self.sentence.has_document() is False:
+        if not self.sentence.has_document():
             return self.index
-        if self.index > 0:
-            return self.sentence.base_phrases[self.index - 1].global_index + 1
         if self.sentence.index == 0:
             return self.index
-        return self.document.sentences[self.sentence.index - 1].base_phrases[-1].global_index + 1
+        if self.index > 0:
+            return self.sentence.base_phrases[0].global_index + self.index
+        prev_sentence = self.document.sentences[self.sentence.index - 1]
+        return prev_sentence.base_phrases[0].global_index + len(prev_sentence.base_phrases)
 
     @property
     def parent_unit(self) -> Optional["Phrase"]:

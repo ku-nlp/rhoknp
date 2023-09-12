@@ -114,7 +114,7 @@ class EntityManager:
         Returns:
              Entity: 作成されたエンティティ．
         """
-        if exophora_referent is not None and exophora_referent.is_singleton() is True:
+        if exophora_referent is not None and exophora_referent.is_singleton():
             entities = [e for e in cls.entities.values() if exophora_referent == e.exophora_referent]
             # If a singleton entity already exists, do not create a new entity, but return that entity.
             if entities:
@@ -155,13 +155,13 @@ class EntityManager:
         is_tgt_nonidentical = target_mention is not None and target_entity in target_mention.entities_nonidentical
         is_src_nonidentical = source_entity in source_mention.entities_nonidentical
         if source_entity is target_entity:
-            if is_nonidentical is False:
+            if not is_nonidentical:
                 # When two sides of a triangle formed by source_entity (=target_entity), source_mention, and
                 # target_mention are identical, the other side is also identical.
-                if is_src_nonidentical is False and is_tgt_nonidentical is True:
+                if not is_src_nonidentical and is_tgt_nonidentical:
                     assert target_mention is not None
                     source_entity.add_mention(target_mention, is_nonidentical=False)
-                if is_src_nonidentical is True and is_tgt_nonidentical is False:
+                if is_src_nonidentical and not is_tgt_nonidentical:
                     source_entity.add_mention(source_mention, is_nonidentical=False)
             return
         if target_mention is not None:

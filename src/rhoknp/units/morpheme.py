@@ -108,7 +108,7 @@ class Morpheme(Unit):
             self.text = self._UNESCAPE_MAP.get(self.text, self.text)
 
     def __eq__(self, other: Any) -> bool:
-        if isinstance(other, type(self)) is False:
+        if not isinstance(other, type(self)):
             return False
         if self.parent_unit != other.parent_unit:
             return False
@@ -117,13 +117,14 @@ class Morpheme(Unit):
     @cached_property
     def global_index(self) -> int:
         """文書全体におけるインデックス．"""
-        if self.sentence.has_document() is False:
+        if not self.sentence.has_document():
             return self.index
-        if self.index > 0:
-            return self.sentence.morphemes[self.index - 1].global_index + 1
         if self.sentence.index == 0:
             return self.index
-        return self.document.sentences[self.sentence.index - 1].morphemes[-1].global_index + 1
+        if self.index > 0:
+            return self.sentence.morphemes[0].global_index + self.index
+        prev_sentence = self.document.sentences[self.sentence.index - 1]
+        return prev_sentence.morphemes[0].global_index + len(prev_sentence.morphemes)
 
     @property
     def parent_unit(self) -> Optional[Union["BasePhrase", "Sentence"]]:
@@ -322,7 +323,7 @@ class Morpheme(Unit):
     def to_jumanpp(self) -> str:
         """Juman++ フォーマットに変換．"""
         ret = " ".join(str(getattr(self, attr)) for attr in self._ATTRIBUTES)
-        if self.semantics or self.semantics.is_nil is True:
+        if self.semantics or self.semantics.is_nil():
             ret += f" {self.semantics.to_sstring()}"
         if self.features:
             ret += f" {self.features.to_fstring()}"
@@ -334,7 +335,7 @@ class Morpheme(Unit):
     def to_knp(self) -> str:
         """KNP フォーマットに変換．"""
         ret = " ".join(str(getattr(self, attr)) for attr in self._ATTRIBUTES)
-        if self.semantics or self.semantics.is_nil is True:
+        if self.semantics or self.semantics.is_nil():
             ret += f" {self.semantics.to_sstring()}"
         features = FeatureDict(self.features)  # deep copy
         for homograph in self.homographs:

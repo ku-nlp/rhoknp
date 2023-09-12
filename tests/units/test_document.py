@@ -321,6 +321,14 @@ def test_from_jumanpp_parallel(case: Dict[str, str]) -> None:
         _ = pool.map(Document.from_jumanpp, [case["jumanpp"]])
 
 
+@pytest.mark.parametrize("case", CASES)
+def test_from_jumanpp_without_last_eos(case: Dict[str, str]) -> None:
+    jumanpp_lines = case["jumanpp"].rstrip().split("\n")
+    assert jumanpp_lines[-1] == "EOS"
+    doc = Document.from_jumanpp("\n".join(jumanpp_lines[:-1]) + "\n")
+    assert doc.text == case["raw_text"]
+
+
 def test_from_jumanpp_error():
     invalid_jumanpp_text = textwrap.dedent(
         """\
@@ -395,6 +403,14 @@ def test_from_knp(case: Dict[str, str]) -> None:
 def test_from_knp_parallel(case: Dict[str, str]) -> None:
     with multiprocessing.Pool(processes=1) as pool:
         _ = pool.map(Document.from_knp, [case["knp"]])
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_from_knp_without_last_eos(case: Dict[str, str]) -> None:
+    knp_lines = case["knp"].rstrip().split("\n")
+    assert knp_lines[-1] == "EOS"
+    doc = Document.from_knp("\n".join(knp_lines[:-1]) + "\n")
+    assert doc.text == case["raw_text"]
 
 
 def test_from_knp_error():

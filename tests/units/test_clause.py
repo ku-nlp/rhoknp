@@ -297,6 +297,46 @@ def test_index_document(case: Dict[str, str]) -> None:
         assert clause.global_index == index
 
 
+def test_index_document_2():
+    knp = textwrap.dedent(
+        """\
+        # S-ID:1
+        * 1D
+        + 1D
+        天気 てんき 天気 名詞 6 普通名詞 1 * 0 * 0
+        が が が 助詞 9 格助詞 1 * 0 * 0
+        * 2D
+        + 2D <節-区切><節-主辞>
+        いい いい いい 形容詞 3 * 0 イ形容詞イ段 19 基本形 2
+        ので ので のだ 助動詞 5 * 0 ナ形容詞 21 ダ列タ系連用テ形 12
+        * -1D
+        + -1D <節-区切><節-主辞>
+        散歩 さんぽ 散歩 名詞 6 サ変名詞 2 * 0 * 0
+        した した する 動詞 2 * 0 サ変動詞 16 タ形 10
+        。 。 。 特殊 1 句点 1 * 0 * 0
+        EOS
+        # S-ID:2
+        * 1D
+        + 1D
+        天気 てんき 天気 名詞 6 普通名詞 1 * 0 * 0
+        が が が 助詞 9 格助詞 1 * 0 * 0
+        * 2D
+        + 2D <節-区切><節-主辞>
+        いい いい いい 形容詞 3 * 0 イ形容詞イ段 19 基本形 2
+        ので ので のだ 助動詞 5 * 0 ナ形容詞 21 ダ列タ系連用テ形 12
+        * -1D
+        + -1D <節-区切><節-主辞>
+        散歩 さんぽ 散歩 名詞 6 サ変名詞 2 * 0 * 0
+        した した する 動詞 2 * 0 サ変動詞 16 タ形 10
+        。 。 。 特殊 1 句点 1 * 0 * 0
+        EOS
+        """
+    )
+    doc = Document.from_knp(knp)
+    for index, clause in enumerate(doc.clauses):
+        assert clause.global_index == index
+
+
 @pytest.mark.parametrize("case", KNP_SNIPPETS)
 def test_from_knp(case: Dict[str, str]) -> None:
     _ = Clause.from_knp(case["knp"])

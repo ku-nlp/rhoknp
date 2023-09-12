@@ -82,7 +82,7 @@ class Predicate:
         return f"<{self.__module__}.{self.__class__.__name__}: {repr(self.text)}>"
 
     def __eq__(self, other: Any) -> bool:
-        if isinstance(other, type(self)) is False or self.base_phrase != other.base_phrase:
+        if not isinstance(other, type(self)) or self.base_phrase != other.base_phrase:
             return False
         if self.cfid is None or other.cfid is None:
             return True

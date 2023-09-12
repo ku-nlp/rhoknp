@@ -192,7 +192,7 @@ class DiscourseRelation:
             return None
         tag = DiscourseRelationTag(label)
         label = tag.label
-        if head.sentence.has_document() is False:
+        if not head.sentence.has_document():
             return None  # cannot find modifier
         if head.sentence.index == 0:
             return None  # cannot find modifier
