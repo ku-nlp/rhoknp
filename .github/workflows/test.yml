@@ -36,8 +36,8 @@ jobs:
         run: |
           poetry install --no-interaction --without dev,docs --extras=cli
       - name: Install KWJA
-        # KWJA does not support Python 3.7
-        if: ${{ matrix.python-version != 3.7 }}
+        # KWJA does not support Python 3.7 or 3.12
+        if: ${{ matrix.python-version != 3.7 && matrix.python-version != 3.12 }}
         run: |
           pipx install kwja
           kwja --model-size tiny --text "テスト"
