@@ -8,9 +8,10 @@ jobs:
     container: kunlp/jumanpp-knp:ubuntu
     runs-on: ubuntu-20.04 # to meet the ubuntu version in the kunlp/jumanpp-knp:ubuntu container
     strategy:
+      max-parallel: 6
       fail-fast: false
       matrix:
-        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
+        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11", "3.12"]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -22,6 +23,7 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
+          allow-prereleases: true # TODO: Remove this line when Python 3.12 is released
       - name: Install Poetry
         run: |
           python3 -m pip install --user pipx
@@ -34,8 +36,8 @@ jobs:
         run: |
           poetry install --no-interaction --without dev,docs --extras=cli
       - name: Install KWJA
-        # KWJA does not support Python 3.7
-        if: ${{ matrix.python-version != 3.7 }}
+        # KWJA does not support Python 3.7 or 3.12
+        if: ${{ matrix.python-version != 3.7 && matrix.python-version != 3.12 }}
         run: |
           pipx install kwja
           kwja --model-size tiny --text "テスト"
