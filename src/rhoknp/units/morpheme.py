@@ -301,8 +301,6 @@ class Morpheme(Unit):
         match_attr = cls._ATTRIBUTE_PAT.match(match["attrs"]) or cls._ATTRIBUTE_PAT_REPEATED.match(match["attrs"])
         assert match_attr is not None
         attributes = match_attr.groups()
-        semantics = SemanticsDict.from_sstring(match["sems"] or "")
-        features = FeatureDict.from_fstring(match["feats"] or "")
         return cls(
             surf,
             attributes[0],
@@ -315,8 +313,8 @@ class Morpheme(Unit):
             int(attributes[7]),
             attributes[8],
             int(attributes[9]),
-            semantics,
-            features,
+            semantics=SemanticsDict.from_sstring(match["sems"] or ""),
+            features=FeatureDict.from_fstring(match["feats"] or ""),
             homograph=homograph,
         )
 

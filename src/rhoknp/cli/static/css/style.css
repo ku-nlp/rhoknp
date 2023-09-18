@@ -1,12 +1,12 @@
 /* templates/components/raw_input.jinja2 */
 .input-text {
   white-space: pre-wrap;
-  margin: 0em 0.5em 1em;
+  margin: 0 0.5em 1em;
   padding: 0.5em;
 }
 
 .result {
-  margin: 0em 0.5em 1em;
+  margin: 0 0.5em 1em;
   padding: 0.5em;
 }
 
