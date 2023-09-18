@@ -45,10 +45,10 @@ class KWJA(Processor):
             tasks: List[str] = self.options[self.options.index("--tasks") + 1].split(",")
             if "word" in tasks:
                 self._output_format = "knp"
-            elif "char" in tasks:
-                self._output_format = "words"
             elif "seq2seq" in tasks:
                 self._output_format = "jumanpp"
+            elif "char" in tasks:
+                self._output_format = "words"
             elif "senter" in tasks:
                 self._output_format = "line_by_line"
             elif "typo" in tasks:

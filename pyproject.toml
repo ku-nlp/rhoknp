@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "rhoknp"
-version = "1.5.0"
+version = "1.5.1"
 description = "Yet another Python binding for Juman++/KNP/KWJA"
 license = "MIT"
 authors = [
@@ -57,10 +57,10 @@ Sphinx = [
     { version = "^5.3", python = "<3.8" },
     { version = "^7.0", python = ">=3.8" },
 ]
-# sphinx-prompt 1.7.0 requires python < 3.11, which will be fixed in the next version
 sphinx-prompt = [
     { version = "~1.5.0", python = "<3.8" },
-    { version = "^1.6", python = ">=3.8,<3.11" },
+    { version = "^1.6", python = ">=3.8,<3.9" },
+    { version = "^1.8", python = ">=3.9" },
 ]
 sphinx-copybutton = "^0.5.0"
 myst-parser = [
@@ -84,7 +84,7 @@ rhoknp = "rhoknp.cli.cli:app"
 
 [tool.black]
 line-length = 120
-target-version = ["py37", "py38", "py39", "py310", "py311"]
+target-version = ["py37", "py38", "py39", "py310", "py311", "py312"]
 
 [tool.isort]
 line_length = 120

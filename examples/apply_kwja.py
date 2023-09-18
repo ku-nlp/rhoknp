@@ -10,11 +10,11 @@ from rhoknp import KWJA
 # Create a KWJA instance.
 kwja = KWJA()
 
-# Apply KNP to a sentence.
-sent = kwja.apply_to_sentence(sys.argv[1])
+# Apply KWJA to a document.
+doc = kwja.apply_to_document(sys.argv[1])
 
 # Get information.
-for mrph in sent.morphemes:
+for mrph in doc.morphemes:
     print(f"Text: {mrph.text}")
     print(f"Reading: {mrph.reading}")
     print(f"Lemma: {mrph.lemma}")

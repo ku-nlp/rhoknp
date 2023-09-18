@@ -11,12 +11,13 @@ jobs:
     container: kunlp/jumanpp-knp:ubuntu
     runs-on: ubuntu-20.04 # to meet the ubuntu version in the kunlp/jumanpp-knp:ubuntu container
     strategy:
+      max-parallel: 5
       fail-fast: false
       matrix:
-        python-version: ["3.8", "3.9", "3.10", "3.11"]
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Install required apt packages
         run: |
           apt update -y
@@ -25,6 +26,7 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
+          allow-prereleases: true # TODO: Remove this line when Python 3.12 is released
       - name: Install Poetry
         run: |
           python3 -m pip install --user pipx
