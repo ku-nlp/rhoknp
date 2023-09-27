@@ -5,5 +5,5 @@ try:
     import rhoknp.cli.stats  # noqa: F401
 except ImportError as e:
     raise ImportError(
-        f"{e.msg}\nExtra dependencies are required to use the CLI. Install it with `pip install rhoknp[cli]`."
+        f"{e.msg}\nExtra dependencies are required to use the CLI. Install them with `pip install rhoknp[cli]`."
     )
