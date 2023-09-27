@@ -80,7 +80,7 @@ class KNP(Processor):
         try:
             self._proc = Popen(self.run_command, stdin=PIPE, stdout=PIPE, stderr=PIPE, encoding="utf-8")
             if skip_sanity_check is False:
-                _ = self.apply(Sentence.from_jumanpp(""))
+                _ = self.apply(Sentence.from_jumanpp("EOS"))
         except Exception as e:
             logger.warning(f"failed to start KNP: {e}")
 
