@@ -10,6 +10,10 @@ updates:
     schedule:
       interval: "monthly"
       timezone: "Asia/Tokyo"
+    groups:
+      dependencies:
+        patterns:
+          - "*"
     target-branch: "develop"
     ignore:
       - dependency-name: "*"
