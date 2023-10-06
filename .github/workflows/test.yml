@@ -39,6 +39,15 @@ jobs:
       - name: Print disk usage
         run: |
           df -h
+      - name: Install ipython (test)
+        run: |
+          pipx install ipython
+      - name: Print disk usage
+        run: |
+          df -h
+      - name: Print disk usage
+        run: |
+          du -sh $HOME/.local
       - name: Install KWJA
         # KWJA does not support Python 3.7 or 3.12
         if: ${{ matrix.python-version != 3.7 && matrix.python-version != 3.12 }}
