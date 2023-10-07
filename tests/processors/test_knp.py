@@ -67,6 +67,7 @@ def test_apply() -> None:
         "キャリッジ\rリターン",  # carriage return
         "ライン\nフィード",  # line feed
         "CR\r\nLF",  # CR+LF
+        "タブ\t文字",  # tab
     ],
 )
 def test_apply_to_sentence(text: str) -> None:
@@ -101,6 +102,7 @@ def test_thread_safe() -> None:
         "キャリッジ\rリターン",  # carriage return
         "ライン\nフィード",  # line feed
         "CR\r\nLF",  # CR+LF
+        "タブ\t文字",  # tab
     ],
 )
 def test_apply_to_document(text: str) -> None:

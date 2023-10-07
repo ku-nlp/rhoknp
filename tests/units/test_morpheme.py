@@ -254,7 +254,7 @@ JUMANPP_SNIPPETS = [
         "canon": None,
     },
     {
-        "jumanpp": "      特殊 1 空白 6 * 0 * 0\n",
+        "jumanpp": "\\␣ \\␣ \\␣ 特殊 1 空白 6 * 0 * 0\n",
         "text": " ",
         "surf": " ",
         "reading": " ",

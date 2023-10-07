@@ -42,6 +42,7 @@ def test_apply() -> None:
         "キャリッジ\rリターン",  # carriage return
         "ライン\nフィード",  # line feed
         "CR\r\nLF",  # CR+LF
+        "タブ\t文字",  # tab
     ],
 )
 def test_apply_to_sentence(text: str) -> None:
@@ -63,6 +64,7 @@ def test_apply_to_sentence(text: str) -> None:
         "キャリッジ\rリターン",  # carriage return
         "ライン\nフィード",  # line feed
         "CR\r\nLF",  # CR+LF
+        "タブ\t文字",  # tab
     ],
 )
 def test_apply_to_document(text: str) -> None:
@@ -110,6 +112,8 @@ def test_whitespace() -> None:
     sent = jumanpp.apply(text)
     assert len(sent.morphemes) == 3
     assert "".join(m.text for m in sent.morphemes) == text
+    assert sent.morphemes[1].reading == " "
+    assert sent.morphemes[1].lemma == " "
     assert sent.morphemes[1].pos == "特殊"
     assert sent.morphemes[1].subpos == "空白"
 
