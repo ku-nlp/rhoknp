@@ -5,8 +5,8 @@ on: [push, pull_request, workflow_dispatch]
 jobs:
   test:
     name: Run tests with pytest
-    container: kunlp/jumanpp-knp:ubuntu
-    runs-on: ubuntu-20.04 # to meet the ubuntu version in the kunlp/jumanpp-knp:ubuntu container
+    container: kunlp/jumanpp-knp:ubuntu22.04
+    runs-on: ubuntu-22.04
     strategy:
       max-parallel: 6
       fail-fast: false
@@ -18,9 +18,8 @@ jobs:
       - name: Install required apt packages
         run: |
           export DEBIAN_FRONTEND=noninteractive
-          apt-get update -yq \
-          && apt-get install -yq curl build-essential libsqlite3-dev libffi-dev \
-          && rm -rf /var/lib/apt/lists/*
+          apt-get update -yq
+          apt-get install -yq curl build-essential libsqlite3-dev libffi-dev
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
