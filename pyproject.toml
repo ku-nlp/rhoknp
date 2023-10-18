@@ -26,7 +26,10 @@ uvicorn = [
     { version = ">=0.21.0,<0.23.0", python = "<3.8", optional = true },
     { version = ">=0.21.0", python = ">=3.8", optional = true },
 ]
-fastapi = { version = ">=0.92.0,<1", optional = true }
+fastapi = [
+    { version = ">=0.92.0,<0.104.0", python = "<3.8", optional = true },
+    { version = ">=0.92.0", python = ">=3.8", optional = true },
+]
 jinja2 = { version = "^3.1", optional = true }
 
 [tool.poetry.group.dev.dependencies]
