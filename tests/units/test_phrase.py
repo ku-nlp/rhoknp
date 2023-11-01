@@ -268,22 +268,22 @@ def test_text(case: Dict[str, str]) -> None:
 
 @pytest.mark.parametrize("case", KNP_SNIPPETS)
 def test_document_error(case: Dict[str, str]) -> None:
+    phrase = Phrase.from_knp(case["knp"])
     with pytest.raises(AttributeError):
-        phrase = Phrase.from_knp(case["knp"])
         _ = phrase.document
 
 
 @pytest.mark.parametrize("case", KNP_SNIPPETS)
 def test_sentence_error(case: Dict[str, str]) -> None:
+    phrase = Phrase.from_knp(case["knp"])
     with pytest.raises(AttributeError):
-        phrase = Phrase.from_knp(case["knp"])
         _ = phrase.sentence
 
 
 @pytest.mark.parametrize("case", KNP_SNIPPETS)
 def test_clause_error(case: Dict[str, str]) -> None:
+    phrase = Phrase.from_knp(case["knp"])
     with pytest.raises(AttributeError):
-        phrase = Phrase.from_knp(case["knp"])
         _ = phrase.clause
 
 
