@@ -91,7 +91,7 @@ class EndophoraArgument(BaseArgument):
         self.base_phrase = base_phrase  #: 項の核となる基本句．
 
     def __repr__(self) -> str:
-        return f"<{self.__module__}.{self.__class__.__name__}: {repr(self.case)}, {repr(self.base_phrase.text)}>"
+        return f"<{self.__module__}.{self.__class__.__name__}: {self.case!r}, {self.base_phrase.text!r}>"
 
     def __str__(self) -> str:
         return self.base_phrase.text
@@ -164,8 +164,8 @@ class ExophoraArgument(BaseArgument):
 
     def __repr__(self) -> str:
         return (
-            f"{self.__class__.__name__}(case={repr(self.case)}, exophora_referent={repr(self.exophora_referent)}, "
-            f"eid={repr(self.eid)})"
+            f"{self.__class__.__name__}(case={self.case!r}, exophora_referent={self.exophora_referent!r}, "
+            f"eid={self.eid!r})"
         )
 
     def __str__(self) -> str:

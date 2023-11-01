@@ -232,7 +232,7 @@ class Pas:
             logger.info(f"marked {arg} as optional in {self.sid}")
 
     def __repr__(self) -> str:
-        return f"<{self.__module__}.{self.__class__.__name__}: {repr(self.predicate.text)}>"
+        return f"<{self.__module__}.{self.__class__.__name__}: {self.predicate.text!r}>"
 
 
 def normalize_case(case: str) -> str:

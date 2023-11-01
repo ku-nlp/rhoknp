@@ -55,13 +55,13 @@ class KNP(Processor):
         self.start_process(skip_sanity_check)
 
     def __repr__(self) -> str:
-        arg_string = f"executable={repr(self.executable)}"
+        arg_string = f"executable={self.executable!r}"
         if self.options:
-            arg_string += f", options={repr(self.options)}"
+            arg_string += f", options={self.options!r}"
         if self.senter is not None:
-            arg_string += f", senter={repr(self.senter)}"
+            arg_string += f", senter={self.senter!r}"
         if self.jumanpp is not None:
-            arg_string += f", jumanpp={repr(self.jumanpp)}"
+            arg_string += f", jumanpp={self.jumanpp!r}"
         return f"{self.__class__.__name__}({arg_string})"
 
     def __del__(self) -> None:

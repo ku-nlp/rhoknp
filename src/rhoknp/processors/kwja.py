@@ -58,9 +58,9 @@ class KWJA(Processor):
         self.start_process(skip_sanity_check)
 
     def __repr__(self) -> str:
-        arg_string = f"executable={repr(self.executable)}"
+        arg_string = f"executable={self.executable!r}"
         if self.options:
-            arg_string += f", options={repr(self.options)}"
+            arg_string += f", options={self.options!r}"
         return f"{self.__class__.__name__}({arg_string})"
 
     def __del__(self) -> None:
