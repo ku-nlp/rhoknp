@@ -121,8 +121,8 @@ def test_runtime_error() -> None:
 
 
 def test_unsupported_option() -> None:
-    with pytest.raises(ValueError):
-        _ = KWJA(options=["--model-size", "tiny", "--tasks", "wakati"])
+    with pytest.raises(ValueError, match=r"invalid task: \['wakachi'\]"):
+        _ = KWJA(options=["--model-size", "tiny", "--tasks", "wakachi"])
 
 
 def test_apply_to_sentence() -> None:

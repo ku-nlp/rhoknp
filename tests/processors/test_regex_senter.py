@@ -8,7 +8,7 @@ from rhoknp import RegexSenter
 
 
 @pytest.mark.parametrize(
-    "document, sentence_strings",
+    ("document", "sentence_strings"),
     [
         (
             "",

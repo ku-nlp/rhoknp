@@ -58,7 +58,7 @@ cases_with_ignored_tag = [
 ]
 
 
-@pytest.mark.parametrize("fstring, features, length", [astuple(case) for case in cases + cases_with_ignored_tag])
+@pytest.mark.parametrize(("fstring", "features", "length"), [astuple(case) for case in cases + cases_with_ignored_tag])
 def test_from_fstring(fstring: str, features: Dict[str, Union[str, bool]], length: int) -> None:
     fs = FeatureDict.from_fstring(fstring)
     assert len(fs) == length
@@ -66,7 +66,7 @@ def test_from_fstring(fstring: str, features: Dict[str, Union[str, bool]], lengt
     assert fs.get("dummy") is None
 
 
-@pytest.mark.parametrize("fstring, features, length", [astuple(case) for case in cases])
+@pytest.mark.parametrize(("fstring", "features", "length"), [astuple(case) for case in cases])
 def test_to_fstring(fstring: str, features: Dict[str, Union[str, bool]], length: int) -> None:
     fs = FeatureDict.from_fstring(fstring)
     assert fs.to_fstring() == fstring

@@ -141,7 +141,7 @@ def test_cli_serve_index_kwja(kwja_client: TestClient, text: str) -> None:
 
 
 @pytest.mark.parametrize(
-    "pre_text, post_text, expected",
+    ("pre_text", "post_text", "expected"),
     [
         ("あ", "あ", [_Span("あ", "=")]),
         ("あ", "い", [_Span("あ", "-"), _Span("い", "+")]),
