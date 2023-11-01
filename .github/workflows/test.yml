@@ -19,7 +19,7 @@ jobs:
         run: |
           export DEBIAN_FRONTEND=noninteractive
           apt-get update -yq
-          apt-get install -yq curl build-essential libsqlite3-dev libffi-dev
+          apt-get install -yq curl build-essential libsqlite3-dev libffi-dev libssl-dev
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
