@@ -106,7 +106,7 @@ def test_index_knp_error(knp_client: TestClient) -> None:
 @pytest.mark.skipif(not is_kwja_available, reason="KWJA is not available")
 @pytest.fixture()
 def kwja_client() -> TestClient:
-    app = create_app(AnalyzerType.KWJA, options=["--model-size", "tiny", "--tasks", "senter,char,word"])
+    app = create_app(AnalyzerType.KWJA, options=["--model-size", "tiny", "--tasks", "char,word"])
     return TestClient(app)
 
 

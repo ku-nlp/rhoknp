@@ -38,19 +38,21 @@ def test_typo() -> None:
 
 
 @pytest.mark.skipif(not is_kwja_available, reason="KWJA is not available")
-def test_senter() -> None:
-    kwja = KWJA(options=["--model-size", "tiny", "--tasks", "senter"])
+def test_char() -> None:
+    kwja = KWJA(options=["--model-size", "tiny", "--tasks", "char"])
     text = "こんにちは。さようなら。"
-    document = kwja.apply_to_document(text)
-    sentences = document.sentences
-    assert len(sentences) == 2
-    assert sentences[0].text == "こんにちは。"
-    assert sentences[1].text == "さようなら。"
+    doc = kwja.apply_to_document(text)
+    morphemes = doc.morphemes
+    assert len(morphemes) > 0
+    morpheme = morphemes[0]
+    assert text.startswith(morpheme.text)
+    assert morpheme.reading == "*"
+    assert morpheme.lemma == "*"
 
 
 @pytest.mark.skipif(not is_kwja_available, reason="KWJA is not available")
 def test_seq2seq() -> None:
-    kwja = KWJA(options=["--model-size", "tiny", "--tasks", "senter,seq2seq"])
+    kwja = KWJA(options=["--model-size", "tiny", "--tasks", "char,seq2seq"])
     text = "こんにちは。さようなら。"
     doc = kwja.apply_to_document(text)
     assert isinstance(doc, Document)
@@ -63,22 +65,8 @@ def test_seq2seq() -> None:
 
 
 @pytest.mark.skipif(not is_kwja_available, reason="KWJA is not available")
-def test_char() -> None:
-    kwja = KWJA(options=["--model-size", "tiny", "--tasks", "senter,char"])
-    text = "こんにちは。さようなら。"
-    doc = kwja.apply_to_document(text)
-    assert isinstance(doc, Document)
-    morphemes = doc.morphemes
-    assert len(morphemes) > 0
-    morpheme = morphemes[0]
-    assert text.startswith(morpheme.text)
-    assert morpheme.reading == "*"
-    assert morpheme.lemma == "*"
-
-
-@pytest.mark.skipif(not is_kwja_available, reason="KWJA is not available")
 def test_word() -> None:
-    kwja = KWJA(options=["--model-size", "tiny", "--tasks", "senter,char,word"])
+    kwja = KWJA(options=["--model-size", "tiny", "--tasks", "char,word"])
     text = "こんにちは。さようなら。"
     doc = kwja.apply_to_document(text)
     assert isinstance(doc, Document)
