@@ -1,8 +1,8 @@
 import pytest
 
-from rhoknp import KWJA, Document, Sentence
+from rhoknp import KNP, KWJA, Document, Jumanpp, Sentence
 
-is_kwja_available = KWJA(options=["--model-size", "tiny", "--tasks", "senter"]).is_available()
+is_kwja_available = KWJA(options=["--model-size", "tiny", "--tasks", "typo"]).is_available()
 
 
 @pytest.mark.skipif(not is_kwja_available, reason="KWJA is not available")
@@ -55,7 +55,6 @@ def test_seq2seq() -> None:
     kwja = KWJA(options=["--model-size", "tiny", "--tasks", "char,seq2seq"])
     text = "こんにちは。さようなら。"
     doc = kwja.apply_to_document(text)
-    assert isinstance(doc, Document)
     morphemes = doc.morphemes
     assert len(morphemes) > 0
     morpheme = morphemes[0]
@@ -69,7 +68,6 @@ def test_word() -> None:
     kwja = KWJA(options=["--model-size", "tiny", "--tasks", "char,word"])
     text = "こんにちは。さようなら。"
     doc = kwja.apply_to_document(text)
-    assert isinstance(doc, Document)
     morphemes = doc.morphemes
     assert len(morphemes) > 0
     assert text.startswith(morphemes[0].text)
@@ -82,6 +80,41 @@ def test_word() -> None:
     clauses = doc.clauses
     assert len(clauses) > 0
     assert text.startswith(clauses[0].text)
+
+
+@pytest.mark.skipif(not is_kwja_available, reason="KWJA is not available")
+def test_raw_input() -> None:
+    kwja = KWJA(options=["--model-size", "tiny", "--tasks", "typo", "--input-format", "raw"])
+    text = "人口知能"
+    doc = kwja.apply_to_document(text)
+    assert doc.text == "人工知能"
+
+
+@pytest.mark.skipif(not is_kwja_available, reason="KWJA is not available")
+def test_jumanpp_input() -> None:
+    kwja = KWJA(options=["--model-size", "tiny", "--tasks", "word", "--input-format", "jumanpp"])
+    text = "こんにちは。さようなら。"
+    doc1 = Jumanpp().apply_to_document(text)
+    # TODO: Pass test without setting sid
+    doc1.did = "test"
+    assert len(doc1.sentences) == 2
+    doc1.sentences[0].sid = "test-0"
+    doc1.sentences[1].sid = "test-1"
+    assert not doc1.is_jumanpp_required()
+    doc2 = kwja.apply_to_document(doc1)
+    assert [sent.text for sent in doc2.sentences] == [sent.text for sent in doc1.sentences]
+    assert [mrph.text for mrph in doc2.morphemes] == [mrph.text for mrph in doc1.morphemes]
+
+
+@pytest.mark.skipif(not is_kwja_available, reason="KWJA is not available")
+def test_knp_input() -> None:
+    kwja = KWJA(options=["--model-size", "tiny", "--tasks", "word", "--input-format", "knp"])
+    text = "こんにちは。さようなら。"
+    doc1 = KNP().apply_to_document(text)
+    assert not doc1.is_knp_required()
+    doc2 = kwja.apply_to_document(doc1)
+    assert [sent.text for sent in doc2.sentences] == [sent.text for sent in doc1.sentences]
+    assert [mrph.text for mrph in doc2.morphemes] == [mrph.text for mrph in doc1.morphemes]
 
 
 @pytest.mark.skipif(not is_kwja_available, reason="KWJA is not available")
@@ -111,6 +144,8 @@ def test_runtime_error() -> None:
 def test_unsupported_option() -> None:
     with pytest.raises(ValueError, match=r"invalid task: \['wakachi'\]"):
         _ = KWJA(options=["--model-size", "tiny", "--tasks", "wakachi"])
+    with pytest.raises(ValueError, match="invalid input format: seq2seq"):
+        _ = KWJA(options=["--model-size", "tiny", "--input-format", "seq2seq"])
 
 
 def test_apply_to_sentence() -> None:
@@ -120,5 +155,5 @@ def test_apply_to_sentence() -> None:
 
 
 def test_repr() -> None:
-    kwja = KWJA(options=["--model-size", "tiny", "--tasks", "senter,char,word"])
-    assert repr(kwja) == "KWJA(executable='kwja', options=['--model-size', 'tiny', '--tasks', 'senter,char,word'])"
+    kwja = KWJA(options=["--model-size", "tiny", "--tasks", "char,word"])
+    assert repr(kwja) == "KWJA(executable='kwja', options=['--model-size', 'tiny', '--tasks', 'char,word'])"
