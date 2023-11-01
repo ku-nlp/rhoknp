@@ -6,4 +6,4 @@ try:
 except ImportError as e:
     raise ImportError(
         f"{e.msg}\nExtra dependencies are required to use the CLI. Install them with `pip install rhoknp[cli]`."
-    )
+    ) from e

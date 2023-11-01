@@ -98,7 +98,8 @@ class BasePhrase(Unit):
             self.pas.parse_pas_string(self, pas_string, format_=CaseInfoFormat.CASE)
 
         # Parse the rel tags.
-        for rel_tag in self.rel_tags:
+        for rel_tag_orig in self.rel_tags:
+            rel_tag = rel_tag_orig
             if rel_tag.sid == "":
                 # The target is considered to be in the same sentence.
                 rel_tag = dataclasses.replace(rel_tag, sid=self.sentence.sid)

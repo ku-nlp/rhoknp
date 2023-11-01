@@ -194,8 +194,7 @@ class Phrase(Unit):
                 base_phrases.append(BasePhrase.from_knp("\n".join(base_phrase_lines)))
                 base_phrase_lines = []
             base_phrase_lines.append(line)
-        else:
-            base_phrases.append(BasePhrase.from_knp("\n".join(base_phrase_lines)))
+        base_phrases.append(BasePhrase.from_knp("\n".join(base_phrase_lines)))
         phrase.base_phrases = base_phrases
         return phrase
 

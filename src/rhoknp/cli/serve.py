@@ -66,8 +66,7 @@ def _get_string_diff(pre_text: str, post_text) -> List[_Span]:
             if span.text:
                 spans.append(span)
             span = _Span(character, tag)
-    else:
-        spans.append(span)
+    spans.append(span)
     return spans
 
 
@@ -165,7 +164,7 @@ def create_app(analyzer: AnalyzerType, base_url: str = "/", *args, **kwargs) -> 
             try:
                 analyzed_document = processor.apply(text)
             except Exception as e:
-                raise _HTTPExceptionForIndex(fastapi.status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+                raise _HTTPExceptionForIndex(fastapi.status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)) from e
         return templates.TemplateResponse(
             template_name,
             {"request": request, "text": text, "analyzed_document": analyzed_document},
@@ -190,7 +189,7 @@ def create_app(analyzer: AnalyzerType, base_url: str = "/", *args, **kwargs) -> 
                 result = analyzed_document.to_knp()
             return {"text": text, "result": result}
         except Exception as e:
-            raise _HTTPExceptionForAnalyze(fastapi.status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
+            raise _HTTPExceptionForAnalyze(fastapi.status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)) from e
 
     return app
 

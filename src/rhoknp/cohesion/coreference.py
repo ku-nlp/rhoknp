@@ -74,9 +74,9 @@ class Entity:
         if self.exophora_referent:
             return str(self.exophora_referent)
         if self.mentions:
-            return str(list(self.mentions)[0])
+            return next(iter(self.mentions)).text
         elif self.mentions_nonidentical:
-            return str(list(self.mentions_nonidentical)[0])
+            return next(iter(self.mentions_nonidentical)).text
         else:
             return ""
 

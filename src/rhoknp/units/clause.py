@@ -210,9 +210,8 @@ class Clause(Unit):
                 phrases.append(Phrase.from_knp("\n".join(phrase_lines)))
                 phrase_lines = []
             phrase_lines.append(line)
-        else:
-            phrase = Phrase.from_knp("\n".join(phrase_lines))
-            phrases.append(phrase)
+        phrase = Phrase.from_knp("\n".join(phrase_lines))
+        phrases.append(phrase)
         clause.phrases = phrases
         return clause
 

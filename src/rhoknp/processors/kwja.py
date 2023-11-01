@@ -218,13 +218,13 @@ class KWJA(Processor):
         """Juman++ のバージョンを返す．"""
         if not self.is_available():
             raise RuntimeError("KWJA is not available.")
-        p = subprocess.run(self.version_command, capture_output=True, encoding="utf-8")
+        p = subprocess.run(self.version_command, capture_output=True, encoding="utf-8", check=True)
         return p.stdout.strip()
 
     @property
     def run_command(self) -> List[str]:
         """解析時に実行するコマンド．"""
-        return [self.executable] + self.options
+        return [self.executable, *self.options]
 
     @property
     def version_command(self) -> List[str]:
