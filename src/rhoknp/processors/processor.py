@@ -65,7 +65,7 @@ class Processor(ABC):
             引数の型が ``Sentence`` の場合は ``apply_to_sentence`` を呼び出す．
             引数の型が ``Document`` の場合は ``apply_to_document`` を呼び出す．
         """
-        if isinstance(text, str) or isinstance(text, Document):
+        if isinstance(text, (Document, str)):
             return self.apply_to_document(text, timeout=timeout)
         elif isinstance(text, Sentence):
             return self.apply_to_sentence(text, timeout=timeout)
