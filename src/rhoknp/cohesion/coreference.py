@@ -1,5 +1,5 @@
 import logging
-from typing import TYPE_CHECKING, Dict, List, Optional
+from typing import TYPE_CHECKING, ClassVar, Dict, List, Optional
 
 from rhoknp.cohesion.argument import ExophoraArgument
 from rhoknp.cohesion.exophora import ExophoraReferent
@@ -95,7 +95,7 @@ class Entity:
 class EntityManager:
     """文書全体のエンティティを管理．"""
 
-    entities: Dict[int, Entity] = {}  #: ID をキーとするエンティティの辞書．
+    entities: ClassVar[Dict[int, Entity]] = {}  #: ID をキーとするエンティティの辞書．
 
     @classmethod
     def get_or_create_entity(
