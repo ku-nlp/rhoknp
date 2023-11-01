@@ -5,8 +5,8 @@ on: [push, pull_request, workflow_dispatch]
 jobs:
   test:
     name: Run tests with pytest
-    container: kunlp/jumanpp-knp:ubuntu22.04
-    runs-on: ubuntu-22.04
+    container: kunlp/jumanpp-knp:ubuntu20.04
+    runs-on: ubuntu-20.04
     strategy:
       max-parallel: 6
       fail-fast: false
