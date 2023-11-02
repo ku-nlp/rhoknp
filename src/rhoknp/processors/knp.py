@@ -108,6 +108,7 @@ class KNP(Processor):
 
         if isinstance(document, str):
             document = Document(document)
+        doc_id = document.doc_id
 
         if document.is_senter_required():
             if self.senter is None:
@@ -118,7 +119,12 @@ class KNP(Processor):
         sentences: List[Sentence] = []
         for sentence in document.sentences:
             sentences.append(self.apply_to_sentence(sentence, timeout=timeout - int(time.time() - start)))
-        return Document.from_sentences(sentences)
+        ret = Document.from_sentences(sentences)
+        if doc_id != "":
+            ret.doc_id = doc_id
+            for sentence in ret.sentences:
+                sentence.doc_id = doc_id
+        return ret
 
     def apply_to_sentence(self, sentence: Union[Sentence, str], timeout: int = 10) -> Sentence:
         """文に KNP を適用する．
