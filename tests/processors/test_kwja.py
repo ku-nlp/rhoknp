@@ -129,6 +129,34 @@ def test_apply() -> None:
         _ = kwja.apply(1)  # type: ignore
 
 
+# TODO: uncomment
+# def test_keep_doc_id_document() -> None:
+#     kwja = KWJA(options=["--model-size", "tiny"])
+#     doc = Document.from_sentences(["こんにちは。", "さようなら。"])
+#     doc.doc_id = "test"
+#     for sent in doc.sentences:
+#         sent.doc_id = "test"
+#     doc = kwja.apply_to_document(doc)
+#     assert doc.doc_id == "test"
+#     for sent in doc.sentences:
+#         assert sent.doc_id == "test"
+
+
+# TODO: uncomment
+# def test_keep_id_document() -> None:
+#     kwja = KWJA(options=["--model-size", "tiny"])
+#     doc = Document.from_sentences(["こんにちは。", "さようなら。"])
+#     doc.doc_id = "test"
+#     for idx, sent in enumerate(doc.sentences):
+#         sent.doc_id = "test"
+#         sent.sent_id = f"test-{idx}"
+#     doc = kwja.apply_to_document(doc)
+#     assert doc.doc_id == "test"
+#     for idx, sent in enumerate(doc.sentences):
+#         assert sent.doc_id == "test"
+#         assert sent.sent_id == f"test-{idx}"
+
+
 def test_timeout_error() -> None:
     kwja = KWJA("tests/bin/kwja-mock.sh", skip_sanity_check=True)
     with pytest.raises(TimeoutError):
