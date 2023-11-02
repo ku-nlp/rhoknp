@@ -48,7 +48,9 @@ class RegexSenter(Processor):
         if thread.is_alive():
             raise TimeoutError("Operation timed out.")
 
-        return Document.from_sentences(sentences)
+        applied_document = Document.from_sentences(sentences)
+        applied_document.doc_id = document.doc_id
+        return applied_document
 
     def apply_to_sentence(self, sentence: Union[Sentence, str], timeout: int = 10) -> Sentence:
         """文に RegexSenter を適用する．
