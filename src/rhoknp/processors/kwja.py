@@ -50,8 +50,6 @@ class KWJA(Processor):
                 self._output_format = "jumanpp"
             elif "char" in tasks:
                 self._output_format = "words"
-            elif "senter" in tasks:
-                self._output_format = "line_by_line"
             elif "typo" in tasks:
                 self._output_format = "raw"
             else:
@@ -177,8 +175,6 @@ class KWJA(Processor):
     def _create_document(self, text: str) -> Document:
         if self._output_format == "raw":
             return Document.from_raw_text(text)
-        elif self._output_format == "line_by_line":
-            return Document.from_line_by_line_text(text)
         elif self._output_format == "jumanpp":
             return Document.from_jumanpp(text)
         elif self._output_format == "words":
