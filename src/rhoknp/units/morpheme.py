@@ -301,7 +301,7 @@ class Morpheme(Unit):
 
         # Resume text if it is escaped (Juman++ 2.0.0-rc3)
         if semantics.get("元半角") is True:
-            surf, reading, lemma = (  # pragma: no branch
+            surf, reading, lemma = (  # pragma: no cover
                 cls._UNESCAPE_MAP_HALF_TO_FULL_WIDTH.get(s, s) for s in (surf, reading, lemma)
             )
         surf, reading, lemma = (cls._UNESCAPE_MAP_CONTROL_CHAR.get(s, s) for s in (surf, reading, lemma))
