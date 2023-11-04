@@ -41,6 +41,15 @@ def test_version() -> None:
     assert result.stdout.strip() == f"rhoknp version: {__version__}"
 
 
+def test_cat() -> None:
+    doc = Document.from_knp(knp)
+    with tempfile.NamedTemporaryFile("wt") as f:
+        f.write(doc.to_knp())
+        f.flush()
+        result = runner.invoke(app, ["cat", f.name])
+        assert result.exit_code == 0
+
+
 def test_show() -> None:
     doc = Document.from_knp(knp)
     with tempfile.NamedTemporaryFile("wt") as f:

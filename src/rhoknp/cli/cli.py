@@ -6,6 +6,7 @@ import typer
 import yaml
 
 from rhoknp import Document, __version__
+from rhoknp.cli.cat import print_document
 from rhoknp.cli.serve import AnalyzerType, serve_analyzer
 from rhoknp.cli.show import draw_tree
 from rhoknp.cli.stats import get_document_statistics
@@ -30,6 +31,19 @@ def main(
 ) -> None:
     """CLI のメイン関数．"""
     pass
+
+
+@app.command(help="Print KNP files with syntax highlighting.")
+def cat(
+    knp_path: Path = typer.Argument(..., exists=True, dir_okay=False, help="Path to knp file to show."),
+) -> None:
+    """KNP ファイルを色付きで表示．
+
+    Args:
+        knp_path: KNP ファイルのパス．
+    """
+    doc = Document.from_knp(knp_path.read_text())
+    print_document(doc)
 
 
 @app.command(help="Print given file content in tree format.")
