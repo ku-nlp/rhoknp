@@ -79,7 +79,7 @@ class Predicate:
         return self.text
 
     def __repr__(self) -> str:
-        return f"<{self.__module__}.{self.__class__.__name__}: {repr(self.text)}>"
+        return f"<{self.__module__}.{self.__class__.__name__}: {self.text!r}>"
 
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, type(self)) or self.base_phrase != other.base_phrase:

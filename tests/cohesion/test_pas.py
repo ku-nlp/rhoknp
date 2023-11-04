@@ -326,10 +326,10 @@ def test_attribute(case: Dict[str, Any]) -> None:
 def test_get_arguments(case: Dict[str, Any]) -> None:
     doc = Document.from_knp(case["knp"])
     pas = doc.base_phrases[case["base_phrase_index"]].pas
-    for case, args_expected in case["arguments"].items():
+    for pas_case, args_expected in case["arguments"].items():
         args_actual = {
             (str(arg), (arg.base_phrase.global_index if isinstance(arg, EndophoraArgument) else -1), arg.type)
-            for arg in pas.get_arguments(case, relax=False)
+            for arg in pas.get_arguments(pas_case, relax=False)
         }
         assert args_actual == args_expected
 

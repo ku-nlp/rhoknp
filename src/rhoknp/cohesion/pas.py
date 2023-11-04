@@ -75,7 +75,9 @@ class Pas:
         # language=RegExp
         cfid_pat = r"(.*?):([^:/]+?)"  # 食べる/たべる:動1
         match = re.match(
-            r"{cfid}(:(?P<args>{args}(;{args})*))?$".format(cfid=cfid_pat, args=self.ARGUMENT_PAT.pattern),
+            r"{cfid}(:(?P<args>{args}(;{args})*))?$".format(  # noqa: UP032
+                cfid=cfid_pat, args=self.ARGUMENT_PAT.pattern
+            ),
             pas_string,
         )
 
@@ -232,7 +234,7 @@ class Pas:
             logger.info(f"marked {arg} as optional in {self.sid}")
 
     def __repr__(self) -> str:
-        return f"<{self.__module__}.{self.__class__.__name__}: {repr(self.predicate.text)}>"
+        return f"<{self.__module__}.{self.__class__.__name__}: {self.predicate.text!r}>"
 
 
 def normalize_case(case: str) -> str:

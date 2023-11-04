@@ -32,6 +32,7 @@ class RegexSenter(Processor):
         """
         if isinstance(document, str):
             document = Document(document)
+        doc_id = document.doc_id
 
         sentences: List[str] = []
         done_event: threading.Event = threading.Event()
@@ -48,7 +49,12 @@ class RegexSenter(Processor):
         if thread.is_alive():
             raise TimeoutError("Operation timed out.")
 
-        return Document.from_sentences(sentences)
+        ret = Document.from_sentences(sentences)
+        if doc_id != "":
+            ret.doc_id = doc_id
+            for sentence in ret.sentences:
+                sentence.doc_id = doc_id
+        return ret
 
     def apply_to_sentence(self, sentence: Union[Sentence, str], timeout: int = 10) -> Sentence:
         """文に RegexSenter を適用する．

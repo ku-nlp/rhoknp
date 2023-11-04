@@ -21,7 +21,7 @@ class Unit(ABC):
         return self.text
 
     def __repr__(self) -> str:
-        return f"<{self.__module__}.{self.__class__.__name__}: {repr(self.text)}>"
+        return f"<{self.__module__}.{self.__class__.__name__}: {self.text!r}>"
 
     @property
     @abstractmethod

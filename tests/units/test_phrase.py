@@ -250,7 +250,7 @@ def test_from_knp(case: Dict[str, str]) -> None:
 
 
 def test_from_knp_error() -> None:
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="malformed phrase line: MALFORMED LINE"):
         _ = Phrase.from_knp("MALFORMED LINE")
 
 
@@ -268,22 +268,22 @@ def test_text(case: Dict[str, str]) -> None:
 
 @pytest.mark.parametrize("case", KNP_SNIPPETS)
 def test_document_error(case: Dict[str, str]) -> None:
+    phrase = Phrase.from_knp(case["knp"])
     with pytest.raises(AttributeError):
-        phrase = Phrase.from_knp(case["knp"])
         _ = phrase.document
 
 
 @pytest.mark.parametrize("case", KNP_SNIPPETS)
 def test_sentence_error(case: Dict[str, str]) -> None:
+    phrase = Phrase.from_knp(case["knp"])
     with pytest.raises(AttributeError):
-        phrase = Phrase.from_knp(case["knp"])
         _ = phrase.sentence
 
 
 @pytest.mark.parametrize("case", KNP_SNIPPETS)
 def test_clause_error(case: Dict[str, str]) -> None:
+    phrase = Phrase.from_knp(case["knp"])
     with pytest.raises(AttributeError):
-        phrase = Phrase.from_knp(case["knp"])
         _ = phrase.clause
 
 

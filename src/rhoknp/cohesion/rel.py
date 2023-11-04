@@ -110,7 +110,7 @@ class RelTag:
         if self.type.startswith("="):
             if self.type not in COREF_TYPES:
                 logger.warning(f"Unknown coreference type: {self.type} ({self})")
-        else:
+        else:  # noqa: PLR5501
             if self.type not in CASE_TYPES:
                 logger.warning(f"Unknown case type: {self.type} ({self})")
 

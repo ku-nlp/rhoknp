@@ -4,7 +4,8 @@ try:
     from functools import cached_property  # type: ignore
 except ImportError:
     from cached_property import cached_property
-from typing import TYPE_CHECKING, Any, ClassVar, List, Optional, Tuple, Union
+
+from typing import TYPE_CHECKING, Any, ClassVar, Dict, List, Optional, Tuple, Union
 
 from rhoknp.props.feature import FeatureDict
 from rhoknp.props.semantics import SemanticsDict
@@ -35,10 +36,10 @@ class Morpheme(Unit):
         "conjform_id",
     )
 
-    _ATTRIBUTE_PAT = re.compile(
+    _ATTRIBUTE_PAT: ClassVar[re.Pattern] = re.compile(
         r"([^ ]+| [^ ]*) ([^ ]+| [^ ]*) ([^ ]+) (\d+) ([^ ]+) (\d+) ([^ ]+) (\d+) ([^ ]+) (\d+)"
     )
-    _ATTRIBUTE_PAT_REPEATED = re.compile(
+    _ATTRIBUTE_PAT_REPEATED: ClassVar[re.Pattern] = re.compile(
         r"(?P<pat>.+) ((?P=pat)) ([^ ]+) (\d+) ([^ ]+) (\d+) ([^ ]+) (\d+) ([^ ]+) (\d+)"
     )
 
@@ -55,11 +56,13 @@ class Morpheme(Unit):
         + rf"( {FeatureDict.PAT.pattern})?$"
     )
     # https://github.com/ku-nlp/jumanpp/blob/v2.0.0-rc3/src/jumandic/shared/juman_format.cc#L44
-    _ESCAPE_MAP_HALF_TO_FULL_WIDTH = {" ": "　", '"': "”", "<": "＜", ">": "＞"}
-    _UNESCAPE_MAP_HALF_TO_FULL_WIDTH = {v: k for k, v in _ESCAPE_MAP_HALF_TO_FULL_WIDTH.items()}
+    _ESCAPE_MAP_HALF_TO_FULL_WIDTH: ClassVar[Dict[str, str]] = {" ": "　", '"': "”", "<": "＜", ">": "＞"}
+    _UNESCAPE_MAP_HALF_TO_FULL_WIDTH: ClassVar[Dict[str, str]] = {
+        v: k for k, v in _ESCAPE_MAP_HALF_TO_FULL_WIDTH.items()
+    }
     # https://github.com/ku-nlp/jumanpp/blob/v2.0.0-rc4/src/jumandic/shared/juman_format.cc#L44
-    _ESCAPE_MAP_CONTROL_CHAR = {"\t": r"\t", " ": r"\␣"}
-    _UNESCAPE_MAP_CONTROL_CHAR = {v: k for k, v in _ESCAPE_MAP_CONTROL_CHAR.items()}
+    _ESCAPE_MAP_CONTROL_CHAR: ClassVar[Dict[str, str]] = {"\t": r"\t", " ": r"\␣"}
+    _UNESCAPE_MAP_CONTROL_CHAR: ClassVar[Dict[str, str]] = {v: k for k, v in _ESCAPE_MAP_CONTROL_CHAR.items()}
 
     count = 0
 
@@ -296,9 +299,11 @@ class Morpheme(Unit):
         surf, reading, lemma = match["surf"], attributes[0], attributes[1]
         semantics = SemanticsDict.from_sstring(match["sems"] or "")
 
-        # Resume text if it is escaped
+        # Resume text if it is escaped (Juman++ 2.0.0-rc3)
         if semantics.get("元半角") is True:
-            surf, reading, lemma = (cls._UNESCAPE_MAP_HALF_TO_FULL_WIDTH.get(s, s) for s in (surf, reading, lemma))
+            surf, reading, lemma = (  # pragma: no branch
+                cls._UNESCAPE_MAP_HALF_TO_FULL_WIDTH.get(s, s) for s in (surf, reading, lemma)
+            )
         surf, reading, lemma = (cls._UNESCAPE_MAP_CONTROL_CHAR.get(s, s) for s in (surf, reading, lemma))
 
         return cls(

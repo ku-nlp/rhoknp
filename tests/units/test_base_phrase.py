@@ -323,7 +323,7 @@ def test_from_knp(case: Dict[str, str]) -> None:
 
 
 def test_from_knp_error() -> None:
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="malformed base phrase line: MALFORMED LINE"):
         _ = BasePhrase.from_knp("MALFORMED LINE")
 
 

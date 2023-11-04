@@ -264,7 +264,7 @@ def test_coref2() -> None:
     assert (mentions[3].text, mentions[3].global_index, {e.eid for e in mentions[3].entities}) == ("皆様", 17, {14})
 
 
-@pytest.mark.parametrize("doc_id", ["w201106-0000060560", "w201106-0000060560", "w201106-0000060877"])
+@pytest.mark.parametrize("doc_id", ["w201106-0000060050", "w201106-0000060560", "w201106-0000060877"])
 def test_coref_link(doc_id: str) -> None:
     document = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text())
     entities: List[Entity] = sorted(EntityManager.entities.values(), key=lambda e: e.eid)
@@ -320,7 +320,7 @@ def test_coref_with_self() -> None:
     entity = entities[0]
     assert entity.exophora_referent is None
     assert len(entity.mentions) == 1
-    mention = list(entity.mentions)[0]
+    mention = next(iter(entity.mentions))
     assert (mention.text, mention.global_index, {e.eid for e in mention.entities}) == ("わたし", 0, {0})
     assert len(entities[0].mentions_all) == 1
 

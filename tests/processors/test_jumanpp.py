@@ -118,6 +118,42 @@ def test_whitespace() -> None:
     assert sent.morphemes[1].subpos == "空白"
 
 
+def test_keep_id_sentence() -> None:
+    jumanpp = Jumanpp()
+    sent = Sentence.from_raw_text("外国人参政権")
+    sent.doc_id = "test"
+    sent.sent_id = "test-1"
+    sent = jumanpp.apply_to_sentence(sent)
+    assert sent.doc_id == "test"
+    assert sent.sent_id == "test-1"
+
+
+def test_keep_doc_id_document() -> None:
+    jumanpp = Jumanpp()
+    doc = Document.from_sentences(["米原発の電力供給", "米原発の521系の列車"])
+    doc.doc_id = "test"
+    for sent in doc.sentences:
+        sent.doc_id = "test"
+    doc = jumanpp.apply_to_document(doc)
+    assert doc.doc_id == "test"
+    for sent in doc.sentences:
+        assert sent.doc_id == "test"
+
+
+def test_keep_id_document() -> None:
+    jumanpp = Jumanpp()
+    doc = Document.from_sentences(["米原発の電力供給", "米原発の521系の列車"])
+    doc.doc_id = "test"
+    for idx, sent in enumerate(doc.sentences):
+        sent.doc_id = "test"
+        sent.sent_id = f"test-{idx}"
+    doc = jumanpp.apply_to_document(doc)
+    assert doc.doc_id == "test"
+    for idx, sent in enumerate(doc.sentences):
+        assert sent.doc_id == "test"
+        assert sent.sent_id == f"test-{idx}"
+
+
 @pytest.mark.skipif(not is_jumanpp_available, reason="Juman++ is not available")
 def test_get_version() -> None:
     jumanpp = Jumanpp()
