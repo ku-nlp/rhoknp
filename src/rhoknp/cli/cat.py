@@ -91,10 +91,15 @@ class KNPLexer(RegexLexer):
     }
 
 
-def print_document(document: Document) -> None:
+def print_document(document: Document, is_dark: bool = False) -> None:
     """KNP ファイルを色付きで表示．
 
     Args:
         document (Document): 文書．
+        is_dark (bool, optional): ターミナルの背景色が dark なら True．デフォルトは False．
     """
-    print(highlight(document.to_knp(), KNPLexer(), TerminalFormatter()))
+    if is_dark:
+        formatter = TerminalFormatter(bg="dark")
+    else:
+        formatter = TerminalFormatter(bg="light")
+    print(highlight(document.to_knp(), KNPLexer(), formatter))

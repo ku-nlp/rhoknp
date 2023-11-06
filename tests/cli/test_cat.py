@@ -29,6 +29,11 @@ knp = textwrap.dedent(
 )
 
 
-def test_cat() -> None:
+def test_print_document() -> None:
     document = Document.from_knp(knp)
     print_document(document)
+
+
+def test_print_document_dark() -> None:
+    document = Document.from_knp(knp)
+    print_document(document, is_dark=True)
