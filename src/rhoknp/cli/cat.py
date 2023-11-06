@@ -79,8 +79,7 @@ class KNPLexer(RegexLexer):
         ],
         "semantics": [
             (r"\s", Whitespace),
-            (r'[^\s:"]+', Literal.String),
-            (r":", Punctuation),
+            (r'([^\s:"]+)(:)?([^\s"]+)?', bygroups(Name.Attribute, Punctuation, Literal.String)),
             (r'"', Punctuation, "#pop"),
         ],
         "feature": [
