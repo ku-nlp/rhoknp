@@ -1,4 +1,5 @@
 import json
+import sys
 from pathlib import Path
 from typing import List, Optional
 
@@ -35,14 +36,18 @@ def main(
 
 @app.command(help="Print KNP files with syntax highlighting.")
 def cat(
-    knp_path: Path = typer.Argument(..., exists=True, dir_okay=False, help="Path to knp file to show."),
+    knp_path: Optional[Path] = typer.Argument(None, exists=True, dir_okay=False, help="Path to knp file to show."),
 ) -> None:
     """KNP ファイルを色付きで表示．
 
     Args:
         knp_path: KNP ファイルのパス．
     """
-    doc = Document.from_knp(knp_path.read_text())
+    if knp_path is None:
+        knp_text = sys.stdin.read()
+    else:
+        knp_text = knp_path.read_text()
+    doc = Document.from_knp(knp_text)
     print_document(doc)
 
 
