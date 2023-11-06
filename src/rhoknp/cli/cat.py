@@ -3,7 +3,7 @@ from typing import ClassVar, List
 from pygments import highlight
 from pygments.formatters import TerminalFormatter
 from pygments.lexer import RegexLexer, bygroups
-from pygments.token import Comment, Generic, Literal, Number, Punctuation, Text, Whitespace
+from pygments.token import Comment, Generic, Literal, Name, Number, Punctuation, Text, Whitespace
 
 from rhoknp import BasePhrase, Document, Morpheme, Phrase
 
@@ -49,7 +49,7 @@ class KNPLexer(RegexLexer):
                 r"(\S+)(\s)(\d+)(\s)"  # Conjtype
                 r"(\S+)(\s)(\d+)",  # Conjform
                 bygroups(
-                    Generic.Heading,
+                    Text,
                     Whitespace,
                     Text,
                     Whitespace,
@@ -73,7 +73,7 @@ class KNPLexer(RegexLexer):
                 ),
             ),
             (r'"', Punctuation, "semantics"),
-            (r"NIL", Literal.String),
+            (r"NIL", Name.Attribute),
             (r"<", Punctuation, "feature"),
             (r"", Text, "#pop"),
         ],
@@ -84,8 +84,7 @@ class KNPLexer(RegexLexer):
             (r'"', Punctuation, "#pop"),
         ],
         "feature": [
-            (r"[^>:]+", Literal.String),
-            (r":", Punctuation),
+            (r"([^>:]+)(:)?([^>]+)?", bygroups(Name.Attribute, Punctuation, Literal.String)),
             (r">", Punctuation, "#pop"),
         ],
     }
