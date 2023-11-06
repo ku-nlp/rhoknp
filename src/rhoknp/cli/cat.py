@@ -2,10 +2,10 @@ from typing import ClassVar, List
 
 from pygments import highlight
 from pygments.formatters import TerminalFormatter
-from pygments.lexer import RegexLexer
-from pygments.token import Comment, Keyword, Number, Operator, String, Text
+from pygments.lexer import RegexLexer, bygroups
+from pygments.token import Comment, Generic, Keyword, Literal, Number, Punctuation, Text, Whitespace
 
-from rhoknp import Document
+from rhoknp import BasePhrase, Document, Morpheme, Phrase
 
 
 class KNPLexer(RegexLexer):
@@ -17,50 +17,76 @@ class KNPLexer(RegexLexer):
     mimetypes: ClassVar[List[str]] = ["text/plain"]
 
     tokens = {  # noqa: RUF012
-        # "root": [
-        #     (Phrase.PAT.pattern, Generic.Heading),
-        #     (BasePhrase.PAT.pattern, Generic.Subheading),
-        #     (Morpheme.PAT.pattern, Text),
-        #     (r"^#.*$", Comment.Single),
-        #     (r"^EOS$", Keyword.Reserved),
-        # ],
         "root": [
-            # Keywords
-            (r"<", Keyword, "feature"),
-            (r"^\+", Keyword, "tag_bnst"),
-            (r"^\*", Keyword, "tag_bnst"),
-            # EOS constant
+            (rf"(?={Phrase.PAT.pattern})", Text, "phrase"),
+            (rf"(?={BasePhrase.PAT.pattern})", Text, "base_phrase"),
+            (rf"(?={Morpheme.PAT.pattern})", Text, "morpheme"),
+            (r"^#.*$", Comment.Single),
             (r"^EOS$", Keyword.Constant),
-            # Strings
-            (r"\"", String, "string"),
-            # Comments
-            (r"^#", Comment, "comment"),
-            # Other text
-            (r"^[^+*\#\"<> ]+", Text),
-            (r"(?<=\s)[^+*\#\"<> ]+", Text),
-            (r".", Text),
         ],
-        "string": [
-            (r'[^"]+', String),
-            (r"\"", String, "#pop"),
+        "phrase": [
+            (r"\s", Whitespace),
+            (r"^(\*)", Generic.Heading),
+            (r"(-?\d+)([DPAI])", bygroups(Number, Literal)),
+            (r"<", Punctuation, "feature"),
+            (r"", Text, "#pop"),
         ],
-        "comment": [
-            (r"[^\n]+", Comment),
-            (r"\n", Text, "#pop"),
+        "base_phrase": [
+            (r"\s", Whitespace),
+            (r"^(\+)", Generic.Subheading),
+            (r"(-?\d+)([DPAI])", bygroups(Number, Literal)),
+            (r"<", Punctuation, "feature"),
+            (r"", Text, "#pop"),
         ],
-        "tag_bnst": [
-            (r"(-1|\d+)[DPAI]", Number.Integer, "#pop"),
-            (r"<", Keyword, "feature"),
-            (r"\n", Text, "#pop"),
+        "morpheme": [
+            (r"\s", Whitespace),
+            (
+                r"^(\S+)(\s)"  # Surface
+                r"(\S+)(\s)"  # Reading
+                r"(\S+)(\s)"  # Lemma
+                r"(\S+)(\s)(\d+)(\s)"  # Pos
+                r"(\S+)(\s)(\d+)(\s)"  # Subpos
+                r"(\S+)(\s)(\d+)(\s)"  # Conjtype
+                r"(\S+)(\s)(\d+)",  # Conjform
+                bygroups(
+                    Text,
+                    Whitespace,
+                    Text,
+                    Whitespace,
+                    Text,
+                    Whitespace,
+                    Literal.String,
+                    Whitespace,
+                    Literal.Number,
+                    Whitespace,
+                    Literal.String,
+                    Whitespace,
+                    Literal.Number,
+                    Whitespace,
+                    Literal.String,
+                    Whitespace,
+                    Literal.Number,
+                    Whitespace,
+                    Literal.String,
+                    Whitespace,
+                    Literal.Number,
+                ),
+            ),
+            (r'"', Punctuation, "semantics"),
+            (r"NIL", Text),
+            (r"<", Punctuation, "feature"),
+            (r"", Text, "#pop"),
+        ],
+        "semantics": [
+            (r"\s", Whitespace),
+            (r'[^\s:"]+', Literal.String),
+            (r":", Punctuation),
+            (r'"', Punctuation, "#pop"),
         ],
         "feature": [
-            (r"\"", String, "string"),
-            (r">", Keyword, "#pop"),
-            (r":", Keyword),
-            (r"=", Operator),
-            # Feature value context is not yet defined in the .sublime-syntax sample provided
-            # Assuming it could be similar to 'string' context for now
-            (r'[^\s=>"]+', Text),  # Catch all for other text within a feature
+            (r"[^>:]+", Literal.String),
+            (r":", Punctuation),
+            (r">", Punctuation, "#pop"),
         ],
     }
 
