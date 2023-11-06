@@ -3,7 +3,7 @@ from typing import ClassVar, List
 from pygments import highlight
 from pygments.formatters import TerminalFormatter
 from pygments.lexer import RegexLexer, bygroups
-from pygments.token import Comment, Generic, Keyword, Literal, Number, Punctuation, Text, Whitespace
+from pygments.token import Comment, Generic, Literal, Number, Punctuation, Text, Whitespace
 
 from rhoknp import BasePhrase, Document, Morpheme, Phrase
 
@@ -22,7 +22,7 @@ class KNPLexer(RegexLexer):
             (rf"(?={BasePhrase.PAT.pattern})", Text, "base_phrase"),
             (rf"(?={Morpheme.PAT.pattern})", Text, "morpheme"),
             (r"^#.*$", Comment.Single),
-            (r"^EOS$", Keyword.Constant),
+            (r"^EOS$", Generic.Subheading),
         ],
         "phrase": [
             (r"\s", Whitespace),
@@ -33,7 +33,7 @@ class KNPLexer(RegexLexer):
         ],
         "base_phrase": [
             (r"\s", Whitespace),
-            (r"^(\+)", Generic.Subheading),
+            (r"^(\+)", Generic.Heading),
             (r"(-?\d+)([DPAI])", bygroups(Number, Literal)),
             (r"<", Punctuation, "feature"),
             (r"", Text, "#pop"),
@@ -49,31 +49,31 @@ class KNPLexer(RegexLexer):
                 r"(\S+)(\s)(\d+)(\s)"  # Conjtype
                 r"(\S+)(\s)(\d+)",  # Conjform
                 bygroups(
-                    Text,
+                    Generic.Heading,
                     Whitespace,
                     Text,
                     Whitespace,
                     Text,
                     Whitespace,
-                    Literal.String,
+                    Text,
                     Whitespace,
                     Literal.Number,
                     Whitespace,
-                    Literal.String,
+                    Text,
                     Whitespace,
                     Literal.Number,
                     Whitespace,
-                    Literal.String,
+                    Text,
                     Whitespace,
                     Literal.Number,
                     Whitespace,
-                    Literal.String,
+                    Text,
                     Whitespace,
                     Literal.Number,
                 ),
             ),
             (r'"', Punctuation, "semantics"),
-            (r"NIL", Text),
+            (r"NIL", Literal.String),
             (r"<", Punctuation, "feature"),
             (r"", Text, "#pop"),
         ],
