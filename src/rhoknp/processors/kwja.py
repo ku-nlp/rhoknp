@@ -6,6 +6,11 @@ from subprocess import PIPE, Popen
 from threading import Lock
 from typing import List, Optional, Union
 
+try:
+    from typing import override  # type: ignore
+except ImportError:
+    from typing_extensions import override
+
 from rhoknp.processors.processor import Processor
 from rhoknp.units import Document, Morpheme, Sentence
 from rhoknp.utils.comment import is_comment_line
@@ -92,6 +97,7 @@ class KWJA(Processor):
         """KWJA が利用可能であれば True を返す．"""
         return self._proc is not None and self._proc.poll() is None
 
+    @override
     def apply_to_document(self, document: Union[Document, str], timeout: int = 30) -> Document:
         """文書に KWJA を適用する．
 
@@ -152,6 +158,7 @@ class KWJA(Processor):
 
         return self._create_document(stdout_text)
 
+    @override
     def apply_to_sentence(self, sentence: Union[Sentence, str], timeout: int = 10) -> Sentence:
         """文に KWJA を適用する．
 

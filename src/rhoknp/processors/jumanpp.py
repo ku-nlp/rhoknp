@@ -7,6 +7,11 @@ from subprocess import PIPE, Popen
 from threading import Lock
 from typing import List, Optional, Union
 
+try:
+    from typing import override  # type: ignore
+except ImportError:
+    from typing_extensions import override
+
 from rhoknp.processors.processor import Processor
 from rhoknp.processors.senter import RegexSenter
 from rhoknp.units import Document, Sentence
@@ -79,6 +84,7 @@ class Jumanpp(Processor):
         """Jumanpp が利用可能であれば True を返す．"""
         return self._proc is not None and self._proc.poll() is None
 
+    @override
     def apply_to_document(self, document: Union[Document, str], timeout: int = 10) -> Document:
         """文書に Jumanpp を適用する．
 
@@ -115,6 +121,7 @@ class Jumanpp(Processor):
                 sentence.doc_id = doc_id
         return ret
 
+    @override
     def apply_to_sentence(self, sentence: Union[Sentence, str], timeout: int = 10) -> Sentence:
         """文に Jumanpp を適用する．
 
