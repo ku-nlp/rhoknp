@@ -3,7 +3,7 @@ from typing import ClassVar, List
 from pygments import highlight
 from pygments.formatters import TerminalFormatter
 from pygments.lexer import RegexLexer, bygroups, default
-from pygments.token import Comment, Generic, Keyword, Literal, Name, Number, String, Text, Whitespace
+from pygments.token import Comment, Generic, Literal, Name, Number, String, Text, Whitespace
 
 from rhoknp import BasePhrase, Document, Morpheme, Phrase
 
@@ -23,7 +23,7 @@ class KNPLexer(RegexLexer):
             (rf"(?={BasePhrase.PAT.pattern})", Text, "base_phrase"),
             (rf"(?={Morpheme.PAT.pattern})", Text, "morpheme"),
             (r"^#.*$", Comment.Single),
-            (r"^EOS$", Keyword.Constant),
+            (r"^EOS$", Generic.Subheading),
         ],
         "phrase": [
             (r"\s+", Whitespace),
