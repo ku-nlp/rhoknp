@@ -2,6 +2,11 @@ import logging
 import re
 from typing import TYPE_CHECKING, Any, List, Optional, Union
 
+try:
+    from typing import override  # type: ignore
+except ImportError:
+    from typing_extensions import override
+
 from rhoknp.cohesion import EntityManager, Pas
 from rhoknp.props.named_entity import NamedEntity
 from rhoknp.units.base_phrase import BasePhrase
@@ -58,6 +63,7 @@ class Sentence(Unit):
         self.index = self.count  #: 文書全体におけるインデックス．
         Sentence.count += 1
 
+    @override
     def __post_init__(self) -> None:
         super().__post_init__()
 
@@ -75,6 +81,7 @@ class Sentence(Unit):
                 if named_entity is not None:
                     self.named_entities.append(named_entity)
 
+    @override
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, type(self)):
             return False

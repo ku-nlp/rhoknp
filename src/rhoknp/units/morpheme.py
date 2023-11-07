@@ -1,11 +1,15 @@
 import re
+from typing import TYPE_CHECKING, Any, ClassVar, Dict, List, Optional, Tuple, Union
 
 try:
     from functools import cached_property  # type: ignore
 except ImportError:
     from cached_property import cached_property
 
-from typing import TYPE_CHECKING, Any, ClassVar, Dict, List, Optional, Tuple, Union
+try:
+    from typing import override  # type: ignore
+except ImportError:
+    from typing_extensions import override
 
 from rhoknp.props.feature import FeatureDict
 from rhoknp.props.semantics import SemanticsDict
@@ -108,6 +112,7 @@ class Morpheme(Unit):
         if homograph is False:
             Morpheme.count += 1
 
+    @override
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, type(self)):
             return False

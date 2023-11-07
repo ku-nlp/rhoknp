@@ -1,6 +1,11 @@
 import logging
 from typing import Any, List, Optional, Sequence, Union
 
+try:
+    from typing import override  # type: ignore
+except ImportError:
+    from typing_extensions import override
+
 from rhoknp.cohesion.pas import Pas
 from rhoknp.props.named_entity import NamedEntity
 from rhoknp.units.base_phrase import BasePhrase
@@ -41,6 +46,7 @@ class Document(Unit):
 
         self.doc_id: str = ""  #: 文書 ID．
 
+    @override
     def __post_init__(self) -> None:
         super().__post_init__()
 
@@ -53,6 +59,7 @@ class Document(Unit):
                     f"'doc_id' is not consistent; use 'doc_id' extracted from the first sentence: {self.doc_id}."
                 )
 
+    @override
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, Document):
             return False

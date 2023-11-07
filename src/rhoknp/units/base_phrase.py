@@ -9,6 +9,11 @@ try:
 except ImportError:
     from cached_property import cached_property
 
+try:
+    from typing import override  # type: ignore
+except ImportError:
+    from typing_extensions import override
+
 from rhoknp.cohesion.argument import Argument, EndophoraArgument, ExophoraArgument
 from rhoknp.cohesion.coreference import Entity, EntityManager
 from rhoknp.cohesion.exophora import ExophoraReferent
@@ -84,6 +89,7 @@ class BasePhrase(Unit):
             entity.eid = eid
         self.__dict__.update(state)  # Entity objects are hashed by eid.
 
+    @override
     def __post_init__(self) -> None:
         super().__post_init__()
 
@@ -111,6 +117,7 @@ class BasePhrase(Unit):
                     logger.warning(f"{self.sentence.sid}: unknown rel type found: {rel_tag}")
                 self._add_argument(rel_tag)
 
+    @override
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, type(self)):
             return False
