@@ -2,8 +2,8 @@ from typing import ClassVar, List
 
 from pygments import highlight
 from pygments.formatters import TerminalFormatter
-from pygments.lexer import RegexLexer, bygroups
-from pygments.token import Comment, Generic, Keyword, Literal, Name, Number, Punctuation, Text, Whitespace
+from pygments.lexer import RegexLexer, bygroups, default
+from pygments.token import Comment, Generic, Keyword, Literal, Name, Number, String, Text, Whitespace
 
 from rhoknp import BasePhrase, Document, Morpheme, Phrase
 
@@ -18,6 +18,7 @@ class KNPLexer(RegexLexer):
 
     tokens = {  # noqa: RUF012
         "root": [
+            (r"\s+", Whitespace),
             (rf"(?={Phrase.PAT.pattern})", Text, "phrase"),
             (rf"(?={BasePhrase.PAT.pattern})", Text, "base_phrase"),
             (rf"(?={Morpheme.PAT.pattern})", Text, "morpheme"),
@@ -25,21 +26,22 @@ class KNPLexer(RegexLexer):
             (r"^EOS$", Keyword.Constant),
         ],
         "phrase": [
-            (r"\s", Whitespace),
-            (r"^(\*)", Generic.Heading),
-            (r"(-?\d+)([DPAI])", bygroups(Number, Literal)),
-            (r"<", Punctuation, "feature"),
-            (r"", Text, "#pop"),
+            (r"\s+", Whitespace),
+            (r"^\*", Generic.Heading),
+            (r"(-?\d+)([DPAI])", bygroups(Number, Literal.String)),
+            (r"<", Name.Tag, "tag"),
+            default("#pop"),
         ],
         "base_phrase": [
-            (r"\s", Whitespace),
-            (r"^(\+)", Generic.Heading),
-            (r"(-?\d+)([DPAI])", bygroups(Number, Literal)),
-            (r"<", Punctuation, "feature"),
-            (r"", Text, "#pop"),
+            (r"\s+", Whitespace),
+            (r"^\+", Generic.Heading),
+            (r"(-?\d+)([DPAI])", bygroups(Number, Literal.String)),
+            (r"<rel", Name.Tag, "rel_tag"),
+            (r"<", Name.Tag, "tag"),
+            default("#pop"),
         ],
         "morpheme": [
-            (r"\s", Whitespace),
+            (r"\s+", Whitespace),
             (
                 r"^(\S+)(\s)"  # Surface
                 r"(\S+)(\s)"  # Reading
@@ -55,36 +57,37 @@ class KNPLexer(RegexLexer):
                     Whitespace,
                     Text,
                     Whitespace,
-                    Text,
+                    Literal.String,
                     Whitespace,
                     Literal.Number,
                     Whitespace,
-                    Text,
+                    Literal.String,
                     Whitespace,
                     Literal.Number,
                     Whitespace,
-                    Text,
+                    Literal.String,
                     Whitespace,
                     Literal.Number,
                     Whitespace,
-                    Text,
+                    Literal.String,
                     Whitespace,
                     Literal.Number,
                 ),
             ),
-            (r'"', Punctuation, "semantics"),
-            (r"NIL", Name.Attribute),
-            (r"<", Punctuation, "feature"),
-            (r"", Text, "#pop"),
+            (r'"[^"]+?"', String),
+            (r"NIL", String),
+            (r"<", Name.Tag, "tag"),
+            default("#pop"),
         ],
-        "semantics": [
-            (r"\s", Whitespace),
-            (r'([^\s:"]+)(:)?([^\s"]+)?', bygroups(Name.Attribute, Punctuation, Literal.String)),
-            (r'"', Punctuation, "#pop"),
+        "tag": [
+            (r"\s+", Whitespace),
+            (r"([^>:]+)(:)?([^>]+)?", bygroups(Name.Tag, Name.Tag, Name.Attribute)),
+            (r">", Name.Tag, "#pop"),
         ],
-        "feature": [
-            (r"([^>:]+)(:)?([^>]+)?", bygroups(Name.Attribute, Punctuation, Literal.String)),
-            (r">", Punctuation, "#pop"),
+        "rel_tag": [
+            (r"\s+", Whitespace),
+            (r'(\S+=)("\S+?")', bygroups(Name.Attribute, String)),
+            (r"/>", Name.Tag, "#pop"),
         ],
     }
 
