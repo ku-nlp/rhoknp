@@ -1,6 +1,7 @@
 import tempfile
 import textwrap
 
+import pytest
 from typer.testing import CliRunner
 
 from rhoknp import Document, __version__
@@ -9,7 +10,7 @@ from rhoknp.cli.cli import app
 runner = CliRunner()
 
 
-knp = textwrap.dedent(
+knp_text = textwrap.dedent(
     """\
         # S-ID:1
         * 1D
@@ -41,8 +42,28 @@ def test_version() -> None:
     assert result.stdout.strip() == f"rhoknp version: {__version__}"
 
 
+def test_cat() -> None:
+    doc = Document.from_knp(knp_text)
+    with tempfile.NamedTemporaryFile("wt") as f:
+        f.write(doc.to_knp())
+        f.flush()
+        result = runner.invoke(app, ["cat", f.name])
+        assert result.exit_code == 0
+
+
+@pytest.fixture()
+def _mock_stdin(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.setattr("sys.stdin", knp_text)
+
+
+@pytest.mark.usefixtures("_mock_stdin")
+def test_cat_stdin() -> None:
+    result = runner.invoke(app, ["cat"])
+    assert result.exit_code == 0
+
+
 def test_show() -> None:
-    doc = Document.from_knp(knp)
+    doc = Document.from_knp(knp_text)
     with tempfile.NamedTemporaryFile("wt") as f:
         f.write(doc.to_knp())
         f.flush()
@@ -56,7 +77,7 @@ def test_show_error() -> None:
 
 
 def test_stats() -> None:
-    doc = Document.from_knp(knp)
+    doc = Document.from_knp(knp_text)
     with tempfile.NamedTemporaryFile("wt") as f:
         f.write(doc.to_knp())
         f.flush()
@@ -65,7 +86,7 @@ def test_stats() -> None:
 
 
 def test_stats_json() -> None:
-    doc = Document.from_knp(knp)
+    doc = Document.from_knp(knp_text)
     with tempfile.NamedTemporaryFile("wt") as f:
         f.write(doc.to_knp())
         result = runner.invoke(app, ["stats", f.name, "--json"])
