@@ -89,7 +89,14 @@ class KWJA(Processor):
         try:
             self._proc = Popen(self.run_command, stdin=PIPE, stdout=PIPE, stderr=PIPE, encoding="utf-8")
             if skip_sanity_check is False:
-                _ = self.apply(Document.from_raw_text(""))
+                if self._input_format == "raw":
+                    empty_document = Document.from_raw_text("")
+                elif self._input_format == "jumanpp":
+                    empty_document = Document.from_jumanpp("EOS\n")
+                else:
+                    assert self._input_format == "knp"
+                    empty_document = Document.from_knp("EOS\n")
+                _ = self.apply(empty_document)
         except Exception as e:
             logger.warning(f"failed to start KWJA: {e}")
 
