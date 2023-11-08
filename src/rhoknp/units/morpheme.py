@@ -1,10 +1,6 @@
 import re
+from functools import cached_property
 from typing import TYPE_CHECKING, Any, ClassVar, Dict, List, Optional, Tuple, Union
-
-try:
-    from functools import cached_property  # type: ignore
-except ImportError:
-    from cached_property import cached_property
 
 try:
     from typing import override  # type: ignore

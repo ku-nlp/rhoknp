@@ -1,7 +1,4 @@
-try:
-    from importlib.metadata import version
-except ImportError:
-    from importlib_metadata import version
+from importlib.metadata import version
 
 from rhoknp.processors import KNP, KWJA, Jumanpp, RegexSenter
 from rhoknp.units import BasePhrase, Clause, Document, Morpheme, Phrase, Sentence
