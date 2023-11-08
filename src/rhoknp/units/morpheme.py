@@ -1,11 +1,15 @@
 import re
+from typing import TYPE_CHECKING, Any, ClassVar, Dict, List, Optional, Tuple, Union
 
 try:
     from functools import cached_property  # type: ignore
 except ImportError:
     from cached_property import cached_property
 
-from typing import TYPE_CHECKING, Any, ClassVar, Dict, List, Optional, Tuple, Union
+try:
+    from typing import override  # type: ignore
+except ImportError:
+    from typing_extensions import override
 
 from rhoknp.props.feature import FeatureDict
 from rhoknp.props.semantics import SemanticsDict
@@ -108,6 +112,7 @@ class Morpheme(Unit):
         if homograph is False:
             Morpheme.count += 1
 
+    @override
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, type(self)):
             return False
@@ -301,7 +306,7 @@ class Morpheme(Unit):
 
         # Resume text if it is escaped (Juman++ 2.0.0-rc3)
         if semantics.get("元半角") is True:
-            surf, reading, lemma = (  # pragma: no branch
+            surf, reading, lemma = (  # pragma: no cover
                 cls._UNESCAPE_MAP_HALF_TO_FULL_WIDTH.get(s, s) for s in (surf, reading, lemma)
             )
         surf, reading, lemma = (cls._UNESCAPE_MAP_CONTROL_CHAR.get(s, s) for s in (surf, reading, lemma))
