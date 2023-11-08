@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, Optional, Sequence
+from typing import Optional, Sequence
 
 
 class Unit(ABC):
@@ -14,7 +14,7 @@ class Unit(ABC):
                 child_unit.__post_init__()
 
     @abstractmethod
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         raise NotImplementedError
 
     def __str__(self) -> str:

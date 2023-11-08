@@ -1,5 +1,5 @@
 import logging
-from typing import Any, List, Optional, Sequence, Union
+from typing import List, Optional, Sequence, Union
 
 try:
     from typing import override  # type: ignore
@@ -60,7 +60,7 @@ class Document(Unit):
                 )
 
     @override
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, Document):
             return False
         return self.doc_id == other.doc_id and self.text == other.text

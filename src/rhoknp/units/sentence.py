@@ -1,6 +1,6 @@
 import logging
 import re
-from typing import TYPE_CHECKING, Any, List, Optional, Union
+from typing import TYPE_CHECKING, List, Optional, Union
 
 try:
     from typing import override  # type: ignore
@@ -82,7 +82,7 @@ class Sentence(Unit):
                     self.named_entities.append(named_entity)
 
     @override
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, type(self)):
             return False
         return self.sent_id == other.sent_id and self.text == other.text

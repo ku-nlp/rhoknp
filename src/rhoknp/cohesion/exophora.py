@@ -1,7 +1,7 @@
 import logging
 import re
 from enum import Enum
-from typing import Any, ClassVar, Optional
+from typing import ClassVar, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -64,7 +64,7 @@ class ExophoraReferent:
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(text={self.text!r})"
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, type(self)) or self.type != other.type:
             return False
         if self.type == ExophoraReferentType.OTHER:

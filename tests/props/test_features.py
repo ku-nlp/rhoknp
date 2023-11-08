@@ -66,8 +66,8 @@ def test_from_fstring(fstring: str, features: Dict[str, Union[str, bool]], lengt
     assert fs.get("dummy") is None
 
 
-@pytest.mark.parametrize(("fstring", "features", "length"), [astuple(case) for case in cases])
-def test_to_fstring(fstring: str, features: Dict[str, Union[str, bool]], length: int) -> None:
+@pytest.mark.parametrize("fstring", [case.fstring for case in cases])
+def test_to_fstring(fstring: str) -> None:
     fs = FeatureDict.from_fstring(fstring)
     assert fs.to_fstring() == fstring
 

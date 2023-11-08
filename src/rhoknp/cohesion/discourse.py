@@ -2,7 +2,7 @@ import logging
 import re
 from dataclasses import dataclass
 from enum import Enum
-from typing import TYPE_CHECKING, Any, ClassVar, Optional
+from typing import TYPE_CHECKING, ClassVar, Optional
 
 if TYPE_CHECKING:
     from rhoknp import Clause, Sentence
@@ -133,7 +133,7 @@ class DiscourseRelation:
     head: "Clause"  #: 主辞節．
     is_explicit: bool = False  #: 明示的な談話関係ならTrue．．
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, type(self)):
             return False
         return self.label == other.label and self.modifier == other.modifier and self.head == other.head
