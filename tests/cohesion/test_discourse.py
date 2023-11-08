@@ -7,7 +7,7 @@ from rhoknp.cohesion import DiscourseRelationLabel, DiscourseRelationTag
 
 
 @pytest.mark.parametrize(
-    "tag, label",
+    ("tag", "label"),
     [
         (DiscourseRelationTag.NO_RELATION, DiscourseRelationLabel.NO_RELATION),
         (DiscourseRelationTag.CAUSE_REASON, DiscourseRelationLabel.CAUSE_REASON),

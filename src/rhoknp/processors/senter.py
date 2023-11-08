@@ -3,6 +3,11 @@ import re
 import threading
 from typing import ClassVar, List, Union
 
+try:
+    from typing import override  # type: ignore
+except ImportError:
+    from typing_extensions import override
+
 from rhoknp.processors.processor import Processor
 from rhoknp.units import Document, Sentence
 
@@ -23,6 +28,7 @@ class RegexSenter(Processor):
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}()"
 
+    @override
     def apply_to_document(self, document: Union[Document, str], timeout: int = 10) -> Document:
         """文書に RegexSenter を適用する．
 
@@ -32,6 +38,7 @@ class RegexSenter(Processor):
         """
         if isinstance(document, str):
             document = Document(document)
+        doc_id = document.doc_id
 
         sentences: List[str] = []
         done_event: threading.Event = threading.Event()
@@ -48,8 +55,14 @@ class RegexSenter(Processor):
         if thread.is_alive():
             raise TimeoutError("Operation timed out.")
 
-        return Document.from_sentences(sentences)
+        ret = Document.from_sentences(sentences)
+        if doc_id != "":
+            ret.doc_id = doc_id
+            for sentence in ret.sentences:
+                sentence.doc_id = doc_id
+        return ret
 
+    @override
     def apply_to_sentence(self, sentence: Union[Sentence, str], timeout: int = 10) -> Sentence:
         """文に RegexSenter を適用する．
 

@@ -8,8 +8,8 @@ on:
 jobs:
   test-example:
     name: Run tests for examples
-    container: kunlp/jumanpp-knp:ubuntu
-    runs-on: ubuntu-20.04 # to meet the ubuntu version in the kunlp/jumanpp-knp:ubuntu container
+    container: kunlp/jumanpp-knp:ubuntu22.04
+    runs-on: ubuntu-22.04
     strategy:
       max-parallel: 5
       fail-fast: false
@@ -20,24 +20,29 @@ jobs:
         uses: actions/checkout@v4
       - name: Install required apt packages
         run: |
-          apt update -y
-          DEBIAN_FRONTEND=noninteractive apt install -y curl build-essential libsqlite3-dev libffi-dev
+          export DEBIAN_FRONTEND=noninteractive
+          apt-get update -yq
+          apt-get install -yq curl build-essential libsqlite3-dev libffi-dev
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-          allow-prereleases: true # TODO: Remove this line when Python 3.12 is released
       - name: Install Poetry
         run: |
           python3 -m pip install --user pipx
           python3 -m pipx ensurepath
           python3 -m pipx install poetry
       - name: Add path for Python packages
-        run: echo "$HOME/.local/bin" >> $GITHUB_PATH
+        run: |
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
       - name: Install dependencies
-        run: poetry install --no-interaction --without dev,docs --extras=cli
+        run: |
+          poetry install --no-interaction --without dev,docs --extras=cli
       - name: Install KWJA
-        run: pipx install kwja
+        # KWJA does not support Python 3.12
+        if: ${{ matrix.python-version != 3.12 }}
+        run: |
+          pipx install kwja
       - name: Run tests for all files under examples/apply_*.py
         shell: bash
         run: |

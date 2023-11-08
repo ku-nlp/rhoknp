@@ -1,5 +1,5 @@
 import textwrap
-from typing import Generator, List
+from typing import List
 
 import pytest
 from fastapi.testclient import TestClient
@@ -13,10 +13,10 @@ is_kwja_available = KWJA(options=["--model-size", "tiny"]).is_available()
 
 
 @pytest.mark.skipif(not is_jumanpp_available, reason="Juman++ is not available")
-@pytest.fixture
-def jumanpp_client() -> Generator[TestClient, None, None]:
+@pytest.fixture()
+def jumanpp_client() -> TestClient:
     app = create_app(AnalyzerType.JUMANPP)
-    yield TestClient(app)
+    return TestClient(app)
 
 
 @pytest.mark.skipif(not is_jumanpp_available, reason="Juman++ is not available")
@@ -50,10 +50,10 @@ def test_index_jumanpp(jumanpp_client: TestClient, text: str) -> None:
 
 
 @pytest.mark.skipif(not is_knp_available, reason="KNP is not available")
-@pytest.fixture
-def knp_client() -> Generator[TestClient, None, None]:
+@pytest.fixture()
+def knp_client() -> TestClient:
     app = create_app(AnalyzerType.KNP)
-    yield TestClient(app)
+    return TestClient(app)
 
 
 @pytest.mark.skipif(not is_knp_available, reason="KNP is not available")
@@ -104,10 +104,10 @@ def test_index_knp_error(knp_client: TestClient) -> None:
 
 
 @pytest.mark.skipif(not is_kwja_available, reason="KWJA is not available")
-@pytest.fixture
-def kwja_client() -> Generator[TestClient, None, None]:
-    app = create_app(AnalyzerType.KWJA, options=["--model-size", "tiny", "--tasks", "senter,char,word"])
-    yield TestClient(app)
+@pytest.fixture()
+def kwja_client() -> TestClient:
+    app = create_app(AnalyzerType.KWJA, options=["--model-size", "tiny", "--tasks", "char,word"])
+    return TestClient(app)
 
 
 @pytest.mark.skipif(not is_kwja_available, reason="KWJA is not available")
@@ -141,7 +141,7 @@ def test_cli_serve_index_kwja(kwja_client: TestClient, text: str) -> None:
 
 
 @pytest.mark.parametrize(
-    "pre_text, post_text, expected",
+    ("pre_text", "post_text", "expected"),
     [
         ("あ", "あ", [_Span("あ", "=")]),
         ("あ", "い", [_Span("あ", "-"), _Span("い", "+")]),

@@ -52,7 +52,7 @@ with open("result.jumanpp", "rt") as f:
 
 ## Requirements
 
-- Python 3.7+
+- Python 3.8+
 - (Optional) [Juman++](https://github.com/ku-nlp/jumanpp) v2.0.0-rc3+
 - (Optional) [KNP](https://github.com/ku-nlp/knp) 5.0+
 - (Optional) [KWJA](https://github.com/ku-nlp/kwja) 1.0.0+

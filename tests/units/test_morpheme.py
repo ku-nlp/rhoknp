@@ -254,7 +254,7 @@ JUMANPP_SNIPPETS = [
         "canon": None,
     },
     {
-        "jumanpp": "      特殊 1 空白 6 * 0 * 0\n",
+        "jumanpp": "\\␣ \\␣ \\␣ 特殊 1 空白 6 * 0 * 0\n",
         "text": " ",
         "surf": " ",
         "reading": " ",
@@ -446,7 +446,7 @@ def test_from_jumanpp(case: Dict[str, str]) -> None:
 
 def test_from_jumanpp_error() -> None:
     jumanpp = "であり であり だ 判定詞 4 * 0 判定詞 25 デアル列基本連用形 18 MALFORMED_STRING\n"
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="malformed morpheme line: .*"):
         _ = Morpheme.from_jumanpp(jumanpp)
 
 
@@ -474,29 +474,29 @@ def test_semantics(case: Dict[str, str]) -> None:
 
 @pytest.mark.parametrize("case", JUMANPP_SNIPPETS)
 def test_document_error(case: Dict[str, str]) -> None:
+    morpheme = Morpheme.from_jumanpp(case["jumanpp"])
     with pytest.raises(AttributeError):
-        morpheme = Morpheme.from_jumanpp(case["jumanpp"])
         _ = morpheme.document
 
 
 @pytest.mark.parametrize("case", JUMANPP_SNIPPETS)
 def test_sentence_error(case: Dict[str, str]) -> None:
+    morpheme = Morpheme.from_jumanpp(case["jumanpp"])
     with pytest.raises(AttributeError):
-        morpheme = Morpheme.from_jumanpp(case["jumanpp"])
         _ = morpheme.sentence
 
 
 @pytest.mark.parametrize("case", JUMANPP_SNIPPETS)
 def test_phrase_error(case: Dict[str, str]) -> None:
+    morpheme = Morpheme.from_jumanpp(case["jumanpp"])
     with pytest.raises(AttributeError):
-        morpheme = Morpheme.from_jumanpp(case["jumanpp"])
         _ = morpheme.phrase
 
 
 @pytest.mark.parametrize("case", JUMANPP_SNIPPETS)
 def test_base_phrase_error(case: Dict[str, str]) -> None:
+    morpheme = Morpheme.from_jumanpp(case["jumanpp"])
     with pytest.raises(AttributeError):
-        morpheme = Morpheme.from_jumanpp(case["jumanpp"])
         _ = morpheme.base_phrase
 
 

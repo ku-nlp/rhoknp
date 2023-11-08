@@ -1,10 +1,11 @@
 import re
+from functools import cached_property
+from typing import TYPE_CHECKING, Any, List, Optional, Union
 
 try:
-    from functools import cached_property  # type: ignore
+    from typing import override  # type: ignore
 except ImportError:
-    from cached_property import cached_property
-from typing import TYPE_CHECKING, Any, List, Optional, Union
+    from typing_extensions import override
 
 from rhoknp.props.dependency import DepType
 from rhoknp.props.feature import FeatureDict
@@ -46,6 +47,7 @@ class Phrase(Unit):
         self.index = self.count  #: 文内におけるインデックス．
         Phrase.count += 1
 
+    @override
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, type(self)):
             return False
@@ -194,8 +196,7 @@ class Phrase(Unit):
                 base_phrases.append(BasePhrase.from_knp("\n".join(base_phrase_lines)))
                 base_phrase_lines = []
             base_phrase_lines.append(line)
-        else:
-            base_phrases.append(BasePhrase.from_knp("\n".join(base_phrase_lines)))
+        base_phrases.append(BasePhrase.from_knp("\n".join(base_phrase_lines)))
         phrase.base_phrases = base_phrases
         return phrase
 

@@ -10,6 +10,10 @@ updates:
     schedule:
       interval: "monthly"
       timezone: "Asia/Tokyo"
+    groups:
+      dependencies:
+        patterns:
+          - "*"
     target-branch: "develop"
     ignore:
       - dependency-name: "*"
@@ -20,6 +24,6 @@ updates:
     # default location of `.github/workflows`
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
       timezone: "Asia/Tokyo"
     target-branch: "develop"

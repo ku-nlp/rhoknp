@@ -2,13 +2,13 @@ import multiprocessing
 import pickle
 import textwrap
 from pathlib import Path
-from typing import Dict
+from typing import Dict, List, Union
 
 import pytest
 
 from rhoknp import Document, Sentence
 
-CASES = [
+CASES: List[Dict[str, Union[str, List[str]]]] = [
     {
         "raw_text": "天気がいいので散歩した。",
         "sentences": ["天気がいいので散歩した。"],
@@ -343,7 +343,7 @@ def test_from_jumanpp_error():
         EOS
         """
     )
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="malformed line: .*"):
         _ = Document.from_jumanpp(invalid_jumanpp_text)
 
 
@@ -355,7 +355,7 @@ def test_from_jumanpp_control_character() -> None:
         + ぷらす + 未定義語 15 その他 1 * 0 * 0
         @ あっと @ 未定義語 15 その他 1 * 0 * 0
         EOS いーおーえす EOS 未定義語 15 アルファベット 3 * 0 * 0
-        \u0020 すぺーす \u0020 特殊 1 空白 6 * 0 * 0
+        \\␣ すぺーす \\␣ 特殊 1 空白 6 * 0 * 0
         < < < 特殊 1 括弧始 3 * 0 * 0
         > > > 特殊 1 括弧終 4 * 0 * 0
         " " " 特殊 1 括弧終 4 * 0 * 0
@@ -368,7 +368,7 @@ def test_from_jumanpp_control_character() -> None:
         + ぷらす + 未定義語 15 その他 1 * 0 * 0
         @ あっと @ 未定義語 15 その他 1 * 0 * 0
         EOS いーおーえす EOS 未定義語 15 アルファベット 3 * 0 * 0
-        \u0020 すぺーす \u0020 特殊 1 空白 6 * 0 * 0
+        \\␣ すぺーす \\␣ 特殊 1 空白 6 * 0 * 0
         < < < 特殊 1 括弧始 3 * 0 * 0
         > > > 特殊 1 括弧終 4 * 0 * 0
         " " " 特殊 1 括弧終 4 * 0 * 0
@@ -433,7 +433,7 @@ def test_from_knp_error():
         EOS
         """
     )
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="malformed line: .*"):
         _ = Document.from_knp(invalid_knp_text)
 
 
@@ -685,30 +685,30 @@ def test_morphemes(case: Dict[str, str]) -> None:
 
 @pytest.mark.parametrize("case", CASES)
 def test_reference(case: Dict[str, str]) -> None:
-    doc = Document.from_knp(case["knp"])
-    for sentence in doc.sentences:
-        assert sentence.document == doc
-        assert sentence == sentence
+    document = Document.from_knp(case["knp"])
+    for sentence in document.sentences:
+        assert sentence.document == document
+        assert sentence == sentence  # noqa: PLR0124
         for clause in sentence.clauses:
-            assert clause.document == doc
+            assert clause.document == document
             assert clause.sentence == sentence
-            assert clause == clause
+            assert clause == clause  # noqa: PLR0124
             for phrase in clause.phrases:
-                assert phrase.document == doc
+                assert phrase.document == document
                 assert phrase.sentence == sentence
                 assert phrase.clause == clause
                 for base_phrase in phrase.base_phrases:
-                    assert base_phrase.document == doc
+                    assert base_phrase.document == document
                     assert base_phrase.sentence == sentence
                     assert base_phrase.phrase == phrase
-                    assert base_phrase == base_phrase
+                    assert base_phrase == base_phrase  # noqa: PLR0124
                     for morpheme in base_phrase.morphemes:
-                        assert morpheme.document == doc
+                        assert morpheme.document == document
                         assert morpheme.sentence == sentence
                         assert morpheme.clause == clause
                         assert morpheme.phrase == phrase
                         assert morpheme.base_phrase == base_phrase
-                        assert morpheme == morpheme
+                        assert morpheme == morpheme  # noqa: PLR0124
                 for morpheme in phrase.morphemes:
                     assert morpheme.phrase == phrase
             for base_phrase in clause.base_phrases:
@@ -721,14 +721,14 @@ def test_reference(case: Dict[str, str]) -> None:
             assert base_phrase.sentence == sentence
         for morpheme in sentence.morphemes:
             assert morpheme.sentence == sentence
-    for clause in doc.clauses:
-        assert clause.document == doc
-    for phrase in doc.phrases:
-        assert phrase.document == doc
-    for base_phrase in doc.base_phrases:
-        assert base_phrase.document == doc
-    for morpheme in doc.morphemes:
-        assert morpheme.document == doc
+    for clause in document.clauses:
+        assert clause.document == document
+    for phrase in document.phrases:
+        assert phrase.document == document
+    for base_phrase in document.base_phrases:
+        assert base_phrase.document == document
+    for morpheme in document.morphemes:
+        assert morpheme.document == document
 
 
 @pytest.mark.parametrize(
@@ -742,7 +742,7 @@ def test_reference_with_no_clause_tag(knp: str) -> None:
     document = Document.from_knp(knp)
     for sentence in document.sentences:
         assert sentence.document == document
-        assert sentence == sentence
+        assert sentence == sentence  # noqa: PLR0124
         for phrase in sentence.phrases:
             assert phrase.document == document
             assert phrase.sentence == sentence
@@ -750,13 +750,13 @@ def test_reference_with_no_clause_tag(knp: str) -> None:
                 assert base_phrase.document == document
                 assert base_phrase.sentence == sentence
                 assert base_phrase.phrase == phrase
-                assert base_phrase == base_phrase
+                assert base_phrase == base_phrase  # noqa: PLR0124
                 for morpheme in base_phrase.morphemes:
                     assert morpheme.document == document
                     assert morpheme.sentence == sentence
                     assert morpheme.phrase == phrase
                     assert morpheme.base_phrase == base_phrase
-                    assert morpheme == morpheme
+                    assert morpheme == morpheme  # noqa: PLR0124
             for morpheme in phrase.morphemes:
                 assert morpheme.phrase == phrase
         for phrase in sentence.phrases:
@@ -834,7 +834,7 @@ def test_cut_paste(case: Dict[str, str]) -> None:
 @pytest.mark.parametrize("case", CASES)
 @pytest.mark.parametrize(
     "key",
-    ("raw_text", "sentences", "line_by_line_text", "jumanpp", "knp_with_no_clause_tag", "knp"),
+    ["raw_text", "sentences", "line_by_line_text", "jumanpp", "knp_with_no_clause_tag", "knp"],
 )
 def test_reparse(case: Dict[str, str], key: str) -> None:
     if key == "raw_text":
@@ -872,8 +872,8 @@ def test_to_knp_wac() -> None:
     assert doc.to_knp() == knp
 
 
-@pytest.mark.parametrize("doc_id", ("w201106-0000060050", "wiki00100176"))
-def test_id(doc_id) -> None:
+@pytest.mark.parametrize("doc_id", ["w201106-0000060050", "wiki00100176"])
+def test_id(doc_id: str) -> None:
     doc = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text())
     assert doc.doc_id == doc_id
     assert doc.did == doc_id

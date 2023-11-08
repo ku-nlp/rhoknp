@@ -4,11 +4,11 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from rhoknp import RegexSenter
+from rhoknp import Document, RegexSenter, Sentence
 
 
 @pytest.mark.parametrize(
-    "document, sentence_strings",
+    ("document", "sentence_strings"),
     [
         (
             "",
@@ -104,6 +104,26 @@ def test_apply_to_sentence() -> None:
     text = "天気がいいので散歩した。"
     sent = senter.apply_to_sentence(text)
     assert sent.text == text
+
+
+def test_keep_id_sentence() -> None:
+    senter = RegexSenter()
+    sent = Sentence.from_raw_text("天気がいいので散歩した。")
+    sent.doc_id = "test"
+    sent.sent_id = "test-1"
+    sent = senter.apply_to_sentence(sent)
+    assert sent.doc_id == "test"
+    assert sent.sent_id == "test-1"
+
+
+def test_keep_id_document() -> None:
+    senter = RegexSenter()
+    doc = Document.from_raw_text("天気がいいので散歩した。散歩の途中で先生に出会った。")
+    doc.doc_id = "test"
+    doc = senter.apply_to_document(doc)
+    assert doc.doc_id == "test"
+    for sent in doc.sentences:
+        assert sent.doc_id == "test"
 
 
 def test_repr() -> None:

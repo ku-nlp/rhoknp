@@ -7,6 +7,11 @@ from subprocess import PIPE, Popen
 from threading import Lock
 from typing import List, Optional, Union
 
+try:
+    from typing import override  # type: ignore
+except ImportError:
+    from typing_extensions import override
+
 from rhoknp.processors.processor import Processor
 from rhoknp.processors.senter import RegexSenter
 from rhoknp.units import Document, Sentence
@@ -48,16 +53,16 @@ class Jumanpp(Processor):
         self.start_process(skip_sanity_check)
 
     def __repr__(self) -> str:
-        arg_string = f"executable={repr(self.executable)}"
+        arg_string = f"executable={self.executable!r}"
         if self.options:
-            arg_string += f", options={repr(self.options)}"
+            arg_string += f", options={self.options!r}"
         if self.senter is not None:
-            arg_string += f", senter={repr(self.senter)}"
+            arg_string += f", senter={self.senter!r}"
         return f"{self.__class__.__name__}({arg_string})"
 
     def __del__(self) -> None:
         if self._proc is not None:
-            self._proc.kill()
+            self._proc.terminate()
 
     def start_process(self, skip_sanity_check: bool = False) -> None:
         """Juman++ を開始する．
@@ -67,7 +72,7 @@ class Jumanpp(Processor):
             skip_sanity_check: True なら，Juman++ の起動時に sanity check をスキップする．
         """
         if self._proc is not None:
-            self._proc.kill()
+            self._proc.terminate()
         try:
             self._proc = Popen(self.run_command, stdin=PIPE, stdout=PIPE, stderr=PIPE, encoding="utf-8")
             if skip_sanity_check is False:
@@ -79,6 +84,7 @@ class Jumanpp(Processor):
         """Jumanpp が利用可能であれば True を返す．"""
         return self._proc is not None and self._proc.poll() is None
 
+    @override
     def apply_to_document(self, document: Union[Document, str], timeout: int = 10) -> Document:
         """文書に Jumanpp を適用する．
 
@@ -97,6 +103,7 @@ class Jumanpp(Processor):
 
         if isinstance(document, str):
             document = Document(document)
+        doc_id = document.doc_id
 
         if document.is_senter_required():
             if self.senter is None:
@@ -107,8 +114,14 @@ class Jumanpp(Processor):
         sentences: List[Sentence] = []
         for sentence in document.sentences:
             sentences.append(self.apply_to_sentence(sentence, timeout=timeout - int(time.time() - start)))
-        return Document.from_sentences(sentences)
+        ret = Document.from_sentences(sentences)
+        if doc_id != "":
+            ret.doc_id = doc_id
+            for sentence in ret.sentences:
+                sentence.doc_id = doc_id
+        return ret
 
+    @override
     def apply_to_sentence(self, sentence: Union[Sentence, str], timeout: int = 10) -> Sentence:
         """文に Jumanpp を適用する．
 
@@ -177,13 +190,13 @@ class Jumanpp(Processor):
         """Juman++ のバージョンを返す．"""
         if not self.is_available():
             raise RuntimeError("Juman++ is not available.")
-        p = subprocess.run(self.version_command, capture_output=True, encoding="utf-8")
+        p = subprocess.run(self.version_command, capture_output=True, encoding="utf-8", check=True)
         return p.stdout.strip()
 
     @property
     def run_command(self) -> List[str]:
         """解析時に実行するコマンド．"""
-        return [self.executable] + self.options
+        return [self.executable, *self.options]
 
     @property
     def version_command(self) -> List[str]:

@@ -91,7 +91,7 @@ def test_exophora_argument() -> None:
     assert argument.pas == pas
     assert argument.exophora_referent == exophora_referent
     assert argument.eid == 3
-    assert repr(argument) == f"ExophoraArgument(case='ガ', exophora_referent={repr(exophora_referent)}, eid=3)"
+    assert repr(argument) == f"ExophoraArgument(case='ガ', exophora_referent={exophora_referent!r}, eid=3)"
     assert eval(repr(argument)) == argument
     assert str(argument) == "不特定:人"
     assert argument != "test"

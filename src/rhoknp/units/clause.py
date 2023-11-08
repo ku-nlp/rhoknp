@@ -1,10 +1,11 @@
 import logging
+from functools import cached_property
+from typing import TYPE_CHECKING, Any, List, Optional
 
 try:
-    from functools import cached_property  # type: ignore
+    from typing import override  # type: ignore
 except ImportError:
-    from cached_property import cached_property
-from typing import TYPE_CHECKING, Any, List, Optional
+    from typing_extensions import override
 
 from rhoknp.cohesion.discourse import DiscourseRelation
 from rhoknp.units.base_phrase import BasePhrase
@@ -38,6 +39,7 @@ class Clause(Unit):
         self.index = self.count  #: 文内におけるインデックス．
         Clause.count += 1
 
+    @override
     def __post_init__(self) -> None:
         super().__post_init__()
 
@@ -68,6 +70,7 @@ class Clause(Unit):
                     if relation not in relation.modifier.discourse_relations:
                         relation.modifier.discourse_relations.append(relation)
 
+    @override
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, type(self)):
             return False
@@ -210,9 +213,8 @@ class Clause(Unit):
                 phrases.append(Phrase.from_knp("\n".join(phrase_lines)))
                 phrase_lines = []
             phrase_lines.append(line)
-        else:
-            phrase = Phrase.from_knp("\n".join(phrase_lines))
-            phrases.append(phrase)
+        phrase = Phrase.from_knp("\n".join(phrase_lines))
+        phrases.append(phrase)
         clause.phrases = phrases
         return clause
 

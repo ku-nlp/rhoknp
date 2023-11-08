@@ -185,7 +185,7 @@ def test_chunk_by_document(case: Dict[str, Any]) -> None:
 
 
 def test_chunk_by_document_value_error() -> None:
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Invalid doc_id_format: ERROR"):
         _ = list(chunk_by_document(StringIO(""), doc_id_format="ERROR"))  # type: ignore
 
 

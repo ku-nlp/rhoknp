@@ -8,7 +8,7 @@ from rhoknp.utils.comment import extract_did_and_sid, is_comment_line
 
 
 @pytest.mark.parametrize(
-    "line, expected",
+    ("line", "expected"),
     [
         ("# S-ID:1", True),
         ("# foo-bar", True),
@@ -24,7 +24,7 @@ def test_is_comment_line(line: str, expected: bool) -> None:
 
 
 @pytest.mark.parametrize(
-    "pat, line, doc_id, sent_id",
+    ("pat", "line", "doc_id", "sent_id"),
     [
         (Sentence.SID_PAT, "# S-ID:", "", ""),
         (Sentence.SID_PAT, "# S-ID:1", "", "1"),

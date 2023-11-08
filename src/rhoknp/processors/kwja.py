@@ -6,6 +6,11 @@ from subprocess import PIPE, Popen
 from threading import Lock
 from typing import List, Optional, Union
 
+try:
+    from typing import override  # type: ignore
+except ImportError:
+    from typing_extensions import override
+
 from rhoknp.processors.processor import Processor
 from rhoknp.units import Document, Morpheme, Sentence
 from rhoknp.utils.comment import is_comment_line
@@ -41,6 +46,7 @@ class KWJA(Processor):
         self._proc: Optional[Popen] = None
         self._lock = Lock()
         self._output_format: str = "knp"
+        self._input_format: str = "raw"
         if "--tasks" in self.options:
             tasks: List[str] = self.options[self.options.index("--tasks") + 1].split(",")
             if "word" in tasks:
@@ -49,23 +55,27 @@ class KWJA(Processor):
                 self._output_format = "jumanpp"
             elif "char" in tasks:
                 self._output_format = "words"
-            elif "senter" in tasks:
-                self._output_format = "line_by_line"
             elif "typo" in tasks:
                 self._output_format = "raw"
             else:
                 raise ValueError(f"invalid task: {tasks}")
+        # `--input-format` option is available since KWJA v2.2.0
+        if "--input-format" in self.options:
+            input_format: str = self.options[self.options.index("--input-format") + 1]
+            if input_format not in ("raw", "jumanpp", "knp"):
+                raise ValueError(f"invalid input format: {input_format}")
+            self._input_format = input_format
         self.start_process(skip_sanity_check)
 
     def __repr__(self) -> str:
-        arg_string = f"executable={repr(self.executable)}"
+        arg_string = f"executable={self.executable!r}"
         if self.options:
-            arg_string += f", options={repr(self.options)}"
+            arg_string += f", options={self.options!r}"
         return f"{self.__class__.__name__}({arg_string})"
 
     def __del__(self) -> None:
         if self._proc is not None:
-            self._proc.kill()
+            self._proc.terminate()
 
     def start_process(self, skip_sanity_check: bool = False) -> None:
         """KWJA を起動する．
@@ -75,12 +85,18 @@ class KWJA(Processor):
             skip_sanity_check: True なら，KWJA の起動時に sanity check をスキップする．
         """
         if self._proc is not None:
-            self._proc.kill()
+            self._proc.terminate()
         try:
             self._proc = Popen(self.run_command, stdin=PIPE, stdout=PIPE, stderr=PIPE, encoding="utf-8")
             if skip_sanity_check is False:
-                # TODO: replace "こんにちは" with an empty string after KWJA v2.2.0 is released
-                _ = self.apply(Document.from_raw_text("こんにちは"))
+                if self._input_format == "raw":
+                    empty_document = Document.from_raw_text("")
+                elif self._input_format == "jumanpp":
+                    empty_document = Document.from_jumanpp("EOS\n")
+                else:
+                    assert self._input_format == "knp"
+                    empty_document = Document.from_knp("EOS\n")
+                _ = self.apply(empty_document)
         except Exception as e:
             logger.warning(f"failed to start KWJA: {e}")
 
@@ -88,6 +104,7 @@ class KWJA(Processor):
         """KWJA が利用可能であれば True を返す．"""
         return self._proc is not None and self._proc.poll() is None
 
+    @override
     def apply_to_document(self, document: Union[Document, str], timeout: int = 30) -> Document:
         """文書に KWJA を適用する．
 
@@ -111,8 +128,7 @@ class KWJA(Processor):
             assert self._proc.stdout is not None
             assert self._proc.stderr is not None
 
-            self._proc.stdin.write(document.text.rstrip("\n") + "\n")  # TODO: Keep the sentence IDs
-            self._proc.stdin.write(Document.EOD + "\n")
+            self._proc.stdin.write(self._gen_input_text(document))
             self._proc.stdin.flush()
 
             stdout_text = ""
@@ -149,6 +165,7 @@ class KWJA(Processor):
 
         return self._create_document(stdout_text)
 
+    @override
     def apply_to_sentence(self, sentence: Union[Sentence, str], timeout: int = 10) -> Sentence:
         """文に KWJA を適用する．
 
@@ -158,11 +175,20 @@ class KWJA(Processor):
         """
         raise NotImplementedError("KWJA does not support apply_to_sentence() currently.")
 
+    def _gen_input_text(self, document: Document) -> str:
+        if self._input_format == "raw":
+            input_text = document.text.rstrip("\n") + "\n"
+        elif self._input_format == "jumanpp":
+            input_text = document.to_jumanpp()
+        elif self._input_format == "knp":
+            input_text = document.to_knp()
+        else:
+            raise AssertionError(f"invalid input format: {self._input_format}")
+        return input_text + Document.EOD + "\n"
+
     def _create_document(self, text: str) -> Document:
         if self._output_format == "raw":
             return Document.from_raw_text(text)
-        elif self._output_format == "line_by_line":
-            return Document.from_line_by_line_text(text)
         elif self._output_format == "jumanpp":
             return Document.from_jumanpp(text)
         elif self._output_format == "words":
@@ -218,13 +244,13 @@ class KWJA(Processor):
         """Juman++ のバージョンを返す．"""
         if not self.is_available():
             raise RuntimeError("KWJA is not available.")
-        p = subprocess.run(self.version_command, capture_output=True, encoding="utf-8")
+        p = subprocess.run(self.version_command, capture_output=True, encoding="utf-8", check=True)
         return p.stdout.strip()
 
     @property
     def run_command(self) -> List[str]:
         """解析時に実行するコマンド．"""
-        return [self.executable] + self.options
+        return [self.executable, *self.options]
 
     @property
     def version_command(self) -> List[str]:

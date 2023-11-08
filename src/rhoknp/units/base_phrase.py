@@ -2,12 +2,13 @@ import dataclasses
 import itertools
 import logging
 import re
+from functools import cached_property
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set
 
 try:
-    from functools import cached_property  # type: ignore
+    from typing import override  # type: ignore
 except ImportError:
-    from cached_property import cached_property
+    from typing_extensions import override
 
 from rhoknp.cohesion.argument import Argument, EndophoraArgument, ExophoraArgument
 from rhoknp.cohesion.coreference import Entity, EntityManager
@@ -84,6 +85,7 @@ class BasePhrase(Unit):
             entity.eid = eid
         self.__dict__.update(state)  # Entity objects are hashed by eid.
 
+    @override
     def __post_init__(self) -> None:
         super().__post_init__()
 
@@ -98,7 +100,8 @@ class BasePhrase(Unit):
             self.pas.parse_pas_string(self, pas_string, format_=CaseInfoFormat.CASE)
 
         # Parse the rel tags.
-        for rel_tag in self.rel_tags:
+        for rel_tag_orig in self.rel_tags:
+            rel_tag = rel_tag_orig
             if rel_tag.sid == "":
                 # The target is considered to be in the same sentence.
                 rel_tag = dataclasses.replace(rel_tag, sid=self.sentence.sid)
@@ -110,6 +113,7 @@ class BasePhrase(Unit):
                     logger.warning(f"{self.sentence.sid}: unknown rel type found: {rel_tag}")
                 self._add_argument(rel_tag)
 
+    @override
     def __eq__(self, other: Any) -> bool:
         if not isinstance(other, type(self)):
             return False

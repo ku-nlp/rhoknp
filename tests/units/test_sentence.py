@@ -338,7 +338,7 @@ def test_from_jumanpp_control_character() -> None:
         + ぷらす + 未定義語 15 その他 1 * 0 * 0
         @ あっと @ 未定義語 15 その他 1 * 0 * 0
         EOS いーおーえす EOS 未定義語 15 アルファベット 3 * 0 * 0
-        \u0020 すぺーす \u0020 特殊 1 空白 6 * 0 * 0
+        \\␣ すぺーす \\␣ 特殊 1 空白 6 * 0 * 0
         < < < 特殊 1 括弧始 3 * 0 * 0
         > > > 特殊 1 括弧終 4 * 0 * 0
         " " " 特殊 1 括弧終 4 * 0 * 0
@@ -410,7 +410,7 @@ def test_from_knp_empty_line():
 
 
 def test_from_knp_invalid_input():
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="malformed line: ;; Invalid input"):
         _ = Sentence.from_knp(
             textwrap.dedent(
                 """\
@@ -616,7 +616,7 @@ def test_morphemes(case: Dict[str, str]) -> None:
 @pytest.mark.parametrize("case", CASES)
 @pytest.mark.parametrize(
     "key",
-    ("raw_text", "sentences", "line_by_line_text", "jumanpp", "knp_with_no_clause_tag", "knp"),
+    ["raw_text", "sentences", "line_by_line_text", "jumanpp", "knp_with_no_clause_tag", "knp"],
 )
 def test_reparse(case: Dict[str, str], key: str) -> None:
     if key == "raw_text":

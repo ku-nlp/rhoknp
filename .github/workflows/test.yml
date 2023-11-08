@@ -5,25 +5,25 @@ on: [push, pull_request, workflow_dispatch]
 jobs:
   test:
     name: Run tests with pytest
-    container: kunlp/jumanpp-knp:ubuntu
-    runs-on: ubuntu-20.04 # to meet the ubuntu version in the kunlp/jumanpp-knp:ubuntu container
+    container: kunlp/jumanpp-knp:ubuntu22.04
+    runs-on: ubuntu-22.04
     strategy:
-      max-parallel: 6
+      max-parallel: 5
       fail-fast: false
       matrix:
-        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11", "3.12"]
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Install required apt packages
         run: |
-          apt update -y
-          DEBIAN_FRONTEND=noninteractive apt install -y curl build-essential libsqlite3-dev libffi-dev
+          export DEBIAN_FRONTEND=noninteractive
+          apt-get update -yq
+          apt-get install -yq curl build-essential libsqlite3-dev libffi-dev libssl-dev
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-          allow-prereleases: true # TODO: Remove this line when Python 3.12 is released
       - name: Install Poetry
         run: |
           python3 -m pip install --user pipx
@@ -36,8 +36,8 @@ jobs:
         run: |
           poetry install --no-interaction --without dev,docs --extras=cli
       - name: Install KWJA
-        # KWJA does not support Python 3.7 or 3.12
-        if: ${{ matrix.python-version != 3.7 && matrix.python-version != 3.12 }}
+        # KWJA does not support Python 3.12
+        if: ${{ matrix.python-version != 3.12 }}
         run: |
           pipx install kwja
           kwja --model-size tiny --text "テスト"

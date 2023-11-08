@@ -72,20 +72,19 @@ def draw_tree(
             elif j == parent_index:
                 if dep_type in (DepType.PARALLEL, DepType.IMPERFECT_PARALLEL, DepType.APPOSITION):
                     item[i][j] = str(dep_type.value)
+                elif active_column[j] == 2:
+                    item[i][j] = "┨"
+                elif active_column[j] == 1:
+                    item[i][j] = "┤"
                 else:
-                    if active_column[j] == 2:
-                        item[i][j] = "┨"
-                    elif active_column[j] == 1:
-                        item[i][j] = "┤"
-                    else:
-                        item[i][j] = "┐"
+                    item[i][j] = "┐"
                 if active_column[j] == 2:
                     pass
                 elif para_row:
                     active_column[j] = 2
                 else:
                     active_column[j] = 1
-            else:
+            else:  # noqa: PLR5501
                 if active_column[j] == 2:
                     item[i][j] = "┃"
                 elif active_column[j] == 1:
@@ -153,13 +152,13 @@ def _get_core_text(base_phrase: BasePhrase) -> str:
     """Get the core text without ancillary words."""
     morphemes = base_phrase.morphemes
     start_index = 0
-    for i, morpheme in enumerate(morphemes):
+    for morpheme in morphemes:
         if morpheme.pos in ("助詞", "特殊", "判定詞"):
             start_index += 1
         else:
             break
     end_index = len(morphemes)
-    for i, morpheme in enumerate(reversed(morphemes)):
+    for morpheme in reversed(morphemes):
         if morpheme.pos in ("助詞", "特殊", "判定詞"):
             end_index -= 1
         else:

@@ -1,4 +1,5 @@
 import json
+import sys
 from pathlib import Path
 from typing import List, Optional
 
@@ -6,6 +7,7 @@ import typer
 import yaml
 
 from rhoknp import Document, __version__
+from rhoknp.cli.cat import print_document
 from rhoknp.cli.serve import AnalyzerType, serve_analyzer
 from rhoknp.cli.show import draw_tree
 from rhoknp.cli.stats import get_document_statistics
@@ -30,6 +32,25 @@ def main(
 ) -> None:
     """CLI のメイン関数．"""
     pass
+
+
+@app.command(help="Print KNP files with syntax highlighting.")
+def cat(
+    knp_path: Optional[Path] = typer.Argument(None, exists=True, dir_okay=False, help="Path to knp file to show."),
+    dark: bool = typer.Option(False, "--dark", "-d", help="Use dark background."),
+) -> None:
+    """KNP ファイルを色付きで表示．
+
+    Args:
+        knp_path: KNP ファイルのパス．
+        dark: True なら背景を黒にする．
+    """
+    if knp_path is None:
+        knp_text = sys.stdin.read()
+    else:
+        knp_text = knp_path.read_text()
+    doc = Document.from_knp(knp_text)
+    print_document(doc, is_dark=dark)
 
 
 @app.command(help="Print given file content in tree format.")
