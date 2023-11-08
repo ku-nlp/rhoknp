@@ -103,4 +103,4 @@ def print_document(document: Document, is_dark: bool = False) -> None:
         formatter = TerminalFormatter(bg="dark")
     else:
         formatter = TerminalFormatter(bg="light")
-    print(highlight(document.to_knp(), KNPLexer(), formatter))
+    print(highlight(document.to_knp(), KNPLexer(), formatter), end="")
