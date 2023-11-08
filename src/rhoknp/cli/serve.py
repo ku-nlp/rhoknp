@@ -75,6 +75,8 @@ def _draw_tree(document: Document, show_rel: bool = False, show_pas: bool = Fals
 
     Args:
         document: 解析結果．
+        show_rel: True なら <rel> タグの内容を表示．
+        show_pas: True なら述語項構造を表示．
 
     Returns:
         構文木．
