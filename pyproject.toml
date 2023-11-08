@@ -123,6 +123,9 @@ convention = "google"
 ]
 "tests/*" = ["D"]
 
+[tool.ruff.lint.flake8-tidy-imports]
+ban-relative-imports = "all"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
