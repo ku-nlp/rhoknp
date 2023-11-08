@@ -35,7 +35,7 @@ class Sentence(Unit):
     SID_PAT_WAC = re.compile(r"^(?P<sid>(?P<did>wiki\d{8})(-\d{2})(-\d{2})?)$")
     count = 0
 
-    def __init__(self, text: Optional[str] = None):
+    def __init__(self, text: Optional[str] = None) -> None:
         super().__init__()
         if text is not None:
             self.text = text.replace("\r", "").replace("\n", "")

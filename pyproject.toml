@@ -107,16 +107,18 @@ ignore = [
     "D301",  # Use `r"""` if any backslashes in a docstring
     "D403",  # First word of the first line should be properly capitalized
     "D415",  # First line should end with a period, question mark, or exclamation point
-
+    "ANN002",  # Missing type annotation for `*args`
+    "ANN003",  # Missing type annotation for `**kwargs`
+    "ANN101",  # Missing type annotation for `self` in method
+    "ANN102",  # Missing type annotation for `cls` in classmethod
 ]
-select = ["F", "E", "W", "I", "B", "PL", "PD", "NPY", "RUF", "UP", "TID", "COM", "PT", "D", "ARG"]
-#select = ["ALL"]
+select = ["F", "E", "W", "I", "B", "PL", "PD", "NPY", "RUF", "UP", "TID", "COM", "PT", "D", "ARG", "PYI", "ANN"]
 
 [tool.ruff.per-file-ignores]
 "__init__.py" = [
     "D104"  # Missing docstring in `__init__`
 ]
-"tests/*" = ["D"]
+"tests/*" = ["D", "ANN"]
 
 [tool.ruff.lint.flake8-bugbear]
 extend-immutable-calls = ["typer.Argument", "typer.Option"]

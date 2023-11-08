@@ -106,7 +106,7 @@ class RelTag:
     base_phrase_index: Optional[int]
     mode: Optional[RelMode]
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.type.startswith("="):
             if self.type not in COREF_TYPES:
                 logger.warning(f"Unknown coreference type: {self.type} ({self})")

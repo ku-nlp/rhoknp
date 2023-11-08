@@ -77,7 +77,7 @@ class BasePhrase(Unit):
         state["eids_nonidentical"] = tuple(entity.eid for entity in state["entities_nonidentical"])
         return state
 
-    def __setstate__(self, state) -> None:
+    def __setstate__(self, state: Dict[str, Any]) -> None:
         # Restore eids to Entity objects for hashing.
         for entity, eid in zip(state["entities"], state.pop("eids")):
             entity.eid = eid

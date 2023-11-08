@@ -30,7 +30,7 @@ class Phrase(Unit):
         parent_index: Optional[int],
         dep_type: Optional[DepType],
         features: Optional[FeatureDict] = None,
-    ):
+    ) -> None:
         super().__init__()
 
         # parent unit
