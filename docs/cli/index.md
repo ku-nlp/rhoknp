@@ -11,6 +11,17 @@ Before using the CLI, you need to install _rhoknp_ with the following command:
     pip install rhoknp[cli]
 ```
 
+## cat
+
+The `cat` command prints KNP files with syntax highlighting.
+
+```{eval-rst}
+.. prompt::
+    :prompts: $
+
+    rhoknp cat <PATH-TO-KNP-FILE> [--dark]
+```
+
 ## serve
 
 The `serve` command starts a web server to provide a playground for the given language analyzer.
