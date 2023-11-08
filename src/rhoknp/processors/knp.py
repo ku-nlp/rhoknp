@@ -71,7 +71,7 @@ class KNP(Processor):
 
     def __del__(self) -> None:
         if self._proc is not None:
-            self._proc.kill()
+            self._proc.terminate()
 
     def start_process(self, skip_sanity_check: bool = False) -> None:
         """KNP を起動する．
@@ -81,7 +81,7 @@ class KNP(Processor):
             skip_sanity_check: True なら，KNP の起動時に sanity check をスキップする．
         """
         if self._proc is not None:
-            self._proc.kill()
+            self._proc.terminate()
         try:
             self._proc = Popen(self.run_command, stdin=PIPE, stdout=PIPE, stderr=PIPE, encoding="utf-8")
             if skip_sanity_check is False:
