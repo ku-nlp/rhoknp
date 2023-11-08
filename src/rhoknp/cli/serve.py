@@ -173,7 +173,7 @@ def create_app(analyzer: AnalyzerType, base_url: str = "/", *args, **kwargs) -> 
         )
 
     @app.exception_handler(_HTTPExceptionForAnalyze)
-    async def http_exception_handler_for_analyze(request: fastapi.Request, exc: _HTTPExceptionForAnalyze):
+    async def http_exception_handler_for_analyze(_: fastapi.Request, exc: _HTTPExceptionForAnalyze):
         return fastapi.responses.JSONResponse(
             content={"error": {"code": exc.status_code, "message": exc.detail}},
             status_code=exc.status_code,

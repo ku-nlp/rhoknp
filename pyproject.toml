@@ -109,7 +109,8 @@ ignore = [
     "D415",  # First line should end with a period, question mark, or exclamation point
 
 ]
-select = ["F", "E", "W", "I", "B", "PL", "PD", "NPY", "RUF", "UP", "TID", "COM", "PT", "D"]
+select = ["F", "E", "W", "I", "B", "PL", "PD", "NPY", "RUF", "UP", "TID", "COM", "PT", "D", "ARG"]
+#select = ["ALL"]
 
 [tool.ruff.per-file-ignores]
 "__init__.py" = [
