@@ -7,10 +7,34 @@ authors = [
     "Hirokazu Kiyomaru <h.kiyomaru@gmail.com>",
     "Nobuhiro Ueda <ueda@nlp.ist.i.kyoto-u.ac.jp>",
 ]
+maintainers = [
+    "Hirokazu Kiyomaru <h.kiyomaru@gmail.com>",
+    "Nobuhiro Ueda <ueda@nlp.ist.i.kyoto-u.ac.jp>",
+]
 readme = "README.md"
+homepage = "https://github.com/ku-nlp/rhoknp"
 repository = "https://github.com/ku-nlp/rhoknp"
 documentation = "https://rhoknp.readthedocs.io/en/latest"
-keywords = ["NLP"]
+keywords = ["NLP", "Japanese", "Juman++", "KNP", "KWJA"]
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: Japanese",
+    "Operating System :: MacOS",
+    "Operating System :: MacOS :: MacOS X",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Text Processing",
+    "Topic :: Text Processing :: Linguistic",
+]
 
 [tool.poetry.dependencies]
 python = "^3.8"

@@ -6,6 +6,6 @@ authors:
     given-names: Hirokazu
   - family-names: Ueda
     given-names: Nobuhiro
-version: 1.2.0
+version: 1.6.0
 repository-code: "https://github.com/ku-nlp/rhoknp"
-date-released: 2023-02-07
+date-released: 2023-11-08
