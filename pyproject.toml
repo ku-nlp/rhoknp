@@ -71,6 +71,7 @@ sphinx-copybutton = "^0.5.0"
 myst-parser = "^2.0"
 markdown-it-py = "^3.0"
 furo = "^2023.9"
+typing-extensions = ">=4.4"
 
 [tool.poetry.extras]
 cli = ["typer", "PyYAML", "rich", "uvicorn", "fastapi", "jinja2", "pygments"]
