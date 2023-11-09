@@ -57,7 +57,7 @@ setuptools = "^68.2"  # https://stackoverflow.com/questions/75307814/error-pytho
 
 [tool.poetry.group.test.dependencies]
 pytest = "^7.2"
-coverage = "^7.3"
+coverage = { version = "^7.3", extras = ["toml"] }
 pytest-cov = "^4.1"
 httpx = "^0.25.0"
 
@@ -128,6 +128,25 @@ ban-relative-imports = "all"
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
+
+[tool.coverage.run]
+omit = ["tests/*"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",  # Do not complain about missing debug-only code
+    "except ImportError",  # Do not complain about packages we have installed
+    # Do not complain if tests do not hit defensive assertion code
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "raise ImportError",
+    # Do not complain if non-runnable code is not run
+    "if TYPE_CHECKING:",
+    "if __name__ == .__main__.:",
+    "@(abc\\.)?abstractmethod",  # Do not complain about abstract methods
+    "@overload",  # Do not complain about overloads
+]
 
 [build-system]
 requires = ["poetry-core"]
