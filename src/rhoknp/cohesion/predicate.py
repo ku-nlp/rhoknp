@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
     from rhoknp.cohesion.pas import Pas
@@ -81,7 +81,7 @@ class Predicate:
     def __repr__(self) -> str:
         return f"<{self.__module__}.{self.__class__.__name__}: {self.text!r}>"
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, type(self)) or self.base_phrase != other.base_phrase:
             return False
         if self.cfid is None or other.cfid is None:

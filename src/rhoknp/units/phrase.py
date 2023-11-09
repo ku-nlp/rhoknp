@@ -1,6 +1,6 @@
 import re
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, List, Optional, Union
+from typing import TYPE_CHECKING, List, Optional, Union
 
 try:
     from typing import override  # type: ignore
@@ -30,7 +30,7 @@ class Phrase(Unit):
         parent_index: Optional[int],
         dep_type: Optional[DepType],
         features: Optional[FeatureDict] = None,
-    ):
+    ) -> None:
         super().__init__()
 
         # parent unit
@@ -48,7 +48,7 @@ class Phrase(Unit):
         Phrase.count += 1
 
     @override
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, type(self)):
             return False
         if self.parent_unit != other.parent_unit:

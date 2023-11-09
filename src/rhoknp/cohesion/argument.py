@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Optional, Union
+from typing import TYPE_CHECKING, Optional, Union
 
 from rhoknp.cohesion.exophora import ExophoraReferent
 from rhoknp.cohesion.predicate import Predicate
@@ -52,7 +52,7 @@ class BaseArgument(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         raise NotImplementedError
 
     @property
@@ -96,7 +96,7 @@ class EndophoraArgument(BaseArgument):
     def __str__(self) -> str:
         return self.base_phrase.text
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, type(self)):
             return False
         if self._pas is not None and other._pas is not None:
@@ -171,7 +171,7 @@ class ExophoraArgument(BaseArgument):
     def __str__(self) -> str:
         return str(self.exophora_referent)
 
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, type(self)):
             return False
         if self._pas is not None and other._pas is not None:

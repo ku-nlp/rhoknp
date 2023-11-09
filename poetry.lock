@@ -1631,4 +1631,4 @@ cli = ["PyYAML", "fastapi", "jinja2", "pygments", "rich", "typer", "uvicorn"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "590139cf7a34b997ceeb2990f87486fec6086f7b3df4232912692a294f4d0735"
+content-hash = "bc902cbe4eeeb2e29f53112c13cf7f7dff02fb5bc55a258c6d8653a7cfb28290"

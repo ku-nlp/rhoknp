@@ -35,7 +35,7 @@ class Processor(ABC):
             引数の型が ``Sentence`` の場合は ``apply_to_sentence`` を呼び出す．
             引数の型が ``Document`` の場合は ``apply_to_document`` を呼び出す．
         """
-        return self.apply(text)
+        return self.apply(text, timeout=timeout)
 
     @overload
     def apply(self, text: str, timeout: int = 10) -> Document:

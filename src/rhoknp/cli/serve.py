@@ -35,16 +35,14 @@ class _Span:
 
 
 class _HTTPExceptionForIndex(fastapi.HTTPException):
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
+    pass
 
 
 class _HTTPExceptionForAnalyze(fastapi.HTTPException):
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
+    pass
 
 
-def _get_string_diff(pre_text: str, post_text) -> List[_Span]:
+def _get_string_diff(pre_text: str, post_text: str) -> List[_Span]:
     """編集前後の文字列の差分を取得．
 
     Args:
@@ -75,6 +73,8 @@ def _draw_tree(document: Document, show_rel: bool = False, show_pas: bool = Fals
 
     Args:
         document: 解析結果．
+        show_rel: True なら <rel> タグの内容を表示．
+        show_pas: True なら述語項構造を表示．
 
     Returns:
         構文木．
@@ -150,7 +150,9 @@ def create_app(analyzer: AnalyzerType, base_url: str = "/", *args, **kwargs) -> 
     templates.env.globals["base_url"] = base_url
 
     @app.exception_handler(_HTTPExceptionForIndex)
-    async def http_exception_handler_for_index(request: fastapi.Request, exc: _HTTPExceptionForIndex):
+    async def http_exception_handler_for_index(
+        request: fastapi.Request, exc: _HTTPExceptionForIndex
+    ) -> fastapi.Response:
         return templates.TemplateResponse(
             template_name,
             {"request": request, "error": exc.detail},
@@ -158,7 +160,7 @@ def create_app(analyzer: AnalyzerType, base_url: str = "/", *args, **kwargs) -> 
         )
 
     @app.get("/", response_class=fastapi.responses.HTMLResponse)
-    async def index(request: fastapi.Request, text: str = ""):
+    async def index(request: fastapi.Request, text: str = "") -> fastapi.Response:
         analyzed_document: Optional[Document] = None
         if text != "":
             try:
@@ -171,14 +173,14 @@ def create_app(analyzer: AnalyzerType, base_url: str = "/", *args, **kwargs) -> 
         )
 
     @app.exception_handler(_HTTPExceptionForAnalyze)
-    async def http_exception_handler_for_analyze(request: fastapi.Request, exc: _HTTPExceptionForAnalyze):
+    async def http_exception_handler_for_analyze(_: fastapi.Request, exc: _HTTPExceptionForAnalyze) -> fastapi.Response:
         return fastapi.responses.JSONResponse(
             content={"error": {"code": exc.status_code, "message": exc.detail}},
             status_code=exc.status_code,
         )
 
     @app.get("/analyze", response_class=fastapi.responses.JSONResponse)
-    async def analyze(text: str):
+    async def analyze(text: str) -> fastapi.Response:
         if text == "":
             raise _HTTPExceptionForAnalyze(fastapi.status.HTTP_400_BAD_REQUEST, detail="text is empty")
         try:
@@ -187,7 +189,7 @@ def create_app(analyzer: AnalyzerType, base_url: str = "/", *args, **kwargs) -> 
                 result = analyzed_document.to_jumanpp()
             else:
                 result = analyzed_document.to_knp()
-            return {"text": text, "result": result}
+            return fastapi.responses.JSONResponse(content={"text": text, "result": result})
         except Exception as e:
             raise _HTTPExceptionForAnalyze(fastapi.status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)) from e
 

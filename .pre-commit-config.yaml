@@ -18,10 +18,6 @@ repos:
     rev: 23.11.0
     hooks:
       - id: black
-  - repo: https://github.com/MarcoGorelli/absolufy-imports
-    rev: v0.3.1
-    hooks:
-      - id: absolufy-imports
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.6.1
     hooks:
@@ -35,10 +31,6 @@ repos:
           - fastapi
           - jinja2
           - pygments
-  - repo: https://github.com/PyCQA/pydocstyle
-    rev: 6.3.0
-    hooks:
-      - id: pydocstyle
   - repo: https://github.com/pre-commit/mirrors-prettier
     rev: v3.0.3
     hooks:

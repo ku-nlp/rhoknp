@@ -1,6 +1,6 @@
 import logging
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, List, Optional
+from typing import TYPE_CHECKING, List, Optional
 
 try:
     from typing import override  # type: ignore
@@ -71,7 +71,7 @@ class Clause(Unit):
                         relation.modifier.discourse_relations.append(relation)
 
     @override
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, type(self)):
             return False
         if self.parent_unit != other.parent_unit:

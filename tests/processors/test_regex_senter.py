@@ -133,6 +133,6 @@ def test_repr() -> None:
 
 def test_timeout() -> None:
     senter = RegexSenter()
-    senter._split_document = MagicMock(side_effect=lambda x: time.sleep(5))  # type: ignore
+    senter._split_document = MagicMock(side_effect=lambda _: time.sleep(5))  # type: ignore
     with pytest.raises(TimeoutError):
         senter.apply_to_document("天気がいいので散歩した。", timeout=3)

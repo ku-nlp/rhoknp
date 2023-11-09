@@ -77,7 +77,7 @@ class BasePhrase(Unit):
         state["eids_nonidentical"] = tuple(entity.eid for entity in state["entities_nonidentical"])
         return state
 
-    def __setstate__(self, state) -> None:
+    def __setstate__(self, state: Dict[str, Any]) -> None:
         # Restore eids to Entity objects for hashing.
         for entity, eid in zip(state["entities"], state.pop("eids")):
             entity.eid = eid
@@ -114,7 +114,7 @@ class BasePhrase(Unit):
                 self._add_argument(rel_tag)
 
     @override
-    def __eq__(self, other: Any) -> bool:
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, type(self)):
             return False
         if self.parent_unit != other.parent_unit:
