@@ -144,7 +144,7 @@ class Morpheme(Unit):
     @property
     def child_units(self) -> None:
         """下位の言語単位のリスト．形態素は最下位の言語単位なので常に None．"""
-        return None
+        return
 
     @property
     def document(self) -> "Document":
