@@ -89,7 +89,7 @@ python_version = 3.8
 [tool.ruff]
 line-length = 120
 indent-width = 4
-src = ["src", "tests"]
+src = ["src"]
 target-version = "py38"
 ignore = [
     "PLR0911",  # Too many return statements
