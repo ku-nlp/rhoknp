@@ -297,7 +297,7 @@ def test_index_document(case: Dict[str, str]) -> None:
         assert clause.global_index == index
 
 
-def test_index_document_2():
+def test_index_document_2() -> None:
     knp = textwrap.dedent(
         """\
         # S-ID:1

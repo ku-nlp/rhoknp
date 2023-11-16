@@ -72,11 +72,11 @@ def test_to_fstring(fstring: str) -> None:
     assert fs.to_fstring() == fstring
 
 
-def test_false():
+def test_false() -> None:
     assert FeatureDict._item_to_fstring("sem", False) == ""
 
 
-def test_ignore_tag_prefix():
+def test_ignore_tag_prefix() -> None:
     features = FeatureDict()
     features["rel"] = 'type="ノ" target="ユーザー" sid="w201106-0000060560-1" id="1"'
     assert len(features) == 0
@@ -85,7 +85,7 @@ def test_ignore_tag_prefix():
     assert len(features) == 0
 
 
-def test_modification():
+def test_modification() -> None:
     features = FeatureDict.from_fstring("""<用言:動><主節>""")
     assert features.to_fstring() == """<用言:動><主節>"""
     # Update

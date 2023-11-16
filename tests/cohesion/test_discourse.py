@@ -32,11 +32,11 @@ from rhoknp.cohesion import DiscourseRelationLabel, DiscourseRelationTag
         (DiscourseRelationTag.EVIDENCE_BACKWARD, DiscourseRelationLabel.EVIDENCE),
     ],
 )
-def test_discourse_relation_tag_label(tag: DiscourseRelationTag, label: DiscourseRelationLabel):
+def test_discourse_relation_tag_label(tag: DiscourseRelationTag, label: DiscourseRelationLabel) -> None:
     assert tag.label == label
 
 
-def test_to_fstring():
+def test_to_fstring() -> None:
     knp_text = textwrap.dedent(
         """\
         # S-ID:1
@@ -64,7 +64,7 @@ def test_to_fstring():
     assert sentence.clauses[0].discourse_relations[0].to_fstring() == "<談話関係:1/4/条件>"
 
 
-def test_discourse_relation_1():
+def test_discourse_relation_1() -> None:
     knp_text = textwrap.dedent(
         """\
         # S-ID:1
@@ -116,7 +116,7 @@ def test_discourse_relation_1():
     assert discourse_relation_1.head == document.clauses[2]
 
 
-def test_discourse_relation_2():
+def test_discourse_relation_2() -> None:
     knp_text = textwrap.dedent(
         """\
         # S-ID:1
@@ -144,7 +144,7 @@ def test_discourse_relation_2():
     assert len(sentence.clauses[0].discourse_relations) == 1
 
 
-def test_discourse_relation_3():
+def test_discourse_relation_3() -> None:
     knp_text = textwrap.dedent(
         """\
         # S-ID:1
@@ -174,7 +174,7 @@ def test_discourse_relation_3():
     assert document.clauses[0].discourse_relations[0].head == document.clauses[1]
 
 
-def test_invalid_discourse_relation():
+def test_invalid_discourse_relation() -> None:
     knp_text = textwrap.dedent(
         """\
         # S-ID:1
@@ -202,7 +202,7 @@ def test_invalid_discourse_relation():
     assert len(document.clauses[0].discourse_relations) == 0
 
 
-def test_clause_function():
+def test_clause_function() -> None:
     knp_text = textwrap.dedent(
         """\
         # S-ID:1
@@ -230,7 +230,7 @@ def test_clause_function():
     assert len(document.clauses[0].discourse_relations) == 1
 
 
-def test_invalid_clause_function():
+def test_invalid_clause_function() -> None:
     knp_text = textwrap.dedent(
         """\
         # S-ID:1
@@ -259,7 +259,7 @@ def test_invalid_clause_function():
     assert len(document.clauses[1].discourse_relations) == 0
 
 
-def test_backward_clause_function_0():
+def test_backward_clause_function_0() -> None:
     knp_text = textwrap.dedent(
         """\
         # S-ID:1
@@ -285,7 +285,7 @@ def test_backward_clause_function_0():
     assert document.clauses[0].discourse_relations[0].head == document.clauses[1]
 
 
-def test_backward_clause_function_1():
+def test_backward_clause_function_1() -> None:
     knp_text = textwrap.dedent(
         """\
         # S-ID:1
@@ -313,7 +313,7 @@ def test_backward_clause_function_1():
     assert document.clauses[0].discourse_relations[0].head == document.clauses[1]
 
 
-def test_backward_clause_function_2():
+def test_backward_clause_function_2() -> None:
     knp_text = textwrap.dedent(
         """\
         # S-ID:1
@@ -357,7 +357,7 @@ def test_backward_clause_function_2():
     assert document.clauses[1].discourse_relations[0].head == document.clauses[2]
 
 
-def test_backward_clause_function_3():
+def test_backward_clause_function_3() -> None:
     knp_text = textwrap.dedent(
         """\
         # S-ID:1
@@ -386,7 +386,7 @@ def test_backward_clause_function_3():
     assert document.clauses[1].discourse_relations[0].head == document.clauses[0]
 
 
-def test_invalid_backward_clause_function():
+def test_invalid_backward_clause_function() -> None:
     knp_text = textwrap.dedent(
         """\
         # S-ID:2
@@ -409,7 +409,7 @@ def test_invalid_backward_clause_function():
     assert len(sentence.clauses[0].discourse_relations) == 0
 
 
-def test_both():
+def test_both() -> None:
     knp_text = textwrap.dedent(
         """\
         # S-ID:1

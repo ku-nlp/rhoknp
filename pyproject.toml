@@ -113,9 +113,9 @@ select = ["F", "E", "W", "I", "B", "PL", "PD", "NPY", "RUF", "UP", "TID", "COM",
 
 [tool.ruff.per-file-ignores]
 "__init__.py" = [
-    "D104"  # Missing docstring in `__init__`
+    "D104"  # Missing docstring in public package
 ]
-"tests/*" = ["D", "ANN"]
+"tests/*" = ["D"]
 
 [tool.ruff.lint.flake8-bugbear]
 extend-immutable-calls = ["typer.Argument", "typer.Option"]

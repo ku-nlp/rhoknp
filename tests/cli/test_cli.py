@@ -52,7 +52,7 @@ def test_cat() -> None:
 
 
 @pytest.fixture()
-def _mock_stdin(monkeypatch: pytest.MonkeyPatch):
+def _mock_stdin(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr("sys.stdin", knp_text)
 
 

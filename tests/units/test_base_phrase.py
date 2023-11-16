@@ -351,7 +351,7 @@ def test_head_text(case: Dict[str, str]) -> None:
     assert base_phrase.head.text == case["head_text"]
 
 
-def test_empty_sid():
+def test_empty_sid() -> None:
     document = Document.from_knp(
         textwrap.dedent(
             """\
@@ -373,7 +373,7 @@ def test_empty_sid():
     assert str(arguments[0]) == "天気が"
 
 
-def test_out_of_range_id():
+def test_out_of_range_id() -> None:
     document = Document.from_knp(
         textwrap.dedent(
             """\
@@ -392,7 +392,7 @@ def test_out_of_range_id():
     assert document.base_phrases[1].pas.get_all_arguments() == {}
 
 
-def test_rel_target_mismatch():
+def test_rel_target_mismatch() -> None:
     document = Document.from_knp(
         textwrap.dedent(
             """\
@@ -413,7 +413,7 @@ def test_rel_target_mismatch():
     assert str(arguments[0]) == "天気が"
 
 
-def test_unknown_rel_type():
+def test_unknown_rel_type() -> None:
     document = Document.from_knp(
         textwrap.dedent(
             """\
