@@ -79,10 +79,6 @@ cli = ["typer", "PyYAML", "rich", "uvicorn", "fastapi", "jinja2", "pygments"]
 [tool.poetry.scripts]
 rhoknp = "rhoknp.cli.cli:app"
 
-[tool.black]
-line-length = 120
-target-version = ["py38", "py39", "py310", "py311", "py312"]
-
 [tool.mypy]
 python_version = 3.8
 

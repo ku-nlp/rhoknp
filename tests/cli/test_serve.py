@@ -206,4 +206,8 @@ def test_get_entity_spans() -> None:
         """
     )
     document = Document.from_knp(knp_text)
-    assert _get_entity_spans(document) == [_Span("お会計は", None), _Span("108円", "MONEY"), _Span("でございます。", None)]
+    assert _get_entity_spans(document) == [
+        _Span("お会計は", None),
+        _Span("108円", "MONEY"),
+        _Span("でございます。", None),
+    ]

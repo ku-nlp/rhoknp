@@ -156,9 +156,7 @@ def test_span_not_found() -> None:
                 + -1D
                 スラッシュ すらっしゅ スラッシュ 名詞 6 普通名詞 1 * 0 * 0
                 EOS
-                """.lstrip(
-                    "\n"
-                )
+                """.lstrip("\n")
             ),
         ),
     ],
@@ -184,9 +182,7 @@ def test_escape_in_knp() -> None:
         + -1D <NE:OPTIONAL:html\>タグ>
         タグ たぐ タグ 名詞 6 普通名詞 1 * 0 * 0
         EOS
-        """.lstrip(
-            "\n"
-        )
+        """.lstrip("\n")
     )
     sentence = Sentence.from_knp(knp_text)
     assert sentence.named_entities[0].text == "html>タグ"

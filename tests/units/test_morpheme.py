@@ -524,7 +524,9 @@ def test_span() -> None:
 
 
 def test_span_error() -> None:
-    jumanpp = '外国 がいこく 外国 名詞 6 普通名詞 1 * 0 * 0 "代表表記:外国/がいこく ドメイン:政治 カテゴリ:場所-その他"\n'
+    jumanpp = (
+        '外国 がいこく 外国 名詞 6 普通名詞 1 * 0 * 0 "代表表記:外国/がいこく ドメイン:政治 カテゴリ:場所-その他"\n'
+    )
     morpheme = Morpheme.from_jumanpp(jumanpp)
     with pytest.raises(AttributeError):
         _ = morpheme.span
