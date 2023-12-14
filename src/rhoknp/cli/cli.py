@@ -22,7 +22,7 @@ def version_callback(value: bool) -> None:
         value: True ならバージョンを表示してプログラムを終了．
     """
     if value:
-        typer.echo(f"rhoknp version: {__version__}")
+        print(f"rhoknp version: {__version__}")
         raise typer.Exit
 
 
@@ -86,9 +86,9 @@ def stats(
     doc = Document.from_knp(knp_path.read_text())
     doc_stats = get_document_statistics(doc)
     if use_json:
-        typer.echo(json.dumps(doc_stats, ensure_ascii=False, indent=4))
+        print(json.dumps(doc_stats, ensure_ascii=False, indent=4))
     else:
-        typer.echo(yaml.dump(doc_stats, allow_unicode=True, sort_keys=False))
+        print(yaml.dump(doc_stats, allow_unicode=True, sort_keys=False))
 
 
 @app.command(help="Serve an analyzer as HTTP server.")
