@@ -88,7 +88,7 @@ def stats(
     if use_json:
         print(json.dumps(doc_stats, ensure_ascii=False, indent=4))
     else:
-        print(yaml.dump(doc_stats, allow_unicode=True, sort_keys=False))
+        print(yaml.dump(doc_stats, allow_unicode=True, sort_keys=False), end="")
 
 
 @app.command(help="Serve an analyzer as HTTP server.")
