@@ -59,7 +59,7 @@ setuptools = "^68.2"  # https://stackoverflow.com/questions/75307814/error-pytho
 pytest = "^7.2"
 coverage = { version = "^7.3", extras = ["toml"] }
 pytest-cov = "^4.1"
-httpx = "^0.25.0"
+httpx = ">=0.25,<0.27"
 
 [tool.poetry.group.docs.dependencies]
 Sphinx = "^7.0"
