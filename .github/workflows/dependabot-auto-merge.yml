@@ -17,7 +17,7 @@ jobs:
         with:
           github-token: "${{ secrets.GITHUB_TOKEN }}"
       - name: Wait for tests to pass
-        uses: lewagon/wait-on-check-action@v1.3.1
+        uses: lewagon/wait-on-check-action@v1.3.3
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           # running-workflow-name: "Test" # this condition does not work
