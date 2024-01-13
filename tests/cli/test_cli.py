@@ -79,6 +79,15 @@ def test_convert_stdin() -> None:
         assert result.exit_code == 0
 
 
+def test_convert_value_error() -> None:
+    doc = Document.from_knp(knp_text)
+    with tempfile.NamedTemporaryFile("wt") as f:
+        f.write(doc.to_knp())
+        f.flush()
+        result = runner.invoke(app, ["convert", f.name, "--format", "foo"])  # Unknown format
+        assert result.exit_code == 1
+
+
 def test_show() -> None:
     doc = Document.from_knp(knp_text)
     with tempfile.NamedTemporaryFile("wt") as f:
