@@ -49,6 +49,31 @@ def cat(
     print_document(doc, is_dark=dark)
 
 
+@app.command(help="Convert a KNP file into raw text, Juman++ format, or KNP format.")
+def convert(
+    knp_path: Optional[Path] = typer.Argument(
+        None, exists=True, dir_okay=False, help="Path to knp file to convert. If not given, read from stdin"
+    ),
+    format_: str = typer.Option("text", "--format", "-f", help="Format to convert to."),
+) -> None:
+    """KNP ファイルを種々のフォーマットに変換．
+
+    Args:
+        knp_path: KNP ファイルのパス．
+        format_: 変換先のフォーマット．"text", "jumanpp", "knp" のいずれか．
+    """
+    knp_text = sys.stdin.read() if knp_path is None else knp_path.read_text()
+    doc = Document.from_knp(knp_text)
+    if format_ == "text":
+        print(doc.text)
+    elif format_ == "jumanpp":
+        print(doc.to_jumanpp(), end="")
+    elif format_ == "knp":
+        print(doc.to_knp(), end="")
+    else:
+        raise ValueError(f"Unknown format: {format_}")
+
+
 @app.command(help="Print given file content in tree format.")
 def show(
     knp_path: Path = typer.Argument(..., exists=True, dir_okay=False, help="Path to knp file to show"),

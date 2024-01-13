@@ -62,6 +62,23 @@ def test_cat_stdin() -> None:
     assert result.exit_code == 0
 
 
+def test_convert() -> None:
+    doc = Document.from_knp(knp_text)
+    with tempfile.NamedTemporaryFile("wt") as f:
+        f.write(doc.to_knp())
+        f.flush()
+        for format_ in ("text", "jumanpp", "knp"):
+            result = runner.invoke(app, ["convert", f.name, "--format", format_])
+            assert result.exit_code == 0
+
+
+@pytest.mark.usefixtures("_mock_stdin")
+def test_convert_stdin() -> None:
+    for format_ in ("text", "jumanpp", "knp"):
+        result = runner.invoke(app, ["convert", "--format", format_])
+        assert result.exit_code == 0
+
+
 def test_show() -> None:
     doc = Document.from_knp(knp_text)
     with tempfile.NamedTemporaryFile("wt") as f:
