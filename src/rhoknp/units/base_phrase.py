@@ -291,7 +291,7 @@ class BasePhrase(Unit):
         Returns:
             共参照している基本句の集合．
         """
-        mentions: List["BasePhrase"] = []
+        mentions: List["BasePhrase"] = [self]
         for mention in itertools.chain.from_iterable(entity.mentions for entity in self.entities):
             if mention not in mentions:
                 mentions.append(mention)

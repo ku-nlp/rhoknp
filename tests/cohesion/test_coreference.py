@@ -333,6 +333,25 @@ def test_coref_with_self() -> None:
     assert len(entities[0].mentions_all) == 1
 
 
+def test_coref_include_self() -> None:
+    sentence = Sentence.from_knp(
+        textwrap.dedent(
+            """\
+            # S-ID:000-0-0
+            * -1D
+            + -1D
+            わたし わたし わたし 名詞 6 普通名詞 1 * 0 * 0
+            EOS
+            """
+        )
+    )
+
+    mention = sentence.base_phrases[0]
+    coreferents = mention.get_coreferents(include_self=True)
+    assert len(coreferents) == 1
+    assert (coreferents[0].text, coreferents[0].global_index) == ("わたし", 0)
+
+
 def test_merge_entity_0() -> None:
     _ = Sentence.from_knp(
         textwrap.dedent(
