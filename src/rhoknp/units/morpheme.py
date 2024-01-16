@@ -100,7 +100,9 @@ class Morpheme(Unit):
         self._base_phrase: Optional["BasePhrase"] = None
         self._sentence: Optional["Sentence"] = None
 
-        self.semantics: SemanticsDict = semantics if semantics is not None else SemanticsDict()  #: 辞書に記載の意味情報．
+        self.semantics: SemanticsDict = (
+            semantics if semantics is not None else SemanticsDict()
+        )  #: 辞書に記載の意味情報．
         self.features: FeatureDict = features if features is not None else FeatureDict()  #: 素性．
         self.homographs: List["Morpheme"] = []  #: 同形の形態素のリスト．
 
@@ -144,7 +146,7 @@ class Morpheme(Unit):
     @property
     def child_units(self) -> None:
         """下位の言語単位のリスト．形態素は最下位の言語単位なので常に None．"""
-        return None
+        return
 
     @property
     def document(self) -> "Document":

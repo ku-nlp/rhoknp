@@ -329,7 +329,7 @@ def test_from_jumanpp_without_last_eos(case: Dict[str, str]) -> None:
     assert doc.text == case["raw_text"]
 
 
-def test_from_jumanpp_error():
+def test_from_jumanpp_error() -> None:
     invalid_jumanpp_text = textwrap.dedent(
         """\
         # S-ID:1
@@ -413,7 +413,7 @@ def test_from_knp_without_last_eos(case: Dict[str, str]) -> None:
     assert doc.text == case["raw_text"]
 
 
-def test_from_knp_error():
+def test_from_knp_error() -> None:
     invalid_knp_text = textwrap.dedent(
         """\
         # S-ID:1

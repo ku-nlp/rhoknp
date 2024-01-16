@@ -52,7 +52,7 @@ def test_cat() -> None:
 
 
 @pytest.fixture()
-def _mock_stdin(monkeypatch: pytest.MonkeyPatch):
+def _mock_stdin(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr("sys.stdin", knp_text)
 
 
@@ -60,6 +60,32 @@ def _mock_stdin(monkeypatch: pytest.MonkeyPatch):
 def test_cat_stdin() -> None:
     result = runner.invoke(app, ["cat"])
     assert result.exit_code == 0
+
+
+def test_convert() -> None:
+    doc = Document.from_knp(knp_text)
+    with tempfile.NamedTemporaryFile("wt") as f:
+        f.write(doc.to_knp())
+        f.flush()
+        for format_ in ("text", "jumanpp", "knp"):
+            result = runner.invoke(app, ["convert", f.name, "--format", format_])
+            assert result.exit_code == 0
+
+
+@pytest.mark.usefixtures("_mock_stdin")
+def test_convert_stdin() -> None:
+    for format_ in ("text", "jumanpp", "knp"):
+        result = runner.invoke(app, ["convert", "--format", format_])
+        assert result.exit_code == 0
+
+
+def test_convert_value_error() -> None:
+    doc = Document.from_knp(knp_text)
+    with tempfile.NamedTemporaryFile("wt") as f:
+        f.write(doc.to_knp())
+        f.flush()
+        result = runner.invoke(app, ["convert", f.name, "--format", "foo"])  # Unknown format
+        assert result.exit_code == 1
 
 
 def test_show() -> None:

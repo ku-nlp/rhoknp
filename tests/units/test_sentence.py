@@ -278,7 +278,7 @@ def test_from_raw_text(case: Dict[str, str]) -> None:
     _ = Sentence.from_raw_text(case["line_by_line_text"])
 
 
-def test_from_raw_text_empty_line():
+def test_from_raw_text_empty_line() -> None:
     sent = Sentence.from_raw_text(
         textwrap.dedent(
             """\
@@ -307,7 +307,7 @@ def test_from_jumanpp_without_last_eos(case: Dict[str, str]) -> None:
     assert sent.text == case["raw_text"]
 
 
-def test_from_jumanpp_empty_line():
+def test_from_jumanpp_empty_line() -> None:
     sent = Sentence.from_jumanpp(
         textwrap.dedent(
             """\
@@ -370,7 +370,7 @@ def test_from_knp_without_last_eos(case: Dict[str, str]) -> None:
     assert sent.text == case["raw_text"]
 
 
-def test_from_knp_empty():
+def test_from_knp_empty() -> None:
     _ = Sentence.from_knp("")
     _ = Sentence.from_knp(
         textwrap.dedent(
@@ -382,7 +382,7 @@ def test_from_knp_empty():
     )
 
 
-def test_from_knp_empty_line():
+def test_from_knp_empty_line() -> None:
     _ = Sentence.from_knp(
         textwrap.dedent(
             """\
@@ -409,7 +409,7 @@ def test_from_knp_empty_line():
     )
 
 
-def test_from_knp_invalid_input():
+def test_from_knp_invalid_input() -> None:
     with pytest.raises(ValueError, match="malformed line: ;; Invalid input"):
         _ = Sentence.from_knp(
             textwrap.dedent(

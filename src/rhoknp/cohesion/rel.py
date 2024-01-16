@@ -107,7 +107,7 @@ class RelTag:
     mode: Optional[RelMode]
 
     def __post_init__(self) -> None:
-        if self.type.startswith("="):
+        if self.is_coreference():
             if self.type not in COREF_TYPES:
                 logger.warning(f"Unknown coreference type: {self.type} ({self})")
         else:  # noqa: PLR5501
@@ -125,6 +125,10 @@ class RelTag:
             ret += f' sid="{self.sid}" id="{self.base_phrase_index}"'
         ret += "/>"
         return ret
+
+    def is_coreference(self) -> bool:
+        """共参照・照応関係を表すタグなら True．"""
+        return self.type.startswith("=")
 
 
 class RelTagList(List[RelTag]):

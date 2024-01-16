@@ -32,26 +32,26 @@ def test_to_fstring(case: Dict[str, Any]) -> None:
     assert semantics.to_sstring() == case["sstring"]
 
 
-def test_false():
+def test_false() -> None:
     assert SemanticsDict._item_to_sstring("sem", False) == ""
 
 
-def test_empty_dict():
+def test_empty_dict() -> None:
     semantics = SemanticsDict({})
     assert semantics.to_sstring() == ""
 
 
-def test_void():
+def test_void() -> None:
     semantics = SemanticsDict()
     assert semantics.to_sstring() == ""
 
 
-def test_empty_string():
+def test_empty_string() -> None:
     semantics = SemanticsDict.from_sstring("")
     assert semantics.to_sstring() == ""
 
 
-def test_modification():
+def test_modification() -> None:
     features = SemanticsDict.from_sstring('"代表表記:天気/てんき カテゴリ:抽象物"')
     assert features.to_sstring() == '"代表表記:天気/てんき カテゴリ:抽象物"'
     # Update

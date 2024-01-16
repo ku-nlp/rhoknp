@@ -68,7 +68,7 @@ class Document(Unit):
     @property
     def parent_unit(self) -> None:
         """上位の言語単位．文書は最上位の言語単位なので常に None．"""
-        return None
+        return
 
     @property
     def child_units(self) -> Optional[List[Sentence]]:

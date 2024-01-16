@@ -15,7 +15,7 @@ from rhoknp.cohesion.coreference import Entity, EntityManager
 from rhoknp.cohesion.exophora import ExophoraReferent
 from rhoknp.cohesion.pas import CaseInfoFormat, Pas, normalize_case
 from rhoknp.cohesion.predicate import Predicate
-from rhoknp.cohesion.rel import CASE_TYPES, COREF_TYPES, RelMode, RelTag, RelTagList
+from rhoknp.cohesion.rel import RelMode, RelTag, RelTagList
 from rhoknp.props.dependency import DepType
 from rhoknp.props.feature import FeatureDict
 from rhoknp.props.memo import MemoTag
@@ -105,12 +105,10 @@ class BasePhrase(Unit):
             if rel_tag.sid == "":
                 # The target is considered to be in the same sentence.
                 rel_tag = dataclasses.replace(rel_tag, sid=self.sentence.sid)
-            if rel_tag.type in COREF_TYPES:
+            if rel_tag.is_coreference():
                 if rel_tag.mode not in (RelMode.OR, RelMode.AMBIGUOUS):
                     self._add_coreference(rel_tag)
             else:
-                if rel_tag.type not in CASE_TYPES:
-                    logger.warning(f"{self.sentence.sid}: unknown rel type found: {rel_tag}")
                 self._add_argument(rel_tag)
 
     @override
@@ -293,7 +291,7 @@ class BasePhrase(Unit):
         Returns:
             共参照している基本句の集合．
         """
-        mentions: List["BasePhrase"] = []
+        mentions: List["BasePhrase"] = [self]
         for mention in itertools.chain.from_iterable(entity.mentions for entity in self.entities):
             if mention not in mentions:
                 mentions.append(mention)

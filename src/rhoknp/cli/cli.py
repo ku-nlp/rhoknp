@@ -22,8 +22,8 @@ def version_callback(value: bool) -> None:
         value: True ならバージョンを表示してプログラムを終了．
     """
     if value:
-        typer.echo(f"rhoknp version: {__version__}")
-        raise typer.Exit()
+        print(f"rhoknp version: {__version__}")
+        raise typer.Exit
 
 
 @app.callback()
@@ -31,7 +31,6 @@ def main(
     _: bool = typer.Option(False, "--version", "-v", callback=version_callback, help="Show version and exit."),
 ) -> None:
     """CLI のメイン関数．"""
-    pass
 
 
 @app.command(help="Print KNP files with syntax highlighting.")
@@ -45,12 +44,34 @@ def cat(
         knp_path: KNP ファイルのパス．
         dark: True なら背景を黒にする．
     """
-    if knp_path is None:
-        knp_text = sys.stdin.read()
-    else:
-        knp_text = knp_path.read_text()
+    knp_text = sys.stdin.read() if knp_path is None else knp_path.read_text()
     doc = Document.from_knp(knp_text)
     print_document(doc, is_dark=dark)
+
+
+@app.command(help="Convert a KNP file into raw text, Juman++ format, or KNP format.")
+def convert(
+    knp_path: Optional[Path] = typer.Argument(
+        None, exists=True, dir_okay=False, help="Path to knp file to convert. If not given, read from stdin"
+    ),
+    format_: str = typer.Option("text", "--format", "-f", help="Format to convert to."),
+) -> None:
+    """KNP ファイルを種々のフォーマットに変換．
+
+    Args:
+        knp_path: KNP ファイルのパス．
+        format_: 変換先のフォーマット．"text", "jumanpp", "knp" のいずれか．
+    """
+    knp_text = sys.stdin.read() if knp_path is None else knp_path.read_text()
+    doc = Document.from_knp(knp_text)
+    if format_ == "text":
+        print(doc.text)
+    elif format_ == "jumanpp":
+        print(doc.to_jumanpp(), end="")
+    elif format_ == "knp":
+        print(doc.to_knp(), end="")
+    else:
+        raise ValueError(f"Unknown format: {format_}")
 
 
 @app.command(help="Print given file content in tree format.")
@@ -90,9 +111,9 @@ def stats(
     doc = Document.from_knp(knp_path.read_text())
     doc_stats = get_document_statistics(doc)
     if use_json:
-        typer.echo(json.dumps(doc_stats, ensure_ascii=False, indent=4))
+        print(json.dumps(doc_stats, ensure_ascii=False, indent=4))
     else:
-        typer.echo(yaml.dump(doc_stats, allow_unicode=True, sort_keys=False))
+        print(yaml.dump(doc_stats, allow_unicode=True, sort_keys=False), end="")
 
 
 @app.command(help="Serve an analyzer as HTTP server.")

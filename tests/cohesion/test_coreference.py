@@ -259,8 +259,16 @@ def test_coref2() -> None:
     mentions: List[BasePhrase] = sorted(entity.mentions_all, key=lambda x: x.global_index)
     assert len(mentions) == 4
     assert (mentions[0].text, mentions[0].global_index, {e.eid for e in mentions[0].entities}) == ("ドクターを", 7, {4})
-    assert (mentions[1].text, mentions[1].global_index, {e.eid for e in mentions[1].entities}) == ("ドクターを", 11, {14})
-    assert (mentions[2].text, mentions[2].global_index, {e.eid for e in mentions[2].entities}) == ("ドクターの", 16, {14})
+    assert (mentions[1].text, mentions[1].global_index, {e.eid for e in mentions[1].entities}) == (
+        "ドクターを",
+        11,
+        {14},
+    )
+    assert (mentions[2].text, mentions[2].global_index, {e.eid for e in mentions[2].entities}) == (
+        "ドクターの",
+        16,
+        {14},
+    )
     assert (mentions[3].text, mentions[3].global_index, {e.eid for e in mentions[3].entities}) == ("皆様", 17, {14})
 
 
@@ -323,6 +331,25 @@ def test_coref_with_self() -> None:
     mention = next(iter(entity.mentions))
     assert (mention.text, mention.global_index, {e.eid for e in mention.entities}) == ("わたし", 0, {0})
     assert len(entities[0].mentions_all) == 1
+
+
+def test_coref_include_self() -> None:
+    sentence = Sentence.from_knp(
+        textwrap.dedent(
+            """\
+            # S-ID:000-0-0
+            * -1D
+            + -1D
+            わたし わたし わたし 名詞 6 普通名詞 1 * 0 * 0
+            EOS
+            """
+        )
+    )
+
+    mention = sentence.base_phrases[0]
+    coreferents = mention.get_coreferents(include_self=True)
+    assert len(coreferents) == 1
+    assert (coreferents[0].text, coreferents[0].global_index) == ("わたし", 0)
 
 
 def test_merge_entity_0() -> None:
