@@ -40,12 +40,12 @@ classifiers = [
 python = ">=3.8"
 typing-extensions = { version = ">=4.4", python = "<3.12" }
 typer = { version = ">=0.7", optional = true }
-PyYAML = { version = "^6.0", optional = true }
+PyYAML = { version = ">=6.0", optional = true }
 rich = { version = ">=12.6", optional = true }
 uvicorn = { version = ">=0.21.0", optional = true }
 fastapi = { version = ">=0.92.0", optional = true }
-jinja2 = { version = "^3.1", optional = true }
-pygments = { version = "^2.16", optional = true }
+jinja2 = { version = ">=3.1", optional = true }
+pygments = { version = ">=2.16", optional = true }
 
 [tool.poetry.group.dev.dependencies]
 ipython = [
@@ -59,13 +59,13 @@ setuptools = "^69.0"  # https://stackoverflow.com/questions/75307814/error-pytho
 pytest = "^8.0"
 coverage = { version = "^7.3", extras = ["toml"] }
 pytest-cov = "^4.1"
-httpx = ">=0.25,<0.27"
+httpx = ">=0.25"
 
 [tool.poetry.group.docs.dependencies]
 Sphinx = "^7.0"
 sphinx-prompt = [
     { version = "^1.6", python = ">=3.8,<3.9" },
-    { version = "^1.8", python = ">=3.9,<4.0" },
+    { version = "^1.8", python = ">=3.9" },
 ]
 sphinx-copybutton = "^0.5.0"
 myst-parser = "^2.0"
