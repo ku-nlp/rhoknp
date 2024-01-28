@@ -154,8 +154,9 @@ def create_app(analyzer: AnalyzerType, base_url: str = "/", *args, **kwargs) -> 
         request: fastapi.Request, exc: _HTTPExceptionForIndex
     ) -> fastapi.Response:
         return templates.TemplateResponse(
-            template_name,
-            {"request": request, "error": exc.detail},
+            request=request,
+            name=template_name,
+            context={"error": exc.detail},
             status_code=exc.status_code,
         )
 
@@ -168,8 +169,9 @@ def create_app(analyzer: AnalyzerType, base_url: str = "/", *args, **kwargs) -> 
             except Exception as e:
                 raise _HTTPExceptionForIndex(fastapi.status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)) from e
         return templates.TemplateResponse(
-            template_name,
-            {"request": request, "text": text, "analyzed_document": analyzed_document},
+            request=request,
+            name=template_name,
+            context={"text": text, "analyzed_document": analyzed_document},
         )
 
     @app.exception_handler(_HTTPExceptionForAnalyze)
