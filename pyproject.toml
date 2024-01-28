@@ -56,7 +56,7 @@ ipdb = "^0.13.13"
 setuptools = "^69.0"  # https://stackoverflow.com/questions/75307814/error-python-packaging-tool-setuptools-not
 
 [tool.poetry.group.test.dependencies]
-pytest = "^7.2"
+pytest = "^8.0"
 coverage = { version = "^7.3", extras = ["toml"] }
 pytest-cov = "^4.1"
 httpx = ">=0.25,<0.27"
