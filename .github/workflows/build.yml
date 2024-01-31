@@ -17,6 +17,7 @@ jobs:
         uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
+        id: setup-python
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install Poetry
@@ -24,7 +25,10 @@ jobs:
           pipx install poetry
           echo "$HOME/.local/bin" >> $GITHUB_PATH
       - name: Install dependencies
+        env:
+          POETRY_PYTHON: ${{ steps.setup-python.outputs.python-path }}
         run: |
+          poetry env use $POETRY_PYTHON
           poetry install --no-interaction --without dev,test,docs
       - name: Build package
         run: |
