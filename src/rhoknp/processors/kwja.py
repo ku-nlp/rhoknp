@@ -117,6 +117,7 @@ class KWJA(Processor):
 
         if isinstance(document, str):
             document = Document(document)
+        doc_id = document.doc_id
 
         stdout_text: str = ""
         done_event: threading.Event = threading.Event()
@@ -163,7 +164,12 @@ class KWJA(Processor):
                 self.start_process(skip_sanity_check=True)
                 raise RuntimeError("KWJA exited unexpectedly.")
 
-        return self._create_document(stdout_text)
+        ret = self._create_document(stdout_text)
+        if doc_id != "":
+            ret.doc_id = doc_id
+            for sentence in ret.sentences:
+                sentence.doc_id = doc_id
+        return ret
 
     @override
     def apply_to_sentence(self, sentence: Union[Sentence, str], timeout: int = 10) -> Sentence:
