@@ -619,9 +619,7 @@ def test_morphemes(case: Dict[str, str]) -> None:
     ["raw_text", "sentences", "line_by_line_text", "jumanpp", "knp_with_no_clause_tag", "knp"],
 )
 def test_reparse(case: Dict[str, str], key: str) -> None:
-    if key == "raw_text":
-        sent = Sentence.from_raw_text(case[key])
-    elif key == "line_by_line_text":
+    if key in ("raw_text", "line_by_line_text"):
         sent = Sentence.from_raw_text(case[key])
     elif key == "jumanpp":
         sent = Sentence.from_jumanpp(case[key])
