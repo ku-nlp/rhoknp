@@ -65,7 +65,7 @@ httpx = ">=0.25"
 Sphinx = "^7.0"
 sphinx-prompt = [
     { version = "^1.6", python = ">=3.8,<3.9" },
-    { version = "^1.8", python = ">=3.9" },
+    { version = "^1.8", python = "^3.9" },  # sphinx-prompt requires Python >=3.9,<4.0
 ]
 sphinx-copybutton = "^0.5.0"
 myst-parser = "^2.0"
