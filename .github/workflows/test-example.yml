@@ -39,8 +39,6 @@ jobs:
         run: |
           poetry install --no-interaction --without dev,docs --extras=cli
       - name: Install KWJA
-        # KWJA does not support Python 3.12
-        if: ${{ matrix.python-version != 3.12 }}
         run: |
           pipx install kwja
       - name: Run tests for all files under examples/apply_*.py

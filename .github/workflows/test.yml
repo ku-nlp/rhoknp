@@ -36,21 +36,19 @@ jobs:
         run: |
           poetry install --no-interaction --without dev,docs --extras=cli
       - name: Install KWJA
-        # KWJA does not support Python 3.12
-        if: ${{ matrix.python-version != 3.12 }}
         run: |
           pipx install kwja
           kwja --model-size tiny --text "テスト"
       - name: Run tests with coverage
-        if: ${{ matrix.python-version == 3.9 }}
+        if: ${{ matrix.python-version == 3.10 }}
         run: |
           poetry run pytest --cov=./ --cov-report=xml -v ./tests
       - name: Run tests without coverage
-        if: ${{ matrix.python-version != 3.9 }}
+        if: ${{ matrix.python-version != 3.10 }}
         run: |
           poetry run pytest -v ./tests
       - name: Upload coverage to Codecov
-        if: ${{ matrix.python-version == 3.9 }}
+        if: ${{ matrix.python-version == 3.10 }}
         uses: codecov/codecov-action@v3
         with:
           files: ./coverage.xml
