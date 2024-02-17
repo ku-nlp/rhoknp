@@ -12,11 +12,11 @@ from rhoknp.cohesion import Argument
 # Create a KWJA instance.
 kwja = KWJA()
 
-# Apply KWJA to a sentence.
-sent = kwja.apply_to_sentence(sys.argv[1])
+# Apply KWJA to a document.
+doc = kwja.apply_to_document(sys.argv[1])
 
 # Get information.
-for base_phrase in sent.base_phrases:
+for base_phrase in doc.base_phrases:
     pas = base_phrase.pas
     if pas.is_empty() is True:
         continue
