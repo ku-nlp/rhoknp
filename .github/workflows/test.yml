@@ -34,7 +34,7 @@ jobs:
           echo "$HOME/.local/bin" >> $GITHUB_PATH
       - name: Install dependencies
         run: |
-          poetry install --no-interaction --without dev,docs --extras=cli
+          poetry install --no-interaction --without dev,docs --extras=cli --no-cache
       - name: Install KWJA
         run: |
           pipx install kwja
@@ -47,6 +47,10 @@ jobs:
         if: ${{ matrix.python-version != 3.10 }}
         run: |
           poetry run pytest -v ./tests
+      - name: Install git for codecov
+        if: ${{ matrix.python-version == 3.10 }}
+        run: |
+          apt-get install -yq git
       - name: Upload coverage to Codecov
         if: ${{ matrix.python-version == 3.10 }}
         uses: codecov/codecov-action@v4

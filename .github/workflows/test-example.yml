@@ -37,7 +37,7 @@ jobs:
           echo "$HOME/.local/bin" >> $GITHUB_PATH
       - name: Install dependencies
         run: |
-          poetry install --no-interaction --without dev,docs --extras=cli
+          poetry install --no-interaction --without dev,docs --extras=cli --no-cache
       - name: Install KWJA
         run: |
           pipx install kwja
