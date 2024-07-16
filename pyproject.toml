@@ -53,7 +53,7 @@ ipython = [
     { version = "^8.13", python = ">=3.9" },
 ]
 ipdb = "^0.13.13"
-setuptools = "^69.0"  # https://stackoverflow.com/questions/75307814/error-python-packaging-tool-setuptools-not
+setuptools = ">=69,<71"  # https://stackoverflow.com/questions/75307814/error-python-packaging-tool-setuptools-not
 
 [tool.poetry.group.test.dependencies]
 pytest = "^7.2"
