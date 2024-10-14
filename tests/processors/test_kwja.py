@@ -131,6 +131,7 @@ def test_apply() -> None:
         _ = kwja.apply(1)  # type: ignore
 
 
+@pytest.mark.skipif(not is_kwja_available, reason="KWJA is not available")
 def test_keep_doc_id_document() -> None:
     kwja = KWJA(options=["--model-size", "tiny"])
     doc = Document.from_sentences(["こんにちは。", "さようなら。"])
@@ -162,12 +163,14 @@ def test_unsupported_option() -> None:
         _ = KWJA(options=["--model-size", "tiny", "--input-format", "seq2seq"])
 
 
+@pytest.mark.skipif(not is_kwja_available, reason="KWJA is not available")
 def test_apply_to_sentence() -> None:
     kwja = KWJA(options=["--model-size", "tiny"])
     with pytest.raises(NotImplementedError):
         _ = kwja.apply_to_sentence("外国人参政権")
 
 
+@pytest.mark.skipif(not is_kwja_available, reason="KWJA is not available")
 def test_repr() -> None:
     kwja = KWJA(options=["--model-size", "tiny", "--tasks", "char,word"])
     assert repr(kwja) == "KWJA(executable='kwja', options=['--model-size', 'tiny', '--tasks', 'char,word'])"

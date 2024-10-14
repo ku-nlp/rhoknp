@@ -118,6 +118,7 @@ def test_whitespace() -> None:
     assert sent.morphemes[1].subpos == "空白"
 
 
+@pytest.mark.skipif(not is_jumanpp_available, reason="Juman++ is not available")
 def test_keep_id_sentence() -> None:
     jumanpp = Jumanpp()
     sent = Sentence.from_raw_text("外国人参政権")
@@ -128,6 +129,7 @@ def test_keep_id_sentence() -> None:
     assert sent.sent_id == "test-1"
 
 
+@pytest.mark.skipif(not is_jumanpp_available, reason="Juman++ is not available")
 def test_keep_doc_id_document() -> None:
     jumanpp = Jumanpp()
     doc = Document.from_sentences(["米原発の電力供給", "米原発の521系の列車"])
@@ -140,6 +142,7 @@ def test_keep_doc_id_document() -> None:
         assert sent.doc_id == "test"
 
 
+@pytest.mark.skipif(not is_jumanpp_available, reason="Juman++ is not available")
 def test_keep_id_document() -> None:
     jumanpp = Jumanpp()
     doc = Document.from_sentences(["米原発の電力供給", "米原発の521系の列車"])
@@ -198,6 +201,7 @@ def test_runtime_error2() -> None:
         _ = jumanpp.apply_to_sentence(inp)
 
 
+@pytest.mark.skipif(not is_jumanpp_available, reason="Juman++ is not available")
 def test_repr() -> None:
     jumanpp = Jumanpp(options=["--juman"], senter=RegexSenter())
     assert repr(jumanpp) == "Jumanpp(executable='jumanpp', options=['--juman'], senter=RegexSenter())"

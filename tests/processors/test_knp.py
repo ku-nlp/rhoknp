@@ -111,6 +111,7 @@ def test_apply_to_document(text: str) -> None:
     assert doc.text == text.replace("\r", "").replace("\n", "")
 
 
+@pytest.mark.skipif(not is_knp_available, reason="KNP is not available")
 def test_keep_id_sentence() -> None:
     knp = KNP()
     sent = Sentence.from_raw_text("外国人参政権")
@@ -121,6 +122,7 @@ def test_keep_id_sentence() -> None:
     assert sent.sent_id == "test-1"
 
 
+@pytest.mark.skipif(not is_knp_available, reason="KNP is not available")
 def test_keep_doc_id_document() -> None:
     knp = KNP()
     doc = Document.from_sentences(["米原発の電力供給", "米原発の521系の列車"])
@@ -133,6 +135,7 @@ def test_keep_doc_id_document() -> None:
         assert sent.doc_id == "test"
 
 
+@pytest.mark.skipif(not is_knp_available, reason="KNP is not available")
 def test_keep_id_document() -> None:
     knp = KNP()
     doc = Document.from_sentences(["米原発の電力供給", "米原発の521系の列車"])
@@ -200,6 +203,7 @@ def test_invalid_option() -> None:
     #     _ = KNP(options=["-tab", "--anaphora"])
 
 
+@pytest.mark.skipif(not is_knp_available, reason="KNP is not available")
 def test_repr() -> None:
     knp = KNP(options=["-tab"], senter=RegexSenter(), jumanpp=Jumanpp())
     assert (
