@@ -71,7 +71,7 @@ def test_apply() -> None:
     ],
 )
 def test_apply_to_sentence(text: str) -> None:
-    knp = KNP(options=["-tab", "-anaphora"])
+    knp = KNP()
     sent = knp.apply_to_sentence(text)
     assert sent.text == text.replace("\r", "").replace("\n", "")
 
