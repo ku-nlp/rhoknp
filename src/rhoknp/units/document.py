@@ -2,7 +2,7 @@ import logging
 from typing import List, Optional, Sequence, Union
 
 try:
-    from typing import override  # type: ignore
+    from typing import override  # type: ignore[attr-defined]
 except ImportError:
     from typing_extensions import override
 

@@ -3,6 +3,7 @@
 Usage:
     $ python examples/use_named_entity_recognition.py "太郎は花子が読んでいる本を次郎に渡した。"
 """
+
 import sys
 
 from rhoknp import KNP

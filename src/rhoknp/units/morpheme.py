@@ -3,7 +3,7 @@ from functools import cached_property
 from typing import TYPE_CHECKING, ClassVar, Dict, List, Optional, Tuple, Union
 
 try:
-    from typing import override  # type: ignore
+    from typing import override  # type: ignore[attr-defined]
 except ImportError:
     from typing_extensions import override
 
@@ -341,7 +341,7 @@ class Morpheme(Unit):
         ret = self._to_jumanpp_line()
         features = FeatureDict(self.features)  # deep copy
         for homograph in self.homographs:
-            alt_feature_key = "ALT-{}-{}-{}-{}-{}-{}-{}-{}".format(
+            alt_feature_key = "ALT-{}-{}-{}-{}-{}-{}-{}-{}".format(  # noqa: UP032
                 homograph.surf,
                 homograph.reading,
                 homograph.lemma,

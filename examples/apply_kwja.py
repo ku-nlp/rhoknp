@@ -3,6 +3,7 @@
 Usage:
     $ python examples/apply_kwja.py "今日はいい天気ですね。"
 """
+
 import sys
 
 from rhoknp import KWJA

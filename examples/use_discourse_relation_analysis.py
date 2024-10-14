@@ -3,6 +3,7 @@
 Usage:
     $ python examples/use_discourse_relation_analysis.py "風が吹いたら桶屋が儲かる。"
 """
+
 import sys
 
 from rhoknp import KNP

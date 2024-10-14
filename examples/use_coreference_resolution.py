@@ -3,6 +3,7 @@
 Usage:
     $ python examples/use_coreference_resolution.py "ソビエト連邦はソ連ともよばれる。同国の首都はモスクワである。"
 """
+
 import sys
 from typing import List
 

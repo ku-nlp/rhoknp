@@ -3,7 +3,7 @@ import re
 from typing import TYPE_CHECKING, List, Optional, Union
 
 try:
-    from typing import override  # type: ignore
+    from typing import override  # type: ignore[attr-defined]
 except ImportError:
     from typing_extensions import override
 

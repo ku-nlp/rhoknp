@@ -3,6 +3,7 @@
 Usage:
     $ python examples/use_predicate_argument_structure_analysis.py "太郎は花子が読んでいる本を次郎に渡した。"
 """
+
 import sys
 from typing import Dict, List
 

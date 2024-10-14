@@ -3,6 +3,7 @@
 Usage:
     $ python examples/load_knp.py example.jumanpp
 """
+
 import sys
 
 from rhoknp import Sentence

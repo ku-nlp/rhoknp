@@ -7,7 +7,7 @@ from threading import Lock
 from typing import List, Optional, Union
 
 try:
-    from typing import override  # type: ignore
+    from typing import override  # type: ignore[attr-defined]
 except ImportError:
     from typing_extensions import override
 
@@ -195,9 +195,9 @@ class KWJA(Processor):
     def _create_document(self, text: str) -> Document:
         if self._output_format == "raw":
             return Document.from_raw_text(text)
-        elif self._output_format == "jumanpp":
+        if self._output_format == "jumanpp":
             return Document.from_jumanpp(text)
-        elif self._output_format == "words":
+        if self._output_format == "words":
             document = Document()
             sentences = []
             sentence_lines: List[str] = []
@@ -212,9 +212,8 @@ class KWJA(Processor):
             document.sentences = sentences
             document.__post_init__()
             return document
-        else:
-            assert self._output_format == "knp"
-            return Document.from_knp(text)
+        assert self._output_format == "knp"
+        return Document.from_knp(text)
 
     @staticmethod
     def _create_sentence_from_words_format(text: str) -> Sentence:

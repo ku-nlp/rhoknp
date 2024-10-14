@@ -12,7 +12,7 @@ is_knp_available = KNP().is_available()
 is_kwja_available = KWJA(options=["--model-size", "tiny"]).is_available()
 
 
-@pytest.fixture()
+@pytest.fixture
 def jumanpp_client() -> TestClient:
     app = create_app(AnalyzerType.JUMANPP)
     return TestClient(app)
@@ -48,7 +48,7 @@ def test_index_jumanpp(jumanpp_client: TestClient, text: str) -> None:
     assert response.status_code == 200
 
 
-@pytest.fixture()
+@pytest.fixture
 def knp_client() -> TestClient:
     app = create_app(AnalyzerType.KNP)
     return TestClient(app)
@@ -101,7 +101,7 @@ def test_index_knp_error(knp_client: TestClient) -> None:
     assert response.status_code == 500
 
 
-@pytest.fixture()
+@pytest.fixture
 def kwja_client() -> TestClient:
     app = create_app(AnalyzerType.KWJA, options=["--model-size", "tiny", "--tasks", "char,word"])
     return TestClient(app)
