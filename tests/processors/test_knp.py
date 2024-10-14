@@ -82,7 +82,7 @@ def test_thread_safe() -> None:
     texts = ["外国人参政権", "望遠鏡で泳いでいる少女を見た。", "エネルギーを素敵にENEOS"]
     texts *= 10
     with concurrent.futures.ThreadPoolExecutor() as executor:
-        futures = [executor.submit(knp.apply_to_sentence, text) for text in texts]
+        futures = [executor.submit(knp.apply_to_sentence, text, timeout=60) for text in texts]
         for i, future in enumerate(futures):
             sentence = future.result()
             assert sentence.text == texts[i]
