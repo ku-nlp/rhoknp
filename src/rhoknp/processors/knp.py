@@ -153,9 +153,10 @@ class KNP(Processor):
             sentence = Sentence(sentence)
 
         if sentence.is_jumanpp_required():
-            if self.jumanpp is None:
-                logger.debug("jumanpp is not specified when initializing KNP: use Jumanpp with no option")
-                self.jumanpp = Jumanpp()
+            with self._lock:
+                if self.jumanpp is None:
+                    logger.debug("jumanpp is not specified when initializing KNP: use Jumanpp with no option")
+                    self.jumanpp = Jumanpp()
             sentence = self.jumanpp.apply_to_sentence(sentence, timeout=timeout - int(time.time() - start))
 
         stdout_text: str = ""
