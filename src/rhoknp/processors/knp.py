@@ -194,7 +194,7 @@ class KNP(Processor):
             done_event.set()
 
         with self._lock:
-            thread = threading.Thread(target=worker)
+            thread = threading.Thread(target=worker, daemon=True)
             thread.start()
             done_event.wait(timeout - int(time.time() - start))
 

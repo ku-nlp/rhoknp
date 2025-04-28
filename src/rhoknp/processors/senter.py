@@ -48,7 +48,7 @@ class RegexSenter(Processor):
             sentences = self._split_document(document.text)
             done_event.set()
 
-        thread = threading.Thread(target=worker)
+        thread = threading.Thread(target=worker, daemon=True)
         thread.start()
         done_event.wait(timeout)
 
