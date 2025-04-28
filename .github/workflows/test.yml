@@ -55,7 +55,7 @@ jobs:
           apt-get install -yq git
       - name: Upload coverage to Codecov
         if: ${{ matrix.python-version == 3.10 }}
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           files: ./coverage.xml
           root_dir: true
