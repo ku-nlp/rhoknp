@@ -1,5 +1,6 @@
 import logging
-from typing import List, Optional, Sequence, Union
+from collections.abc import Sequence
+from typing import Optional, Union
 
 try:
     from typing import override  # type: ignore[attr-defined]
@@ -36,7 +37,7 @@ class Document(Unit):
         Sentence.count = 0
 
         # child units
-        self._sentences: Optional[List[Sentence]] = None
+        self._sentences: Optional[list[Sentence]] = None
 
         if text is not None:
             self.text = text
@@ -71,7 +72,7 @@ class Document(Unit):
         return
 
     @property
-    def child_units(self) -> Optional[List[Sentence]]:
+    def child_units(self) -> Optional[list[Sentence]]:
         """下位の言語単位（文）のリスト．解析結果にアクセスできないなら None．"""
         return self._sentences
 
@@ -90,7 +91,7 @@ class Document(Unit):
         self.doc_id = did
 
     @property
-    def sentences(self) -> List[Sentence]:
+    def sentences(self) -> list[Sentence]:
         """文のリスト．
 
         Raises:
@@ -101,7 +102,7 @@ class Document(Unit):
         return self._sentences
 
     @sentences.setter
-    def sentences(self, sentences: List[Sentence]) -> None:
+    def sentences(self, sentences: list[Sentence]) -> None:
         """文のリスト．
 
         Args:
@@ -112,7 +113,7 @@ class Document(Unit):
         self._sentences = sentences
 
     @property
-    def clauses(self) -> List[Clause]:
+    def clauses(self) -> list[Clause]:
         """節のリスト．
 
         Raises:
@@ -121,7 +122,7 @@ class Document(Unit):
         return [clause for sentence in self.sentences for clause in sentence.clauses]
 
     @property
-    def phrases(self) -> List[Phrase]:
+    def phrases(self) -> list[Phrase]:
         """文節のリスト．
 
         Raises:
@@ -130,7 +131,7 @@ class Document(Unit):
         return [phrase for sentence in self.sentences for phrase in sentence.phrases]
 
     @property
-    def base_phrases(self) -> List[BasePhrase]:
+    def base_phrases(self) -> list[BasePhrase]:
         """基本句のリスト．
 
         Raises:
@@ -139,7 +140,7 @@ class Document(Unit):
         return [base_phrase for sentence in self.sentences for base_phrase in sentence.base_phrases]
 
     @property
-    def morphemes(self) -> List[Morpheme]:
+    def morphemes(self) -> list[Morpheme]:
         """形態素のリスト．
 
         Raises:
@@ -148,7 +149,7 @@ class Document(Unit):
         return [morpheme for sentence in self.sentences for morpheme in sentence.morphemes]
 
     @property
-    def named_entities(self) -> List[NamedEntity]:
+    def named_entities(self) -> list[NamedEntity]:
         """固有表現のリスト．
 
         Raises:
@@ -157,7 +158,7 @@ class Document(Unit):
         return [ne for sentence in self.sentences for ne in sentence.named_entities]
 
     @property
-    def pas_list(self) -> List[Pas]:
+    def pas_list(self) -> list[Pas]:
         """述語項構造のリスト．
 
         Raises:
@@ -203,7 +204,7 @@ class Document(Unit):
         """
         document = cls()
         sentences = []
-        sentence_lines: List[str] = []
+        sentence_lines: list[str] = []
         for line in text.split("\n"):
             if line.strip() == "":
                 continue
@@ -281,7 +282,7 @@ class Document(Unit):
         """
         document = cls()
         sentences = []
-        sentence_lines: List[str] = []
+        sentence_lines: list[str] = []
         for line in jumanpp_text.split("\n"):
             if line.strip() == "":
                 continue
@@ -347,7 +348,7 @@ class Document(Unit):
         """
         document = cls()
         sentences = []
-        sentence_lines: List[str] = []
+        sentence_lines: list[str] = []
         for line in knp_text.split("\n"):
             if line.strip() == "":
                 continue

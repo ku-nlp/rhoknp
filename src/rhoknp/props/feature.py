@@ -1,14 +1,14 @@
 import logging
 import re
-from typing import ClassVar, Dict, Set, Union
+from typing import ClassVar, Union
 
 logger = logging.getLogger(__name__)
 
 
-class FeatureDict(Dict[str, Union[str, bool]]):
+class FeatureDict(dict[str, Union[str, bool]]):
     """文節，基本句，形態素の素性情報を表すクラス．"""
 
-    IGNORE_TAG_PREFIXES: ClassVar[Set[str]] = {"rel ", "memo "}
+    IGNORE_TAG_PREFIXES: ClassVar[set[str]] = {"rel ", "memo "}
     PAT: ClassVar[re.Pattern] = re.compile(r"(?P<feats>(<([^:\"]|\".*?\")+?(:([^>\\]|\\>?)+)?>)*)")
     FEATURE_PAT: ClassVar[re.Pattern] = re.compile(
         rf"<(?!({'|'.join(IGNORE_TAG_PREFIXES)}))(?P<key>([^:\"]|\".*?\")+?)(:(?P<value>([^>\\]|\\>?)+))?>"

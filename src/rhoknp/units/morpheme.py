@@ -1,6 +1,6 @@
 import re
 from functools import cached_property
-from typing import TYPE_CHECKING, ClassVar, Dict, List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, ClassVar, Optional, Union
 
 try:
     from typing import override  # type: ignore[attr-defined]
@@ -56,13 +56,13 @@ class Morpheme(Unit):
         + rf"( {FeatureDict.PAT.pattern})?$"
     )
     # https://github.com/ku-nlp/jumanpp/blob/v2.0.0-rc3/src/jumandic/shared/juman_format.cc#L44
-    _ESCAPE_MAP_HALF_TO_FULL_WIDTH: ClassVar[Dict[str, str]] = {" ": "　", '"': "”", "<": "＜", ">": "＞"}
-    _UNESCAPE_MAP_HALF_TO_FULL_WIDTH: ClassVar[Dict[str, str]] = {
+    _ESCAPE_MAP_HALF_TO_FULL_WIDTH: ClassVar[dict[str, str]] = {" ": "　", '"': "”", "<": "＜", ">": "＞"}
+    _UNESCAPE_MAP_HALF_TO_FULL_WIDTH: ClassVar[dict[str, str]] = {
         v: k for k, v in _ESCAPE_MAP_HALF_TO_FULL_WIDTH.items()
     }
     # https://github.com/ku-nlp/jumanpp/blob/v2.0.0-rc4/src/jumandic/shared/juman_format.cc#L44
-    _ESCAPE_MAP_CONTROL_CHAR: ClassVar[Dict[str, str]] = {"\t": r"\t", " ": r"\␣"}
-    _UNESCAPE_MAP_CONTROL_CHAR: ClassVar[Dict[str, str]] = {v: k for k, v in _ESCAPE_MAP_CONTROL_CHAR.items()}
+    _ESCAPE_MAP_CONTROL_CHAR: ClassVar[dict[str, str]] = {"\t": r"\t", " ": r"\␣"}
+    _UNESCAPE_MAP_CONTROL_CHAR: ClassVar[dict[str, str]] = {v: k for k, v in _ESCAPE_MAP_CONTROL_CHAR.items()}
 
     count = 0
 
@@ -104,7 +104,7 @@ class Morpheme(Unit):
             semantics if semantics is not None else SemanticsDict()
         )  #: 辞書に記載の意味情報．
         self.features: FeatureDict = features if features is not None else FeatureDict()  #: 素性．
-        self.homographs: List["Morpheme"] = []  #: 同形の形態素のリスト．
+        self.homographs: list["Morpheme"] = []  #: 同形の形態素のリスト．
 
         self.index = self.count  #: 文内におけるインデックス．
         if homograph is False:
@@ -241,7 +241,7 @@ class Morpheme(Unit):
         return self.base_phrase.head
 
     @cached_property
-    def span(self) -> Tuple[int, int]:
+    def span(self) -> tuple[int, int]:
         """文における文字レベルのスパン．"""
         if self.index == 0:
             start = 0
@@ -251,7 +251,7 @@ class Morpheme(Unit):
         return start, end
 
     @cached_property
-    def global_span(self) -> Tuple[int, int]:
+    def global_span(self) -> tuple[int, int]:
         """文書全体における文字レベルのスパン．"""
         offset = 0
         for prev_sentence in self.document.sentences[: self.sentence.index]:
@@ -260,7 +260,7 @@ class Morpheme(Unit):
         return start + offset, end + offset
 
     @cached_property
-    def children(self) -> List["Morpheme"]:
+    def children(self) -> list["Morpheme"]:
         """この形態素に係っている形態素のリスト．"""
         return [morpheme for morpheme in self.sentence.morphemes if morpheme.parent == self]
 
@@ -359,7 +359,7 @@ class Morpheme(Unit):
 
     def _to_jumanpp_line(self) -> str:
         """Juman++ フォーマットに変換．"""
-        attrs: List[str] = []
+        attrs: list[str] = []
         for attr_name in self._ATTRIBUTES:
             attr = getattr(self, attr_name)
             if attr_name in ("surf", "reading", "lemma"):

@@ -2,7 +2,7 @@ import logging
 import re
 from dataclasses import dataclass
 from enum import Enum
-from typing import ClassVar, List, Optional
+from typing import ClassVar, Optional
 
 CASE_TYPES = [
     "ガ",
@@ -131,7 +131,7 @@ class RelTag:
         return self.type.startswith("=")
 
 
-class RelTagList(List[RelTag]):
+class RelTagList(list[RelTag]):
     """関係タグ付きコーパスにおける <rel> タグの列を表すクラス．"""
 
     @classmethod

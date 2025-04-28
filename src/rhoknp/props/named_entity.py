@@ -2,7 +2,7 @@ import logging
 import re
 from dataclasses import dataclass
 from enum import Enum
-from typing import TYPE_CHECKING, ClassVar, List, Optional
+from typing import TYPE_CHECKING, ClassVar, Optional
 
 if TYPE_CHECKING:
     from rhoknp.units.morpheme import Morpheme
@@ -40,7 +40,7 @@ class NamedEntity:
     PAT: ClassVar[re.Pattern] = re.compile(r"<NE:(?P<cat>\w+):(?P<name>([^>\\]|\\>?)+)>")
 
     category: NamedEntityCategory
-    morphemes: List["Morpheme"]
+    morphemes: list["Morpheme"]
 
     def __str__(self) -> str:
         return self.text
@@ -51,7 +51,7 @@ class NamedEntity:
         return "".join(m.text for m in self.morphemes)
 
     @classmethod
-    def from_fstring(cls, fstring: str, candidate_morphemes: List["Morpheme"]) -> Optional["NamedEntity"]:
+    def from_fstring(cls, fstring: str, candidate_morphemes: list["Morpheme"]) -> Optional["NamedEntity"]:
         """KNP における素性文字列からオブジェクトを作成．"""
         match = cls.PAT.match(fstring)
         if match is None:
@@ -74,7 +74,7 @@ class NamedEntity:
         return f"<NE:{self.category.value}:{escaped_text}>"
 
     @staticmethod
-    def _find_morpheme_span(name: str, candidates: List["Morpheme"]) -> Optional[range]:
+    def _find_morpheme_span(name: str, candidates: list["Morpheme"]) -> Optional[range]:
         """固有表現の文字列にマッチする形態素の範囲を返す．
 
         Args:

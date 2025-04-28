@@ -4,7 +4,7 @@ import subprocess
 import threading
 from subprocess import PIPE, Popen
 from threading import Lock
-from typing import List, Optional, Union
+from typing import Optional, Union
 
 try:
     from typing import override  # type: ignore[attr-defined]
@@ -38,17 +38,17 @@ class KWJA(Processor):
     def __init__(
         self,
         executable: str = "kwja",
-        options: Optional[List[str]] = None,
+        options: Optional[list[str]] = None,
         skip_sanity_check: bool = False,
     ) -> None:
         self.executable = executable  #: KWJA のパス．
-        self.options: List[str] = options or []  #: KWJA のオプション．
+        self.options: list[str] = options or []  #: KWJA のオプション．
         self._proc: Optional[Popen] = None
         self._lock = Lock()
         self._output_format: str = "knp"
         self._input_format: str = "raw"
         if "--tasks" in self.options:
-            tasks: List[str] = self.options[self.options.index("--tasks") + 1].split(",")
+            tasks: list[str] = self.options[self.options.index("--tasks") + 1].split(",")
             if "word" in tasks:
                 self._output_format = "knp"
             elif "seq2seq" in tasks:
@@ -200,7 +200,7 @@ class KWJA(Processor):
         if self._output_format == "words":
             document = Document()
             sentences = []
-            sentence_lines: List[str] = []
+            sentence_lines: list[str] = []
             for line in text.split("\n"):
                 if line.strip() == "":
                     continue
@@ -218,14 +218,14 @@ class KWJA(Processor):
     @staticmethod
     def _create_sentence_from_words_format(text: str) -> Sentence:
         sentence = Sentence()
-        morphemes: List[Morpheme] = []
+        morphemes: list[Morpheme] = []
         for line in text.split("\n"):
             if line.strip() == "":
                 continue
             if is_comment_line(line):
                 sentence.comment = line
                 continue
-            words: List[str] = line.split(" ")
+            words: list[str] = line.split(" ")
             morphemes += [
                 Morpheme(
                     text=word,
@@ -253,11 +253,11 @@ class KWJA(Processor):
         return p.stdout.strip()
 
     @property
-    def run_command(self) -> List[str]:
+    def run_command(self) -> list[str]:
         """解析時に実行するコマンド．"""
         return [self.executable, *self.options]
 
     @property
-    def version_command(self) -> List[str]:
+    def version_command(self) -> list[str]:
         """バージョンを確認するコマンド．"""
         return [self.executable, "--version"]

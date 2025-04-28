@@ -7,8 +7,8 @@ from rhoknp.props.semantics import SemanticsDict
 __all__ = [
     "DepType",
     "FeatureDict",
-    "SemanticsDict",
+    "MemoTag",
     "NamedEntity",
     "NamedEntityCategory",
-    "MemoTag",
+    "SemanticsDict",
 ]

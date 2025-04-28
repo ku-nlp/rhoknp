@@ -1,6 +1,6 @@
 import logging
 import re
-from typing import List, Optional, Tuple
+from typing import Optional
 
 from rhoknp.units.morpheme import Morpheme
 
@@ -19,7 +19,7 @@ def is_comment_line(line: str) -> bool:
     return line.startswith("#") and not Morpheme.is_morpheme_line(line)
 
 
-def extract_did_and_sid(comment_line: str, patterns: List[re.Pattern]) -> Tuple[Optional[str], Optional[str], str]:
+def extract_did_and_sid(comment_line: str, patterns: list[re.Pattern]) -> tuple[Optional[str], Optional[str], str]:
     """コメント行から文書IDおよび文IDを抽出する．
 
     Args:

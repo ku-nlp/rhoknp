@@ -5,7 +5,6 @@ Usage:
 """
 
 import sys
-from typing import Dict, List
 
 from rhoknp import KWJA
 from rhoknp.cohesion import Argument
@@ -21,7 +20,7 @@ for base_phrase in doc.base_phrases:
     pas = base_phrase.pas
     if pas.is_empty() is True:
         continue
-    all_arguments: Dict[str, List[Argument]] = pas.get_all_arguments()
+    all_arguments: dict[str, list[Argument]] = pas.get_all_arguments()
     print(f"Predicate: {pas.predicate}")
     for case, arguments in all_arguments.items():
         print(f"  {case}格: ", end="")

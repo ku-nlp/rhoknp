@@ -5,7 +5,6 @@ Usage:
 """
 
 import sys
-from typing import List
 
 from rhoknp import KWJA, BasePhrase
 
@@ -17,7 +16,7 @@ doc = kwja.apply_to_document(sys.argv[1])
 
 # Get information.
 for base_phrase in doc.base_phrases:
-    coreferents: List[BasePhrase] = base_phrase.get_coreferents()
+    coreferents: list[BasePhrase] = base_phrase.get_coreferents()
     if len(coreferents) > 0:
         print(f"Mention {base_phrase}")
         for coreferring_mention in coreferents:

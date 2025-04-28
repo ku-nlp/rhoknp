@@ -1,7 +1,8 @@
 import logging
 import re
+from collections.abc import Iterator
 from functools import partial
-from typing import Callable, Iterator, List, Optional, TextIO, Union
+from typing import Callable, Optional, TextIO, Union
 
 from rhoknp import Sentence
 from rhoknp.utils.comment import extract_did_and_sid
@@ -79,7 +80,7 @@ def chunk_by_document(f: TextIO, doc_id_format: Union[str, Callable] = "default"
         raise TypeError(f"Invalid doc_id_format: {doc_id_format}")
 
     prev_doc_id: Optional[str] = None
-    buffer: List[str] = []
+    buffer: list[str] = []
     for sentence in chunk_by_sentence(f):
         doc_id = extract_doc_id(sentence.split("\n")[0])
         if buffer and (prev_doc_id != doc_id or doc_id is None):

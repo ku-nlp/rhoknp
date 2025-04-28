@@ -1,7 +1,7 @@
 import json
 import sys
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional
 
 import typer
 import yaml
@@ -122,7 +122,7 @@ def serve(
     host: str = typer.Option("localhost", "--host", "-h", help="Host to listen on."),
     port: int = typer.Option(8000, "--port", "-p", help="Port to listen on."),
     base_url: str = typer.Option("/", "--base-url", help="Root path of the server."),
-    analyzer_args: Optional[List[str]] = typer.Argument(None, help="Additional arguments for the analyzer."),
+    analyzer_args: Optional[list[str]] = typer.Argument(None, help="Additional arguments for the analyzer."),
 ) -> None:
     """解析器を起動し，HTTP サーバとして提供．
 

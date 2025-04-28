@@ -1,5 +1,4 @@
 import time
-from typing import List
 from unittest.mock import MagicMock
 
 import pytest
@@ -92,7 +91,7 @@ from rhoknp import Document, RegexSenter, Sentence
         ),
     ],
 )
-def test_apply_to_document(document: str, sentence_strings: List[str]) -> None:
+def test_apply_to_document(document: str, sentence_strings: list[str]) -> None:
     senter = RegexSenter()
     doc = senter.apply_to_document(document)
     for i, sentence in enumerate(doc.sentences):

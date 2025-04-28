@@ -1,5 +1,4 @@
 import textwrap
-from typing import Dict
 
 import pytest
 
@@ -237,33 +236,33 @@ KNP_SNIPPETS = [
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_document(case: Dict[str, str]) -> None:
+def test_document(case: dict[str, str]) -> None:
     doc = Document.from_knp(case["knp"])
     for base_phrase in doc.base_phrases:
         assert base_phrase.document == doc
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_sentence(case: Dict[str, str]) -> None:
+def test_sentence(case: dict[str, str]) -> None:
     sent = Sentence.from_knp(case["knp"])
     for base_phrase in sent.base_phrases:
         assert base_phrase.sentence == sent
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_num_document(case: Dict[str, str]) -> None:
+def test_num_document(case: dict[str, str]) -> None:
     doc = Document.from_knp(case["knp"])
     assert len(doc.base_phrases) == case["num"]
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_num_sentence(case: Dict[str, str]) -> None:
+def test_num_sentence(case: dict[str, str]) -> None:
     sent = Sentence.from_knp(case["knp"])
     assert len(sent.base_phrases) == case["num"]
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_parent_document(case: Dict[str, str]) -> None:
+def test_parent_document(case: dict[str, str]) -> None:
     doc = Document.from_knp(case["knp"])
     if case["parent_ids"] is not None:
         assert [bp.parent.index if bp.parent else -1 for bp in doc.base_phrases] == case["parent_ids"]
@@ -273,7 +272,7 @@ def test_parent_document(case: Dict[str, str]) -> None:
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_parent_sentence(case: Dict[str, str]) -> None:
+def test_parent_sentence(case: dict[str, str]) -> None:
     sent = Sentence.from_knp(case["knp"])
     if case["parent_ids"] is not None:
         assert [bp.parent.index if bp.parent else -1 for bp in sent.base_phrases] == case["parent_ids"]
@@ -283,7 +282,7 @@ def test_parent_sentence(case: Dict[str, str]) -> None:
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_children_document(case: Dict[str, str]) -> None:
+def test_children_document(case: dict[str, str]) -> None:
     doc = Document.from_knp(case["knp"])
     if case["children_ids"] is not None:
         assert [[child.index for child in bp.children] for bp in doc.base_phrases] == case["children_ids"]
@@ -293,7 +292,7 @@ def test_children_document(case: Dict[str, str]) -> None:
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_children_sentence(case: Dict[str, str]) -> None:
+def test_children_sentence(case: dict[str, str]) -> None:
     sent = Sentence.from_knp(case["knp"])
     if case["children_ids"] is not None:
         assert [[child.index for child in bp.children] for bp in sent.base_phrases] == case["children_ids"]
@@ -303,7 +302,7 @@ def test_children_sentence(case: Dict[str, str]) -> None:
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_index_sentence(case: Dict[str, str]) -> None:
+def test_index_sentence(case: dict[str, str]) -> None:
     sent = Sentence.from_knp(case["knp"])
     for index, base_phrase in enumerate(sent.base_phrases):
         assert base_phrase.index == index
@@ -311,14 +310,14 @@ def test_index_sentence(case: Dict[str, str]) -> None:
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_index_document(case: Dict[str, str]) -> None:
+def test_index_document(case: dict[str, str]) -> None:
     doc = Document.from_knp(case["knp"])
     for index, base_phrase in enumerate(doc.base_phrases):
         assert base_phrase.global_index == index
 
 
 @pytest.mark.parametrize("case", KNP_SNIPPETS)
-def test_from_knp(case: Dict[str, str]) -> None:
+def test_from_knp(case: dict[str, str]) -> None:
     _ = BasePhrase.from_knp(case["knp"])
 
 
@@ -328,25 +327,25 @@ def test_from_knp_error() -> None:
 
 
 @pytest.mark.parametrize("case", KNP_SNIPPETS)
-def test_to_knp(case: Dict[str, str]) -> None:
+def test_to_knp(case: dict[str, str]) -> None:
     base_phrase = BasePhrase.from_knp(case["knp"])
     assert base_phrase.to_knp() == case["knp"]
 
 
 @pytest.mark.parametrize("case", KNP_SNIPPETS)
-def test_text(case: Dict[str, str]) -> None:
+def test_text(case: dict[str, str]) -> None:
     base_phrase = BasePhrase.from_knp(case["knp"])
     assert base_phrase.text == case["text"]
 
 
 @pytest.mark.parametrize("case", KNP_SNIPPETS)
-def test_morpheme_num(case: Dict[str, str]) -> None:
+def test_morpheme_num(case: dict[str, str]) -> None:
     base_phrase = BasePhrase.from_knp(case["knp"])
     assert len(base_phrase.morphemes) == case["morpheme_num"]
 
 
 @pytest.mark.parametrize("case", KNP_SNIPPETS)
-def test_head_text(case: Dict[str, str]) -> None:
+def test_head_text(case: dict[str, str]) -> None:
     base_phrase = BasePhrase.from_knp(case["knp"])
     assert base_phrase.head.text == case["head_text"]
 

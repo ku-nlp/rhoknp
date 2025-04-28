@@ -1,5 +1,5 @@
 import logging
-from typing import TYPE_CHECKING, ClassVar, Dict, List, Optional
+from typing import TYPE_CHECKING, ClassVar, Optional
 
 from rhoknp.cohesion.argument import ExophoraArgument
 from rhoknp.cohesion.exophora import ExophoraReferent
@@ -21,11 +21,11 @@ class Entity:
     def __init__(self, eid: int, exophora_referent: Optional[ExophoraReferent] = None) -> None:
         self.eid = eid  #: エンティティ ID．
         self.exophora_referent = exophora_referent  #: 外界照応の照応先．対応するものがなければ None．
-        self.mentions: List["BasePhrase"] = []  #: このエンティティを参照するメンションのリスト．
-        self.mentions_nonidentical: List["BasePhrase"] = []  #: このエンティティを≒関係で参照するメンションのリスト．
+        self.mentions: list["BasePhrase"] = []  #: このエンティティを参照するメンションのリスト．
+        self.mentions_nonidentical: list["BasePhrase"] = []  #: このエンティティを≒関係で参照するメンションのリスト．
 
     @property
-    def mentions_all(self) -> List["BasePhrase"]:
+    def mentions_all(self) -> list["BasePhrase"]:
         """nonidentical を含めたこのエンティティを参照する全てのメンションのリスト．"""
         ret = self.mentions.copy()
         for mention in self.mentions_nonidentical:
@@ -95,7 +95,7 @@ class Entity:
 class EntityManager:
     """文書全体のエンティティを管理．"""
 
-    entities: ClassVar[Dict[int, Entity]] = {}  #: ID をキーとするエンティティの辞書．
+    entities: ClassVar[dict[int, Entity]] = {}  #: ID をキーとするエンティティの辞書．
 
     @classmethod
     def get_or_create_entity(

@@ -1,5 +1,4 @@
 import textwrap
-from typing import List
 
 import pytest
 from fastapi.testclient import TestClient
@@ -148,7 +147,7 @@ def test_cli_serve_index_kwja(kwja_client: TestClient, text: str) -> None:
         ("", "", [_Span("", "=")]),
     ],
 )
-def test_get_string_diff(pre_text: str, post_text: str, expected: List[_Span]) -> None:
+def test_get_string_diff(pre_text: str, post_text: str, expected: list[_Span]) -> None:
     assert _get_string_diff(pre_text, post_text) == expected
 
 

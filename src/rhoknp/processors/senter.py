@@ -1,7 +1,7 @@
 import logging
 import re
 import threading
-from typing import ClassVar, List, Union
+from typing import ClassVar, Union
 
 try:
     from typing import override  # type: ignore[attr-defined]
@@ -40,7 +40,7 @@ class RegexSenter(Processor):
             document = Document(document)
         doc_id = document.doc_id
 
-        sentences: List[str] = []
+        sentences: list[str] = []
         done_event: threading.Event = threading.Event()
 
         def worker() -> None:
@@ -74,12 +74,12 @@ class RegexSenter(Processor):
             sentence = Sentence(sentence)
         return sentence
 
-    def _split_document(self, text: str) -> List[str]:
+    def _split_document(self, text: str) -> list[str]:
         if text == "":
             return []
 
-        def split_text_by_period(text: str) -> List[str]:
-            segments: List[str] = []
+        def split_text_by_period(text: str) -> list[str]:
+            segments: list[str] = []
             start: int = 0
             for match in self._PERIOD_PAT.finditer(text):
                 end: int = match.end()
@@ -89,10 +89,10 @@ class RegexSenter(Processor):
                 segments.append(text[start:])
             return [segment.strip() for segment in segments]
 
-        sentences: List[str] = []
+        sentences: list[str] = []
         for line in text.split("\n"):
             # Split by periods
-            sentence_candidates: List[str] = split_text_by_period(line)
+            sentence_candidates: list[str] = split_text_by_period(line)
 
             # Merge sentence candidates so that strings in parentheses or brackets are not split
             parenthesis_level: int = 0
