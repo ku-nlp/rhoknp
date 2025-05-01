@@ -7,7 +7,7 @@ jobs:
     name: Build the project
     runs-on: ${{ matrix.os }}
     strategy:
-      max-parallel: 18
+      max-parallel: 15
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
@@ -24,27 +24,35 @@ jobs:
         run: |
           pipx install poetry
           echo "$HOME/.local/bin" >> $GITHUB_PATH
-      - name: Install dependencies
+      - name: Build package
         env:
           POETRY_PYTHON: ${{ steps.setup-python.outputs.python-path }}
         run: |
+          poetry config virtualenvs.in-project true
           poetry env use $POETRY_PYTHON
-          poetry install --no-interaction --without dev,test,docs --no-cache
-      - name: Build package
-        run: |
-          poetry build
+          poetry build -o dist
       - name: Install rhoknp from wheel (non-Windows)
         if: ${{ matrix.os != 'windows-latest' }}
         run: |
+          source .venv/bin/activate
           wheelFile=$(ls dist/*.whl)
-          pip3 install ${wheelFile}[cli]
+          pip install ${wheelFile}[cli]
       - name: Install rhoknp from wheel (Windows)
         if: ${{ matrix.os == 'windows-latest' }}
         run: |
+          .\.venv\Scripts\Activate
           $wheelFile = (Get-ChildItem -Path dist -Filter *.whl).FullName
-          pip3 install "${wheelFile}[cli]"
+          pip install "${wheelFile}[cli]"
         shell: pwsh
-      - name: Run rhoknp
+      - name: Run rhoknp (non-Windows)
+        if: ${{ matrix.os != 'windows-latest' }}
         run: |
+          source .venv/bin/activate
+          rhoknp --version
+          rhoknp --help
+      - name: Run rhoknp (Windows)
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: |
+          .\.venv\Scripts\Activate
           rhoknp --version
           rhoknp --help
