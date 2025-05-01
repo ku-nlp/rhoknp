@@ -1,20 +1,17 @@
-[tool.poetry]
+[project]
 name = "rhoknp"
 version = "1.7.0"
 description = "Yet another Python binding for Juman++/KNP/KWJA"
 license = "MIT"
 authors = [
-    "Hirokazu Kiyomaru <h.kiyomaru@gmail.com>",
-    "Nobuhiro Ueda <ueda@nlp.ist.i.kyoto-u.ac.jp>",
+    { name = "Hirokazu Kiyomaru", email = "h.kiyomaru@gmail.com"},
+    { name = "Nobuhiro Ueda", email = "ueda@nlp.i.kyoto-u.ac.jp"},
 ]
 maintainers = [
-    "Hirokazu Kiyomaru <h.kiyomaru@gmail.com>",
-    "Nobuhiro Ueda <ueda@nlp.ist.i.kyoto-u.ac.jp>",
+    { name = "Hirokazu Kiyomaru", email = "h.kiyomaru@gmail.com"},
+    { name = "Nobuhiro Ueda", email = "ueda@nlp.i.kyoto-u.ac.jp"},
 ]
 readme = "README.md"
-homepage = "https://github.com/ku-nlp/rhoknp"
-repository = "https://github.com/ku-nlp/rhoknp"
-documentation = "https://rhoknp.readthedocs.io/en/latest"
 keywords = ["NLP", "Japanese", "Juman++", "KNP", "KWJA"]
 classifiers = [
     "License :: OSI Approved :: MIT License",
@@ -28,53 +25,73 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering",
     "Topic :: Software Development :: Libraries",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: Text Processing",
     "Topic :: Text Processing :: Linguistic",
 ]
+requires-python = ">=3.9"
 
-[tool.poetry.dependencies]
-python = ">=3.9"
-typing-extensions = { version = ">=4.4", python = "<3.12" }
-typer = { version = ">=0.7", optional = true }
-PyYAML = { version = ">=6.0", optional = true }
-rich = { version = ">=12.6", optional = true }
-uvicorn = { version = ">=0.21.0", optional = true }
-fastapi = { version = ">=0.92.0", optional = true }
-jinja2 = { version = ">=3.1.4", optional = true }
-pygments = { version = ">=2.18", optional = true }
+dependencies = [
+    "typing-extensions>=4.4; python_version < '3.12'"
+]
+
+[project.optional-dependencies]
+cli = [
+    "typer-slim>=0.15.2",
+    "PyYAML>=6.0",
+    "rich>=12.6",
+    "uvicorn>=0.30.0",
+    "fastapi>=0.111.0",
+    "jinja2>=3.1.4",
+    "pygments>=2.18.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/ku-nlp/rhoknp"
+Documentation = "https://rhoknp.readthedocs.io/en/latest"
+Repository = "https://github.com/ku-nlp/rhoknp"
+Issues = "https://github.com/ku-nlp/rhoknp/issues"
+
+[project.scripts]
+rhoknp = "rhoknp.cli.cli:app"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+package-mode = true
+requires-poetry = ">=2.0"
 
 [tool.poetry.group.dev.dependencies]
-ipython = [
-    { version = "^8.13", python = ">=3.9" },
-]
 ipdb = "^0.13.13"
-setuptools = "^69.0"  # https://stackoverflow.com/questions/75307814/error-python-packaging-tool-setuptools-not
 
 [tool.poetry.group.test.dependencies]
 pytest = "^8.0"
 coverage = { version = "^7.3", extras = ["toml"] }
-pytest-cov = "^5.0"
+pytest-cov = "^6.0"
 httpx = ">=0.25"
 
 [tool.poetry.group.docs.dependencies]
-Sphinx = "^7.0"
+Sphinx = [
+    { version = "^7.0", python = "<3.10" },
+    { version = "^8.0", python = ">=3.10" },
+]
 sphinx-prompt = [
-    { version = "^1.8", python = "^3.9" },  # sphinx-prompt requires Python >=3.9,<4.0
+    { version = "^1.8", python = "<3.10" },
+    { version = "^1.9", python = ">=3.10" },
 ]
 sphinx-copybutton = "^0.5.0"
-myst-parser = "^3.0"
-markdown-it-py = "^3.0"
-furo = "^2024.4"
+myst-parser = [
+    { version = "^3.0", python = "<3.10" },
+    { version = "^4.0", python = ">=3.10" },
+]
+markdown-it-py = ">=3.0"
+furo = ">=2024.4"
 typing-extensions = ">=4.4"
-
-[tool.poetry.extras]
-cli = ["typer", "PyYAML", "rich", "uvicorn", "fastapi", "jinja2", "pygments"]
-
-[tool.poetry.scripts]
-rhoknp = "rhoknp.cli.cli:app"
 
 [tool.ruff]
 line-length = 120
@@ -172,7 +189,3 @@ exclude_lines = [
     "@(abc\\.)?abstractmethod",  # Do not complain about abstract methods
     "@overload",  # Do not complain about overloads
 ]
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
