@@ -172,7 +172,7 @@ class Pas:
                 elif isinstance(arg, EndophoraArgument):
                     entities = arg.base_phrase.entities_all if include_nonidentical else arg.base_phrase.entities
                 else:
-                    raise TypeError  # unreachable
+                    raise AssertionError  # noqa: TRY004, unreachable
                 for entity in entities:
                     if entity.exophora_referent is not None:
                         pas.add_argument(ExophoraArgument(case, entity.exophora_referent, entity.eid))
