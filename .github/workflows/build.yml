@@ -28,7 +28,7 @@ jobs:
         run: uv build -o dist
       - name: Install virtualenv and create virtual environment
         run: |
-          uv tool install --system-site-packages virtualenv
+          uv tool install virtualenv
           virtualenv -p ${{ matrix.python-version }} .venv
       - name: Install rhoknp from wheel (non-Windows)
         if: ${{ matrix.os != 'windows-latest' }}
