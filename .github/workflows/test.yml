@@ -8,7 +8,7 @@ jobs:
     container: kunlp/jumanpp-knp:ubuntu22.04
     runs-on: ubuntu-22.04
     strategy:
-      max-parallel: 6
+      max-parallel: 5
       fail-fast: false
       matrix:
         python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
@@ -24,31 +24,26 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install Poetry
-        run: |
-          python3 -m pip install --user pipx
-          python3 -m pipx ensurepath
-          python3 -m pipx install poetry
-      - name: Add path for Python packages
-        run: |
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          python-version: ${{ matrix.python-version }}
       - name: Install dependencies
-        run: |
-          poetry install --no-interaction --without dev,docs --extras=cli --no-cache
+        run: uv sync --extra cli --no-cache
       - name: Install KWJA
         # KWJA does not support Python 3.13
         if: ${{ matrix.python-version != 3.13 }}
         run: |
-          pipx install kwja
+          uv tool install kwja
           kwja --model-size tiny --text "テスト"
       - name: Run tests with coverage
         if: ${{ matrix.python-version == 3.10 }}
         run: |
-          poetry run pytest --cov=./ --cov-report=xml -v ./tests
+          uv run pytest --cov=./ --cov-report=xml -v ./tests
       - name: Run tests without coverage
         if: ${{ matrix.python-version != 3.10 }}
         run: |
-          poetry run pytest -v ./tests
+          uv run pytest -v ./tests
       - name: Install git for codecov
         if: ${{ matrix.python-version == 3.10 }}
         run: |
@@ -58,7 +53,6 @@ jobs:
         uses: codecov/codecov-action@v5
         with:
           files: ./coverage.xml
-          root_dir: true
           name: codecov-umbrella
           token: ${{ secrets.CODECOV_TOKEN }}
           verbose: true

@@ -1,0 +1,29 @@
+name: Generate pylock.toml
+
+on:
+  push:
+    paths:
+      - "pyproject.toml"
+      - "uv.lock"
+
+jobs:
+  generate-requirements:
+    name: Generate pylock.toml from pyproject.toml
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.9"
+      - name: Export pylock.toml
+        run: uv export -o pylock.toml
+      - name: Commit and push changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: update pylock.yml
+          # Optional glob pattern of files which should be added to the commit
+          file_pattern: pylock.yml
+          # Optional. Prevents the shell from expanding filenames.
+          # Details: https://www.gnu.org/software/bash/manual/html_node/Filename-Expansion.html
+          disable_globbing: true

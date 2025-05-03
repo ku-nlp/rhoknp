@@ -58,40 +58,36 @@ Issues = "https://github.com/ku-nlp/rhoknp/issues"
 [project.scripts]
 rhoknp = "rhoknp.cli.cli:app"
 
+[dependency-groups]
+dev = [
+    "ipdb>=0.13.13",
+]
+test = [
+    "pytest>=8.0",
+    "coverage[toml]>=7.3",
+    "pytest-cov>=6.0",
+    "httpx>=0.25",
+]
+docs = [
+    "Sphinx>=7.0; python_version < '3.10'",
+    "Sphinx>=8.0; python_version >= '3.10'",
+    "sphinx-prompt>=1.8; python_version < '3.10'",
+    "sphinx-prompt>=1.9; python_version >= '3.10'",
+    "sphinx-copybutton>=0.5.0",
+    "myst-parser>=3.0; python_version < '3.10'",
+    "myst-parser>=4.0; python_version >= '3.10'",
+    "markdown-it-py>=3.0",
+    "furo>=2024.4",
+    "typing-extensions>=4.4",
+]
+
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
-[tool.poetry]
-package-mode = true
-requires-poetry = ">=2.0"
-
-[tool.poetry.group.dev.dependencies]
-ipdb = "^0.13.13"
-
-[tool.poetry.group.test.dependencies]
-pytest = "^8.0"
-coverage = { version = "^7.3", extras = ["toml"] }
-pytest-cov = "^6.0"
-httpx = ">=0.25"
-
-[tool.poetry.group.docs.dependencies]
-Sphinx = [
-    { version = "^7.0", python = "<3.10" },
-    { version = "^8.0", python = ">=3.10" },
-]
-sphinx-prompt = [
-    { version = "^1.8", python = "<3.10" },
-    { version = "^1.9", python = ">=3.10" },
-]
-sphinx-copybutton = "^0.5.0"
-myst-parser = [
-    { version = "^3.0", python = "<3.10" },
-    { version = "^4.0", python = ">=3.10" },
-]
-markdown-it-py = ">=3.0"
-furo = ">=2024.4"
-typing-extensions = ">=4.4"
+[tool.uv]
+package = true
+default-groups = ["dev", "test"]
 
 [tool.ruff]
 line-length = 120
