@@ -32,24 +32,24 @@ jobs:
         run: uv sync --extra cli --no-cache
       - name: Install KWJA
         # KWJA does not support Python 3.13
-        if: ${{ matrix.python-version != 3.13 || matrix.python-version != 3.13t }}
+        if: ${{ matrix.python-version != "3.13" && matrix.python-version != "3.13t" }}
         run: |
           uv tool install kwja
           kwja --model-size tiny --text "テスト"
       - name: Run tests with coverage
-        if: ${{ matrix.python-version == 3.10 }}
+        if: ${{ matrix.python-version == "3.10" }}
         run: |
           uv run pytest --cov=./ --cov-report=xml -v ./tests
       - name: Run tests without coverage
-        if: ${{ matrix.python-version != 3.10 }}
+        if: ${{ matrix.python-version != "3.10" }}
         run: |
           uv run pytest -v ./tests
       - name: Install git for codecov
-        if: ${{ matrix.python-version == 3.10 }}
+        if: ${{ matrix.python-version == "3.10" }}
         run: |
           apt-get install -yq git
       - name: Upload coverage to Codecov
-        if: ${{ matrix.python-version == 3.10 }}
+        if: ${{ matrix.python-version == "3.10" }}
         uses: codecov/codecov-action@v5
         with:
           files: ./coverage.xml
