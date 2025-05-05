@@ -35,7 +35,7 @@ jobs:
         run: |
           source .venv/bin/activate
           wheelFile=$(ls dist/*.whl)
-          pip install ${wheelFile}[cli]
+          pip install "${wheelFile}[cli]"
       - name: Install rhoknp from wheel (Windows)
         if: ${{ matrix.os == 'windows-latest' }}
         run: |
@@ -52,6 +52,7 @@ jobs:
       - name: Run rhoknp (Windows)
         if: ${{ matrix.os == 'windows-latest' }}
         run: |
+          # shellcheck disable=SC1001
           .\.venv\Scripts\Activate
           rhoknp --version
           rhoknp --help
