@@ -1,6 +1,6 @@
 [project]
 name = "rhoknp"
-version = "1.7.0"
+version = "1.7.1"
 description = "Yet another Python binding for Juman++/KNP/KWJA"
 license = "MIT"
 authors = [
