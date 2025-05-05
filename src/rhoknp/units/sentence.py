@@ -47,7 +47,7 @@ class Sentence(Unit):
         EntityManager.reset()
 
         # parent unit
-        self._document: Optional["Document"] = None
+        self._document: Optional[Document] = None
 
         # child units
         self._clauses: Optional[List[Clause]] = None

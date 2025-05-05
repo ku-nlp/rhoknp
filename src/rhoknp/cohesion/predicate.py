@@ -18,9 +18,9 @@ class Predicate:
     """
 
     def __init__(self, base_phrase: "BasePhrase", cfid: Optional[str] = None) -> None:
-        self.base_phrase: "BasePhrase" = base_phrase  #: 述語の核となる基本句．
+        self.base_phrase: BasePhrase = base_phrase  #: 述語の核となる基本句．
         self.cfid: Optional[str] = cfid  #: 格フーレムID．
-        self._pas: Optional["Pas"] = None
+        self._pas: Optional[Pas] = None
 
     @property
     def text(self) -> str:

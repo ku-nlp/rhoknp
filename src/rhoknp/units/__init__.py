@@ -5,4 +5,4 @@ from rhoknp.units.morpheme import Morpheme
 from rhoknp.units.phrase import Phrase
 from rhoknp.units.sentence import Sentence
 
-__all__ = ["Document", "Sentence", "Clause", "Phrase", "BasePhrase", "Morpheme"]
+__all__ = ["BasePhrase", "Clause", "Document", "Morpheme", "Phrase", "Sentence"]

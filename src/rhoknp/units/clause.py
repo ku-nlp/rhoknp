@@ -29,7 +29,7 @@ class Clause(Unit):
         super().__init__()
 
         # parent unit
-        self._sentence: Optional["Sentence"] = None
+        self._sentence: Optional[Sentence] = None
 
         # child units
         self._phrases: Optional[List[Phrase]] = None

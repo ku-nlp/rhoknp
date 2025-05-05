@@ -51,7 +51,7 @@ def test_cat() -> None:
         assert result.exit_code == 0
 
 
-@pytest.fixture()
+@pytest.fixture
 def _mock_stdin(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr("sys.stdin", knp_text)
 

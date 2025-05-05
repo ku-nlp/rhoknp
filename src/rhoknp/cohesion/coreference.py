@@ -21,8 +21,8 @@ class Entity:
     def __init__(self, eid: int, exophora_referent: Optional[ExophoraReferent] = None) -> None:
         self.eid = eid  #: エンティティ ID．
         self.exophora_referent = exophora_referent  #: 外界照応の照応先．対応するものがなければ None．
-        self.mentions: List["BasePhrase"] = []  #: このエンティティを参照するメンションのリスト．
-        self.mentions_nonidentical: List["BasePhrase"] = []  #: このエンティティを≒関係で参照するメンションのリスト．
+        self.mentions: List[BasePhrase] = []  #: このエンティティを参照するメンションのリスト．
+        self.mentions_nonidentical: List[BasePhrase] = []  #: このエンティティを≒関係で参照するメンションのリスト．
 
     @property
     def mentions_all(self) -> List["BasePhrase"]:

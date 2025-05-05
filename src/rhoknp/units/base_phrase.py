@@ -50,7 +50,7 @@ class BasePhrase(Unit):
         super().__init__()
 
         # parent unit
-        self._phrase: Optional["Phrase"] = None
+        self._phrase: Optional[Phrase] = None
 
         # child units
         self._morphemes: Optional[List[Morpheme]] = None
@@ -291,7 +291,7 @@ class BasePhrase(Unit):
         Returns:
             共参照している基本句の集合．
         """
-        mentions: List["BasePhrase"] = [self]
+        mentions: List[BasePhrase] = [self]
         for mention in itertools.chain.from_iterable(entity.mentions for entity in self.entities):
             if mention not in mentions:
                 mentions.append(mention)

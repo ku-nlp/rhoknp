@@ -13,7 +13,7 @@ is_kwja_available = KWJA(options=["--model-size", "tiny"]).is_available()
 
 
 @pytest.mark.skipif(not is_jumanpp_available, reason="Juman++ is not available")
-@pytest.fixture()
+@pytest.fixture
 def jumanpp_client() -> TestClient:
     app = create_app(AnalyzerType.JUMANPP)
     return TestClient(app)
@@ -50,7 +50,7 @@ def test_index_jumanpp(jumanpp_client: TestClient, text: str) -> None:
 
 
 @pytest.mark.skipif(not is_knp_available, reason="KNP is not available")
-@pytest.fixture()
+@pytest.fixture
 def knp_client() -> TestClient:
     app = create_app(AnalyzerType.KNP)
     return TestClient(app)
@@ -104,7 +104,7 @@ def test_index_knp_error(knp_client: TestClient) -> None:
 
 
 @pytest.mark.skipif(not is_kwja_available, reason="KWJA is not available")
-@pytest.fixture()
+@pytest.fixture
 def kwja_client() -> TestClient:
     app = create_app(AnalyzerType.KWJA, options=["--model-size", "tiny", "--tasks", "char,word"])
     return TestClient(app)

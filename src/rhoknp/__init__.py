@@ -6,15 +6,15 @@ from rhoknp.units import BasePhrase, Clause, Document, Morpheme, Phrase, Sentenc
 __version__ = version("rhoknp")
 
 __all__ = [
-    "__version__",
-    "RegexSenter",
-    "Jumanpp",
     "KNP",
     "KWJA",
-    "Document",
-    "Sentence",
-    "Clause",
-    "Phrase",
     "BasePhrase",
+    "Clause",
+    "Document",
+    "Jumanpp",
     "Morpheme",
+    "Phrase",
+    "RegexSenter",
+    "Sentence",
+    "__version__",
 ]

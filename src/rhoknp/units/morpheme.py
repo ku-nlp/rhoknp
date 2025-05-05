@@ -97,14 +97,14 @@ class Morpheme(Unit):
         self.conjform_id = conjform_id  #: 活用形ID．
 
         # parent unit
-        self._base_phrase: Optional["BasePhrase"] = None
-        self._sentence: Optional["Sentence"] = None
+        self._base_phrase: Optional[BasePhrase] = None
+        self._sentence: Optional[Sentence] = None
 
         self.semantics: SemanticsDict = (
             semantics if semantics is not None else SemanticsDict()
         )  #: 辞書に記載の意味情報．
         self.features: FeatureDict = features if features is not None else FeatureDict()  #: 素性．
-        self.homographs: List["Morpheme"] = []  #: 同形の形態素のリスト．
+        self.homographs: List[Morpheme] = []  #: 同形の形態素のリスト．
 
         self.index = self.count  #: 文内におけるインデックス．
         if homograph is False:
@@ -341,16 +341,7 @@ class Morpheme(Unit):
         ret = self._to_jumanpp_line()
         features = FeatureDict(self.features)  # deep copy
         for homograph in self.homographs:
-            alt_feature_key = "ALT-{}-{}-{}-{}-{}-{}-{}-{}".format(
-                homograph.surf,
-                homograph.reading,
-                homograph.lemma,
-                homograph.pos_id,
-                homograph.subpos_id,
-                homograph.conjtype_id,
-                homograph.conjform_id,
-                homograph.semantics.to_sstring(),
-            )
+            alt_feature_key = f"ALT-{homograph.surf}-{homograph.reading}-{homograph.lemma}-{homograph.pos_id}-{homograph.subpos_id}-{homograph.conjtype_id}-{homograph.conjform_id}-{homograph.semantics.to_sstring()}"
             features[alt_feature_key] = True
         if features:
             ret += f" {features.to_fstring()}"

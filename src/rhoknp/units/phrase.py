@@ -34,8 +34,8 @@ class Phrase(Unit):
         super().__init__()
 
         # parent unit
-        self._clause: Optional["Clause"] = None
-        self._sentence: Optional["Sentence"] = None
+        self._clause: Optional[Clause] = None
+        self._sentence: Optional[Sentence] = None
 
         # child units
         self._base_phrases: Optional[List[BasePhrase]] = None
