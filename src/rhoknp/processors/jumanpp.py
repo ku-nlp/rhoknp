@@ -136,7 +136,6 @@ class Jumanpp(Processor):
             sentence = Sentence(sentence)
 
         stdout_text: str = ""
-        done_event: threading.Event = threading.Event()
 
         def worker() -> None:
             nonlocal stdout_text
@@ -164,17 +163,15 @@ class Jumanpp(Processor):
                     stderr_text += line
                 if stderr_text.strip() != "":
                     logger.debug(stderr_text.strip())
-            done_event.set()
 
         with self._lock:
             thread = threading.Thread(target=worker, daemon=True)
             thread.start()
-            done_event.wait(timeout)
+            thread.join(timeout)
 
             if thread.is_alive():
-                thread.join()
                 self.start_process(skip_sanity_check=True)
-                raise TimeoutError("Operation timed out.")
+                raise TimeoutError(f"Operation timed out after {timeout} seconds.")
 
             if not self.is_available():
                 self.start_process(skip_sanity_check=True)

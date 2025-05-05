@@ -41,19 +41,17 @@ class RegexSenter(Processor):
         doc_id = document.doc_id
 
         sentences: list[str] = []
-        done_event: threading.Event = threading.Event()
 
         def worker() -> None:
             nonlocal sentences
             sentences = self._split_document(document.text)
-            done_event.set()
 
         thread = threading.Thread(target=worker, daemon=True)
         thread.start()
-        done_event.wait(timeout)
+        thread.join(timeout)
 
         if thread.is_alive():
-            raise TimeoutError("Operation timed out.")
+            raise TimeoutError(f"Operation timed out after {timeout} seconds.")
 
         ret = Document.from_sentences(sentences)
         if doc_id != "":
