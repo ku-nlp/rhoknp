@@ -7,7 +7,7 @@ on:
       - "uv.lock"
 
 jobs:
-  generate-requirements:
+  generate-pylock:
     name: Generate pylock.toml from pyproject.toml
     runs-on: ubuntu-latest
     steps:
