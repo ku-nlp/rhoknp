@@ -32,7 +32,7 @@ jobs:
         run: uv sync --extra cli --no-cache
       - name: Install KWJA
         # KWJA does not support Python 3.13
-        if: ${{ matrix.python-version != 3.13 }}
+        if: ${{ matrix.python-version != 3.13 || matrix.python-version != 3.13t }}
         run: |
           uv tool install kwja
           kwja --model-size tiny --text "テスト"
