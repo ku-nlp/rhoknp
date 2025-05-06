@@ -3,7 +3,7 @@ import logging
 import re
 from collections import defaultdict
 from enum import Enum, auto
-from typing import TYPE_CHECKING, Dict, List, Optional
+from typing import TYPE_CHECKING, Optional
 
 from rhoknp.cohesion import EntityManager
 from rhoknp.cohesion.argument import HIRA2KATA, Argument, ArgumentType, EndophoraArgument, ExophoraArgument
@@ -39,8 +39,8 @@ class Pas:
     def __init__(self, predicate: Predicate) -> None:
         self._predicate = predicate
         predicate.pas = self
-        self._arguments: Dict[str, List[Argument]] = defaultdict(list)
-        self.modes: Dict[str, RelMode] = {}
+        self._arguments: dict[str, list[Argument]] = defaultdict(list)
+        self.modes: dict[str, RelMode] = {}
 
     @property
     def predicate(self) -> Predicate:
@@ -48,7 +48,7 @@ class Pas:
         return self._predicate
 
     @property
-    def cases(self) -> List[str]:
+    def cases(self) -> list[str]:
         """属する全ての項の持つ格を集めたリスト．"""
         return [case for case, args in self._arguments.items() if args]
 
@@ -142,7 +142,7 @@ class Pas:
         relax: bool = True,
         include_nonidentical: bool = False,
         include_optional: bool = False,
-    ) -> List[Argument]:
+    ) -> list[Argument]:
         """与えられた格の全ての項を返す．
 
         Args:
@@ -172,7 +172,7 @@ class Pas:
                 elif isinstance(arg, EndophoraArgument):
                     entities = arg.base_phrase.entities_all if include_nonidentical else arg.base_phrase.entities
                 else:
-                    raise AssertionError  # unreachable
+                    raise AssertionError  # noqa: TRY004, unreachable
                 for entity in entities:
                     if entity.exophora_referent is not None:
                         pas.add_argument(ExophoraArgument(case, entity.exophora_referent, entity.eid))
@@ -187,7 +187,7 @@ class Pas:
         relax: bool = True,
         include_nonidentical: bool = False,
         include_optional: bool = False,
-    ) -> Dict[str, List[Argument]]:
+    ) -> dict[str, list[Argument]]:
         """この述語項構造が持つ全ての項を格を key とする辞書形式で返す．
 
         Args:
@@ -195,7 +195,7 @@ class Pas:
             include_nonidentical: True なら nonidentical な項も含めて出力する．
             include_optional: True なら修飾的表現（「すぐに」など）も含めて出力する．
         """
-        all_arguments: Dict[str, List[Argument]] = {}
+        all_arguments: dict[str, list[Argument]] = {}
         for case in self.cases:
             all_arguments[case] = self.get_arguments(
                 case,

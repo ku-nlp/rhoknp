@@ -8,16 +8,13 @@ class Processor(ABC):
     """解析器の基底クラス．"""
 
     @overload
-    def __call__(self, text: str, timeout: int = 10) -> Document:
-        ...
+    def __call__(self, text: str, timeout: int = 10) -> Document: ...
 
     @overload
-    def __call__(self, text: Sentence, timeout: int = 10) -> Sentence:
-        ...
+    def __call__(self, text: Sentence, timeout: int = 10) -> Sentence: ...
 
     @overload
-    def __call__(self, text: Document, timeout: int = 10) -> Document:
-        ...
+    def __call__(self, text: Document, timeout: int = 10) -> Document: ...
 
     def __call__(self, text: Union[str, Sentence, Document], timeout: int = 10) -> Union[Document, Sentence]:
         """テキストに解析器を適用する．
@@ -38,16 +35,13 @@ class Processor(ABC):
         return self.apply(text, timeout=timeout)
 
     @overload
-    def apply(self, text: str, timeout: int = 10) -> Document:
-        ...
+    def apply(self, text: str, timeout: int = 10) -> Document: ...
 
     @overload
-    def apply(self, text: Sentence, timeout: int = 10) -> Sentence:
-        ...
+    def apply(self, text: Sentence, timeout: int = 10) -> Sentence: ...
 
     @overload
-    def apply(self, text: Document, timeout: int = 10) -> Document:
-        ...
+    def apply(self, text: Document, timeout: int = 10) -> Document: ...
 
     def apply(self, text: Union[str, Sentence, Document], timeout: int = 10) -> Union[Document, Sentence]:
         """テキストに解析器を適用する．

@@ -4,7 +4,7 @@ import logging
 from enum import Enum
 from io import StringIO
 from pathlib import Path
-from typing import List, Optional, Union
+from typing import Optional, Union
 
 import fastapi
 import fastapi.staticfiles
@@ -42,7 +42,7 @@ class _HTTPExceptionForAnalyze(fastapi.HTTPException):
     pass
 
 
-def _get_string_diff(pre_text: str, post_text: str) -> List[_Span]:
+def _get_string_diff(pre_text: str, post_text: str) -> list[_Span]:
     """編集前後の文字列の差分を取得．
 
     Args:
@@ -85,7 +85,7 @@ def _draw_tree(document: Document, show_rel: bool = False, show_pas: bool = Fals
         return buffer.getvalue()
 
 
-def _get_entity_spans(document: Document) -> List[_Span]:
+def _get_entity_spans(document: Document) -> list[_Span]:
     """文書をスパンに分割．
 
     Args:
@@ -94,7 +94,7 @@ def _get_entity_spans(document: Document) -> List[_Span]:
     Returns:
         スパンのリスト．
     """
-    spans: List[_Span] = []
+    spans: list[_Span] = []
     offset = 0
     for named_entity in document.named_entities:
         start, _ = named_entity.morphemes[0].global_span
@@ -154,8 +154,9 @@ def create_app(analyzer: AnalyzerType, base_url: str = "/", *args, **kwargs) -> 
         request: fastapi.Request, exc: _HTTPExceptionForIndex
     ) -> fastapi.Response:
         return templates.TemplateResponse(
-            template_name,
-            {"request": request, "error": exc.detail},
+            request=request,
+            name=template_name,
+            context={"error": exc.detail},
             status_code=exc.status_code,
         )
 
@@ -168,8 +169,9 @@ def create_app(analyzer: AnalyzerType, base_url: str = "/", *args, **kwargs) -> 
             except Exception as e:
                 raise _HTTPExceptionForIndex(fastapi.status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)) from e
         return templates.TemplateResponse(
-            template_name,
-            {"request": request, "text": text, "analyzed_document": analyzed_document},
+            request=request,
+            name=template_name,
+            context={"text": text, "analyzed_document": analyzed_document},
         )
 
     @app.exception_handler(_HTTPExceptionForAnalyze)
@@ -197,7 +199,7 @@ def create_app(analyzer: AnalyzerType, base_url: str = "/", *args, **kwargs) -> 
 
 
 def serve_analyzer(
-    analyzer: AnalyzerType, host: str, port: int, base_url: str, analyzer_args: Optional[List[str]]
+    analyzer: AnalyzerType, host: str, port: int, base_url: str, analyzer_args: Optional[list[str]]
 ) -> None:  # pragma: no cover
     """解析器を起動し，HTTP サーバとして提供．
 

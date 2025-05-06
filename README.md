@@ -13,7 +13,7 @@
 <a href="https://pypi.org/project/rhoknp/"><img alt="PyPI" src="https://img.shields.io/pypi/v/rhoknp?style=flat-square"></a>
 <a href="https://pypi.org/project/rhoknp/"><img alt="PyPI - Python Version" src="https://img.shields.io/pypi/pyversions/rhoknp?style=flat-square">
 <a href="https://rhoknp.readthedocs.io/en/latest/"><img alt="Documentation" src="https://img.shields.io/readthedocs/rhoknp?style=flat-square"></a>
-<a href="https://github.com/astral-sh/ruff"><img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json" alt="Ruff" style="max-width:100%;"></a>
+<a href="https://github.com/astral-sh/ruff"><img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json&style=flat-square" alt="Ruff" style="max-width:100%;"></a>
 </p>
 
 ---
@@ -52,7 +52,7 @@ with open("result.jumanpp", "rt") as f:
 
 ## Requirements
 
-- Python 3.8+
+- Python 3.9+
 - (Optional) [Juman++](https://github.com/ku-nlp/jumanpp) v2.0.0-rc3+
 - (Optional) [KNP](https://github.com/ku-nlp/knp) 5.0+
 - (Optional) [KWJA](https://github.com/ku-nlp/kwja) 1.0.0+

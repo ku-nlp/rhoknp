@@ -1,20 +1,17 @@
-[tool.poetry]
+[project]
 name = "rhoknp"
-version = "1.7.0"
+version = "1.7.1"
 description = "Yet another Python binding for Juman++/KNP/KWJA"
 license = "MIT"
 authors = [
-    "Hirokazu Kiyomaru <h.kiyomaru@gmail.com>",
-    "Nobuhiro Ueda <ueda@nlp.ist.i.kyoto-u.ac.jp>",
+    { name = "Hirokazu Kiyomaru", email = "h.kiyomaru@gmail.com"},
+    { name = "Nobuhiro Ueda", email = "ueda@nlp.i.kyoto-u.ac.jp"},
 ]
 maintainers = [
-    "Hirokazu Kiyomaru <h.kiyomaru@gmail.com>",
-    "Nobuhiro Ueda <ueda@nlp.ist.i.kyoto-u.ac.jp>",
+    { name = "Hirokazu Kiyomaru", email = "h.kiyomaru@gmail.com"},
+    { name = "Nobuhiro Ueda", email = "ueda@nlp.i.kyoto-u.ac.jp"},
 ]
 readme = "README.md"
-homepage = "https://github.com/ku-nlp/rhoknp"
-repository = "https://github.com/ku-nlp/rhoknp"
-documentation = "https://rhoknp.readthedocs.io/en/latest"
 keywords = ["NLP", "Japanese", "Juman++", "KNP", "KWJA"]
 classifiers = [
     "License :: OSI Approved :: MIT License",
@@ -24,69 +21,86 @@ classifiers = [
     "Operating System :: Microsoft :: Windows",
     "Operating System :: POSIX :: Linux",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering",
     "Topic :: Software Development :: Libraries",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: Text Processing",
     "Topic :: Text Processing :: Linguistic",
 ]
+requires-python = ">=3.9"
 
-[tool.poetry.dependencies]
-python = ">=3.8"
-typing-extensions = { version = ">=4.4", python = "<3.12" }
-typer = { version = ">=0.7", optional = true }
-PyYAML = { version = "^6.0", optional = true }
-rich = { version = ">=12.6", optional = true }
-uvicorn = { version = ">=0.21.0", optional = true }
-fastapi = { version = ">=0.92.0", optional = true }
-jinja2 = { version = "^3.1", optional = true }
-pygments = { version = "^2.16", optional = true }
-
-[tool.poetry.group.dev.dependencies]
-ipython = [
-    { version = "~8.12.1", python = "3.8" },
-    { version = "^8.13", python = ">=3.9" },
+dependencies = [
+    "typing-extensions>=4.4; python_version < '3.12'"
 ]
-ipdb = "^0.13.13"
-setuptools = ">=69,<71"  # https://stackoverflow.com/questions/75307814/error-python-packaging-tool-setuptools-not
 
-[tool.poetry.group.test.dependencies]
-pytest = "^7.2"
-coverage = { version = "^7.3", extras = ["toml"] }
-pytest-cov = "^4.1"
-httpx = ">=0.25,<0.27"
-
-[tool.poetry.group.docs.dependencies]
-Sphinx = "^7.0"
-sphinx-prompt = [
-    { version = "^1.6", python = ">=3.8,<3.9" },
-    { version = "^1.8", python = ">=3.9,<4.0" },
+[project.optional-dependencies]
+cli = [
+    "typer-slim>=0.15.2",
+    "PyYAML>=6.0",
+    "rich>=12.6",
+    "uvicorn>=0.30.0",
+    "fastapi>=0.111.0",
+    "jinja2>=3.1.4",
+    "pygments>=2.18.0",
 ]
-sphinx-copybutton = "^0.5.0"
-myst-parser = "^2.0"
-markdown-it-py = "^3.0"
-furo = "^2023.9"
-typing-extensions = ">=4.4"
 
-[tool.poetry.extras]
-cli = ["typer", "PyYAML", "rich", "uvicorn", "fastapi", "jinja2", "pygments"]
+[project.urls]
+Homepage = "https://github.com/ku-nlp/rhoknp"
+Documentation = "https://rhoknp.readthedocs.io/en/latest"
+Repository = "https://github.com/ku-nlp/rhoknp"
+Issues = "https://github.com/ku-nlp/rhoknp/issues"
 
-[tool.poetry.scripts]
+[project.scripts]
 rhoknp = "rhoknp.cli.cli:app"
 
-[tool.mypy]
-python_version = 3.8
+[dependency-groups]
+dev = [
+    "ipdb>=0.13.13",
+]
+test = [
+    "pytest>=8.0",
+    "coverage[toml]>=7.3",
+    "pytest-cov>=6.0",
+    "httpx>=0.25",
+]
+docs = [
+    "Sphinx>=7.0; python_version < '3.10'",
+    "Sphinx>=8.0; python_version >= '3.10'",
+    "sphinx-prompt>=1.8; python_version < '3.10'",
+    "sphinx-prompt>=1.9; python_version >= '3.10'",
+    "sphinx-copybutton>=0.5.0",
+    "myst-parser>=3.0; python_version < '3.10'",
+    "myst-parser>=4.0; python_version >= '3.10'",
+    "markdown-it-py>=3.0",
+    "furo>=2024.4",
+    "typing-extensions>=4.4",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.sdist]
+only-include = ["/src/rhoknp"]
+
+[tool.uv]
+package = true
+default-groups = ["dev", "test"]
 
 [tool.ruff]
 line-length = 120
 indent-width = 4
 src = ["src"]
-target-version = "py38"
+target-version = "py39"  # The minimum Python version to target
+
+[tool.ruff.lint]
+select = ["F", "E", "W", "I", "B", "PL", "PD", "NPY", "RUF", "UP", "TID", "COM", "PT", "D", "ARG", "PYI", "ANN", "G", "FBT", "EM", "TRY", "PTH", "T", "INP"]
+#select = ["ALL"]
 ignore = [
     "PLR0911",  # Too many return statements
     "PLR0912",  # Too many branches
@@ -96,6 +110,7 @@ ignore = [
     "RUF001",  # String contains ambiguous `ノ` (KATAKANA LETTER NO). Did you mean `/` (SOLIDUS)?
     "RUF002",  # Docstring contains ambiguous `，` (FULLWIDTH COMMA). Did you mean `,` (COMMA)?
     "RUF003",  # Comment contains ambiguous `（` (FULLWIDTH LEFT PARENTHESIS). Did you mean `(` (LEFT PARENTHESIS)?
+    "UP037",  # Remove quotes from type annotation
     "COM812",  # Trailing comma missing
     "PLR2004",  # Magic value used in comparison
     "D100",  # Missing docstring in public module
@@ -106,16 +121,37 @@ ignore = [
     "D415",  # First line should end with a period, question mark, or exclamation point
     "ANN002",  # Missing type annotation for `*args`
     "ANN003",  # Missing type annotation for `**kwargs`
-    "ANN101",  # Missing type annotation for `self` in method
-    "ANN102",  # Missing type annotation for `cls` in classmethod
+    "FA100",  # Missing `from __future__ import annotations`, but uses `...`
+    "S101",  # Use of `assert` detected
+    "G004",  # Logging statement uses f-string
+    "FBT001",  # Boolean-typed positional argument in function definition
+    "FBT002",  # Boolean default positional argument in function definition
+    "FBT003",  # Boolean positional value in function call
+    "EM101",  # Exception must not use a string literal, assign to variable first
+    "EM102",  # Exception must not use an f-string literal, assign to variable first
+    "TRY003",  # Avoid specifying long messages outside the exception class
 ]
-select = ["F", "E", "W", "I", "B", "PL", "PD", "NPY", "RUF", "UP", "TID", "COM", "PT", "D", "ARG", "PYI", "ANN"]
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "__init__.py" = [
-    "D104"  # Missing docstring in public package
+    "D104",  # Missing docstring in public package
 ]
-"tests/*" = ["D"]
+"tests/*" = [
+    "D",  # pydocstyle
+    "S101",  # Use of `assert` detected
+    "INP001",  # File `...` is part of an implicit namespace package. Add an `__init__.py`
+]
+"src/rhoknp/cli/*" = [
+    "T201",  # `print` found
+]
+"examples/*" = [
+    "T201",  # `print` found
+    "INP001",  # File `...` is part of an implicit namespace package. Add an `__init__.py`
+    "PTH123",  # `open()` should be replaced by `Path.open()`
+]
+"docs/conf.py" = [
+    "INP001",  # File `...` is part of an implicit namespace package. Add an `__init__.py`
+]
 
 [tool.ruff.lint.flake8-bugbear]
 extend-immutable-calls = ["typer.Argument", "typer.Option"]
@@ -125,6 +161,12 @@ ban-relative-imports = "all"
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
+
+[tool.ruff.lint.mccabe]
+max-complexity = 20  # default: 10
+
+[tool.mypy]
+python_version = "3.9"
 
 [tool.coverage.run]
 omit = ["tests/*"]
@@ -144,7 +186,3 @@ exclude_lines = [
     "@(abc\\.)?abstractmethod",  # Do not complain about abstract methods
     "@overload",  # Do not complain about overloads
 ]
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"

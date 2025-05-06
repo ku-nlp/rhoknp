@@ -1,6 +1,5 @@
 import textwrap
 from pathlib import Path
-from typing import List
 
 import pytest
 
@@ -93,7 +92,7 @@ def test_coref_sentence() -> None:
         )
     )
 
-    entities: List[Entity] = sorted(EntityManager.entities.values(), key=lambda e: e.eid)
+    entities: list[Entity] = sorted(EntityManager.entities.values(), key=lambda e: e.eid)
     assert len(entities) == 2
 
     entity = entities[0]
@@ -117,7 +116,7 @@ def test_coref1() -> None:
     doc_id = "w201106-0000060050"
     _ = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text())
 
-    entities: List[Entity] = sorted(EntityManager.entities.values(), key=lambda e: e.eid)
+    entities: list[Entity] = sorted(EntityManager.entities.values(), key=lambda e: e.eid)
     assert len(entities) == 19
 
     entity = entities[0]
@@ -251,12 +250,12 @@ def test_coref1() -> None:
 def test_coref2() -> None:
     doc_id = "w201106-0000060560"
     _ = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text())
-    entities: List[Entity] = sorted(EntityManager.entities.values(), key=lambda e: e.eid)
+    entities: list[Entity] = sorted(EntityManager.entities.values(), key=lambda e: e.eid)
     assert len(entities) == 15
 
     entity: Entity = entities[12]
     assert entity.exophora_referent is None
-    mentions: List[BasePhrase] = sorted(entity.mentions_all, key=lambda x: x.global_index)
+    mentions: list[BasePhrase] = sorted(entity.mentions_all, key=lambda x: x.global_index)
     assert len(mentions) == 4
     assert (mentions[0].text, mentions[0].global_index, {e.eid for e in mentions[0].entities}) == ("ドクターを", 7, {4})
     assert (mentions[1].text, mentions[1].global_index, {e.eid for e in mentions[1].entities}) == (
@@ -275,7 +274,7 @@ def test_coref2() -> None:
 @pytest.mark.parametrize("doc_id", ["w201106-0000060050", "w201106-0000060560", "w201106-0000060877"])
 def test_coref_link(doc_id: str) -> None:
     document = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text())
-    entities: List[Entity] = sorted(EntityManager.entities.values(), key=lambda e: e.eid)
+    entities: list[Entity] = sorted(EntityManager.entities.values(), key=lambda e: e.eid)
 
     for entity in entities:
         for mention in entity.mentions:
@@ -323,7 +322,7 @@ def test_coref_with_self() -> None:
         )
     )
 
-    entities: List[Entity] = sorted(EntityManager.entities.values(), key=lambda e: e.eid)
+    entities: list[Entity] = sorted(EntityManager.entities.values(), key=lambda e: e.eid)
     assert len(entities) == 1
     entity = entities[0]
     assert entity.exophora_referent is None
@@ -371,7 +370,7 @@ def test_merge_entity_0() -> None:
         )
     )
 
-    entities: List[Entity] = sorted(EntityManager.entities.values(), key=lambda e: e.eid)
+    entities: list[Entity] = sorted(EntityManager.entities.values(), key=lambda e: e.eid)
     assert len(entities) == 2
 
     entity = entities[0]
@@ -417,7 +416,7 @@ def test_merge_entity_1() -> None:
         )
     )
 
-    entities: List[Entity] = sorted(EntityManager.entities.values(), key=lambda e: e.eid)
+    entities: list[Entity] = sorted(EntityManager.entities.values(), key=lambda e: e.eid)
     assert len(entities) == 1
 
     entity = entities[0]
@@ -448,7 +447,7 @@ def test_merge_entity_2() -> None:
         )
     )
 
-    entities: List[Entity] = sorted(EntityManager.entities.values(), key=lambda e: e.eid)
+    entities: list[Entity] = sorted(EntityManager.entities.values(), key=lambda e: e.eid)
     assert len(entities) == 1
 
     entity = entities[0]
@@ -479,7 +478,7 @@ def test_merge_entity_3() -> None:
         )
     )
 
-    entities: List[Entity] = sorted(EntityManager.entities.values(), key=lambda e: e.eid)
+    entities: list[Entity] = sorted(EntityManager.entities.values(), key=lambda e: e.eid)
     assert len(entities) == 2
 
     entity = entities[0]

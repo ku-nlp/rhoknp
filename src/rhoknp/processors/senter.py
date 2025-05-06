@@ -1,10 +1,10 @@
 import logging
 import re
 import threading
-from typing import ClassVar, List, Union
+from typing import ClassVar, Union
 
 try:
-    from typing import override  # type: ignore
+    from typing import override  # type: ignore[attr-defined]
 except ImportError:
     from typing_extensions import override
 
@@ -40,20 +40,18 @@ class RegexSenter(Processor):
             document = Document(document)
         doc_id = document.doc_id
 
-        sentences: List[str] = []
-        done_event: threading.Event = threading.Event()
+        sentences: list[str] = []
 
         def worker() -> None:
             nonlocal sentences
             sentences = self._split_document(document.text)
-            done_event.set()
 
-        thread = threading.Thread(target=worker)
+        thread = threading.Thread(target=worker, daemon=True)
         thread.start()
-        done_event.wait(timeout)
+        thread.join(timeout)
 
         if thread.is_alive():
-            raise TimeoutError("Operation timed out.")
+            raise TimeoutError(f"Operation timed out after {timeout} seconds.")
 
         ret = Document.from_sentences(sentences)
         if doc_id != "":
@@ -74,12 +72,12 @@ class RegexSenter(Processor):
             sentence = Sentence(sentence)
         return sentence
 
-    def _split_document(self, text: str) -> List[str]:
+    def _split_document(self, text: str) -> list[str]:
         if text == "":
             return []
 
-        def split_text_by_period(text: str) -> List[str]:
-            segments: List[str] = []
+        def split_text_by_period(text: str) -> list[str]:
+            segments: list[str] = []
             start: int = 0
             for match in self._PERIOD_PAT.finditer(text):
                 end: int = match.end()
@@ -89,10 +87,10 @@ class RegexSenter(Processor):
                 segments.append(text[start:])
             return [segment.strip() for segment in segments]
 
-        sentences: List[str] = []
+        sentences: list[str] = []
         for line in text.split("\n"):
             # Split by periods
-            sentence_candidates: List[str] = split_text_by_period(line)
+            sentence_candidates: list[str] = split_text_by_period(line)
 
             # Merge sentence candidates so that strings in parentheses or brackets are not split
             parenthesis_level: int = 0

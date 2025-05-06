@@ -1,6 +1,6 @@
 import textwrap
 from io import StringIO
-from typing import Any, Dict
+from typing import Any
 
 import pytest
 
@@ -173,13 +173,13 @@ CASES = [
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_chunk_by_sentence(case: Dict[str, Any]) -> None:
+def test_chunk_by_sentence(case: dict[str, Any]) -> None:
     actual = list(chunk_by_sentence(StringIO(case["text"])))
     assert actual == case["sentences"]
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_chunk_by_document(case: Dict[str, Any]) -> None:
+def test_chunk_by_document(case: dict[str, Any]) -> None:
     actual = list(chunk_by_document(StringIO(case["text"]), doc_id_format=case["doc_id_format"]))
     assert actual == case["documents"]
 

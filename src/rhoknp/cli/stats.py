@@ -1,10 +1,10 @@
-from typing import Any, Dict
+from typing import Any
 
 from rhoknp import Document
 from rhoknp.cohesion.rel import CASE_TYPES, COREF_TYPES
 
 
-def get_document_statistics(document: Document) -> Dict[str, Dict[str, int]]:
+def get_document_statistics(document: Document) -> dict[str, dict[str, int]]:
     """文書の統計情報を取得．
 
     Args:
@@ -13,7 +13,7 @@ def get_document_statistics(document: Document) -> Dict[str, Dict[str, int]]:
     Returns:
         Dict[str, Dict[str, int]]: 統計情報．
     """
-    stats: Dict[str, Any] = {"unit": {}, "cohesion": {}, "other": {}}
+    stats: dict[str, Any] = {"unit": {}, "cohesion": {}, "other": {}}
     # Unit
     if not document.is_senter_required():
         stats["unit"]["sentence"] = len(document.sentences)

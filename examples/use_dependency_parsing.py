@@ -3,6 +3,7 @@
 Usage:
     $ python examples/use_dependency_parsing.py "今日はいい天気ですね。"
 """
+
 import sys
 
 from rhoknp import KNP

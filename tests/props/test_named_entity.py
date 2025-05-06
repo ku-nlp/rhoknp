@@ -1,6 +1,6 @@
 import textwrap
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 import pytest
 
@@ -48,7 +48,7 @@ from rhoknp.props import NamedEntity, NamedEntityCategory
         },
     ],
 )
-def test_ne(case: Dict[str, Any]) -> None:
+def test_ne(case: dict[str, Any]) -> None:
     doc = Document.from_knp(Path(f"tests/data/{case['doc_id']}.knp").read_text())
     actual_nes = doc.named_entities
     expected_nes = case["named_entities"]
@@ -161,7 +161,7 @@ def test_span_not_found() -> None:
         ),
     ],
 )
-def test_escape(case: Dict[str, Any]) -> None:
+def test_escape(case: dict[str, Any]) -> None:
     sentence = Sentence.from_knp(case["knp"])
     ne = NamedEntity.from_fstring(case["fstring"], sentence.morphemes)
     assert ne is not None

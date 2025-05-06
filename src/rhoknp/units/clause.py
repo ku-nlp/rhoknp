@@ -1,9 +1,9 @@
 import logging
 from functools import cached_property
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING, Optional
 
 try:
-    from typing import override  # type: ignore
+    from typing import override  # type: ignore[attr-defined]
 except ImportError:
     from typing_extensions import override
 
@@ -32,9 +32,9 @@ class Clause(Unit):
         self._sentence: Optional["Sentence"] = None
 
         # child units
-        self._phrases: Optional[List[Phrase]] = None
+        self._phrases: Optional[list[Phrase]] = None
 
-        self.discourse_relations: List[DiscourseRelation] = []  #: 談話関係のリスト．
+        self.discourse_relations: list[DiscourseRelation] = []  #: 談話関係のリスト．
 
         self.index = self.count  #: 文内におけるインデックス．
         Clause.count += 1
@@ -96,7 +96,7 @@ class Clause(Unit):
         return self._sentence
 
     @property
-    def child_units(self) -> Optional[List[Phrase]]:
+    def child_units(self) -> Optional[list[Phrase]]:
         """下位の言語単位（文節）．解析結果にアクセスできないなら None．"""
         return self._phrases
 
@@ -125,13 +125,13 @@ class Clause(Unit):
         self._sentence = sentence
 
     @property
-    def phrases(self) -> List[Phrase]:
+    def phrases(self) -> list[Phrase]:
         """文節のリスト．"""
         assert self._phrases is not None
         return self._phrases
 
     @phrases.setter
-    def phrases(self, phrases: List[Phrase]) -> None:
+    def phrases(self, phrases: list[Phrase]) -> None:
         """文節のリスト．
 
         Args:
@@ -142,19 +142,19 @@ class Clause(Unit):
         self._phrases = phrases
 
     @property
-    def base_phrases(self) -> List[BasePhrase]:
+    def base_phrases(self) -> list[BasePhrase]:
         """基本句のリスト．"""
         return [base_phrase for phrase in self.phrases for base_phrase in phrase.base_phrases]
 
     @property
-    def morphemes(self) -> List[Morpheme]:
+    def morphemes(self) -> list[Morpheme]:
         """形態素のリスト．"""
         return [morpheme for base_phrase in self.base_phrases for morpheme in base_phrase.morphemes]
 
     @cached_property
     def head(self) -> BasePhrase:
         """節主辞の基本句．"""
-        heads: List[BasePhrase] = []
+        heads: list[BasePhrase] = []
         for base_phrase in self.base_phrases:
             if "節-主辞" in base_phrase.features:
                 heads.append(base_phrase)
@@ -184,7 +184,7 @@ class Clause(Unit):
         return None
 
     @cached_property
-    def children(self) -> List["Clause"]:
+    def children(self) -> list["Clause"]:
         """この節に係っている節のリスト．"""
         return [clause for clause in self.sentence.clauses if clause.parent == self]
 
@@ -205,7 +205,7 @@ class Clause(Unit):
         """
         clause = cls()
         phrases = []
-        phrase_lines: List[str] = []
+        phrase_lines: list[str] = []
         for line in knp_text.split("\n"):
             if not line.strip():
                 continue

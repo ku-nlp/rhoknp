@@ -1,5 +1,6 @@
 import sys
-from typing import List, Sequence, TextIO, Union
+from collections.abc import Sequence
+from typing import TextIO, Union
 
 from rich.console import Console
 from rich.table import Table
@@ -92,7 +93,7 @@ def draw_tree(
                 else:
                     item[i][j] = " "
 
-    lines: List[str] = []
+    lines: list[str] = []
     for i in range(len(leaves)):
         line = _leaf_string(leaves[i], show_pos)
         for j in range(i + 1, len(leaves)):
@@ -134,7 +135,7 @@ def _str_real_length(string: str) -> int:
 
 
 def _feat_string(base_phrase: BasePhrase, show_rel: bool, show_pas: bool) -> str:
-    tag_strings: List[str] = []
+    tag_strings: list[str] = []
     if show_rel is True:
         for tag in base_phrase.rel_tags:
             tag_strings.append(f"{tag.type}:{tag.target}")

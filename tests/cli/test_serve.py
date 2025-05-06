@@ -1,5 +1,4 @@
 import textwrap
-from typing import List
 
 import pytest
 from fastapi.testclient import TestClient
@@ -12,8 +11,7 @@ is_knp_available = KNP().is_available()
 is_kwja_available = KWJA(options=["--model-size", "tiny"]).is_available()
 
 
-@pytest.mark.skipif(not is_jumanpp_available, reason="Juman++ is not available")
-@pytest.fixture()
+@pytest.fixture
 def jumanpp_client() -> TestClient:
     app = create_app(AnalyzerType.JUMANPP)
     return TestClient(app)
@@ -49,8 +47,7 @@ def test_index_jumanpp(jumanpp_client: TestClient, text: str) -> None:
     assert response.status_code == 200
 
 
-@pytest.mark.skipif(not is_knp_available, reason="KNP is not available")
-@pytest.fixture()
+@pytest.fixture
 def knp_client() -> TestClient:
     app = create_app(AnalyzerType.KNP)
     return TestClient(app)
@@ -103,8 +100,7 @@ def test_index_knp_error(knp_client: TestClient) -> None:
     assert response.status_code == 500
 
 
-@pytest.mark.skipif(not is_kwja_available, reason="KWJA is not available")
-@pytest.fixture()
+@pytest.fixture
 def kwja_client() -> TestClient:
     app = create_app(AnalyzerType.KWJA, options=["--model-size", "tiny", "--tasks", "char,word"])
     return TestClient(app)
@@ -151,7 +147,7 @@ def test_cli_serve_index_kwja(kwja_client: TestClient, text: str) -> None:
         ("", "", [_Span("", "=")]),
     ],
 )
-def test_get_string_diff(pre_text: str, post_text: str, expected: List[_Span]) -> None:
+def test_get_string_diff(pre_text: str, post_text: str, expected: list[_Span]) -> None:
     assert _get_string_diff(pre_text, post_text) == expected
 
 

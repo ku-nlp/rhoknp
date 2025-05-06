@@ -3,6 +3,7 @@
 Usage:
     $ python examples/use_morphological_analysis.py "今日はいい天気ですね。"
 """
+
 import sys
 
 from rhoknp import Jumanpp

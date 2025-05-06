@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any
 
 import pytest
 
@@ -21,13 +21,13 @@ CASES = [
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_from_fstring(case: Dict[str, Any]) -> None:
+def test_from_fstring(case: dict[str, Any]) -> None:
     semantics = SemanticsDict.from_sstring(case["sstring"])
     assert dict(semantics) == case["dict_"]
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_to_fstring(case: Dict[str, Any]) -> None:
+def test_to_fstring(case: dict[str, Any]) -> None:
     semantics = SemanticsDict(case["dict_"], is_nil=True)
     assert semantics.to_sstring() == case["sstring"]
 

@@ -1,9 +1,9 @@
 import logging
 import re
-from typing import TYPE_CHECKING, List, Optional, Union
+from typing import TYPE_CHECKING, Optional, Union
 
 try:
-    from typing import override  # type: ignore
+    from typing import override  # type: ignore[attr-defined]
 except ImportError:
     from typing_extensions import override
 
@@ -50,15 +50,15 @@ class Sentence(Unit):
         self._document: Optional["Document"] = None
 
         # child units
-        self._clauses: Optional[List[Clause]] = None
-        self._phrases: Optional[List[Phrase]] = None
-        self._morphemes: Optional[List[Morpheme]] = None
+        self._clauses: Optional[list[Clause]] = None
+        self._phrases: Optional[list[Phrase]] = None
+        self._morphemes: Optional[list[Morpheme]] = None
 
         self.sent_id: str = ""
         self.doc_id: str = ""
         self.misc_comment: str = ""
 
-        self.named_entities: List[NamedEntity] = []
+        self.named_entities: list[NamedEntity] = []
 
         self.index = self.count  #: 文書全体におけるインデックス．
         Sentence.count += 1
@@ -98,7 +98,7 @@ class Sentence(Unit):
         return self._document
 
     @property
-    def child_units(self) -> Optional[Union[List[Clause], List[Phrase], List[Morpheme]]]:
+    def child_units(self) -> Optional[Union[list[Clause], list[Phrase], list[Morpheme]]]:
         """下位の言語単位（節もしくは形態素）のリスト．解析結果にアクセスできないなら None．
 
         .. note::
@@ -162,7 +162,7 @@ class Sentence(Unit):
         self._document = document
 
     @property
-    def clauses(self) -> List[Clause]:
+    def clauses(self) -> list[Clause]:
         """節のリスト．
 
         Raises:
@@ -173,7 +173,7 @@ class Sentence(Unit):
         return self._clauses
 
     @clauses.setter
-    def clauses(self, clauses: List[Clause]) -> None:
+    def clauses(self, clauses: list[Clause]) -> None:
         """節のリスト．
 
         Args:
@@ -184,7 +184,7 @@ class Sentence(Unit):
         self._clauses = clauses
 
     @property
-    def phrases(self) -> List[Phrase]:
+    def phrases(self) -> list[Phrase]:
         """文節のリスト．
 
         Raises:
@@ -197,7 +197,7 @@ class Sentence(Unit):
         raise AttributeError("phrases have not been set")
 
     @phrases.setter
-    def phrases(self, phrases: List[Phrase]) -> None:
+    def phrases(self, phrases: list[Phrase]) -> None:
         """文節のリスト．
 
         Args:
@@ -208,7 +208,7 @@ class Sentence(Unit):
         self._phrases = phrases
 
     @property
-    def base_phrases(self) -> List[BasePhrase]:
+    def base_phrases(self) -> list[BasePhrase]:
         """基本句のリスト．
 
         Raises:
@@ -217,7 +217,7 @@ class Sentence(Unit):
         return [base_phrase for phrase in self.phrases for base_phrase in phrase.base_phrases]
 
     @property
-    def morphemes(self) -> List[Morpheme]:
+    def morphemes(self) -> list[Morpheme]:
         """形態素のリスト．
 
         Raises:
@@ -232,7 +232,7 @@ class Sentence(Unit):
         raise AttributeError("morphemes have not been set")
 
     @morphemes.setter
-    def morphemes(self, morphemes: List[Morpheme]) -> None:
+    def morphemes(self, morphemes: list[Morpheme]) -> None:
         """形態素のリスト．
 
         Args:
@@ -271,7 +271,7 @@ class Sentence(Unit):
         self.misc_comment = rest
 
     @property
-    def pas_list(self) -> List[Pas]:
+    def pas_list(self) -> list[Pas]:
         """述語項構造のリスト．
 
         Raises:
@@ -331,8 +331,8 @@ class Sentence(Unit):
             >>> sent = Sentence.from_jumanpp(jumanpp_text)
         """
         sentence = cls()
-        morphemes: List[Morpheme] = []
-        jumanpp_lines: List[str] = []
+        morphemes: list[Morpheme] = []
+        jumanpp_lines: list[str] = []
         for line in jumanpp_text.split("\n"):
             if line.strip() == "":
                 continue
@@ -396,9 +396,9 @@ class Sentence(Unit):
         lines = knp_text.split("\n")
         sentence = cls()
         has_clause_boundary = any("節-区切" in line for line in lines if BasePhrase.is_base_phrase_line(line))
-        clauses: List[Clause] = []
-        phrases: List[Phrase] = []
-        child_lines: List[str] = []
+        clauses: list[Clause] = []
+        phrases: list[Phrase] = []
+        child_lines: list[str] = []
         is_clause_end = False
         for line in lines:
             if line.strip() == "":

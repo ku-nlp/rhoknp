@@ -3,10 +3,10 @@ import itertools
 import logging
 import re
 from functools import cached_property
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set
+from typing import TYPE_CHECKING, Any, Optional
 
 try:
-    from typing import override  # type: ignore
+    from typing import override  # type: ignore[attr-defined]
 except ImportError:
     from typing_extensions import override
 
@@ -53,7 +53,7 @@ class BasePhrase(Unit):
         self._phrase: Optional["Phrase"] = None
 
         # child units
-        self._morphemes: Optional[List[Morpheme]] = None
+        self._morphemes: Optional[list[Morpheme]] = None
 
         self.parent_index: Optional[int] = parent_index  #: 係り先の基本句の文内におけるインデックス．
         self.dep_type: Optional[DepType] = dep_type  #: 係り受けの種類．
@@ -61,13 +61,13 @@ class BasePhrase(Unit):
         self.rel_tags: RelTagList = rel_tags or RelTagList()  #: 基本句間関係．
         self.memo_tag: MemoTag = memo_tag or MemoTag()  #: タグ付けメモ．
         self.pas: Pas = Pas(Predicate(self))  #: 述語項構造．
-        self.entities: Set[Entity] = set()  #: 参照しているエンティティ．
-        self.entities_nonidentical: Set[Entity] = set()  #: ≒で参照しているエンティティ．
+        self.entities: set[Entity] = set()  #: 参照しているエンティティ．
+        self.entities_nonidentical: set[Entity] = set()  #: ≒で参照しているエンティティ．
 
         self.index = self.count  #: 文内におけるインデックス．
         BasePhrase.count += 1
 
-    def __getstate__(self) -> Dict[str, Any]:
+    def __getstate__(self) -> dict[str, Any]:
         state = self.__dict__.copy()
         # Dump a tuple instead of a set so that the __hash__ function won't be called.
         # `eids` is used to hash uninitialized Entity objects.
@@ -77,7 +77,7 @@ class BasePhrase(Unit):
         state["eids_nonidentical"] = tuple(entity.eid for entity in state["entities_nonidentical"])
         return state
 
-    def __setstate__(self, state: Dict[str, Any]) -> None:
+    def __setstate__(self, state: dict[str, Any]) -> None:
         # Restore eids to Entity objects for hashing.
         for entity, eid in zip(state["entities"], state.pop("eids")):
             entity.eid = eid
@@ -137,7 +137,7 @@ class BasePhrase(Unit):
         return self._phrase
 
     @property
-    def child_units(self) -> Optional[List[Morpheme]]:
+    def child_units(self) -> Optional[list[Morpheme]]:
         """下位の言語単位（形態素）．解析結果にアクセスできないなら None．"""
         return self._morphemes
 
@@ -180,13 +180,13 @@ class BasePhrase(Unit):
         self._phrase = phrase
 
     @property
-    def morphemes(self) -> List[Morpheme]:
+    def morphemes(self) -> list[Morpheme]:
         """形態素のリスト．"""
         assert self._morphemes is not None
         return self._morphemes
 
     @morphemes.setter
-    def morphemes(self, morphemes: List[Morpheme]) -> None:
+    def morphemes(self, morphemes: list[Morpheme]) -> None:
         """形態素のリスト．
 
         Args:
@@ -225,7 +225,7 @@ class BasePhrase(Unit):
         return self.sentence.base_phrases[self.parent_index]
 
     @cached_property
-    def children(self) -> List["BasePhrase"]:
+    def children(self) -> list["BasePhrase"]:
         """この基本句に係っている基本句のリスト．
 
         Raises:
@@ -234,7 +234,7 @@ class BasePhrase(Unit):
         return [base_phrase for base_phrase in self.sentence.base_phrases if base_phrase.parent == self]
 
     @property
-    def entities_all(self) -> Set[Entity]:
+    def entities_all(self) -> set[Entity]:
         """nonidentical も含めた参照している全エンティティの集合．"""
         return self.entities | self.entities_nonidentical
 
@@ -257,7 +257,7 @@ class BasePhrase(Unit):
             memo_tag=MemoTag.from_fstring(match["feats"] or ""),
         )
 
-        morphemes: List[Morpheme] = []
+        morphemes: list[Morpheme] = []
         for line in lines:
             if line.strip() == "":
                 continue
@@ -281,7 +281,7 @@ class BasePhrase(Unit):
         ret += "".join(morpheme.to_knp() for morpheme in self.morphemes)
         return ret
 
-    def get_coreferents(self, include_nonidentical: bool = False, include_self: bool = False) -> List["BasePhrase"]:
+    def get_coreferents(self, include_nonidentical: bool = False, include_self: bool = False) -> list["BasePhrase"]:
         """この基本句と共参照している基本句の集合を返却．
 
         Args:
@@ -291,7 +291,7 @@ class BasePhrase(Unit):
         Returns:
             共参照している基本句の集合．
         """
-        mentions: List["BasePhrase"] = [self]
+        mentions: list["BasePhrase"] = [self]
         for mention in itertools.chain.from_iterable(entity.mentions for entity in self.entities):
             if mention not in mentions:
                 mentions.append(mention)

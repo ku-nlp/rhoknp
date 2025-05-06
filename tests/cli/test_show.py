@@ -1,6 +1,6 @@
 import io
 import textwrap
-from typing import Any, Dict
+from typing import Any
 
 import pytest
 
@@ -154,7 +154,7 @@ CASES = [
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_draw_base_phrase_tree(case: Dict[str, Any]) -> None:
+def test_draw_base_phrase_tree(case: dict[str, Any]) -> None:
     sentence = Sentence.from_knp(case["knp"])
     with io.StringIO() as f:
         draw_tree(sentence.base_phrases, f, show_pos=True, show_rel=True)
@@ -220,7 +220,7 @@ def test_draw_base_phrase_tree_show_pas() -> None:
         },
     ],
 )
-def test_draw_base_phrase_tree_show_rel_pas(case: Dict[str, Any]) -> None:
+def test_draw_base_phrase_tree_show_rel_pas(case: dict[str, Any]) -> None:
     sentence = Sentence.from_knp(case["knp"])
     with io.StringIO() as f:
         draw_tree(sentence.base_phrases, f, show_pos=False, show_rel=True, show_pas=True)

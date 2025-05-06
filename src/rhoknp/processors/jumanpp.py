@@ -5,10 +5,10 @@ import threading
 import time
 from subprocess import PIPE, Popen
 from threading import Lock
-from typing import List, Optional, Union
+from typing import Optional, Union
 
 try:
-    from typing import override  # type: ignore
+    from typing import override  # type: ignore[attr-defined]
 except ImportError:
     from typing_extensions import override
 
@@ -41,12 +41,12 @@ class Jumanpp(Processor):
     def __init__(
         self,
         executable: str = "jumanpp",
-        options: Optional[List[str]] = None,
+        options: Optional[list[str]] = None,
         senter: Optional[Processor] = None,
         skip_sanity_check: bool = False,
     ) -> None:
         self.executable = executable  #: Juman++ のパス．
-        self.options: List[str] = options or []  #: Juman++ のオプション．
+        self.options: list[str] = options or []  #: Juman++ のオプション．
         self.senter = senter
         self._lock = Lock()
         self._proc: Optional[Popen] = None
@@ -111,7 +111,7 @@ class Jumanpp(Processor):
                 self.senter = RegexSenter()
             document = self.senter.apply_to_document(document, timeout=timeout - int(time.time() - start))
 
-        sentences: List[Sentence] = []
+        sentences: list[Sentence] = []
         for sentence in document.sentences:
             sentences.append(self.apply_to_sentence(sentence, timeout=timeout - int(time.time() - start)))
         ret = Document.from_sentences(sentences)
@@ -136,7 +136,6 @@ class Jumanpp(Processor):
             sentence = Sentence(sentence)
 
         stdout_text: str = ""
-        done_event: threading.Event = threading.Event()
 
         def worker() -> None:
             nonlocal stdout_text
@@ -164,17 +163,15 @@ class Jumanpp(Processor):
                     stderr_text += line
                 if stderr_text.strip() != "":
                     logger.debug(stderr_text.strip())
-            done_event.set()
 
         with self._lock:
-            thread = threading.Thread(target=worker)
+            thread = threading.Thread(target=worker, daemon=True)
             thread.start()
-            done_event.wait(timeout)
+            thread.join(timeout)
 
             if thread.is_alive():
-                thread.join()
                 self.start_process(skip_sanity_check=True)
-                raise TimeoutError("Operation timed out.")
+                raise TimeoutError(f"Operation timed out after {timeout} seconds.")
 
             if not self.is_available():
                 self.start_process(skip_sanity_check=True)
@@ -194,11 +191,11 @@ class Jumanpp(Processor):
         return p.stdout.strip()
 
     @property
-    def run_command(self) -> List[str]:
+    def run_command(self) -> list[str]:
         """解析時に実行するコマンド．"""
         return [self.executable, *self.options]
 
     @property
-    def version_command(self) -> List[str]:
+    def version_command(self) -> list[str]:
         """バージョンを確認するコマンド．"""
         return [self.executable, "--version"]

@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Optional, Sequence
+from collections.abc import Sequence
+from typing import Optional
 
 
 class Unit(ABC):

@@ -1,7 +1,7 @@
 import logging
 import textwrap
 from pathlib import Path
-from typing import Any, Dict, Tuple
+from typing import Any
 
 import pytest
 
@@ -307,13 +307,13 @@ CASES = [
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_initialized(case: Dict[str, Any]) -> None:
+def test_initialized(case: dict[str, Any]) -> None:
     doc = Document.from_knp(case["knp"])
     _ = doc.base_phrases[case["base_phrase_index"]].pas
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_attribute(case: Dict[str, Any]) -> None:
+def test_attribute(case: dict[str, Any]) -> None:
     doc = Document.from_knp(case["knp"])
     pas = doc.base_phrases[case["base_phrase_index"]].pas
     assert pas.sid == case["sid"]
@@ -323,7 +323,7 @@ def test_attribute(case: Dict[str, Any]) -> None:
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_get_arguments(case: Dict[str, Any]) -> None:
+def test_get_arguments(case: dict[str, Any]) -> None:
     doc = Document.from_knp(case["knp"])
     pas = doc.base_phrases[case["base_phrase_index"]].pas
     for pas_case, args_expected in case["arguments"].items():
@@ -595,5 +595,5 @@ def test_get_all_arguments() -> None:
     "case",
     [("が", "ガ"), ("を", "ヲ"), ("ヲ", "ヲ"), ("が2", "ガ２"), ("判が", "判ガ"), ("外の関係", "外の関係")],
 )
-def test_normalize_case(case: Tuple[str, str]) -> None:
+def test_normalize_case(case: tuple[str, str]) -> None:
     assert normalize_case(case[0]) == case[1]

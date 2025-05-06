@@ -8,13 +8,13 @@ We give an overview on contributing to the _rhoknp_ project.
 Development should be done using the latest version of Python.
 As of this writing, it is Python 3.10.
 
-Install the development dependencies using [poetry](https://python-poetry.org/).
+Install the development dependencies using [uv](https://docs.astral.sh/uv/).
 
 ```{eval-rst}
 .. prompt::
     :prompts: $
 
-    poetry install
+    uv sync
     pre-commit install
 ```
 
@@ -26,8 +26,8 @@ Before submitting a pull request, run lints and test.
 .. prompt::
     :prompts: $
 
-    poetry run pre-commit run --all-files
-    poetry run pytest
+    uv run pre-commit run --all-files
+    uv run pytest
 ```
 
 ## Testing

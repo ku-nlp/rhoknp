@@ -1,4 +1,4 @@
-from typing import ClassVar, List
+from typing import ClassVar
 
 from pygments import highlight
 from pygments.formatters import TerminalFormatter
@@ -13,8 +13,8 @@ class KNPLexer(RegexLexer):
 
     name: ClassVar[str] = "KNP"
     url: ClassVar[str] = "https://github.com/ku-nlp/knp"
-    filenames: ClassVar[List[str]] = ["*.knp", "*.kwja"]
-    mimetypes: ClassVar[List[str]] = ["text/plain"]
+    filenames: ClassVar[list[str]] = ["*.knp", "*.kwja"]
+    mimetypes: ClassVar[list[str]] = ["text/plain"]
 
     tokens = {  # noqa: RUF012
         "root": [

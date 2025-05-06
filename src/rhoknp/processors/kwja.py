@@ -4,10 +4,10 @@ import subprocess
 import threading
 from subprocess import PIPE, Popen
 from threading import Lock
-from typing import List, Optional, Union
+from typing import Optional, Union
 
 try:
-    from typing import override  # type: ignore
+    from typing import override  # type: ignore[attr-defined]
 except ImportError:
     from typing_extensions import override
 
@@ -38,17 +38,17 @@ class KWJA(Processor):
     def __init__(
         self,
         executable: str = "kwja",
-        options: Optional[List[str]] = None,
+        options: Optional[list[str]] = None,
         skip_sanity_check: bool = False,
     ) -> None:
         self.executable = executable  #: KWJA のパス．
-        self.options: List[str] = options or []  #: KWJA のオプション．
+        self.options: list[str] = options or []  #: KWJA のオプション．
         self._proc: Optional[Popen] = None
         self._lock = Lock()
         self._output_format: str = "knp"
         self._input_format: str = "raw"
         if "--tasks" in self.options:
-            tasks: List[str] = self.options[self.options.index("--tasks") + 1].split(",")
+            tasks: list[str] = self.options[self.options.index("--tasks") + 1].split(",")
             if "word" in tasks:
                 self._output_format = "knp"
             elif "seq2seq" in tasks:
@@ -96,7 +96,7 @@ class KWJA(Processor):
                 else:
                     assert self._input_format == "knp"
                     empty_document = Document.from_knp("EOS\n")
-                _ = self.apply(empty_document)
+                _ = self.apply(empty_document, timeout=30)
         except Exception as e:
             logger.warning(f"failed to start KWJA: {e}")
 
@@ -117,9 +117,9 @@ class KWJA(Processor):
 
         if isinstance(document, str):
             document = Document(document)
+        doc_id = document.doc_id
 
         stdout_text: str = ""
-        done_event: threading.Event = threading.Event()
 
         def worker() -> None:
             nonlocal stdout_text
@@ -147,15 +147,13 @@ class KWJA(Processor):
                     stderr_text += line
                 if stderr_text.strip() != "":
                     logger.warning(stderr_text.strip())
-            done_event.set()
 
         with self._lock:
-            thread = threading.Thread(target=worker)
+            thread = threading.Thread(target=worker, daemon=True)
             thread.start()
-            done_event.wait(timeout)
+            thread.join(timeout)
 
             if thread.is_alive():
-                thread.join()
                 self.start_process(skip_sanity_check=True)
                 raise TimeoutError(f"Operation timed out after {timeout} seconds.")
 
@@ -163,7 +161,12 @@ class KWJA(Processor):
                 self.start_process(skip_sanity_check=True)
                 raise RuntimeError("KWJA exited unexpectedly.")
 
-        return self._create_document(stdout_text)
+        ret = self._create_document(stdout_text)
+        if doc_id != "":
+            ret.doc_id = doc_id
+            for sentence in ret.sentences:
+                sentence.doc_id = doc_id
+        return ret
 
     @override
     def apply_to_sentence(self, sentence: Union[Sentence, str], timeout: int = 10) -> Sentence:
@@ -189,12 +192,12 @@ class KWJA(Processor):
     def _create_document(self, text: str) -> Document:
         if self._output_format == "raw":
             return Document.from_raw_text(text)
-        elif self._output_format == "jumanpp":
+        if self._output_format == "jumanpp":
             return Document.from_jumanpp(text)
-        elif self._output_format == "words":
+        if self._output_format == "words":
             document = Document()
             sentences = []
-            sentence_lines: List[str] = []
+            sentence_lines: list[str] = []
             for line in text.split("\n"):
                 if line.strip() == "":
                     continue
@@ -206,21 +209,20 @@ class KWJA(Processor):
             document.sentences = sentences
             document.__post_init__()
             return document
-        else:
-            assert self._output_format == "knp"
-            return Document.from_knp(text)
+        assert self._output_format == "knp"
+        return Document.from_knp(text)
 
     @staticmethod
     def _create_sentence_from_words_format(text: str) -> Sentence:
         sentence = Sentence()
-        morphemes: List[Morpheme] = []
+        morphemes: list[Morpheme] = []
         for line in text.split("\n"):
             if line.strip() == "":
                 continue
             if is_comment_line(line):
                 sentence.comment = line
                 continue
-            words: List[str] = line.split(" ")
+            words: list[str] = line.split(" ")
             morphemes += [
                 Morpheme(
                     text=word,
@@ -248,11 +250,11 @@ class KWJA(Processor):
         return p.stdout.strip()
 
     @property
-    def run_command(self) -> List[str]:
+    def run_command(self) -> list[str]:
         """解析時に実行するコマンド．"""
         return [self.executable, *self.options]
 
     @property
-    def version_command(self) -> List[str]:
+    def version_command(self) -> list[str]:
         """バージョンを確認するコマンド．"""
         return [self.executable, "--version"]
