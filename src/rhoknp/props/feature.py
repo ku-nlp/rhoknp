@@ -9,9 +9,13 @@ class FeatureDict(dict[str, Union[str, bool]]):
     """文節，基本句，形態素の素性情報を表すクラス．"""
 
     IGNORE_TAG_PREFIXES: ClassVar[set[str]] = {"rel ", "memo "}
-    PAT: ClassVar[re.Pattern] = re.compile(r"(?P<feats>(<([^:\"]|\".*?\")+?(:([^>\\]|\\>?)+)?>)*)")
+    _FEATURE_KEY_PAT: ClassVar[re.Pattern] = re.compile(r"(?P<key>([^:\"]|\"[^\"]*?\")+?)")
+    _FEATURE_VALUE_PAT: ClassVar[re.Pattern] = re.compile(r"(?P<value>([^>\\]|\\>?)+)")
+    PAT: ClassVar[re.Pattern] = re.compile(
+        rf"(?P<feats>(<{_FEATURE_KEY_PAT.pattern}(:{_FEATURE_VALUE_PAT.pattern})?>)*)"
+    )
     FEATURE_PAT: ClassVar[re.Pattern] = re.compile(
-        rf"<(?!({'|'.join(IGNORE_TAG_PREFIXES)}))(?P<key>([^:\"]|\".*?\")+?)(:(?P<value>([^>\\]|\\>?)+))?>"
+        rf"<(?!({'|'.join(IGNORE_TAG_PREFIXES)})){_FEATURE_KEY_PAT.pattern}(:{_FEATURE_VALUE_PAT.pattern})?>"
     )
 
     def __setitem__(self, key: str, value: Union[str, bool]) -> None:
