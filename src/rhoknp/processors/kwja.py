@@ -96,7 +96,7 @@ class KWJA(Processor):
                 else:
                     assert self._input_format == "knp"
                     empty_document = Document.from_knp("EOS\n")
-                _ = self.apply(empty_document)
+                _ = self.apply(empty_document, timeout=30)
         except Exception as e:
             logger.warning(f"failed to start KWJA: {e}")
 

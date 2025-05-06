@@ -54,7 +54,7 @@ def test_char() -> None:
 def test_seq2seq() -> None:
     kwja = KWJA(options=["--model-size", "tiny", "--tasks", "char,seq2seq"])
     text = "こんにちは。さようなら。"
-    doc = kwja.apply_to_document(text)
+    doc = kwja.apply_to_document(text, timeout=60)
     morphemes = doc.morphemes
     assert len(morphemes) > 0
     morpheme = morphemes[0]
