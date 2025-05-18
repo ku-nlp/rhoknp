@@ -52,7 +52,7 @@ jobs:
       - name: Run rhoknp (Windows)
         if: ${{ matrix.os == 'windows-latest' }}
         run: |
-          # shellcheck disable=SC1001
           .\.venv\Scripts\Activate
           rhoknp --version
           rhoknp --help
+        shell: pwsh
