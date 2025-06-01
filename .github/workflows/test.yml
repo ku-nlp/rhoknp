@@ -33,7 +33,7 @@ jobs:
       - name: Install KWJA
         run: |
           uv tool install kwja --python 3.12
-          kwja --model-size tiny --text "テスト"
+          kwja --model-size tiny --tasks char,seq2seq,word --text "テスト"
       - name: Run tests with coverage
         if: ${{ matrix.python-version == '3.10' }}
         run: |
