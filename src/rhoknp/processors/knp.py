@@ -70,8 +70,12 @@ class KNP(Processor):
         return f"{self.__class__.__name__}({arg_string})"
 
     def __del__(self) -> None:
-        if self._proc is not None:
-            self._proc.terminate()
+        try:
+            if self._proc is not None:
+                self._proc.terminate()
+        except AttributeError:  # pragma: no cover
+            # for free-threaded Python interpreters
+            pass  # pragma: no cover
 
     def start_process(self, skip_sanity_check: bool = False) -> None:
         """KNP を起動する．

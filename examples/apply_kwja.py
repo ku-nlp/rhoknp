@@ -9,10 +9,10 @@ import sys
 from rhoknp import KWJA
 
 # Create a KWJA instance.
-kwja = KWJA()
+kwja = KWJA(options=["--model-size", "tiny"])
 
 # Apply KWJA to a document.
-doc = kwja.apply_to_document(sys.argv[1])
+doc = kwja.apply_to_document(sys.argv[1], timeout=120)
 
 # Get information.
 for mrph in doc.morphemes:
