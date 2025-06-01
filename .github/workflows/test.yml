@@ -28,7 +28,7 @@ jobs:
         run: |
           export DEBIAN_FRONTEND=noninteractive
           apt-get update -yq
-          apt-get install -yq --no-install-recommends curl build-essential libsqlite3-dev libffi-dev libssl-dev git
+          apt-get install -yq --no-install-recommends curl ca-certificates build-essential libsqlite3-dev libffi-dev libssl-dev git
           apt-get clean
           rm -rf /var/lib/apt/lists/*
 
