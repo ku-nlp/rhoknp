@@ -9,7 +9,7 @@ import sys
 from rhoknp import KWJA
 
 # Create a KWJA instance.
-kwja = KWJA(options=["--model-size", "tiny"])
+kwja = KWJA(options=["--model-size", "tiny"])  # `tiny`, `base`, or `large`
 
 # Apply KWJA to a document.
 doc = kwja.apply_to_document(sys.argv[1], timeout=120)
