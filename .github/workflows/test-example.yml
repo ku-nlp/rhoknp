@@ -35,10 +35,8 @@ jobs:
         run: |
           uv sync --group test --extra cli --no-cache
       - name: Install KWJA
-        # KWJA does not support Python 3.13
-        if: ${{ matrix.python-version != 3.13 }}
         run: |
-          uv tool install kwja
+          uv tool install kwja --python 3.12
       - name: Run tests for all files under examples/apply_*.py
         shell: bash
         run: |
