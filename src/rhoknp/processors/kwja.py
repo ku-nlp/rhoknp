@@ -77,9 +77,9 @@ class KWJA(Processor):
         try:
             if self._proc is not None:
                 self._proc.terminate()
-        except AttributeError:
+        except AttributeError:  # pragma: no cover
             # for free-threaded Python interpreters
-            pass
+            pass  # pragma: no cover
 
     def start_process(self, skip_sanity_check: bool = False) -> None:
         """KWJA を起動する．
