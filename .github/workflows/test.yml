@@ -15,37 +15,50 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Free up disk space
+        run: |
+          rm -rf /usr/share/dotnet
+          rm -rf /usr/local/lib/android
+          rm -rf /opt/ghc
+          rm -rf /opt/hostedtoolcache/CodeQL
+          docker system prune -af
+          df -h
+
       - name: Install required apt packages
         run: |
           export DEBIAN_FRONTEND=noninteractive
           apt-get update -yq
-          apt-get install -yq curl build-essential libsqlite3-dev libffi-dev libssl-dev
+          apt-get install -yq --no-install-recommends curl build-essential libsqlite3-dev libffi-dev libssl-dev git
+          apt-get clean
+          rm -rf /var/lib/apt/lists/*
+
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+
       - name: Install uv
         uses: astral-sh/setup-uv@v6
         with:
           python-version: ${{ matrix.python-version }}
+
       - name: Install dependencies
         run: uv sync --extra cli --no-cache
+
       - name: Install KWJA
         run: |
           uv tool install kwja --python 3.12
           kwja --model-size tiny --tasks char,seq2seq,word --text "テスト"
+
       - name: Run tests with coverage
         if: ${{ matrix.python-version == '3.10' }}
-        run: |
-          uv run pytest --cov=./ --cov-report=xml -v ./tests
+        run: uv run pytest --cov=./ --cov-report=xml -v ./tests
+
       - name: Run tests without coverage
         if: ${{ matrix.python-version != '3.10' }}
-        run: |
-          uv run pytest -v ./tests
-      - name: Install git for codecov
-        if: ${{ matrix.python-version == '3.10' }}
-        run: |
-          apt-get install -yq git
+        run: uv run pytest -v ./tests
+
       - name: Upload coverage to Codecov
         if: ${{ matrix.python-version == '3.10' }}
         uses: codecov/codecov-action@v5
