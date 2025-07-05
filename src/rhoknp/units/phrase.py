@@ -48,6 +48,10 @@ class Phrase(Unit):
         Phrase.count += 1
 
     @override
+    def __hash__(self) -> int:
+        return hash((self.parent_unit, self.index))
+
+    @override
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, type(self)):
             return False

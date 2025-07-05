@@ -429,3 +429,15 @@ def test_invalid_head_1() -> None:
         )
     )
     assert clause.head.text == "いいので"
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_eq_knp(case: dict[str, str]) -> None:
+    sent1 = Sentence.from_knp(case["knp"])
+    sent2 = Sentence.from_knp(case["knp"])
+    for clause1, clause2 in zip(sent1.clauses, sent2.clauses):
+        assert clause1 == clause2
+        assert hash(clause1) == hash(clause2)
+    if len(sent1.clauses) > 1:
+        assert sent1.clauses[0] != sent1.clauses[1]
+        assert hash(sent1.clauses[0]) != hash(sent1.clauses[1])

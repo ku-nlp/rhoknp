@@ -15,6 +15,10 @@ class Unit(ABC):
                 child_unit.__post_init__()
 
     @abstractmethod
+    def __hash__(self) -> int:
+        raise NotImplementedError
+
+    @abstractmethod
     def __eq__(self, other: object) -> bool:
         raise NotImplementedError
 

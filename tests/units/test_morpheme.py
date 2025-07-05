@@ -584,3 +584,15 @@ def test_homograph_to_knp() -> None:
     assert len(sentence.morphemes[0].homographs) == 1
     assert sentence.morphemes[0].to_jumanpp() == jumanpp_homograph
     assert sentence.to_knp() == knp_homograph
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_eq_knp(case: dict[str, str]) -> None:
+    sent1 = Sentence.from_knp(case["knp"])
+    sent2 = Sentence.from_knp(case["knp"])
+    for morpheme1, morpheme2 in zip(sent1.morphemes, sent2.morphemes):
+        assert morpheme1 == morpheme2
+        assert hash(morpheme1) == hash(morpheme2)
+    if len(sent1.morphemes) > 1:
+        assert sent1.morphemes[0] != sent1.morphemes[1]
+        assert hash(sent1.morphemes[0]) != hash(sent1.morphemes[1])

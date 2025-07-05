@@ -115,6 +115,9 @@ def test_discourse_relation_1() -> None:
     assert discourse_relation_1.modifier == document.clauses[0]
     assert discourse_relation_1.head == document.clauses[2]
 
+    assert discourse_relation_0 != discourse_relation_1
+    assert hash(discourse_relation_0) != hash(discourse_relation_1)
+
 
 def test_discourse_relation_2() -> None:
     knp_text = textwrap.dedent(

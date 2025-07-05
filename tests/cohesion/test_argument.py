@@ -57,10 +57,12 @@ def test_endophora_argument() -> None:
     another_argument = EndophoraArgument("ガ", argument_base_phrase, pas.predicate, arg_type=ArgumentType.EXOPHORA)
     another_argument.pas = pas
     assert argument == another_argument
+    assert hash(argument) == hash(another_argument)
 
     another_pas = Pas(Predicate(another_predicate_base_phrase))
     another_argument.pas = another_pas
     assert argument != another_argument
+    assert hash(argument) != hash(another_argument)
 
 
 def test_exophora_argument() -> None:
@@ -98,7 +100,9 @@ def test_exophora_argument() -> None:
     another_argument = ExophoraArgument("ガ", exophora_referent, eid=1)
     another_argument.pas = pas
     assert argument == another_argument
+    assert hash(argument) == hash(another_argument)
 
     another_pas = Pas(Predicate(another_predicate_base_phrase))
     another_argument.pas = another_pas
     assert argument != another_argument
+    assert hash(argument) != hash(another_argument)

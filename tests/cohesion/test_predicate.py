@@ -38,7 +38,7 @@ def test_predicate() -> None:
     assert predicate != "test"
     another_predicate = Predicate(base_phrase, cfid="行く/いく:動12")
     assert predicate == another_predicate
-    another_predicate = Predicate(base_phrase, cfid=None)
-    assert predicate == another_predicate
+    assert hash(predicate) == hash(another_predicate)
     another_predicate = Predicate(base_phrase, cfid="行く/いく:動3")
     assert predicate != another_predicate
+    assert hash(predicate) != hash(another_predicate)

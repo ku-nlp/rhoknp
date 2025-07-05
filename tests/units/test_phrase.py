@@ -302,3 +302,15 @@ def test_morpheme_num(case: dict[str, str]) -> None:
 def test_parent_unit(case: dict[str, str]) -> None:
     phrase = Phrase.from_knp(case["knp"])
     assert phrase.parent_unit is None
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_eq_knp(case: dict[str, str]) -> None:
+    sent1 = Sentence.from_knp(case["knp"])
+    sent2 = Sentence.from_knp(case["knp"])
+    for phrase1, phrase2 in zip(sent1.phrases, sent2.phrases):
+        assert phrase1 == phrase2
+        assert hash(phrase1) == hash(phrase2)
+    if len(sent1.phrases) > 1:
+        assert sent1.phrases[0] != sent1.phrases[1]
+        assert hash(sent1.phrases[0]) != hash(sent1.phrases[1])

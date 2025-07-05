@@ -52,6 +52,10 @@ class BaseArgument(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    def __hash__(self) -> int:
+        raise NotImplementedError
+
+    @abstractmethod
     def __eq__(self, other: object) -> bool:
         raise NotImplementedError
 
@@ -95,6 +99,9 @@ class EndophoraArgument(BaseArgument):
 
     def __str__(self) -> str:
         return self.base_phrase.text
+
+    def __hash__(self) -> int:
+        return hash((self.case, self.base_phrase, self.pas.predicate if self._pas is not None else None))
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, type(self)):
@@ -170,6 +177,9 @@ class ExophoraArgument(BaseArgument):
 
     def __str__(self) -> str:
         return str(self.exophora_referent)
+
+    def __hash__(self) -> int:
+        return hash((self.case, self.exophora_referent, self.pas.predicate if self._pas is not None else None))
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, type(self)):

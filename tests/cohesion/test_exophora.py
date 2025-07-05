@@ -7,7 +7,12 @@ def test_exophora() -> None:
     assert referent.index is None
     assert str(referent) == "著者"
     assert repr(referent) == "ExophoraReferent(text='著者')"
-    assert eval(repr(referent)) == referent
+    dup_referent = eval(repr(referent))
+    unequal_referent = ExophoraReferent("読者")
+    assert dup_referent == referent
+    assert unequal_referent != referent
+    assert hash(dup_referent) == hash(referent)
+    assert hash(unequal_referent) != hash(referent)
 
 
 def test_exophora_number() -> None:
@@ -16,7 +21,12 @@ def test_exophora_number() -> None:
     assert referent.index == 3
     assert str(referent) == "不特定:人3"
     assert repr(referent) == "ExophoraReferent(text='不特定:人3')"
-    assert eval(repr(referent)) == referent
+    dup_referent = eval(repr(referent))
+    unequal_referent = ExophoraReferent("不特定:人１")
+    assert dup_referent == referent
+    assert unequal_referent != referent
+    assert hash(dup_referent) == hash(referent)
+    assert hash(unequal_referent) != hash(referent)
 
 
 def test_exophora_other() -> None:
@@ -25,4 +35,9 @@ def test_exophora_other() -> None:
     assert referent.index is None
     assert str(referent) == "ほげほげ２"
     assert repr(referent) == "ExophoraReferent(text='ほげほげ２')"
-    assert eval(repr(referent)) == referent
+    dup_referent = eval(repr(referent))
+    unequal_referent = ExophoraReferent("前文")
+    assert dup_referent == referent
+    assert unequal_referent != referent
+    assert hash(dup_referent) == hash(referent)
+    assert hash(unequal_referent) != hash(referent)
