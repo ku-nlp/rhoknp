@@ -1,7 +1,7 @@
 from typing import ClassVar
 
 from pygments import highlight
-from pygments.formatters import TerminalFormatter
+from pygments.formatters.terminal import TerminalFormatter
 from pygments.lexer import RegexLexer, bygroups, default
 from pygments.token import Comment, Generic, Literal, Name, Number, String, Text, Whitespace
 

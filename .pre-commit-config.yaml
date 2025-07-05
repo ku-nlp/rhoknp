@@ -27,11 +27,11 @@ repos:
         additional_dependencies:
           - fastapi
           - jinja2
-          - pygments
           - rich
-          - typer-slim
           - types-click
+          - types-Pygments
           - types-PyYAML
+          - typer-slim
           - typing-extensions
           - uvicorn
   - repo: https://github.com/pre-commit/mirrors-prettier
