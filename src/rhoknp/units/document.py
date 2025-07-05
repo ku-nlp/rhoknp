@@ -62,7 +62,7 @@ class Document(Unit):
 
     @override
     def __eq__(self, other: object) -> bool:
-        if not isinstance(other, Document):
+        if not isinstance(other, type(self)):
             return False
         return self.doc_id == other.doc_id and self.text == other.text
 
