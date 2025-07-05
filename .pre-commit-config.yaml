@@ -27,7 +27,26 @@ repos:
         additional_dependencies:
           - fastapi
           - jinja2
+          - pytest
           - rich
+          - types-click
+          - types-Pygments
+          - types-PyYAML
+          - typer-slim
+          - typing-extensions
+          - uvicorn
+  - repo: local
+    hooks:
+      - id: ty
+        name: ty check
+        entry: uvx ty check
+        language: python
+        pass_filenames: false
+        additional_dependencies:
+          - fastapi
+          - pytest
+          - rich
+          - ty
           - types-click
           - types-Pygments
           - types-PyYAML

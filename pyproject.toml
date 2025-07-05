@@ -168,6 +168,9 @@ max-complexity = 20  # default: 10
 [tool.mypy]
 python_version = "3.9"
 
+[tool.ty.environment]
+python-version = "3.9"
+
 [tool.coverage.run]
 omit = ["tests/*"]
 
