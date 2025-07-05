@@ -16,14 +16,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Free up disk space
-        run: |
-          rm -rf /usr/share/dotnet
-          rm -rf /usr/local/lib/android
-          rm -rf /opt/ghc
-          rm -rf /opt/hostedtoolcache/CodeQL
-          df -h
-
       - name: Install required apt packages
         run: |
           export DEBIAN_FRONTEND=noninteractive
@@ -32,22 +24,17 @@ jobs:
           apt-get clean
           rm -rf /var/lib/apt/lists/*
 
-      #      - name: Set up Python ${{ matrix.python-version }}
-      #        uses: actions/setup-python@v5
-      #        with:
-      #          python-version: ${{ matrix.python-version }}
-
       - name: Install uv
         uses: astral-sh/setup-uv@v6
         with:
           python-version: ${{ matrix.python-version }}
-
+          enable-cache: false
       - name: Install dependencies
         run: uv sync --extra cli --no-cache --python ${{ matrix.python-version }}
       - run: df -h
       - name: Install KWJA
         run: |
-          uv tool install kwja --python 3.12
+          uv tool install kwja --python 3.12 --no-cache --with "torch==2.6.0+cpu" --extra-index-url https://download.pytorch.org/whl/cpu
           kwja --model-size tiny --tasks char,seq2seq,word --text "テスト"
 
       - name: Run tests with coverage
