@@ -17,11 +17,12 @@ jobs:
       - name: Export pylock.toml
         run: uv export -o pylock.toml
       - name: Commit and push changes
-        uses: stefanzweifel/git-auto-commit-action@v5
+        if: ${{ github.actor != 'dependabot[bot]' }}
+        uses: stefanzweifel/git-auto-commit-action@v6
         with:
-          commit_message: update pylock.yml
+          commit_message: update pylock.toml
           # Optional glob pattern of files which should be added to the commit
-          file_pattern: pylock.yml
+          file_pattern: pylock.toml
           # Optional. Prevents the shell from expanding filenames.
           # Details: https://www.gnu.org/software/bash/manual/html_node/Filename-Expansion.html
           disable_globbing: true

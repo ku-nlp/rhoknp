@@ -1,7 +1,7 @@
 from typing import ClassVar
 
 from pygments import highlight
-from pygments.formatters import TerminalFormatter
+from pygments.formatters.terminal import TerminalFormatter
 from pygments.lexer import RegexLexer, bygroups, default
 from pygments.token import Comment, Generic, Literal, Name, Number, String, Text, Whitespace
 
@@ -99,5 +99,5 @@ def print_document(document: Document, is_dark: bool = False) -> None:
         document (Document): 文書．
         is_dark (bool, optional): ターミナルの背景色が dark なら True．デフォルトは False．
     """
-    formatter = TerminalFormatter(bg="dark" if is_dark else "light")
+    formatter = TerminalFormatter(bg="dark" if is_dark else "light")  # type: ignore[arg-type]
     print(highlight(document.to_knp(), KNPLexer(), formatter), end="")

@@ -82,6 +82,10 @@ class Sentence(Unit):
                     self.named_entities.append(named_entity)
 
     @override
+    def __hash__(self) -> int:
+        return hash((self.sent_id, self.text))
+
+    @override
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, type(self)):
             return False

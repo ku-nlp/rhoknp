@@ -9,10 +9,10 @@ import sys
 from rhoknp import KWJA, BasePhrase
 
 # Create a KWJA instance.
-kwja = KWJA()
+kwja = KWJA(options=["--model-size", "tiny"])  # `tiny`, `base`, or `large`
 
 # Apply KWJA to a document.
-doc = kwja.apply_to_document(sys.argv[1])
+doc = kwja.apply_to_document(sys.argv[1], timeout=120)
 
 # Get information.
 for base_phrase in doc.base_phrases:

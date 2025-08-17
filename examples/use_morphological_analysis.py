@@ -9,7 +9,7 @@ import sys
 from rhoknp import Jumanpp
 
 # Create a Jumanpp instance.
-jumanpp = Jumanpp()
+jumanpp = Jumanpp()  # or `kwja = KWJA()`
 
 # Apply Jumanpp to a sentence.
 sent = jumanpp.apply_to_sentence(sys.argv[1])

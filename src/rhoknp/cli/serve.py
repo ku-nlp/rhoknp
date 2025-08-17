@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Optional, Union
 
 import fastapi
+import fastapi.responses
 import fastapi.staticfiles
 import fastapi.templating
 import uvicorn

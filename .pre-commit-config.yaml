@@ -1,3 +1,9 @@
+ci:
+  autofix_prs: false
+  autoupdate_branch: develop
+  autoupdate_schedule: monthly
+  skip: [ty]
+
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
@@ -10,23 +16,42 @@ repos:
       - id: check-added-large-files
         exclude: "assets/logo.*"
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.11.12
+    rev: v0.12.1
     hooks:
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix]
       - id: ruff-format
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.16.0
+    rev: v1.16.1
     hooks:
       - id: mypy
         additional_dependencies:
           - fastapi
           - jinja2
-          - pygments
+          - pytest
           - rich
-          - typer-slim
           - types-click
+          - types-Pygments
           - types-PyYAML
+          - typer-slim
+          - typing-extensions
+          - uvicorn
+  - repo: local
+    hooks:
+      - id: ty
+        name: ty check
+        entry: uvx ty check
+        language: python
+        pass_filenames: false
+        additional_dependencies:
+          - fastapi
+          - pytest
+          - rich
+          - ty
+          - types-click
+          - types-Pygments
+          - types-PyYAML
+          - typer-slim
           - typing-extensions
           - uvicorn
   - repo: https://github.com/pre-commit/mirrors-prettier

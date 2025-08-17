@@ -769,6 +769,7 @@ def test_eq_knp(case: dict[str, str]) -> None:
     sent1 = Sentence.from_knp(case["knp"])
     sent2 = Sentence.from_knp(case["knp"])
     assert sent1 == sent2
+    assert hash(sent1) == hash(sent2)
 
 
 @pytest.mark.parametrize("case", CASES)
@@ -776,6 +777,7 @@ def test_eq_raw_text(case: dict[str, str]) -> None:
     sent1 = Sentence.from_raw_text(case["raw_text"])
     sent2 = Sentence.from_raw_text(case["raw_text"])
     assert sent1 == sent2
+    assert hash(sent1) == hash(sent2)
 
 
 @pytest.mark.parametrize("case", CASES)

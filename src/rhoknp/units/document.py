@@ -61,8 +61,12 @@ class Document(Unit):
                 )
 
     @override
+    def __hash__(self) -> int:
+        return hash((self.doc_id, self.text))
+
+    @override
     def __eq__(self, other: object) -> bool:
-        if not isinstance(other, Document):
+        if not isinstance(other, type(self)):
             return False
         return self.doc_id == other.doc_id and self.text == other.text
 

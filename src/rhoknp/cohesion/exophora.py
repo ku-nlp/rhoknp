@@ -64,8 +64,15 @@ class ExophoraReferent:
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(text={self.text!r})"
 
+    def __hash__(self) -> int:
+        if self.type == ExophoraReferentType.OTHER:
+            return hash((self.type, self._other_text))
+        return hash((self.type, self.index))
+
     def __eq__(self, other: object) -> bool:
-        if not isinstance(other, type(self)) or self.type != other.type:
+        if not isinstance(other, type(self)):
+            return False
+        if self.type != other.type:
             return False
         if self.type == ExophoraReferentType.OTHER:
             return self._other_text == other._other_text

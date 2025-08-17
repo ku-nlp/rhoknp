@@ -902,8 +902,11 @@ def test_eq_doc_id() -> None:
     doc2 = Document.from_raw_text("天気がいいので散歩した。")
     doc2.doc_id = "2"
     assert doc0 != doc1
-    assert doc0 != doc2
+    assert hash(doc0) != hash(doc1)
     assert doc1 != doc2
+    assert hash(doc1) != hash(doc2)
+    assert doc2 != doc0
+    assert hash(doc2) != hash(doc0)
 
 
 def test_eq_knp() -> None:
@@ -912,12 +915,14 @@ def test_eq_knp() -> None:
     doc1 = Document.from_knp(knp)
     doc2 = Document.from_knp(knp)
     assert doc1 == doc2
+    assert hash(doc1) == hash(doc2)
 
 
 def test_eq_raw_text() -> None:
     doc1 = Document.from_raw_text("天気がいいので散歩した。")
     doc2 = Document.from_raw_text("天気がいいので散歩した。")
     assert doc1 == doc2
+    assert hash(doc1) == hash(doc2)
 
 
 @pytest.mark.parametrize("case", CASES)

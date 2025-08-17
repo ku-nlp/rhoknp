@@ -439,3 +439,15 @@ def test_unknown_rel_type() -> None:
     arguments = document.base_phrases[3].pas.get_arguments("ガ３")
     assert len(arguments) == 1
     assert str(arguments[0]) == "日本は"
+
+
+@pytest.mark.parametrize("case", CASES)
+def test_eq_knp(case: dict[str, str]) -> None:
+    sent1 = Sentence.from_knp(case["knp"])
+    sent2 = Sentence.from_knp(case["knp"])
+    for base_phrase1, base_phrase2 in zip(sent1.base_phrases, sent2.base_phrases):
+        assert base_phrase1 == base_phrase2
+        assert hash(base_phrase1) == hash(base_phrase2)
+    if len(sent1.base_phrases) > 1:
+        assert sent1.base_phrases[0] != sent1.base_phrases[1]
+        assert hash(sent1.base_phrases[0]) != hash(sent1.base_phrases[1])

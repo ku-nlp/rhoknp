@@ -8,11 +8,10 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Set up Python 3.9
-        uses: actions/setup-python@v5
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
         with:
           python-version: "3.9"
       - name: Run linters
         run: |
-          pipx install pre-commit
-          pre-commit run --all-files
+          uv tool run pre-commit run --all-files

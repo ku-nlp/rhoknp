@@ -112,7 +112,7 @@ class EntityManager:
             eid: エンティティ ID．None の場合自動で割り振る．
 
         Returns:
-             Entity: 作成されたエンティティ．
+            Entity: 作成されたエンティティ．
         """
         if exophora_referent is not None and exophora_referent.is_singleton():
             entities = [e for e in cls.entities.values() if exophora_referent == e.exophora_referent]

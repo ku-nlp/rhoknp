@@ -9,7 +9,7 @@ import sys
 from rhoknp import KNP
 
 # Create a KNP instance.
-knp = KNP()
+knp = KNP()  # or `kwja = KWJA()`
 
 # Apply KNP to a sentence.
 sent = knp.apply_to_sentence(sys.argv[1])

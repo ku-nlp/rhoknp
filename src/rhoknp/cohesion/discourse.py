@@ -133,6 +133,9 @@ class DiscourseRelation:
     head: "Clause"  #: 主辞節．
     is_explicit: bool = False  #: 明示的な談話関係ならTrue．．
 
+    def __hash__(self) -> int:
+        return hash((self.label, self.modifier, self.head))
+
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, type(self)):
             return False
