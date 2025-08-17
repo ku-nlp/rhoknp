@@ -5,8 +5,8 @@ on: [push, pull_request, workflow_dispatch]
 jobs:
   test:
     name: Run tests with pytest
-    container: kunlp/jumanpp-knp:ubuntu22.04
-    runs-on: ubuntu-22.04
+    container: kunlp/jumanpp-knp:ubuntu24.04
+    runs-on: ubuntu-24.04
     strategy:
       max-parallel: 6
       fail-fast: false
@@ -15,7 +15,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
       - name: Install required apt packages
         run: |
           export DEBIAN_FRONTEND=noninteractive
@@ -23,7 +22,6 @@ jobs:
           apt-get install -yq --no-install-recommends curl ca-certificates build-essential libsqlite3-dev libffi-dev libssl-dev git gnupg
           apt-get clean
           rm -rf /var/lib/apt/lists/*
-
       - name: Install uv
         uses: astral-sh/setup-uv@v6
         with:
@@ -31,20 +29,16 @@ jobs:
           enable-cache: false
       - name: Install dependencies
         run: uv sync --extra cli --no-cache --python ${{ matrix.python-version }}
-      - run: df -h
       - name: Install KWJA
         run: |
           uv tool install kwja --python 3.12 --no-cache --with "torch==2.6.0+cpu" --extra-index-url https://download.pytorch.org/whl/cpu
           kwja --model-size tiny --tasks char,seq2seq,word --text "テスト"
-
       - name: Run tests with coverage
         if: ${{ matrix.python-version == '3.10' }}
         run: uv run pytest --cov=./ --cov-report=xml -v ./tests
-
       - name: Run tests without coverage
         if: ${{ matrix.python-version != '3.10' }}
         run: uv run pytest -v ./tests
-
       - name: Upload coverage to Codecov
         if: ${{ matrix.python-version == '3.10' }}
         uses: codecov/codecov-action@v5
