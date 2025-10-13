@@ -445,7 +445,7 @@ def test_from_jumanpp(case: dict[str, str]) -> None:
 
 def test_from_jumanpp_error() -> None:
     jumanpp = "であり であり だ 判定詞 4 * 0 判定詞 25 デアル列基本連用形 18 MALFORMED_STRING\n"
-    with pytest.raises(ValueError, match="malformed morpheme line: .*"):
+    with pytest.raises(ValueError, match=r"malformed morpheme line: .*"):
         _ = Morpheme.from_jumanpp(jumanpp)
 
 

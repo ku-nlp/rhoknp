@@ -343,7 +343,7 @@ def test_from_jumanpp_error() -> None:
         EOS
         """
     )
-    with pytest.raises(ValueError, match="malformed line: .*"):
+    with pytest.raises(ValueError, match=r"malformed line: .*"):
         _ = Document.from_jumanpp(invalid_jumanpp_text)
 
 
@@ -433,7 +433,7 @@ def test_from_knp_error() -> None:
         EOS
         """
     )
-    with pytest.raises(ValueError, match="malformed line: .*"):
+    with pytest.raises(ValueError, match=r"malformed line: .*"):
         _ = Document.from_knp(invalid_knp_text)
 
 
