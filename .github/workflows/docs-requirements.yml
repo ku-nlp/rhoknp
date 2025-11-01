@@ -18,7 +18,7 @@ jobs:
         run: uv export --only-group docs --no-annotate --no-hashes -o docs/requirements.txt
       - name: Commit and push changes
         if: ${{ github.actor != 'dependabot[bot]' }}
-        uses: stefanzweifel/git-auto-commit-action@v6
+        uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: update docs/requirements.txt
           # Optional glob pattern of files which should be added to the commit
