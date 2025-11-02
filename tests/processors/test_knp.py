@@ -197,7 +197,7 @@ def test_runtime_error2() -> None:
 
 
 def test_invalid_option() -> None:
-    with pytest.raises(ValueError, match="`-tab` option is required when you use KNP."):
+    with pytest.raises(ValueError, match=r"`-tab` option is required when you use KNP."):
         _ = KNP(options=["--anaphora"])
     # with pytest.raises(ValueError):
     #     _ = KNP(options=["-tab", "--anaphora"])

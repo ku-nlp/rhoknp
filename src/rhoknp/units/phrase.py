@@ -27,21 +27,21 @@ class Phrase(Unit):
 
     def __init__(
         self,
-        parent_index: Optional[int],
-        dep_type: Optional[DepType],
-        features: Optional[FeatureDict] = None,
+        parent_index: int | None,
+        dep_type: DepType | None,
+        features: FeatureDict | None = None,
     ) -> None:
         super().__init__()
 
         # parent unit
-        self._clause: Optional["Clause"] = None
-        self._sentence: Optional["Sentence"] = None
+        self._clause: "Clause" | None = None
+        self._sentence: "Sentence" | None = None
 
         # child units
-        self._base_phrases: Optional[list[BasePhrase]] = None
+        self._base_phrases: list[BasePhrase] | None = None
 
-        self.parent_index: Optional[int] = parent_index  #: 係り先の文節の文内におけるインデックス．
-        self.dep_type: Optional[DepType] = dep_type  #: 係り受けの種類．
+        self.parent_index: int | None = parent_index  #: 係り先の文節の文内におけるインデックス．
+        self.dep_type: DepType | None = dep_type  #: 係り受けの種類．
         self.features: FeatureDict = features or FeatureDict()  #: 素性．
 
         self.index = self.count  #: 文内におけるインデックス．
@@ -72,7 +72,7 @@ class Phrase(Unit):
         return prev_sentence.phrases[0].global_index + len(prev_sentence.phrases)
 
     @property
-    def parent_unit(self) -> Optional[Union["Clause", "Sentence"]]:
+    def parent_unit(self) -> Union["Clause", "Sentence"] | None:
         """上位の言語単位（節もしくは文）．未登録なら None．"""
         if self._clause is not None:
             return self._clause
@@ -81,7 +81,7 @@ class Phrase(Unit):
         return None
 
     @property
-    def child_units(self) -> Optional[list[BasePhrase]]:
+    def child_units(self) -> list[BasePhrase] | None:
         """下位の言語単位（基本句）．解析結果にアクセスできないなら None．"""
         return self._base_phrases
 

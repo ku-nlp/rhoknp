@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING
 
 from rhoknp.cohesion.exophora import ExophoraReferent
 from rhoknp.cohesion.predicate import Predicate
@@ -41,7 +41,7 @@ class BaseArgument(ABC):
         self.case: str = case  #: 述語に対する格．
         self.type: ArgumentType = arg_type  #: 項のタイプ．
         self.optional: bool = False  #: 修飾的な項かどうか．
-        self._pas: Optional["Pas"] = None
+        self._pas: "Pas" | None = None
 
     @abstractmethod
     def __str__(self) -> str:
@@ -89,7 +89,7 @@ class EndophoraArgument(BaseArgument):
         case: str,
         base_phrase: "BasePhrase",
         predicate: Predicate,
-        arg_type: Optional[ArgumentType] = None,
+        arg_type: ArgumentType | None = None,
     ) -> None:
         super().__init__(case, arg_type or self._get_arg_type(predicate, base_phrase, case))
         self.base_phrase = base_phrase  #: 項の核となる基本句．
@@ -190,4 +190,4 @@ class ExophoraArgument(BaseArgument):
         return self.case == other.case and self.exophora_referent == other.exophora_referent
 
 
-Argument = Union[EndophoraArgument, ExophoraArgument]
+Argument = EndophoraArgument | ExophoraArgument

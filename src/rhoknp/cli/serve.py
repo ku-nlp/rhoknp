@@ -4,7 +4,6 @@ import logging
 from enum import Enum
 from io import StringIO
 from pathlib import Path
-from typing import Optional, Union
 
 import fastapi
 import fastapi.responses
@@ -32,7 +31,7 @@ class AnalyzerType(Enum):
 @dataclasses.dataclass
 class _Span:
     text: str
-    label: Optional[str] = None
+    label: str | None = None
 
 
 class _HTTPExceptionForIndex(fastapi.HTTPException):
@@ -119,7 +118,7 @@ def create_app(analyzer: AnalyzerType, base_url: str = "/", *args, **kwargs) -> 
         args: 解析器のオプション．
         kwargs: 解析器のオプション．
     """
-    processor: Union[Jumanpp, KNP, KWJA]
+    processor: Jumanpp | KNP | KWJA
     title: str
     template_name: str
     version: str
@@ -163,7 +162,7 @@ def create_app(analyzer: AnalyzerType, base_url: str = "/", *args, **kwargs) -> 
 
     @app.get("/", response_class=fastapi.responses.HTMLResponse)
     async def index(request: fastapi.Request, text: str = "") -> fastapi.Response:
-        analyzed_document: Optional[Document] = None
+        analyzed_document: Document | None = None
         if text != "":
             try:
                 analyzed_document = processor.apply(text)
@@ -200,7 +199,7 @@ def create_app(analyzer: AnalyzerType, base_url: str = "/", *args, **kwargs) -> 
 
 
 def serve_analyzer(
-    analyzer: AnalyzerType, host: str, port: int, base_url: str, analyzer_args: Optional[list[str]]
+    analyzer: AnalyzerType, host: str, port: int, base_url: str, analyzer_args: list[str] | None
 ) -> None:  # pragma: no cover
     """解析器を起動し，HTTP サーバとして提供．
 

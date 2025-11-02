@@ -1,7 +1,7 @@
 import logging
 import re
 from enum import Enum
-from typing import ClassVar, Optional
+from typing import ClassVar
 
 logger = logging.getLogger(__name__)
 
@@ -28,9 +28,9 @@ class ExophoraReferent:
     )
 
     def __init__(self, text: str) -> None:
-        self.index: Optional[int] = None
-        self._other_text: Optional[str] = None
-        match: Optional[re.Match[str]] = self.PAT.match(text)
+        self.index: int | None = None
+        self._other_text: str | None = None
+        match: re.Match[str] | None = self.PAT.match(text)
         if match is None:
             logger.warning(f"unknown exophora referent found: {text}")
             self.type = ExophoraReferentType.OTHER

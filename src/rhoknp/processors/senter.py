@@ -1,7 +1,7 @@
 import logging
 import re
 import threading
-from typing import ClassVar, Union
+from typing import ClassVar
 
 try:
     from typing import override  # type: ignore[attr-defined]
@@ -29,7 +29,7 @@ class RegexSenter(Processor):
         return f"{self.__class__.__name__}()"
 
     @override
-    def apply_to_document(self, document: Union[Document, str], timeout: int = 10) -> Document:
+    def apply_to_document(self, document: Document | str, timeout: int = 10) -> Document:
         """文書に RegexSenter を適用する．
 
         Args:
@@ -61,7 +61,7 @@ class RegexSenter(Processor):
         return ret
 
     @override
-    def apply_to_sentence(self, sentence: Union[Sentence, str], timeout: int = 10) -> Sentence:
+    def apply_to_sentence(self, sentence: Sentence | str, timeout: int = 10) -> Sentence:
         """文に RegexSenter を適用する．
 
         Args:

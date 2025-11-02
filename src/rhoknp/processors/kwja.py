@@ -4,7 +4,6 @@ import subprocess
 import threading
 from subprocess import PIPE, Popen
 from threading import Lock
-from typing import Optional, Union
 
 try:
     from typing import override  # type: ignore[attr-defined]
@@ -38,12 +37,12 @@ class KWJA(Processor):
     def __init__(
         self,
         executable: str = "kwja",
-        options: Optional[list[str]] = None,
+        options: list[str] | None = None,
         skip_sanity_check: bool = False,
     ) -> None:
         self.executable = executable  #: KWJA のパス．
         self.options: list[str] = options or []  #: KWJA のオプション．
-        self._proc: Optional[Popen] = None
+        self._proc: Popen | None = None
         self._lock = Lock()
         self._output_format: str = "knp"
         self._input_format: str = "raw"
@@ -109,7 +108,7 @@ class KWJA(Processor):
         return self._proc is not None and self._proc.poll() is None
 
     @override
-    def apply_to_document(self, document: Union[Document, str], timeout: int = 30) -> Document:
+    def apply_to_document(self, document: Document | str, timeout: int = 30) -> Document:
         """文書に KWJA を適用する．
 
         Args:
@@ -173,7 +172,7 @@ class KWJA(Processor):
         return ret
 
     @override
-    def apply_to_sentence(self, sentence: Union[Sentence, str], timeout: int = 10) -> Sentence:
+    def apply_to_sentence(self, sentence: Sentence | str, timeout: int = 10) -> Sentence:
         """文に KWJA を適用する．
 
         Args:

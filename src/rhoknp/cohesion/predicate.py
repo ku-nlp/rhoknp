@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from rhoknp.cohesion.pas import Pas
@@ -17,10 +17,10 @@ class Predicate:
         cfid: 格フーレムID．
     """
 
-    def __init__(self, base_phrase: "BasePhrase", cfid: Optional[str] = None) -> None:
+    def __init__(self, base_phrase: "BasePhrase", cfid: str | None = None) -> None:
         self.base_phrase: "BasePhrase" = base_phrase  #: 述語の核となる基本句．
-        self.cfid: Optional[str] = cfid  #: 格フーレムID．
-        self._pas: Optional["Pas"] = None
+        self.cfid: str | None = cfid  #: 格フーレムID．
+        self._pas: "Pas" | None = None
 
     @property
     def text(self) -> str:

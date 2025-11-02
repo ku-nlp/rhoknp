@@ -1,15 +1,14 @@
 import re
-from typing import Optional, Union
 
 
-class SemanticsDict(dict[str, Union[str, bool]]):
+class SemanticsDict(dict[str, str | bool]):
     """形態素の意味情報を表すクラス．"""
 
     NIL = "NIL"
     PAT = re.compile(rf'(?P<sems>("[^"]+?")|{NIL})')
     SEM_PAT = re.compile(r"(?P<key>[^:\s]+)(:(?P<value>\S+))?(\s|$)")
 
-    def __init__(self, semantics: Optional[dict[str, Union[str, bool]]] = None, is_nil: bool = False) -> None:
+    def __init__(self, semantics: dict[str, str | bool] | None = None, is_nil: bool = False) -> None:
         if semantics is None:
             semantics = {}
         super().__init__(semantics)
@@ -42,7 +41,7 @@ class SemanticsDict(dict[str, Union[str, bool]]):
         return f'"{" ".join(self._item_to_sstring(k, v) for k, v in self.items())}"'
 
     @staticmethod
-    def _item_to_sstring(key: str, value: Union[str, bool]) -> str:
+    def _item_to_sstring(key: str, value: str | bool) -> str:
         if value is False:
             return ""
         if value is True:

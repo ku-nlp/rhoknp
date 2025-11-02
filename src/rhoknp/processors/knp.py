@@ -5,7 +5,6 @@ import threading
 import time
 from subprocess import PIPE, Popen
 from threading import Lock
-from typing import Optional, Union
 
 try:
     from typing import override  # type: ignore[attr-defined]
@@ -44,9 +43,9 @@ class KNP(Processor):
     def __init__(
         self,
         executable: str = "knp",
-        options: Optional[list[str]] = None,
-        senter: Optional[Processor] = None,
-        jumanpp: Optional[Processor] = None,
+        options: list[str] | None = None,
+        senter: Processor | None = None,
+        jumanpp: Processor | None = None,
         skip_sanity_check: bool = False,
     ) -> None:
         self.executable = executable  #: KNP のパス．
@@ -54,7 +53,7 @@ class KNP(Processor):
         self.senter = senter
         self.jumanpp = jumanpp
         self._lock = Lock()
-        self._proc: Optional[Popen] = None
+        self._proc: Popen | None = None
         if "-tab" not in self.options:
             raise ValueError("`-tab` option is required when you use KNP.")
         self.start_process(skip_sanity_check)
@@ -98,7 +97,7 @@ class KNP(Processor):
         return self._proc is not None and self._proc.poll() is None
 
     @override
-    def apply_to_document(self, document: Union[Document, str], timeout: int = 10) -> Document:
+    def apply_to_document(self, document: Document | str, timeout: int = 10) -> Document:
         """文書に KNP を適用する．
 
         Args:
@@ -137,7 +136,7 @@ class KNP(Processor):
         return ret
 
     @override
-    def apply_to_sentence(self, sentence: Union[Sentence, str], timeout: int = 10) -> Sentence:
+    def apply_to_sentence(self, sentence: Sentence | str, timeout: int = 10) -> Sentence:
         """文に KNP を適用する．
 
         Args:

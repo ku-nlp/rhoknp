@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Union, overload
+from typing import overload
 
 from rhoknp.units import Document, Sentence
 
@@ -16,7 +16,7 @@ class Processor(ABC):
     @overload
     def __call__(self, text: Document, timeout: int = 10) -> Document: ...
 
-    def __call__(self, text: Union[str, Sentence, Document], timeout: int = 10) -> Union[Document, Sentence]:
+    def __call__(self, text: str | Sentence | Document, timeout: int = 10) -> Document | Sentence:
         """テキストに解析器を適用する．
 
         Args:
@@ -43,7 +43,7 @@ class Processor(ABC):
     @overload
     def apply(self, text: Document, timeout: int = 10) -> Document: ...
 
-    def apply(self, text: Union[str, Sentence, Document], timeout: int = 10) -> Union[Document, Sentence]:
+    def apply(self, text: str | Sentence | Document, timeout: int = 10) -> Document | Sentence:
         """テキストに解析器を適用する．
 
         Args:
@@ -67,7 +67,7 @@ class Processor(ABC):
             raise TypeError("Invalid type: text must be str, Sentence, or Document")
 
     @abstractmethod
-    def apply_to_document(self, document: Union[Document, str], timeout: int = 10) -> Document:
+    def apply_to_document(self, document: Document | str, timeout: int = 10) -> Document:
         """文書に解析器を適用する．
 
         Args:
@@ -77,7 +77,7 @@ class Processor(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def apply_to_sentence(self, sentence: Union[Sentence, str], timeout: int = 10) -> Sentence:
+    def apply_to_sentence(self, sentence: Sentence | str, timeout: int = 10) -> Sentence:
         """文に解析器を適用する．
 
         Args:

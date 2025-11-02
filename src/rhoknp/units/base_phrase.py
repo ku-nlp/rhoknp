@@ -41,22 +41,22 @@ class BasePhrase(Unit):
 
     def __init__(
         self,
-        parent_index: Optional[int],
-        dep_type: Optional[DepType],
-        features: Optional[FeatureDict] = None,
-        rel_tags: Optional[RelTagList] = None,
-        memo_tag: Optional[MemoTag] = None,
+        parent_index: int | None,
+        dep_type: DepType | None,
+        features: FeatureDict | None = None,
+        rel_tags: RelTagList | None = None,
+        memo_tag: MemoTag | None = None,
     ) -> None:
         super().__init__()
 
         # parent unit
-        self._phrase: Optional["Phrase"] = None
+        self._phrase: "Phrase" | None = None
 
         # child units
-        self._morphemes: Optional[list[Morpheme]] = None
+        self._morphemes: list[Morpheme] | None = None
 
-        self.parent_index: Optional[int] = parent_index  #: 係り先の基本句の文内におけるインデックス．
-        self.dep_type: Optional[DepType] = dep_type  #: 係り受けの種類．
+        self.parent_index: int | None = parent_index  #: 係り先の基本句の文内におけるインデックス．
+        self.dep_type: DepType | None = dep_type  #: 係り受けの種類．
         self.features: FeatureDict = features or FeatureDict()  #: 素性．
         self.rel_tags: RelTagList = rel_tags or RelTagList()  #: 基本句間関係．
         self.memo_tag: MemoTag = memo_tag or MemoTag()  #: タグ付けメモ．
@@ -79,9 +79,9 @@ class BasePhrase(Unit):
 
     def __setstate__(self, state: dict[str, Any]) -> None:
         # Restore eids to Entity objects for hashing.
-        for entity, eid in zip(state["entities"], state.pop("eids")):
+        for entity, eid in zip(state["entities"], state.pop("eids"), strict=True):
             entity.eid = eid
-        for entity, eid in zip(state["entities_nonidentical"], state.pop("eids_nonidentical")):
+        for entity, eid in zip(state["entities_nonidentical"], state.pop("eids_nonidentical"), strict=True):
             entity.eid = eid
         self.__dict__.update(state)  # Entity objects are hashed by eid.
 
@@ -141,7 +141,7 @@ class BasePhrase(Unit):
         return self._phrase
 
     @property
-    def child_units(self) -> Optional[list[Morpheme]]:
+    def child_units(self) -> list[Morpheme] | None:
         """下位の言語単位（形態素）．解析結果にアクセスできないなら None．"""
         return self._morphemes
 

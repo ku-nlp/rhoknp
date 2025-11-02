@@ -29,10 +29,10 @@ class Clause(Unit):
         super().__init__()
 
         # parent unit
-        self._sentence: Optional["Sentence"] = None
+        self._sentence: "Sentence" | None = None
 
         # child units
-        self._phrases: Optional[list[Phrase]] = None
+        self._phrases: list[Phrase] | None = None
 
         self.discourse_relations: list[DiscourseRelation] = []  #: 談話関係のリスト．
 
@@ -100,7 +100,7 @@ class Clause(Unit):
         return self._sentence
 
     @property
-    def child_units(self) -> Optional[list[Phrase]]:
+    def child_units(self) -> list[Phrase] | None:
         """下位の言語単位（文節）．解析結果にアクセスできないなら None．"""
         return self._phrases
 

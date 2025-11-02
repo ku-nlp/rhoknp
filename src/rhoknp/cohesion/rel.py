@@ -2,7 +2,7 @@ import logging
 import re
 from dataclasses import dataclass
 from enum import Enum
-from typing import ClassVar, Optional
+from typing import ClassVar
 
 CASE_TYPES = [
     "ガ",
@@ -102,9 +102,9 @@ class RelTag:
     )
     type: str
     target: str
-    sid: Optional[str]
-    base_phrase_index: Optional[int]
-    mode: Optional[RelMode]
+    sid: str | None
+    base_phrase_index: int | None
+    mode: RelMode | None
 
     def __post_init__(self) -> None:
         if self.is_coreference():

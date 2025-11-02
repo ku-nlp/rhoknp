@@ -7,7 +7,7 @@ class Unit(ABC):
     """言語単位の基底クラス・"""
 
     def __init__(self) -> None:
-        self._text: Optional[str] = None
+        self._text: str | None = None
 
     def __post_init__(self) -> None:
         if self.child_units is not None:
@@ -36,7 +36,7 @@ class Unit(ABC):
 
     @property
     @abstractmethod
-    def child_units(self) -> Optional[Sequence["Unit"]]:
+    def child_units(self) -> Sequence["Unit"] | None:
         """下位の言語単位．"""
         raise NotImplementedError
 

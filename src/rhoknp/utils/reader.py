@@ -1,8 +1,8 @@
 import logging
 import re
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from functools import partial
-from typing import Callable, Optional, TextIO, Union
+from typing import TextIO
 
 from rhoknp import Sentence
 from rhoknp.utils.comment import extract_did_and_sid
@@ -35,7 +35,7 @@ def chunk_by_sentence(f: TextIO) -> Iterator[str]:
         yield "".join(buffer)
 
 
-def chunk_by_document(f: TextIO, doc_id_format: Union[str, Callable] = "default") -> Iterator[str]:
+def chunk_by_document(f: TextIO, doc_id_format: str | Callable = "default") -> Iterator[str]:
     """解析結果ファイルを文書ごとに分割するジェネレータ．
 
     Args:
@@ -64,7 +64,7 @@ def chunk_by_document(f: TextIO, doc_id_format: Union[str, Callable] = "default"
             >>> def default_doc_id_format(line: str) -> str:
             ...     return line.lstrip("# S-ID:").rsplit("-", maxsplit=1)[0]
     """
-    extract_doc_id: Callable[[str], Optional[str]]
+    extract_doc_id: Callable[[str], str | None]
     if isinstance(doc_id_format, str):
         if doc_id_format == "default":
             extract_doc_id = partial(_extract_doc_id, pat=Sentence.SID_PAT)
@@ -79,7 +79,7 @@ def chunk_by_document(f: TextIO, doc_id_format: Union[str, Callable] = "default"
     else:
         raise TypeError(f"Invalid doc_id_format: {doc_id_format}")
 
-    prev_doc_id: Optional[str] = None
+    prev_doc_id: str | None = None
     buffer: list[str] = []
     for sentence in chunk_by_sentence(f):
         doc_id = extract_doc_id(sentence.split("\n")[0])
@@ -92,7 +92,7 @@ def chunk_by_document(f: TextIO, doc_id_format: Union[str, Callable] = "default"
         yield "".join(buffer)
 
 
-def _extract_doc_id(line: str, pat: re.Pattern) -> Optional[str]:
+def _extract_doc_id(line: str, pat: re.Pattern) -> str | None:
     """文書IDを抽出する．
 
     Args:

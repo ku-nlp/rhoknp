@@ -2,13 +2,12 @@ import multiprocessing
 import pickle
 import textwrap
 from pathlib import Path
-from typing import Union
 
 import pytest
 
 from rhoknp import Document, Sentence
 
-CASES: list[dict[str, Union[str, list[str]]]] = [
+CASES: list[dict[str, str | list[str]]] = [
     {
         "raw_text": "天気がいいので散歩した。",
         "sentences": ["天気がいいので散歩した。"],
@@ -343,7 +342,7 @@ def test_from_jumanpp_error() -> None:
         EOS
         """
     )
-    with pytest.raises(ValueError, match="malformed line: .*"):
+    with pytest.raises(ValueError, match=r"malformed line: .*"):
         _ = Document.from_jumanpp(invalid_jumanpp_text)
 
 
@@ -433,7 +432,7 @@ def test_from_knp_error() -> None:
         EOS
         """
     )
-    with pytest.raises(ValueError, match="malformed line: .*"):
+    with pytest.raises(ValueError, match=r"malformed line: .*"):
         _ = Document.from_knp(invalid_knp_text)
 
 

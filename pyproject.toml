@@ -1,6 +1,6 @@
 [project]
 name = "rhoknp"
-version = "1.7.1"
+version = "1.8.0"
 description = "Yet another Python binding for Juman++/KNP/KWJA"
 license = "MIT"
 authors = [
@@ -21,18 +21,18 @@ classifiers = [
     "Operating System :: Microsoft :: Windows",
     "Operating System :: POSIX :: Linux",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Topic :: Scientific/Engineering",
     "Topic :: Software Development :: Libraries",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: Text Processing",
     "Topic :: Text Processing :: Linguistic",
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 
 dependencies = [
     "typing-extensions>=4.4; python_version < '3.12'"
@@ -40,7 +40,7 @@ dependencies = [
 
 [project.optional-dependencies]
 cli = [
-    "typer-slim>=0.15.2",
+    "typer-slim>=0.18.0",
     "PyYAML>=6.0",
     "rich>=12.6",
     "uvicorn>=0.30.0",
@@ -69,13 +69,10 @@ test = [
     "httpx>=0.25",
 ]
 docs = [
-    "Sphinx>=7.0; python_version < '3.10'",
-    "Sphinx>=8.0; python_version >= '3.10'",
-    "sphinx-prompt>=1.8; python_version < '3.10'",
-    "sphinx-prompt>=1.9; python_version >= '3.10'",
+    "Sphinx>=8.0",
+    "sphinx-prompt>=1.9",
     "sphinx-copybutton>=0.5.0",
-    "myst-parser>=3.0; python_version < '3.10'",
-    "myst-parser>=4.0; python_version >= '3.10'",
+    "myst-parser>=4.0",
     "markdown-it-py>=3.0",
     "furo>=2024.4",
     "typing-extensions>=4.4",
@@ -96,7 +93,7 @@ default-groups = ["dev", "test"]
 line-length = 120
 indent-width = 4
 src = ["src"]
-target-version = "py39"  # The minimum Python version to target
+target-version = "py310"  # The minimum Python version to target
 
 [tool.ruff.lint]
 select = ["F", "E", "W", "I", "B", "PL", "PD", "NPY", "RUF", "UP", "TID", "COM", "PT", "D", "ARG", "PYI", "ANN", "G", "FBT", "EM", "TRY", "PTH", "T", "INP"]
@@ -166,10 +163,10 @@ convention = "google"
 max-complexity = 20  # default: 10
 
 [tool.mypy]
-python_version = "3.9"
+python_version = "3.10"
 
 [tool.ty.environment]
-python-version = "3.9"
+python-version = "3.10"
 
 [tool.coverage.run]
 omit = ["tests/*"]

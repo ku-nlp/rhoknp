@@ -445,7 +445,7 @@ def test_from_jumanpp(case: dict[str, str]) -> None:
 
 def test_from_jumanpp_error() -> None:
     jumanpp = "であり であり だ 判定詞 4 * 0 判定詞 25 デアル列基本連用形 18 MALFORMED_STRING\n"
-    with pytest.raises(ValueError, match="malformed morpheme line: .*"):
+    with pytest.raises(ValueError, match=r"malformed morpheme line: .*"):
         _ = Morpheme.from_jumanpp(jumanpp)
 
 
@@ -590,7 +590,7 @@ def test_homograph_to_knp() -> None:
 def test_eq_knp(case: dict[str, str]) -> None:
     sent1 = Sentence.from_knp(case["knp"])
     sent2 = Sentence.from_knp(case["knp"])
-    for morpheme1, morpheme2 in zip(sent1.morphemes, sent2.morphemes):
+    for morpheme1, morpheme2 in zip(sent1.morphemes, sent2.morphemes, strict=True):
         assert morpheme1 == morpheme2
         assert hash(morpheme1) == hash(morpheme2)
     if len(sent1.morphemes) > 1:

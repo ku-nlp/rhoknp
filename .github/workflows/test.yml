@@ -8,13 +8,14 @@ jobs:
     container: kunlp/jumanpp-knp:ubuntu24.04
     runs-on: ubuntu-24.04
     strategy:
-      max-parallel: 6
+      max-parallel: 7
       fail-fast: false
       matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.13t"]
+        python-version:
+          ["3.10", "3.11", "3.12", "3.13", "3.13t", "3.14", "3.14t"]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Install required apt packages
         run: |
           export DEBIAN_FRONTEND=noninteractive
@@ -23,7 +24,7 @@ jobs:
           apt-get clean
           rm -rf /var/lib/apt/lists/*
       - name: Install uv
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@v7
         with:
           python-version: ${{ matrix.python-version }}
           enable-cache: false

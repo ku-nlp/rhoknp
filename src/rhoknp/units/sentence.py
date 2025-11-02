@@ -1,6 +1,6 @@
 import logging
 import re
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, Optional
 
 try:
     from typing import override  # type: ignore[attr-defined]
@@ -35,7 +35,7 @@ class Sentence(Unit):
     SID_PAT_WAC = re.compile(r"^(?P<sid>(?P<did>wiki\d{8})(-\d{2})(-\d{2})?)$")
     count = 0
 
-    def __init__(self, text: Optional[str] = None) -> None:
+    def __init__(self, text: str | None = None) -> None:
         super().__init__()
         if text is not None:
             self.text = text.replace("\r", "").replace("\n", "")
@@ -47,12 +47,12 @@ class Sentence(Unit):
         EntityManager.reset()
 
         # parent unit
-        self._document: Optional["Document"] = None
+        self._document: "Document" | None = None
 
         # child units
-        self._clauses: Optional[list[Clause]] = None
-        self._phrases: Optional[list[Phrase]] = None
-        self._morphemes: Optional[list[Morpheme]] = None
+        self._clauses: list[Clause] | None = None
+        self._phrases: list[Phrase] | None = None
+        self._morphemes: list[Morpheme] | None = None
 
         self.sent_id: str = ""
         self.doc_id: str = ""
@@ -102,7 +102,7 @@ class Sentence(Unit):
         return self._document
 
     @property
-    def child_units(self) -> Optional[Union[list[Clause], list[Phrase], list[Morpheme]]]:
+    def child_units(self) -> list[Clause] | list[Phrase] | list[Morpheme] | None:
         """下位の言語単位（節もしくは形態素）のリスト．解析結果にアクセスできないなら None．
 
         .. note::

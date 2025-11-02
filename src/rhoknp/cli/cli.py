@@ -1,7 +1,6 @@
 import json
 import sys
 from pathlib import Path
-from typing import Optional
 
 import typer
 import yaml
@@ -35,7 +34,7 @@ def main(
 
 @app.command(help="Print KNP files with syntax highlighting.")
 def cat(
-    knp_path: Optional[Path] = typer.Argument(None, exists=True, dir_okay=False, help="Path to knp file to show."),
+    knp_path: Path | None = typer.Argument(None, exists=True, dir_okay=False, help="Path to knp file to show."),
     dark: bool = typer.Option(False, "--dark", "-d", help="Use dark background."),
 ) -> None:
     """KNP ファイルを色付きで表示．
@@ -51,7 +50,7 @@ def cat(
 
 @app.command(help="Convert a KNP file into raw text, Juman++ format, or KNP format.")
 def convert(
-    knp_path: Optional[Path] = typer.Argument(
+    knp_path: Path | None = typer.Argument(
         None, exists=True, dir_okay=False, help="Path to knp file to convert. If not given, read from stdin"
     ),
     format_: str = typer.Option("text", "--format", "-f", help="Format to convert to."),
@@ -122,7 +121,7 @@ def serve(
     host: str = typer.Option("localhost", "--host", "-h", help="Host to listen on."),
     port: int = typer.Option(8000, "--port", "-p", help="Port to listen on."),
     base_url: str = typer.Option("/", "--base-url", help="Root path of the server."),
-    analyzer_args: Optional[list[str]] = typer.Argument(None, help="Additional arguments for the analyzer."),
+    analyzer_args: list[str] | None = typer.Argument(None, help="Additional arguments for the analyzer."),
 ) -> None:
     """解析器を起動し，HTTP サーバとして提供．
 
