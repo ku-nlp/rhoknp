@@ -74,7 +74,7 @@ class NamedEntity:
         return f"<NE:{self.category.value}:{escaped_text}>"
 
     @staticmethod
-    def _find_morpheme_span(name: str, candidates: list["Morpheme"]) -> Optional[range]:
+    def _find_morpheme_span(name: str, candidates: list["Morpheme"]) -> range | None:
         """固有表現の文字列にマッチする形態素の範囲を返す．
 
         Args:

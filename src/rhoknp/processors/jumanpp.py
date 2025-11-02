@@ -5,7 +5,6 @@ import threading
 import time
 from subprocess import PIPE, Popen
 from threading import Lock
-from typing import Optional, Union
 
 try:
     from typing import override  # type: ignore[attr-defined]
@@ -41,15 +40,15 @@ class Jumanpp(Processor):
     def __init__(
         self,
         executable: str = "jumanpp",
-        options: Optional[list[str]] = None,
-        senter: Optional[Processor] = None,
+        options: list[str] | None = None,
+        senter: Processor | None = None,
         skip_sanity_check: bool = False,
     ) -> None:
         self.executable = executable  #: Juman++ のパス．
         self.options: list[str] = options or []  #: Juman++ のオプション．
         self.senter = senter
         self._lock = Lock()
-        self._proc: Optional[Popen] = None
+        self._proc: Popen | None = None
         self.start_process(skip_sanity_check)
 
     def __repr__(self) -> str:
@@ -89,7 +88,7 @@ class Jumanpp(Processor):
         return self._proc is not None and self._proc.poll() is None
 
     @override
-    def apply_to_document(self, document: Union[Document, str], timeout: int = 10) -> Document:
+    def apply_to_document(self, document: Document | str, timeout: int = 10) -> Document:
         """文書に Jumanpp を適用する．
 
         Args:
@@ -126,7 +125,7 @@ class Jumanpp(Processor):
         return ret
 
     @override
-    def apply_to_sentence(self, sentence: Union[Sentence, str], timeout: int = 10) -> Sentence:
+    def apply_to_sentence(self, sentence: Sentence | str, timeout: int = 10) -> Sentence:
         """文に Jumanpp を適用する．
 
         Args:

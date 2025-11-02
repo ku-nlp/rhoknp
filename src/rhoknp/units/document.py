@@ -1,6 +1,5 @@
 import logging
 from collections.abc import Sequence
-from typing import Optional, Union
 
 try:
     from typing import override  # type: ignore[attr-defined]
@@ -31,13 +30,13 @@ class Document(Unit):
 
     count = 0
 
-    def __init__(self, text: Optional[str] = None) -> None:
+    def __init__(self, text: str | None = None) -> None:
         super().__init__()
 
         Sentence.count = 0
 
         # child units
-        self._sentences: Optional[list[Sentence]] = None
+        self._sentences: list[Sentence] | None = None
 
         if text is not None:
             self.text = text
@@ -76,7 +75,7 @@ class Document(Unit):
         return
 
     @property
-    def child_units(self) -> Optional[list[Sentence]]:
+    def child_units(self) -> list[Sentence] | None:
         """下位の言語単位（文）のリスト．解析結果にアクセスできないなら None．"""
         return self._sentences
 
@@ -222,7 +221,7 @@ class Document(Unit):
         return document
 
     @classmethod
-    def from_sentences(cls, sentences: Sequence[Union[Sentence, str]]) -> "Document":
+    def from_sentences(cls, sentences: Sequence[Sentence | str]) -> "Document":
         """文書クラスのインスタンスを文のリストから初期化．
 
         Args:

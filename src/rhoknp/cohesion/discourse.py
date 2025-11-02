@@ -232,7 +232,7 @@ class DiscourseRelation:
             return None
         tag = DiscourseRelationTag(tag)
         category = tag.label
-        head_sentence: Optional["Sentence"] = None
+        head_sentence: "Sentence" | None = None
         if modifier.sentence.has_document():
             sentences = modifier.document.sentences
         else:

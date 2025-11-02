@@ -53,7 +53,7 @@ def test_ne(case: dict[str, Any]) -> None:
     actual_nes = doc.named_entities
     expected_nes = case["named_entities"]
     assert len(actual_nes) == len(expected_nes)
-    for actual_ne, expected_ne in zip(actual_nes, expected_nes):
+    for actual_ne, expected_ne in zip(actual_nes, expected_nes, strict=True):
         assert actual_ne.category == expected_ne["category"]
         assert actual_ne.text == expected_ne["text"]
         assert str(actual_ne) == expected_ne["text"]

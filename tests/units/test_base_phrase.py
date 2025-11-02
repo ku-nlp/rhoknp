@@ -445,7 +445,7 @@ def test_unknown_rel_type() -> None:
 def test_eq_knp(case: dict[str, str]) -> None:
     sent1 = Sentence.from_knp(case["knp"])
     sent2 = Sentence.from_knp(case["knp"])
-    for base_phrase1, base_phrase2 in zip(sent1.base_phrases, sent2.base_phrases):
+    for base_phrase1, base_phrase2 in zip(sent1.base_phrases, sent2.base_phrases, strict=True):
         assert base_phrase1 == base_phrase2
         assert hash(base_phrase1) == hash(base_phrase2)
     if len(sent1.base_phrases) > 1:

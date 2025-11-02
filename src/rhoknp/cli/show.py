@@ -1,6 +1,6 @@
 import sys
 from collections.abc import Sequence
-from typing import TextIO, Union
+from typing import TextIO
 
 from rich.console import Console
 from rich.table import Table
@@ -35,7 +35,7 @@ POS_MARK = {
 
 
 def draw_tree(
-    leaves: Union[Sequence[Phrase], Sequence[BasePhrase]],
+    leaves: Sequence[Phrase] | Sequence[BasePhrase],
     fh: TextIO = sys.stdout,
     show_pos: bool = False,
     show_rel: bool = False,
@@ -101,7 +101,7 @@ def draw_tree(
         lines.append(line)
 
     max_length = max(_str_real_length(line) for line in lines)
-    for line, leaf in zip(lines, leaves):
+    for line, leaf in zip(lines, leaves, strict=True):
         diff = max_length - _str_real_length(line)
         tree_string = " " * diff + line
         feat_string = _feat_string(leaf, show_rel, show_pas) if isinstance(leaf, BasePhrase) else ""
@@ -118,7 +118,7 @@ def _extend_horizontal(token: str) -> str:
         return " "
 
 
-def _leaf_string(leaf: Union[Phrase, BasePhrase], show_pos: bool) -> str:
+def _leaf_string(leaf: Phrase | BasePhrase, show_pos: bool) -> str:
     ret = ""
     for morpheme in leaf.morphemes:
         ret += morpheme.text

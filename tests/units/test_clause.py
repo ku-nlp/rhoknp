@@ -435,7 +435,7 @@ def test_invalid_head_1() -> None:
 def test_eq_knp(case: dict[str, str]) -> None:
     sent1 = Sentence.from_knp(case["knp"])
     sent2 = Sentence.from_knp(case["knp"])
-    for clause1, clause2 in zip(sent1.clauses, sent2.clauses):
+    for clause1, clause2 in zip(sent1.clauses, sent2.clauses, strict=True):
         assert clause1 == clause2
         assert hash(clause1) == hash(clause2)
     if len(sent1.clauses) > 1:

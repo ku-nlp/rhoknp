@@ -1,5 +1,4 @@
 import re
-from typing import Optional
 
 import pytest
 
@@ -39,7 +38,7 @@ def test_is_comment_line(line: str, expected: bool) -> None:
         (Sentence.SID_PAT_WAC, "# S-ID:wiki00100176-00", "wiki00100176", "wiki00100176-00"),
     ],
 )
-def test_extract_doc_id(pat: re.Pattern, line: str, doc_id: Optional[str], sent_id: Optional[str]) -> None:
+def test_extract_doc_id(pat: re.Pattern, line: str, doc_id: str | None, sent_id: str | None) -> None:
     did, sid, _ = extract_did_and_sid(line, [pat])
     assert did == doc_id
     assert sid == sent_id

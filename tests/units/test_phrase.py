@@ -308,7 +308,7 @@ def test_parent_unit(case: dict[str, str]) -> None:
 def test_eq_knp(case: dict[str, str]) -> None:
     sent1 = Sentence.from_knp(case["knp"])
     sent2 = Sentence.from_knp(case["knp"])
-    for phrase1, phrase2 in zip(sent1.phrases, sent2.phrases):
+    for phrase1, phrase2 in zip(sent1.phrases, sent2.phrases, strict=True):
         assert phrase1 == phrase2
         assert hash(phrase1) == hash(phrase2)
     if len(sent1.phrases) > 1:

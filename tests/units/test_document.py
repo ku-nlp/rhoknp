@@ -2,13 +2,12 @@ import multiprocessing
 import pickle
 import textwrap
 from pathlib import Path
-from typing import Union
 
 import pytest
 
 from rhoknp import Document, Sentence
 
-CASES: list[dict[str, Union[str, list[str]]]] = [
+CASES: list[dict[str, str | list[str]]] = [
     {
         "raw_text": "天気がいいので散歩した。",
         "sentences": ["天気がいいので散歩した。"],

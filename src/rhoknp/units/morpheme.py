@@ -79,8 +79,8 @@ class Morpheme(Unit):
         conjtype_id: int,
         conjform: str,
         conjform_id: int,
-        semantics: Optional[SemanticsDict] = None,
-        features: Optional[FeatureDict] = None,
+        semantics: SemanticsDict | None = None,
+        features: FeatureDict | None = None,
         homograph: bool = False,
     ) -> None:
         super().__init__()
@@ -97,8 +97,8 @@ class Morpheme(Unit):
         self.conjform_id = conjform_id  #: 活用形ID．
 
         # parent unit
-        self._base_phrase: Optional["BasePhrase"] = None
-        self._sentence: Optional["Sentence"] = None
+        self._base_phrase: "BasePhrase" | None = None
+        self._sentence: "Sentence" | None = None
 
         self.semantics: SemanticsDict = (
             semantics if semantics is not None else SemanticsDict()
@@ -135,7 +135,7 @@ class Morpheme(Unit):
         return prev_sentence.morphemes[0].global_index + len(prev_sentence.morphemes)
 
     @property
-    def parent_unit(self) -> Optional[Union["BasePhrase", "Sentence"]]:
+    def parent_unit(self) -> Union["BasePhrase", "Sentence"] | None:
         """上位の言語単位（基本句もしくは文）．未登録なら None．
 
         ..note::
@@ -219,7 +219,7 @@ class Morpheme(Unit):
         return self.text
 
     @property
-    def canon(self) -> Optional[str]:
+    def canon(self) -> str | None:
         """代表表記．"""
         canon = self.semantics.get("代表表記")
         assert canon is None or isinstance(canon, str)

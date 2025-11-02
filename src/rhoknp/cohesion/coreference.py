@@ -18,7 +18,7 @@ class Entity:
         exophora_referent: 自身が外界照応の照応先に対応するなら照応先の種類. 対応しないなら None.
     """
 
-    def __init__(self, eid: int, exophora_referent: Optional[ExophoraReferent] = None) -> None:
+    def __init__(self, eid: int, exophora_referent: ExophoraReferent | None = None) -> None:
         self.eid = eid  #: エンティティ ID．
         self.exophora_referent = exophora_referent  #: 外界照応の照応先．対応するものがなければ None．
         self.mentions: list["BasePhrase"] = []  #: このエンティティを参照するメンションのリスト．
@@ -98,9 +98,7 @@ class EntityManager:
     entities: ClassVar[dict[int, Entity]] = {}  #: ID をキーとするエンティティの辞書．
 
     @classmethod
-    def get_or_create_entity(
-        cls, exophora_referent: Optional[ExophoraReferent] = None, eid: Optional[int] = None
-    ) -> Entity:
+    def get_or_create_entity(cls, exophora_referent: ExophoraReferent | None = None, eid: int | None = None) -> Entity:
         """自身が参照するエンティティを作成．
 
         exophora_referent が singleton entity だった場合を除き，新しく Entity のインスタンスを作成して返す．

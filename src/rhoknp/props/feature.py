@@ -1,11 +1,11 @@
 import logging
 import re
-from typing import ClassVar, Union
+from typing import ClassVar
 
 logger = logging.getLogger(__name__)
 
 
-class FeatureDict(dict[str, Union[str, bool]]):
+class FeatureDict(dict[str, str | bool]):
     """文節，基本句，形態素の素性情報を表すクラス．"""
 
     IGNORE_TAG_PREFIXES: ClassVar[set[str]] = {"rel ", "memo "}
@@ -18,7 +18,7 @@ class FeatureDict(dict[str, Union[str, bool]]):
         rf"<(?!({'|'.join(IGNORE_TAG_PREFIXES)})){_FEATURE_KEY_PAT.pattern}(:{_FEATURE_VALUE_PAT.pattern})?>"
     )
 
-    def __setitem__(self, key: str, value: Union[str, bool]) -> None:
+    def __setitem__(self, key: str, value: str | bool) -> None:
         if key == "rel":
             logger.warning(
                 f"Adding 'rel' to {self.__class__.__name__} is not supported and was ignored. Instead, add a RelTag "
@@ -52,7 +52,7 @@ class FeatureDict(dict[str, Union[str, bool]]):
         return "".join(self._item_to_fstring(k, v) for k, v in self.items())
 
     @staticmethod
-    def _item_to_fstring(key: str, value: Union[str, bool]) -> str:
+    def _item_to_fstring(key: str, value: str | bool) -> str:
         if value is False:
             return ""
         if value is True:

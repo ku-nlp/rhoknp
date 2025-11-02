@@ -3,7 +3,7 @@ import logging
 import re
 from collections import defaultdict
 from enum import Enum, auto
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from rhoknp.cohesion import EntityManager
 from rhoknp.cohesion.argument import HIRA2KATA, Argument, ArgumentType, EndophoraArgument, ExophoraArgument
@@ -205,7 +205,7 @@ class Pas:
             )
         return all_arguments
 
-    def add_argument(self, argument: Argument, mode: Optional[RelMode] = None) -> None:
+    def add_argument(self, argument: Argument, mode: RelMode | None = None) -> None:
         """述語項構造に項を追加．
 
         Args:
