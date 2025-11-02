@@ -1018,7 +1018,7 @@ wheels = [
 
 [[package]]
 name = "rhoknp"
-version = "1.7.1"
+version = "1.8.0"
 source = { editable = "." }
 dependencies = [
     { name = "typing-extensions", marker = "python_full_version < '3.12'" },
