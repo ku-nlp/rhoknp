@@ -37,7 +37,8 @@ jobs:
           uv sync --group test --extra cli --no-cache
       - name: Install KWJA
         run: |
-          uv tool install kwja --python 3.12
+          # Install KWJA with CPU-only PyTorch to reduce disk usage
+          uv tool install kwja --python 3.12 --no-cache --with "torch==2.7.1+cpu" --extra-index-url https://download.pytorch.org/whl/cpu
       - name: Run tests for all files under examples/apply_*.py
         shell: bash
         run: |
