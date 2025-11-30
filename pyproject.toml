@@ -99,10 +99,6 @@ target-version = "py310"  # The minimum Python version to target
 select = ["F", "E", "W", "I", "B", "PL", "PD", "NPY", "RUF", "UP", "TID", "COM", "PT", "D", "ARG", "PYI", "ANN", "G", "FBT", "EM", "TRY", "PTH", "T", "INP"]
 #select = ["ALL"]
 ignore = [
-    "PLR0911",  # Too many return statements
-    "PLR0912",  # Too many branches
-    "PLR0913",  # Too many arguments in function definition
-    "PLR0915",  # Too many statements
     "E501",  # Line too long
     "RUF001",  # String contains ambiguous `ノ` (KATAKANA LETTER NO). Did you mean `/` (SOLIDUS)?
     "RUF002",  # Docstring contains ambiguous `，` (FULLWIDTH COMMA). Did you mean `,` (COMMA)?
@@ -137,6 +133,7 @@ ignore = [
     "D",  # pydocstyle
     "S101",  # Use of `assert` detected
     "INP001",  # File `...` is part of an implicit namespace package. Add an `__init__.py`
+    "PLR0915",  # Too many statements
 ]
 "src/rhoknp/cli/*" = [
     "T201",  # `print` found
@@ -151,13 +148,19 @@ ignore = [
 ]
 
 [tool.ruff.lint.flake8-bugbear]
-extend-immutable-calls = ["typer.Argument", "typer.Option"]
+extend-immutable-calls = ["typer.Argument"]
 
 [tool.ruff.lint.flake8-tidy-imports]
 ban-relative-imports = "all"
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
+
+[tool.ruff.lint.pylint]
+max-branches = 25
+max-statements = 60
+max-returns = 10
+max-args = 15
 
 [tool.ruff.lint.mccabe]
 max-complexity = 20  # default: 10
