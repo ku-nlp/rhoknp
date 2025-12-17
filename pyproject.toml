@@ -166,9 +166,6 @@ max-args = 15
 [tool.ruff.lint.mccabe]
 max-complexity = 20  # default: 10
 
-[tool.mypy]
-python_version = "3.10"
-
 [tool.ty.environment]
 python-version = "3.10"
 

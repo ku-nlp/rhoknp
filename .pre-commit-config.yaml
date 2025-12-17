@@ -16,26 +16,11 @@ repos:
       - id: check-added-large-files
         exclude: "assets/logo.*"
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.14.7
+    rev: v0.14.9
     hooks:
       - id: ruff-check
         args: [--fix]
       - id: ruff-format
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.19.0
-    hooks:
-      - id: mypy
-        additional_dependencies:
-          - fastapi
-          - jinja2
-          - pytest
-          - rich
-          - types-click
-          - types-Pygments
-          - types-PyYAML
-          - typer-slim
-          - typing-extensions
-          - uvicorn
   - repo: local
     hooks:
       - id: ty
@@ -47,7 +32,6 @@ repos:
           - fastapi
           - pytest
           - rich
-          - ty
           - types-click
           - types-Pygments
           - types-PyYAML
