@@ -5,12 +5,12 @@ alabaster==1.0.0
 babel==2.18.0
 beautifulsoup4==4.14.3
 certifi==2025.11.12
-charset-normalizer==3.4.4
+charset-normalizer==3.4.6
 colorama==0.4.6 ; sys_platform == 'win32'
 docutils==0.22.4
 furo==2025.12.19
 idna==3.11
-imagesize==1.4.1
+imagesize==1.5.0
 jinja2==3.1.6
 markdown-it-py==3.0.0
 markupsafe==3.0.3
@@ -18,9 +18,9 @@ mdit-py-plugins==0.5.0
 mdurl==0.1.2
 myst-parser==4.0.1
 packaging==25.0
-pygments==2.19.2
+pygments==2.20.0
 pyyaml==6.0.3
-requests==2.32.5
+requests==2.33.1
 roman-numerals-py==3.1.0 ; python_full_version >= '3.11'
 snowballstemmer==3.0.1
 soupsieve==2.8.3
