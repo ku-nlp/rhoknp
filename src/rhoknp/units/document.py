@@ -1,11 +1,7 @@
 import logging
 from collections.abc import Sequence
 
-try:
-    from typing import override  # type: ignore[attr-defined]
-except ImportError:
-    from typing_extensions import override
-
+from rhoknp._compat import override
 from rhoknp.cohesion.pas import Pas
 from rhoknp.props.named_entity import NamedEntity
 from rhoknp.units.base_phrase import BasePhrase

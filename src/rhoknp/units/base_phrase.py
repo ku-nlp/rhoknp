@@ -5,11 +5,7 @@ import re
 from functools import cached_property
 from typing import TYPE_CHECKING, Any, Optional
 
-try:
-    from typing import override  # type: ignore[attr-defined]
-except ImportError:
-    from typing_extensions import override
-
+from rhoknp._compat import override
 from rhoknp.cohesion.argument import Argument, EndophoraArgument, ExophoraArgument
 from rhoknp.cohesion.coreference import Entity, EntityManager
 from rhoknp.cohesion.exophora import ExophoraReferent
@@ -50,7 +46,7 @@ class BasePhrase(Unit):
         super().__init__()
 
         # parent unit
-        self._phrase: "Phrase" | None = None
+        self._phrase: "Phrase | None" = None
 
         # child units
         self._morphemes: list[Morpheme] | None = None

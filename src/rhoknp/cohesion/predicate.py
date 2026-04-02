@@ -20,7 +20,7 @@ class Predicate:
     def __init__(self, base_phrase: "BasePhrase", cfid: str | None = None) -> None:
         self.base_phrase: "BasePhrase" = base_phrase  #: 述語の核となる基本句．
         self.cfid: str | None = cfid  #: 格フーレムID．
-        self._pas: "Pas" | None = None
+        self._pas: "Pas | None" = None
 
     @property
     def text(self) -> str:

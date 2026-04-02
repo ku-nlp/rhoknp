@@ -2,11 +2,7 @@ import logging
 import re
 from typing import TYPE_CHECKING, Optional
 
-try:
-    from typing import override  # type: ignore[attr-defined]
-except ImportError:
-    from typing_extensions import override
-
+from rhoknp._compat import override
 from rhoknp.cohesion import EntityManager, Pas
 from rhoknp.props.named_entity import NamedEntity
 from rhoknp.units.base_phrase import BasePhrase
@@ -47,7 +43,7 @@ class Sentence(Unit):
         EntityManager.reset()
 
         # parent unit
-        self._document: "Document" | None = None
+        self._document: "Document | None" = None
 
         # child units
         self._clauses: list[Clause] | None = None

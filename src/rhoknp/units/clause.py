@@ -2,11 +2,7 @@ import logging
 from functools import cached_property
 from typing import TYPE_CHECKING, Optional
 
-try:
-    from typing import override  # type: ignore[attr-defined]
-except ImportError:
-    from typing_extensions import override
-
+from rhoknp._compat import override
 from rhoknp.cohesion.discourse import DiscourseRelation
 from rhoknp.units.base_phrase import BasePhrase
 from rhoknp.units.morpheme import Morpheme
@@ -29,7 +25,7 @@ class Clause(Unit):
         super().__init__()
 
         # parent unit
-        self._sentence: "Sentence" | None = None
+        self._sentence: "Sentence | None" = None
 
         # child units
         self._phrases: list[Phrase] | None = None

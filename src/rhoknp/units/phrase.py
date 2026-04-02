@@ -2,11 +2,7 @@ import re
 from functools import cached_property
 from typing import TYPE_CHECKING, Optional, Union
 
-try:
-    from typing import override  # type: ignore[attr-defined]
-except ImportError:
-    from typing_extensions import override
-
+from rhoknp._compat import override
 from rhoknp.props.dependency import DepType
 from rhoknp.props.feature import FeatureDict
 from rhoknp.units.base_phrase import BasePhrase
@@ -34,8 +30,8 @@ class Phrase(Unit):
         super().__init__()
 
         # parent unit
-        self._clause: "Clause" | None = None
-        self._sentence: "Sentence" | None = None
+        self._clause: "Clause | None" = None
+        self._sentence: "Sentence | None" = None
 
         # child units
         self._base_phrases: list[BasePhrase] | None = None

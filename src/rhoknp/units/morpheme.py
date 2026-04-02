@@ -2,11 +2,7 @@ import re
 from functools import cached_property
 from typing import TYPE_CHECKING, ClassVar, Optional, Union
 
-try:
-    from typing import override  # type: ignore[attr-defined]
-except ImportError:
-    from typing_extensions import override
-
+from rhoknp._compat import override
 from rhoknp.props.feature import FeatureDict
 from rhoknp.props.semantics import SemanticsDict
 from rhoknp.units.unit import Unit
@@ -97,8 +93,8 @@ class Morpheme(Unit):
         self.conjform_id = conjform_id  #: 活用形ID．
 
         # parent unit
-        self._base_phrase: "BasePhrase" | None = None
-        self._sentence: "Sentence" | None = None
+        self._base_phrase: "BasePhrase | None" = None
+        self._sentence: "Sentence | None" = None
 
         self.semantics: SemanticsDict = (
             semantics if semantics is not None else SemanticsDict()
