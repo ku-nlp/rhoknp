@@ -64,7 +64,7 @@ dev = [
     "ipdb>=0.13.13",
 ]
 test = [
-    "pytest>=8.0",
+    "pytest>=9.0",
     "coverage[toml]>=7.3",
     "pytest-cov>=6.0",
     "httpx>=0.25",
@@ -80,7 +80,7 @@ docs = [
 ]
 
 [build-system]
-requires = ["uv_build"]
+requires = ["uv_build>=0.11.7,<0.12"]
 build-backend = "uv_build"
 
 [tool.hatch.build.targets.sdist]
