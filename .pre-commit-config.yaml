@@ -16,7 +16,7 @@ repos:
       - id: check-added-large-files
         exclude: "assets/logo.*"
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.4
+    rev: v0.15.9
     hooks:
       - id: ruff-check
         args: [--fix]
@@ -48,6 +48,6 @@ repos:
       - id: djlint-jinja
       - id: djlint-reformat-jinja
   - repo: https://github.com/rhysd/actionlint
-    rev: v1.7.11
+    rev: v1.7.12
     hooks:
       - id: actionlint
