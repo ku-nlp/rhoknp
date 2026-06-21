@@ -4,6 +4,7 @@ import logging
 from enum import Enum
 from io import StringIO
 from pathlib import Path
+from typing import Any, cast
 
 import fastapi
 import fastapi.responses
@@ -142,12 +143,17 @@ def create_app(analyzer: AnalyzerType, base_url: str = "/", *args, **kwargs) -> 
     app.mount("/static", fastapi.staticfiles.StaticFiles(directory=here.joinpath("static")), name="static")
 
     templates = fastapi.templating.Jinja2Templates(directory=here.joinpath("templates"))
-    templates.env.globals["get_string_diff"] = _get_string_diff
-    templates.env.globals["draw_tree"] = _draw_tree
-    templates.env.globals["get_entity_spans"] = _get_entity_spans
-    templates.env.globals["title"] = title
-    templates.env.globals["version"] = version
-    templates.env.globals["base_url"] = base_url
+    template_globals = cast(dict[str, Any], templates.env.globals)
+    template_globals.update(
+        {
+            "get_string_diff": _get_string_diff,
+            "draw_tree": _draw_tree,
+            "get_entity_spans": _get_entity_spans,
+            "title": title,
+            "version": version,
+            "base_url": base_url,
+        }
+    )
 
     @app.exception_handler(_HTTPExceptionForIndex)
     async def http_exception_handler_for_index(

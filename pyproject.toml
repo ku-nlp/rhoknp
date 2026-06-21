@@ -62,6 +62,9 @@ rhoknp = "rhoknp.cli.cli:app"
 [dependency-groups]
 dev = [
     "ipdb>=0.13.13",
+    "types-click>=7.1.8",
+    "types-pygments>=2.20.0.20260518",
+    "types-pyyaml>=6.0.12.20260518",
 ]
 test = [
     "pytest>=9.0",

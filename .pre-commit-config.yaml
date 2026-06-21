@@ -21,23 +21,10 @@ repos:
       - id: ruff-check
         args: [--fix]
       - id: ruff-format
-  - repo: local
+  - repo: https://github.com/astral-sh/ty-pre-commit
+    rev: v0.0.50
     hooks:
       - id: ty
-        name: ty check
-        entry: uvx ty check
-        language: python
-        pass_filenames: false
-        additional_dependencies:
-          - fastapi
-          - pytest
-          - rich
-          - types-click
-          - types-Pygments
-          - types-PyYAML
-          - typer-slim
-          - typing-extensions
-          - uvicorn
   - repo: https://github.com/pre-commit/mirrors-prettier
     rev: v4.0.0-alpha.8
     hooks:
