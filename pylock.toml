@@ -402,6 +402,34 @@ sdist = { url = "https://files.pythonhosted.org/packages/eb/79/72064e6a701c21830
 wheels = [{ url = "https://files.pythonhosted.org/packages/00/c0/8f5d070730d7836adc9c9b6408dec68c6ced86b304a9b26a14df072a6e8c/traitlets-5.14.3-py3-none-any.whl", upload-time = 2024-04-19T11:11:46Z, size = 85359, hashes = { sha256 = "b74e89e397b1ed28cc831db7aea759ba6640cb3de13090ca145426688ff1ac4f" } }]
 
 [[packages]]
+name = "types-click"
+version = "7.1.8"
+index = "https://pypi.org/simple"
+sdist = { url = "https://files.pythonhosted.org/packages/00/ff/0e6a56108d45c80c61cdd4743312d0304d8192482aea4cce96c554aaa90d/types-click-7.1.8.tar.gz", upload-time = 2021-11-23T12:28:01Z, size = 10015, hashes = { sha256 = "b6604968be6401dc516311ca50708a0a28baa7a0cb840efd7412f0dbbff4e092" } }
+wheels = [{ url = "https://files.pythonhosted.org/packages/ee/ad/607454a5f991c5b3e14693a7113926758f889138371058a5f72f567fa131/types_click-7.1.8-py3-none-any.whl", upload-time = 2021-11-23T12:27:59Z, size = 12929, hashes = { sha256 = "8cb030a669e2e927461be9827375f83c16b8178c365852c060a34e24871e7e81" } }]
+
+[[packages]]
+name = "types-docutils"
+version = "0.22.3.20260518"
+index = "https://pypi.org/simple"
+sdist = { url = "https://files.pythonhosted.org/packages/fd/91/81b520d0869a41aa0d86e713417b63e8604b4280c304bc09b02d74c7efd4/types_docutils-0.22.3.20260518.tar.gz", upload-time = 2026-05-18T06:03:53Z, size = 57504, hashes = { sha256 = "2c45ba63a9ac64246335359b68fe9c27602926499c9b67caec3780745f6aadee" } }
+wheels = [{ url = "https://files.pythonhosted.org/packages/01/9b/243fb84ede4f987f303a89e734c5def35ead2f8bd962ad301c1e99680958/types_docutils-0.22.3.20260518-py3-none-any.whl", upload-time = 2026-05-18T06:03:52Z, size = 91970, hashes = { sha256 = "9c4cbc37d9e37f47dfe971ac09e9880380dc948ff1f23956892e810d0bf08676" } }]
+
+[[packages]]
+name = "types-pygments"
+version = "2.20.0.20260518"
+index = "https://pypi.org/simple"
+sdist = { url = "https://files.pythonhosted.org/packages/db/66/3e27e8dbe72947d51355d1fcba222a55bf5f0770ee660e9cc9df0d1ce5d7/types_pygments-2.20.0.20260518.tar.gz", upload-time = 2026-05-18T06:07:26Z, size = 21152, hashes = { sha256 = "bcab233d0389cb0a91146eb860e7bdcbceaa0f30bee73cefc7b367129cc4a330" } }
+wheels = [{ url = "https://files.pythonhosted.org/packages/66/d6/5f19f5b633af6a7666c6096fdd06b70f0d4a8f585af5e18a3ef58ad47ec1/types_pygments-2.20.0.20260518-py3-none-any.whl", upload-time = 2026-05-18T06:07:26Z, size = 29002, hashes = { sha256 = "e40728efd00c9da5936366648d5b3c55e72ed52bdd80495a96577b4d717c4fcb" } }]
+
+[[packages]]
+name = "types-pyyaml"
+version = "6.0.12.20260518"
+index = "https://pypi.org/simple"
+sdist = { url = "https://files.pythonhosted.org/packages/b8/83/4a1afc3fbfcf5b8d46fc390cd95ed6b0dc9010a265f4e9f46314efffa37a/types_pyyaml-6.0.12.20260518.tar.gz", upload-time = 2026-05-18T06:01:58Z, size = 17850, hashes = { sha256 = "d917f83fb38462550338c1297faedd860b3ec83912b96b1e3d73255f7473e466" } }
+wheels = [{ url = "https://files.pythonhosted.org/packages/06/a2/c01db32be2ae7d6a1689972f3c492b149ee4e164b12fdfd9f64b50888215/types_pyyaml-6.0.12.20260518-py3-none-any.whl", upload-time = 2026-05-18T06:01:57Z, size = 20312, hashes = { sha256 = "d2150f75a231c9fe9c7463bd29487d93e60bac90400287351384bc2284eba7cd" } }]
+
+[[packages]]
 name = "typing-extensions"
 version = "4.15.0"
 marker = "python_full_version < '3.13'"
