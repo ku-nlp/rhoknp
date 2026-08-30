@@ -176,7 +176,7 @@ class Clause(Unit):
     def parent(self) -> Optional["Clause"]:
         """係り先の節．ないなら None．"""
         head_parent = self.head.parent
-        while head_parent in self.base_phrases:
+        while head_parent is not None and head_parent in self.base_phrases:
             head_parent = head_parent.parent
         for clause in self.sentence.clauses:
             if head_parent in clause.base_phrases:
