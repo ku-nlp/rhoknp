@@ -6,11 +6,7 @@ import time
 from subprocess import PIPE, Popen
 from threading import Lock
 
-try:
-    from typing import override  # type: ignore[attr-defined]
-except ImportError:
-    from typing_extensions import override
-
+from rhoknp._compat import override
 from rhoknp.processors.jumanpp import Jumanpp
 from rhoknp.processors.processor import Processor
 from rhoknp.processors.senter import RegexSenter

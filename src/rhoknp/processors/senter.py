@@ -3,11 +3,7 @@ import re
 import threading
 from typing import ClassVar
 
-try:
-    from typing import override  # type: ignore[attr-defined]
-except ImportError:
-    from typing_extensions import override
-
+from rhoknp._compat import override
 from rhoknp.processors.processor import Processor
 from rhoknp.units import Document, Sentence
 
@@ -68,6 +64,7 @@ class RegexSenter(Processor):
             sentence: 文．
             timeout: 最大処理時間．
         """
+        _ = timeout
         if isinstance(sentence, str):
             sentence = Sentence(sentence)
         return sentence

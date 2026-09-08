@@ -41,7 +41,7 @@ class BaseArgument(ABC):
         self.case: str = case  #: 述語に対する格．
         self.type: ArgumentType = arg_type  #: 項のタイプ．
         self.optional: bool = False  #: 修飾的な項かどうか．
-        self._pas: "Pas" | None = None
+        self._pas: "Pas | None" = None
 
     @abstractmethod
     def __str__(self) -> str:

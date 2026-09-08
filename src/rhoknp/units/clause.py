@@ -2,11 +2,7 @@ import logging
 from functools import cached_property
 from typing import TYPE_CHECKING, Optional
 
-try:
-    from typing import override  # type: ignore[attr-defined]
-except ImportError:
-    from typing_extensions import override
-
+from rhoknp._compat import override
 from rhoknp.cohesion.discourse import DiscourseRelation
 from rhoknp.units.base_phrase import BasePhrase
 from rhoknp.units.morpheme import Morpheme
@@ -29,7 +25,7 @@ class Clause(Unit):
         super().__init__()
 
         # parent unit
-        self._sentence: "Sentence" | None = None
+        self._sentence: "Sentence | None" = None
 
         # child units
         self._phrases: list[Phrase] | None = None
@@ -180,7 +176,7 @@ class Clause(Unit):
     def parent(self) -> Optional["Clause"]:
         """係り先の節．ないなら None．"""
         head_parent = self.head.parent
-        while head_parent in self.base_phrases:
+        while head_parent is not None and head_parent in self.base_phrases:
             head_parent = head_parent.parent
         for clause in self.sentence.clauses:
             if head_parent in clause.base_phrases:

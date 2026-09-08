@@ -12,9 +12,9 @@
          aria-labelledby="heading-typo-correction">
         <div class="accordion-body">
             {% for diff in get_string_diff(text, analyzed_document.text) %}
-                {% if diff.label == '+' %}
+                {% if diff.label == "+" %}
                     <span class="bg-success bg-opacity-25">{{ diff.text }}</span>
-                {% elif diff.label == '-' %}
+                {% elif diff.label == "-" %}
                     <span class="bg-danger bg-opacity-25">{{ diff.text }}</span>
                 {% else %}
                     <span>{{ diff.text }}</span>

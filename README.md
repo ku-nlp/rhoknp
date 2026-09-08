@@ -33,9 +33,7 @@ import rhoknp
 
 # Perform morphological analysis by Juman++
 jumanpp = rhoknp.Jumanpp()
-sentence = jumanpp.apply_to_sentence(
-    "電気抵抗率は電気の通しにくさを表す物性値である。"
-)
+sentence = jumanpp.apply_to_sentence("電気抵抗率は電気の通しにくさを表す物性値である。")
 
 # Access to the result
 for morpheme in sentence.morphemes:  # a.k.a. keitai-so
@@ -129,9 +127,7 @@ with open("sentence.knp", "rt") as f:
 Furthermore, rhoknp provides convenient APIs for document-level language analysis.
 
 ```python
-document = rhoknp.Document.from_raw_text(
-    "電気抵抗率は電気の通しにくさを表す物性値である。単に抵抗率とも呼ばれる。"
-)
+document = rhoknp.Document.from_raw_text("電気抵抗率は電気の通しにくさを表す物性値である。単に抵抗率とも呼ばれる。")
 # If you know sentence boundaries, you can use `Document.from_sentences` instead.
 document = rhoknp.Document.from_sentences(
     [
