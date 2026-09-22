@@ -198,8 +198,15 @@ class EntityManager:
         Args:
             entity: 削除対象のエンティティ．
         """
-        for mention in entity.mentions_all:
-            entity.remove_mention(mention)
+        # Every mention is about to go, so the lists are emptied at once instead of being
+        # scanned for each mention in turn. remove_mention() searches the list it removes
+        # from, which costs the length of the chain for every one of its members.
+        for mention in entity.mentions:
+            mention.entities.remove(entity)
+        for mention in entity.mentions_nonidentical:
+            mention.entities_nonidentical.remove(entity)
+        entity.mentions.clear()
+        entity.mentions_nonidentical.clear()
         cls.entities.pop(entity.eid)
 
     @classmethod
