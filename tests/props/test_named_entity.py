@@ -49,7 +49,7 @@ from rhoknp.props import NamedEntity, NamedEntityCategory
     ],
 )
 def test_ne(case: dict[str, Any]) -> None:
-    doc = Document.from_knp(Path(f"tests/data/{case['doc_id']}.knp").read_text())
+    doc = Document.from_knp(Path(f"tests/data/{case['doc_id']}.knp").read_text(encoding="utf-8"))
     actual_nes = doc.named_entities
     expected_nes = case["named_entities"]
     assert len(actual_nes) == len(expected_nes)
