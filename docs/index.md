@@ -17,11 +17,11 @@ jumanpp = rhoknp.Jumanpp()
 sentence = jumanpp.apply_to_sentence("電気抵抗率は電気の通しにくさを表す物性値である。")
 
 # Dump language analysis by Juman++
-with open("result.jumanpp", "wt") as f:
+with open("result.jumanpp", "wt", encoding="utf-8") as f:
     f.write(sentence.to_jumanpp())
 
 # Load language analysis by Juman++
-with open("result.jumanpp", "rt") as f:
+with open("result.jumanpp", "rt", encoding="utf-8") as f:
     sentence = rhoknp.Sentence.from_jumanpp(f.read())
 ```
 
