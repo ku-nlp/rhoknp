@@ -357,12 +357,14 @@ class BasePhrase(Unit):
 
     def _get_target_base_phrase(self, rel_tag: RelTag) -> Optional["BasePhrase"]:
         """rel_tag が指す基本句を返す．見つからなければ None を返す．"""
-        sentences = self.document.sentences if self.sentence.has_document() else [self.sentence]
-        sentences = [sent for sent in sentences if sent.sid == rel_tag.sid]
-        if not sentences:
+        assert rel_tag.sid is not None
+        if self.sentence.has_document():
+            sentence = self.document._find_sentence_by_sid(rel_tag.sid)
+        else:
+            sentence = self.sentence if self.sentence.sid == rel_tag.sid else None
+        if sentence is None:
             logger.warning(f"{self.sentence.sid}: relation with unknown sid found: {rel_tag.sid}")
             return None
-        sentence = sentences[0]
         assert rel_tag.base_phrase_index is not None
         if rel_tag.base_phrase_index >= len(sentence.base_phrases):
             logger.warning(f"{self.sentence.sid}: index out of range")
