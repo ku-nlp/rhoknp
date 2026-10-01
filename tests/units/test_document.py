@@ -936,3 +936,60 @@ def test_pickle_unpickle_annotated_corpora(path: Path) -> None:
     doc1 = Document.from_knp(path.read_text())
     doc2 = pickle.loads(pickle.dumps(doc1))  # nosec pickle
     assert doc1.to_knp() == doc2.to_knp()
+
+
+# --- Finding a sentence by its sid -------------------------------------------------
+# Resolving a rel looks up the sentence its sid names. The lookup is indexed, and the
+# index has to follow the sentences of the document as they are replaced or appended.
+
+_CORPUS = Path("tests/data/w201106-0000060050.knp")
+_OTHER_CORPUS = Path("tests/data/wiki00100176.knp")
+
+
+def test_find_sentence_by_sid() -> None:
+    document = Document.from_knp(_CORPUS.read_text())
+    for sentence in document.sentences:
+        assert document._find_sentence_by_sid(sentence.sid) is sentence
+    assert document._find_sentence_by_sid("no-such-sid") is None
+
+
+def test_find_sentence_by_sid_returns_the_first_of_a_repeated_sid() -> None:
+    """文 ID が重なっていたら先にある文を返す（線形に探していたときと同じ）．
+
+    後から足す文は同じ文書を読み直したもので，文 ID は同じだが別のオブジェクトなので，
+    先にある方が返っていることを同一性で確かめられる．
+    """
+    document = Document.from_knp(_CORPUS.read_text())
+    first = document.sentences[0]
+    duplicate = Document.from_knp(_CORPUS.read_text()).sentences[0]
+    assert duplicate.sid == first.sid
+    assert duplicate is not first
+    document.sentences.append(duplicate)
+    assert document._find_sentence_by_sid(first.sid) is first
+
+
+def test_find_sentence_by_sid_follows_an_appended_sentence() -> None:
+    document = Document.from_knp(_CORPUS.read_text())
+    appended = Document.from_knp(_OTHER_CORPUS.read_text()).sentences[0]
+    assert document._find_sentence_by_sid(document.sentences[0].sid) is not None  # build the index
+    assert document._find_sentence_by_sid(appended.sid) is None
+    document.sentences.append(appended)
+    assert document._find_sentence_by_sid(appended.sid) is appended
+
+
+def test_find_sentence_by_sid_follows_replaced_sentences() -> None:
+    """文の数が変わらない差し替えでも索引は古くならない．
+
+    同じ文書を読み直したものを入れるので，文の数も文 ID も変わらない．古い索引が
+    残っていれば差し替える前の文が返り，この検査は落ちる．
+    """
+    document = Document.from_knp(_CORPUS.read_text())
+    replacement = Document.from_knp(_CORPUS.read_text()).sentences
+    sid = document.sentences[0].sid
+    stale = document._find_sentence_by_sid(sid)  # build the index
+    assert stale is document.sentences[0]
+
+    document.sentences = replacement
+    assert len(replacement) == len(document.sentences)
+    assert document._find_sentence_by_sid(sid) is replacement[0]
+    assert document._find_sentence_by_sid(sid) is not stale

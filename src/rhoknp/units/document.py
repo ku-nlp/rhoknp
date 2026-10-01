@@ -34,6 +34,9 @@ class Document(Unit):
         # child units
         self._sentences: list[Sentence] | None = None
 
+        # Index from sid to sentence, rebuilt when the number of sentences changes.
+        self._sid_to_sentence: tuple[int, dict[str, Sentence]] | None = None
+
         if text is not None:
             self.text = text
 
@@ -110,6 +113,27 @@ class Document(Unit):
         for sentence in sentences:
             sentence.document = self
         self._sentences = sentences
+        self._sid_to_sentence = None
+
+    def _find_sentence_by_sid(self, sid: str) -> Sentence | None:
+        """文 ID が sid である文を返す．見つからなければ None を返す．
+
+        同じ文 ID の文が複数あれば最初のものを返す．
+
+        Args:
+            sid: 文 ID．
+        """
+        sentences = self.sentences
+        # Resolving a rel looks up one sentence, and a document with many rels looks up as
+        # many; scanning the sentences for each of them is quadratic in the length of the
+        # document. The index is rebuilt whenever the number of sentences changes, which
+        # covers sentences appended to the list in place.
+        if self._sid_to_sentence is None or self._sid_to_sentence[0] != len(sentences):
+            sid_to_sentence: dict[str, Sentence] = {}
+            for sentence in sentences:
+                sid_to_sentence.setdefault(sentence.sid, sentence)
+            self._sid_to_sentence = (len(sentences), sid_to_sentence)
+        return self._sid_to_sentence[1].get(sid)
 
     @property
     def clauses(self) -> list[Clause]:
