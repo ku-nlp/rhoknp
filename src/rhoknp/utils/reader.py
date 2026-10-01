@@ -19,7 +19,7 @@ def chunk_by_sentence(f: TextIO) -> Iterator[str]:
     Example:
         >>> from rhoknp.units import Sentence
         >>> from rhoknp.utils.reader import chunk_by_sentence
-        >>> with open("example.knp") as f:
+        >>> with open("example.knp", encoding="utf-8") as f:
         ...     for knp in chunk_by_sentence(f):
         ...         sentence = Sentence.from_knp(knp)
     """
@@ -45,7 +45,7 @@ def chunk_by_document(f: TextIO, doc_id_format: str | Callable = "default") -> I
     Example:
         >>> from rhoknp.units import Document
         >>> from rhoknp.utils.reader import chunk_by_document
-        >>> with open("example.knp") as f:
+        >>> with open("example.knp", encoding="utf-8") as f:
         ...     for knp in chunk_by_document(f):
         ...         document = Document.from_knp(knp)
 

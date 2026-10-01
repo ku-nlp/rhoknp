@@ -9,7 +9,7 @@ import sys
 from rhoknp import Sentence
 from rhoknp.utils.reader import chunk_by_sentence
 
-with open(sys.argv[1]) as f:
+with open(sys.argv[1], encoding="utf-8") as f:
     for jumanpp in chunk_by_sentence(f):
         sent = Sentence.from_jumanpp(jumanpp)
         print(f"Successfully loaded a sentence: {sent.text}")
