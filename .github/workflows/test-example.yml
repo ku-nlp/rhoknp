@@ -39,7 +39,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
         run: |
-          uv sync --group test --extra cli --no-cache
+          uv sync --extra cli --no-cache
       - name: Install KWJA
         run: |
           # Install KWJA with CPU-only PyTorch to reduce disk usage

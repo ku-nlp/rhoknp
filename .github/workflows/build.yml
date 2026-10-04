@@ -32,7 +32,7 @@ jobs:
       - name: Build package
         run: uv build -o dist
       - name: Create virtual environment
-        run: uv venv --python ${{ matrix.python-version }}
+        run: uv venv
       - name: Install rhoknp from wheel (non-Windows)
         if: ${{ matrix.os != 'windows-latest' }}
         run: |

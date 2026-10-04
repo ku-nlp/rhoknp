@@ -38,7 +38,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
           enable-cache: false
       - name: Install dependencies
-        run: uv sync --extra cli --no-cache --python ${{ matrix.python-version }}
+        run: uv sync --extra cli --no-cache
       - name: Install KWJA
         run: |
           uv tool install kwja --python 3.12 --no-cache --with "torch==2.6.0+cpu" --extra-index-url https://download.pytorch.org/whl/cpu

@@ -97,7 +97,6 @@ default-groups = ["dev", "test"]
 line-length = 120
 indent-width = 4
 src = ["src"]
-target-version = "py310"  # The minimum Python version to target
 
 [tool.ruff.lint]
 select = ["F", "E", "W", "I", "B", "PL", "PD", "NPY", "RUF", "UP", "TID", "COM", "PT", "D", "ARG", "PYI", "ANN", "G", "FBT", "EM", "TRY", "PTH", "T", "INP", "C"]
