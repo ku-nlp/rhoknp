@@ -44,7 +44,7 @@ def test_version() -> None:
 
 def test_cat() -> None:
     doc = Document.from_knp(knp_text)
-    with tempfile.NamedTemporaryFile("wt") as f:
+    with tempfile.NamedTemporaryFile("wt", encoding="utf-8") as f:
         f.write(doc.to_knp())
         f.flush()
         result = runner.invoke(app, ["cat", f.name])
@@ -64,7 +64,7 @@ def test_cat_stdin() -> None:
 
 def test_convert() -> None:
     doc = Document.from_knp(knp_text)
-    with tempfile.NamedTemporaryFile("wt") as f:
+    with tempfile.NamedTemporaryFile("wt", encoding="utf-8") as f:
         f.write(doc.to_knp())
         f.flush()
         for format_ in ("text", "jumanpp", "knp"):
@@ -81,7 +81,7 @@ def test_convert_stdin() -> None:
 
 def test_convert_value_error() -> None:
     doc = Document.from_knp(knp_text)
-    with tempfile.NamedTemporaryFile("wt") as f:
+    with tempfile.NamedTemporaryFile("wt", encoding="utf-8") as f:
         f.write(doc.to_knp())
         f.flush()
         result = runner.invoke(app, ["convert", f.name, "--format", "foo"])  # Unknown format
@@ -90,7 +90,7 @@ def test_convert_value_error() -> None:
 
 def test_show() -> None:
     doc = Document.from_knp(knp_text)
-    with tempfile.NamedTemporaryFile("wt") as f:
+    with tempfile.NamedTemporaryFile("wt", encoding="utf-8") as f:
         f.write(doc.to_knp())
         f.flush()
         result = runner.invoke(app, ["show", f.name])
@@ -104,7 +104,7 @@ def test_show_error() -> None:
 
 def test_stats() -> None:
     doc = Document.from_knp(knp_text)
-    with tempfile.NamedTemporaryFile("wt") as f:
+    with tempfile.NamedTemporaryFile("wt", encoding="utf-8") as f:
         f.write(doc.to_knp())
         f.flush()
         result = runner.invoke(app, ["stats", f.name])
@@ -113,7 +113,7 @@ def test_stats() -> None:
 
 def test_stats_json() -> None:
     doc = Document.from_knp(knp_text)
-    with tempfile.NamedTemporaryFile("wt") as f:
+    with tempfile.NamedTemporaryFile("wt", encoding="utf-8") as f:
         f.write(doc.to_knp())
         result = runner.invoke(app, ["stats", f.name, "--json"])
         assert result.exit_code == 0

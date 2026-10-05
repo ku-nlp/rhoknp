@@ -43,7 +43,7 @@ def cat(
         knp_path: KNP ファイルのパス．
         dark: True なら背景を黒にする．
     """
-    knp_text = sys.stdin.read() if knp_path is None else knp_path.read_text()
+    knp_text = sys.stdin.read() if knp_path is None else knp_path.read_text(encoding="utf-8")
     doc = Document.from_knp(knp_text)
     print_document(doc, is_dark=dark)
 
@@ -61,7 +61,7 @@ def convert(
         knp_path: KNP ファイルのパス．
         format_: 変換先のフォーマット．"text", "jumanpp", "knp" のいずれか．
     """
-    knp_text = sys.stdin.read() if knp_path is None else knp_path.read_text()
+    knp_text = sys.stdin.read() if knp_path is None else knp_path.read_text(encoding="utf-8")
     doc = Document.from_knp(knp_text)
     if format_ == "text":
         print(doc.text)
@@ -88,7 +88,7 @@ def show(
         rel: True なら同時に <rel> タグの内容を表示．
         pas: True なら同時に述語項構造を表示．
     """
-    doc = Document.from_knp(knp_path.read_text())
+    doc = Document.from_knp(knp_path.read_text(encoding="utf-8"))
     for sent in doc.sentences:
         print(sent.comment)
         draw_tree(sent.base_phrases, show_pos=pos, show_rel=rel, show_pas=pas)
@@ -107,7 +107,7 @@ def stats(
         knp_path: KNP ファイルのパス．
         use_json: JSON 形式で出力．
     """
-    doc = Document.from_knp(knp_path.read_text())
+    doc = Document.from_knp(knp_path.read_text(encoding="utf-8"))
     doc_stats = get_document_statistics(doc)
     if use_json:
         print(json.dumps(doc_stats, ensure_ascii=False, indent=4))
