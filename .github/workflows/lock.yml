@@ -7,8 +7,8 @@ on:
       - "uv.lock"
 
 jobs:
-  generate-pylock:
-    name: Generate pylock.toml from pyproject.toml
+  generate-lock-files:
+    name: Generate lock files from pyproject.toml
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -16,27 +16,12 @@ jobs:
         uses: astral-sh/setup-uv@v7
       - name: Export pylock.toml
         run: uv export -o pylock.toml
-      - name: Commit and push changes
-        if: ${{ github.actor != 'dependabot[bot]' }}
-        uses: stefanzweifel/git-auto-commit-action@v7
-        with:
-          commit_message: update pylock.toml
-          file_pattern: pylock.toml
-          disable_globbing: true
-  generate-requirements:
-    name: Generate docs/requirements.txt from pyproject.toml
-    needs: generate-pylock
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - name: Install uv
-        uses: astral-sh/setup-uv@v7
       - name: Export requirements.txt
         run: uv export --only-group docs --no-annotate --no-hashes -o docs/requirements.txt
       - name: Commit and push changes
         if: ${{ github.actor != 'dependabot[bot]' }}
         uses: stefanzweifel/git-auto-commit-action@v7
         with:
-          commit_message: update docs/requirements.txt
-          file_pattern: docs/requirements.txt
+          commit_message: update lock files
+          file_pattern: pylock.toml docs/requirements.txt
           disable_globbing: true
