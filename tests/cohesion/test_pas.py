@@ -457,14 +457,14 @@ def test_sentence_index_out_of_range_pas() -> None:
 
 def test_pas_repr() -> None:
     doc_id = "w201106-0000060050"
-    doc = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text())
+    doc = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text(encoding="utf-8"))
     pas = doc.pas_list[0]
     assert repr(pas) == "<rhoknp.cohesion.pas.Pas: 'トスを'>"
 
 
 def test_get_arguments_idempotency() -> None:
     doc_id = "w201106-0000060050"
-    doc = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text())
+    doc = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text(encoding="utf-8"))
     for pas in doc.pas_list:
         pas_before = id(pas)
         predicate_before = id(pas.predicate)
@@ -549,7 +549,7 @@ def test_optional_case() -> None:
 
 def test_pas_relax() -> None:
     doc_id = "w201106-0000060560"
-    doc = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text())
+    doc = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text(encoding="utf-8"))
     pas = doc.base_phrases[18].pas
     assert pas.predicate.text == "ご協力の"
     case = "ガ"
@@ -583,7 +583,7 @@ def test_pas_relax() -> None:
 
 def test_get_all_arguments() -> None:
     doc_id = "w201106-0000060050"
-    doc = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text())
+    doc = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text(encoding="utf-8"))
     pas = doc.pas_list[1]
     all_arguments = pas.get_all_arguments()
     assert set(all_arguments.keys()) == {"ガ", "ヲ"}

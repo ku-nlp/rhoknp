@@ -14,13 +14,10 @@ jobs:
       - name: Dependabot metadata
         id: metadata
         uses: dependabot/fetch-metadata@v3
-        with:
-          github-token: "${{ secrets.GITHUB_TOKEN }}"
       - name: Wait for tests to pass
         uses: lewagon/wait-on-check-action@v1.9.1
         with:
           ref: ${{ github.event.pull_request.head.sha }}
-          # running-workflow-name: "Test" # this condition does not work
           check-regexp: Run tests with pytest.*
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           wait-interval: 60 # Check every 60 seconds

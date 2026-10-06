@@ -733,8 +733,8 @@ def test_reference(case: dict[str, str]) -> None:
 @pytest.mark.parametrize(
     "knp",
     [
-        Path("tests/data/w201106-0000060050.knp").read_text(),
-        Path("tests/data/wiki00100176.knp").read_text(),
+        Path("tests/data/w201106-0000060050.knp").read_text(encoding="utf-8"),
+        Path("tests/data/wiki00100176.knp").read_text(encoding="utf-8"),
     ],
 )
 def test_reference_with_no_clause_tag(knp: str) -> None:
@@ -853,34 +853,34 @@ def test_reparse(case: dict[str, str], key: str) -> None:
 
 def test_pas_list() -> None:
     doc_id = "w201106-0000060050"
-    doc = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text())
+    doc = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text(encoding="utf-8"))
     assert len(doc.pas_list) == 12
 
 
 def test_to_knp_kwdlc() -> None:
     doc_id = "w201106-0000060050"
-    knp = Path(f"tests/data/{doc_id}.knp").read_text()
+    knp = Path(f"tests/data/{doc_id}.knp").read_text(encoding="utf-8")
     doc = Document.from_knp(knp)
     assert doc.to_knp() == knp
 
 
 def test_to_knp_wac() -> None:
     doc_id = "wiki00100176"
-    knp = Path(f"tests/data/{doc_id}.knp").read_text()
+    knp = Path(f"tests/data/{doc_id}.knp").read_text(encoding="utf-8")
     doc = Document.from_knp(knp)
     assert doc.to_knp() == knp
 
 
 @pytest.mark.parametrize("doc_id", ["w201106-0000060050", "wiki00100176"])
 def test_id(doc_id: str) -> None:
-    doc = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text())
+    doc = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text(encoding="utf-8"))
     assert doc.doc_id == doc_id
     assert doc.did == doc_id
 
 
 def test_update_id() -> None:
     doc_id = "w201106-0000060050"
-    doc = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text())
+    doc = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text(encoding="utf-8"))
     doc.doc_id = "test_doc_id"
     assert doc.doc_id == "test_doc_id"
     assert doc.did == "test_doc_id"
@@ -910,7 +910,7 @@ def test_eq_doc_id() -> None:
 
 def test_eq_knp() -> None:
     doc_id = "w201106-0000060050"
-    knp = Path(f"tests/data/{doc_id}.knp").read_text()
+    knp = Path(f"tests/data/{doc_id}.knp").read_text(encoding="utf-8")
     doc1 = Document.from_knp(knp)
     doc2 = Document.from_knp(knp)
     assert doc1 == doc2
@@ -933,6 +933,6 @@ def test_pickle_unpickle(case: dict[str, str]) -> None:
 
 @pytest.mark.parametrize("path", Path("tests/data").glob("*.knp"))
 def test_pickle_unpickle_annotated_corpora(path: Path) -> None:
-    doc1 = Document.from_knp(path.read_text())
+    doc1 = Document.from_knp(path.read_text(encoding="utf-8"))
     doc2 = pickle.loads(pickle.dumps(doc1))  # nosec pickle
     assert doc1.to_knp() == doc2.to_knp()

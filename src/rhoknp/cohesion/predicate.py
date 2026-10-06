@@ -82,9 +82,9 @@ class Predicate:
         return f"<{self.__module__}.{self.__class__.__name__}: {self.text!r}>"
 
     def __hash__(self) -> int:
-        return hash((self.base_phrase, self.cfid))
+        return hash(self.base_phrase)
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, type(self)):
             return False
-        return self.base_phrase == other.base_phrase and self.cfid == other.cfid
+        return self.base_phrase == other.base_phrase

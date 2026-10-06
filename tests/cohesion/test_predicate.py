@@ -40,5 +40,14 @@ def test_predicate() -> None:
     assert predicate == another_predicate
     assert hash(predicate) == hash(another_predicate)
     another_predicate = Predicate(base_phrase, cfid="行く/いく:動3")
-    assert predicate != another_predicate
-    assert hash(predicate) != hash(another_predicate)
+    assert predicate == another_predicate
+    assert hash(predicate) == hash(another_predicate)
+
+
+def test_predicate_set_membership_after_cfid_change() -> None:
+    predicate = Predicate(BasePhrase(parent_index=None, dep_type=None), cfid="行く/いく:動12")
+    predicates = {predicate}
+
+    predicate.cfid = "行く/いく:動3"
+
+    assert predicate in predicates

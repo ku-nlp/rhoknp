@@ -8,11 +8,20 @@ jobs:
     container: kunlp/jumanpp-knp:ubuntu24.04
     runs-on: ubuntu-24.04
     strategy:
-      max-parallel: 8
       fail-fast: false
       matrix:
         python-version:
-          ["3.10", "3.11", "3.12", "3.13", "3.13t", "3.14", "3.14t", "3.15"]
+          [
+            "3.10",
+            "3.11",
+            "3.12",
+            "3.13",
+            "3.13t",
+            "3.14",
+            "3.14t",
+            "3.15",
+            "3.15t",
+          ]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -29,7 +38,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
           enable-cache: false
       - name: Install dependencies
-        run: uv sync --extra cli --no-cache --python ${{ matrix.python-version }}
+        run: uv sync --extra cli --no-cache
       - name: Install KWJA
         run: |
           uv tool install kwja --python 3.12 --no-cache --with "torch==2.6.0+cpu" --extra-index-url https://download.pytorch.org/whl/cpu

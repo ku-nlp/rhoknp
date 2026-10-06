@@ -114,7 +114,7 @@ def test_coref_sentence() -> None:
 
 def test_coref1() -> None:
     doc_id = "w201106-0000060050"
-    _ = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text())
+    _ = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text(encoding="utf-8"))
 
     entities: list[Entity] = sorted(EntityManager.entities.values(), key=lambda e: e.eid)
     assert len(entities) == 19
@@ -249,7 +249,7 @@ def test_coref1() -> None:
 
 def test_coref2() -> None:
     doc_id = "w201106-0000060560"
-    _ = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text())
+    _ = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text(encoding="utf-8"))
     entities: list[Entity] = sorted(EntityManager.entities.values(), key=lambda e: e.eid)
     assert len(entities) == 15
 
@@ -273,7 +273,7 @@ def test_coref2() -> None:
 
 @pytest.mark.parametrize("doc_id", ["w201106-0000060050", "w201106-0000060560", "w201106-0000060877"])
 def test_coref_link(doc_id: str) -> None:
-    document = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text())
+    document = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text(encoding="utf-8"))
     entities: list[Entity] = sorted(EntityManager.entities.values(), key=lambda e: e.eid)
 
     for entity in entities:
@@ -290,7 +290,7 @@ def test_coref_link(doc_id: str) -> None:
 
 def test_coreferents() -> None:
     doc_id = "w201106-0000060560"
-    document = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text())
+    document = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text(encoding="utf-8"))
     mention = document.base_phrases[11]  # ドクター
     coreferents = sorted(mention.get_coreferents(include_nonidentical=False), key=lambda m: m.global_index)
     assert len(coreferents) == 2
@@ -300,7 +300,7 @@ def test_coreferents() -> None:
 
 def test_coreferents_nonidentical() -> None:
     doc_id = "w201106-0000060560"
-    document = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text())
+    document = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text(encoding="utf-8"))
     mention = document.base_phrases[11]  # ドクター
     coreferents = sorted(mention.get_coreferents(include_nonidentical=True), key=lambda m: m.global_index)
     assert len(coreferents) == 3
@@ -567,3 +567,27 @@ def test_update_argument_eid() -> None:
     assert len(exophora_arguments) == 1
     assert exophora_arguments[0].eid == 2
     assert len(EntityManager.entities) == 2
+
+
+def test_delete_entity() -> None:
+    """エンティティを消すと，そのエンティティを参照していた側からも消える．
+
+    `mentions` と `mentions_nonidentical` は `add_mention` が重ならないようにするので，
+    片方ずつたどれば全てのメンションを一度だけ見ることになる．
+    """
+    document = Document.from_knp(Path("tests/data/w201106-0000060050.knp").read_text())
+    identical, nonidentical = document.base_phrases[0], document.base_phrases[1]
+    entity = EntityManager.get_or_create_entity()
+    entity.add_mention(identical)
+    entity.add_mention(nonidentical, is_nonidentical=True)
+    assert entity in identical.entities
+    assert entity in nonidentical.entities_nonidentical
+    assert entity.eid in EntityManager.entities
+
+    EntityManager.delete_entity(entity)
+
+    assert entity not in identical.entities
+    assert entity not in nonidentical.entities_nonidentical
+    assert entity.mentions == []
+    assert entity.mentions_nonidentical == []
+    assert entity.eid not in EntityManager.entities
