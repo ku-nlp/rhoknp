@@ -1,12 +1,11 @@
 import logging
-import select
 import subprocess
-import threading
 import time
 from subprocess import PIPE, Popen
 from threading import Lock
 
 from rhoknp._compat import override
+from rhoknp.processors._subprocess import run_request
 from rhoknp.processors.jumanpp import Jumanpp
 from rhoknp.processors.processor import Processor
 from rhoknp.processors.senter import RegexSenter
@@ -49,7 +48,7 @@ class KNP(Processor):
         self.senter = senter
         self.jumanpp = jumanpp
         self._lock = Lock()
-        self._proc: Popen | None = None
+        self._proc: Popen[bytes] | None = None
         if "-tab" not in self.options:
             raise ValueError("`-tab` option is required when you use KNP.")
         self.start_process(skip_sanity_check)
@@ -82,7 +81,7 @@ class KNP(Processor):
         if self._proc is not None:
             self._proc.terminate()
         try:
-            self._proc = Popen(self.run_command, stdin=PIPE, stdout=PIPE, stderr=PIPE, encoding="utf-8")
+            self._proc = Popen(self.run_command, stdin=PIPE, stdout=PIPE, stderr=PIPE, bufsize=0)
             if skip_sanity_check is False:
                 _ = self.apply(Sentence.from_jumanpp("EOS"))
         except Exception as e:
@@ -158,52 +157,17 @@ class KNP(Processor):
                     self.jumanpp = Jumanpp()
             sentence = self.jumanpp.apply_to_sentence(sentence, timeout=timeout - int(time.time() - start))
 
-        stdout_text: str = ""
-
-        def worker() -> None:
-            nonlocal stdout_text
-            assert self._proc is not None
-            assert self._proc.stdin is not None
-            assert self._proc.stdout is not None
-            assert self._proc.stderr is not None
-
-            if sentence.is_knp_required():
-                self._proc.stdin.write(sentence.to_jumanpp())
-            else:
-                self._proc.stdin.write(sentence.to_knp())
-            self._proc.stdin.flush()
-
-            stdout_text = ""
-            while self.is_available():
-                line = self._proc.stdout.readline()
-                stdout_text += line
-                if line.strip() == Sentence.EOS:
-                    break
-
-                # Non-blocking read from stderr
-                stderr_text = ""
-                while self._proc.stderr in select.select([self._proc.stderr], [], [], 0)[0]:
-                    line = self._proc.stderr.readline()
-                    if line.strip() == "":
-                        break
-                    stderr_text += line
-                if stderr_text.strip() != "":
-                    logger.debug(stderr_text.strip())
-
+        input_text = sentence.to_jumanpp() if sentence.is_knp_required() else sentence.to_knp()
         with self._lock:
-            thread = threading.Thread(target=worker, daemon=True)
-            thread.start()
-            thread.join(timeout)
-
-            if thread.is_alive():
+            process = self._proc
+            assert process is not None
+            try:
+                stdout_text = run_request(process, input_text, Sentence.EOS, timeout, logger.debug, "KNP")
+            except Exception:
                 self.start_process(skip_sanity_check=True)
-                raise TimeoutError(f"Operation timed out after {timeout} seconds.")
+                raise
 
-            if not self.is_available():
-                self.start_process(skip_sanity_check=True)
-                raise RuntimeError("KNP exited unexpectedly.")
-
-        ret = Sentence.from_knp(stdout_text)
+        ret = Sentence.from_knp(stdout_text + Sentence.EOS + "\n")
         if sentence.text and not ret.text:
             raise RuntimeError(f"KNP returned empty result for input: '{sentence.text}'")
 
