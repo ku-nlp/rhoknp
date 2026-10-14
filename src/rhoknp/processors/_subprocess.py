@@ -1,85 +1,117 @@
-import select
+import io
+import sys
 import threading
+import time
 from collections.abc import Callable
+from queue import Empty, Queue
 from subprocess import Popen
 
 
-def run_request(
-    process: Popen[bytes],
-    input_text: str,
-    end_marker: str,
-    timeout: int,
-    log_stderr: Callable[[str], None],
-    name: str,
-) -> str:
-    """Send one request and read both output streams until its end marker."""
-    stdout_text = ""
-    worker_error: Exception | None = None
+class SubprocessIO:
+    """Read a persistent process's pipes independently of request boundaries.
 
-    def worker() -> None:
-        nonlocal stdout_text, worker_error
+    Calls to request and close must be serialized by the owning processor.
+    """
+
+    def __init__(self, process: Popen[bytes], end_marker: str, log_stderr: Callable[[str], None], name: str) -> None:
+        self._process = process
+        self._end_marker = end_marker
+        self._log_stderr = log_stderr
+        self._name = name
+        self._output: Queue[str | Exception] = Queue()
+        self._closed = threading.Event()
+        self._stderr_stopped = threading.Event()
+        self._writer: threading.Thread | None = None
+        self._stdout_reader = threading.Thread(target=self._read_stdout, daemon=True)
+        self._stderr_reader = threading.Thread(target=self._read_stderr, daemon=True)
+        self._stdout_reader.start()
+        self._stderr_reader.start()
+
+    def _read_stdout(self) -> None:
+        assert self._process.stdout is not None
+        lines: list[str] = []
         try:
-            assert process.stdin is not None
-            input_bytes = memoryview(input_text.encode("utf-8"))
-            while input_bytes:
-                written = process.stdin.write(input_bytes)
-                input_bytes = input_bytes[written:]
-            stdout_text = _read_output(process, end_marker, log_stderr, name)
+            with io.TextIOWrapper(self._process.stdout, encoding="utf-8") as stream:
+                for line in stream:
+                    if self._closed.is_set():
+                        break
+                    if line.strip() == self._end_marker:
+                        self._output.put("".join(lines))
+                        lines.clear()
+                    else:
+                        lines.append(line)
         except Exception as error:
-            worker_error = error
+            self._output.put(error)
+        finally:
+            self._output.put(RuntimeError(f"{self._name} exited unexpectedly before {self._end_marker}."))
 
-    thread = threading.Thread(target=worker, daemon=True)
-    thread.start()
-    thread.join(timeout)
-    if thread.is_alive():
-        process.kill()
-        process.wait()
-        thread.join()
-        raise TimeoutError(f"Operation timed out after {timeout} seconds.")
-    if worker_error is not None:
-        raise worker_error
-    if process.poll() is not None:
-        raise RuntimeError(f"{name} exited unexpectedly.")
-    return stdout_text
-
-
-def _read_output(process: Popen[bytes], end_marker: str, log_stderr: Callable[[str], None], name: str) -> str:
-    assert process.stdout is not None
-    assert process.stderr is not None
-    streams = [process.stdout, process.stderr]
-    buffers = dict.fromkeys(streams, b"")
-    stdout_lines: list[str] = []
-    finished = False
-    received_end_marker = False
-
-    while streams:
-        ready, _, _ = select.select(streams, [], [], 0 if finished else None)
-        if not ready:
-            break
-        for stream in ready:
-            chunk = stream.read(65536)
-            if not chunk:
-                streams.remove(stream)
-                if stream is process.stdout:
-                    finished = True
-                continue
-            lines = (buffers[stream] + chunk).split(b"\n")
-            buffers[stream] = lines.pop()
-            for raw_line in lines:
-                line = raw_line.decode("utf-8")
-                if stream is process.stderr:
+    def _read_stderr(self) -> None:
+        assert self._process.stderr is not None
+        try:
+            with io.TextIOWrapper(self._process.stderr, encoding="utf-8") as stream:
+                for line in stream:
+                    if self._stderr_stopped.is_set():
+                        break
                     if line.strip():
-                        log_stderr(line)
-                elif line.strip() == end_marker:
-                    received_end_marker = True
-                    finished = True
-                    streams.remove(stream)
-                    break
-                else:
-                    stdout_lines.append(line + "\n")
+                        self._log_stderr(line.rstrip("\n"))
+        except Exception as error:
+            self._output.put(error)
 
-    if buffers[process.stderr].strip():
-        log_stderr(buffers[process.stderr].decode("utf-8"))
-    if not received_end_marker:
-        raise RuntimeError(f"{name} exited unexpectedly before {end_marker}.")
-    return "".join(stdout_lines)
+    def request(self, input_text: str, timeout: int) -> str:
+        """Write a request and return stdout preceding its end marker."""
+        deadline = time.monotonic() + timeout
+        writer_error: Exception | None = None
+
+        def write_input() -> None:
+            nonlocal writer_error
+            assert self._process.stdin is not None
+            try:
+                remaining = memoryview(input_text.encode("utf-8"))
+                while remaining:
+                    written = self._process.stdin.write(remaining)
+                    remaining = remaining[written:]
+            except Exception as error:
+                writer_error = error
+                self._output.put(error)
+            finally:
+                if self._closed.is_set():
+                    self._process.stdin.close()
+
+        self._writer = threading.Thread(target=write_input, daemon=True)
+        self._writer.start()
+        try:
+            output = self._output.get(timeout=max(0, deadline - time.monotonic()))
+        except Empty:
+            raise TimeoutError(f"Operation timed out after {timeout} seconds.") from None
+        if isinstance(output, Exception):
+            raise output
+
+        self._writer.join(max(0, deadline - time.monotonic()))
+        if self._writer.is_alive():
+            raise TimeoutError(f"Operation timed out after {timeout} seconds.")
+        if writer_error is not None:
+            raise writer_error
+        if self._process.poll() is not None:
+            raise RuntimeError(f"{self._name} exited unexpectedly.")
+        return output
+
+    def close(self) -> None:
+        """Kill the process and allow at most one second for pipe threads to finish."""
+        if self._closed.is_set():
+            return
+        self._closed.set()
+        deadline = time.monotonic() + 1
+        self._process.kill()
+        if sys.is_finalizing():
+            self._stderr_stopped.set()
+            return
+        self._process.wait(timeout=max(0, deadline - time.monotonic()))
+        for thread in (self._writer, self._stdout_reader, self._stderr_reader):
+            if thread is not None:
+                thread.join(max(0, deadline - time.monotonic()))
+        self._stderr_stopped.set()
+        # A descendant can keep a pipe open after the direct child exits.
+        # Each reader closes its own stream to avoid blocking here on its I/O lock.
+        if self._writer is None or not self._writer.is_alive():
+            assert self._process.stdin is not None
+            self._process.stdin.close()

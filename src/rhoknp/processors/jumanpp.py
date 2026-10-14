@@ -5,7 +5,7 @@ from subprocess import PIPE, Popen
 from threading import Lock
 
 from rhoknp._compat import override
-from rhoknp.processors._subprocess import run_request
+from rhoknp.processors._subprocess import SubprocessIO
 from rhoknp.processors.processor import Processor
 from rhoknp.processors.senter import RegexSenter
 from rhoknp.units import Document, Sentence
@@ -44,6 +44,7 @@ class Jumanpp(Processor):
         self.senter = senter
         self._lock = Lock()
         self._proc: Popen[bytes] | None = None
+        self._io: SubprocessIO | None = None
         self.start_process(skip_sanity_check)
 
     def __repr__(self) -> str:
@@ -56,8 +57,8 @@ class Jumanpp(Processor):
 
     def __del__(self) -> None:
         try:
-            if self._proc is not None:
-                self._proc.terminate()
+            if self._io is not None:
+                self._io.close()
         except AttributeError:  # pragma: no cover
             # for free-threaded Python interpreters
             pass  # pragma: no cover
@@ -69,10 +70,11 @@ class Jumanpp(Processor):
             Juman++ が既に起動している場合は再起動する．
             skip_sanity_check: True なら，Juman++ の起動時に sanity check をスキップする．
         """
-        if self._proc is not None:
-            self._proc.terminate()
+        if self._io is not None:
+            self._io.close()
         try:
             self._proc = Popen(self.run_command, stdin=PIPE, stdout=PIPE, stderr=PIPE, bufsize=0)
+            self._io = SubprocessIO(self._proc, Sentence.EOS, logger.debug, "Juman++")
             if skip_sanity_check is False:
                 _ = self.apply(Sentence.from_raw_text(""))
         except Exception as e:
@@ -135,10 +137,9 @@ class Jumanpp(Processor):
 
         input_text = sentence.to_raw_text()
         with self._lock:
-            process = self._proc
-            assert process is not None
+            assert self._io is not None
             try:
-                stdout_text = run_request(process, input_text, Sentence.EOS, timeout, logger.debug, "Juman++")
+                stdout_text = self._io.request(input_text, timeout)
             except Exception:
                 self.start_process(skip_sanity_check=True)
                 raise

@@ -4,7 +4,7 @@ from subprocess import PIPE, Popen
 from threading import Lock
 
 from rhoknp._compat import override
-from rhoknp.processors._subprocess import run_request
+from rhoknp.processors._subprocess import SubprocessIO
 from rhoknp.processors.processor import Processor
 from rhoknp.units import Document, Morpheme, Sentence
 from rhoknp.utils.comment import is_comment_line
@@ -38,6 +38,7 @@ class KWJA(Processor):
         self.executable = executable  #: KWJA のパス．
         self.options: list[str] = options or []  #: KWJA のオプション．
         self._proc: Popen[bytes] | None = None
+        self._io: SubprocessIO | None = None
         self._lock = Lock()
         self._output_format: str = "knp"
         self._input_format: str = "raw"
@@ -69,8 +70,8 @@ class KWJA(Processor):
 
     def __del__(self) -> None:
         try:
-            if self._proc is not None:
-                self._proc.terminate()
+            if self._io is not None:
+                self._io.close()
         except AttributeError:  # pragma: no cover
             # for free-threaded Python interpreters
             pass  # pragma: no cover
@@ -82,10 +83,11 @@ class KWJA(Processor):
             KWJA がすでに起動している場合は再起動する．
             skip_sanity_check: True なら，KWJA の起動時に sanity check をスキップする．
         """
-        if self._proc is not None:
-            self._proc.terminate()
+        if self._io is not None:
+            self._io.close()
         try:
             self._proc = Popen(self.run_command, stdin=PIPE, stdout=PIPE, stderr=PIPE, bufsize=0)
+            self._io = SubprocessIO(self._proc, Document.EOD, logger.warning, "KWJA")
             if skip_sanity_check is False:
                 if self._input_format == "raw":
                     empty_document = Document.from_raw_text("")
@@ -119,10 +121,9 @@ class KWJA(Processor):
 
         input_text = self._gen_input_text(document)
         with self._lock:
-            process = self._proc
-            assert process is not None
+            assert self._io is not None
             try:
-                stdout_text = run_request(process, input_text, Document.EOD, timeout, logger.warning, "KWJA")
+                stdout_text = self._io.request(input_text, timeout)
             except Exception:
                 self.start_process(skip_sanity_check=True)
                 raise
