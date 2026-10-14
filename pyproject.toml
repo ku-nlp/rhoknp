@@ -14,7 +14,6 @@ maintainers = [
 readme = "README.md"
 keywords = ["NLP", "Japanese", "Juman++", "KNP", "KWJA"]
 classifiers = [
-    "License :: OSI Approved :: MIT License",
     "Natural Language :: Japanese",
     "Operating System :: MacOS",
     "Operating System :: MacOS :: MacOS X",
