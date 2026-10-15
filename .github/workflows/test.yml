@@ -23,7 +23,7 @@ jobs:
       - run: uv run pytest -v tests/processors/test_subprocess.py
 
   test:
-    name: Run tests with pytest
+    name: Run tests with pytest (Python ${{ matrix.python-version }}, ${{ matrix.resolution }})
     container: kunlp/jumanpp-knp:ubuntu24.04
     runs-on: ubuntu-24.04
     strategy:
@@ -42,6 +42,7 @@ jobs:
             "3.16",
             "3.16t",
           ]
+        resolution: [highest, lowest-direct]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -58,19 +59,19 @@ jobs:
           python-version: ${{ matrix.python-version }}
           enable-cache: false
       - name: Install dependencies
-        run: uv sync --extra cli --no-cache
+        run: uv sync --extra cli --resolution ${{ matrix.resolution }} --no-cache
       - name: Install KWJA
         run: |
           uv tool install kwja --python 3.12 --no-cache --with "torch==2.6.0+cpu" --extra-index-url https://download.pytorch.org/whl/cpu
           kwja --model-size tiny --tasks char,seq2seq,word --text "テスト"
       - name: Run tests with coverage
-        if: ${{ matrix.python-version == '3.10' }}
-        run: uv run pytest --cov=./ --cov-report=xml -v ./tests
+        if: ${{ matrix.python-version == '3.10' && matrix.resolution == 'highest' }}
+        run: uv run --no-sync pytest --cov=./ --cov-report=xml -v ./tests
       - name: Run tests without coverage
-        if: ${{ matrix.python-version != '3.10' }}
-        run: uv run pytest -v ./tests
+        if: ${{ matrix.python-version != '3.10' || matrix.resolution != 'highest' }}
+        run: uv run --no-sync pytest -v ./tests
       - name: Upload coverage to Codecov
-        if: ${{ matrix.python-version == '3.10' }}
+        if: ${{ matrix.python-version == '3.10' && matrix.resolution == 'highest' }}
         uses: codecov/codecov-action@v7
         with:
           files: ./coverage.xml
