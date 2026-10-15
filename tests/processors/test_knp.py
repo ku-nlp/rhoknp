@@ -27,7 +27,7 @@ def test_call() -> None:
     assert isinstance(knp(knp(document)), Document)
 
     with pytest.raises(TypeError):
-        knp(1)  # type: ignore
+        knp(1)  # ty: ignore[no-matching-overload]
 
 
 @pytest.mark.skipif(not is_knp_available, reason="KNP is not available")
@@ -50,7 +50,7 @@ def test_apply() -> None:
     assert isinstance(knp.apply(knp.apply(document)), Document)
 
     with pytest.raises(TypeError):
-        knp.apply(1)  # type: ignore
+        knp.apply(1)  # ty: ignore[no-matching-overload]
 
 
 @pytest.mark.skipif(not is_knp_available, reason="KNP is not available")

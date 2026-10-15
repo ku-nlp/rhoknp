@@ -128,7 +128,7 @@ def test_apply() -> None:
     with pytest.raises(NotImplementedError):
         _ = kwja.apply(Sentence.from_raw_text(text))
     with pytest.raises(TypeError):
-        _ = kwja.apply(1)  # type: ignore
+        _ = kwja.apply(1)  # ty: ignore[no-matching-overload]
 
 
 @pytest.mark.skipif(not is_kwja_available, reason="KWJA is not available")

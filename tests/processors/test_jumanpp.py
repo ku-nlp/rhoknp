@@ -15,7 +15,7 @@ def test_call() -> None:
     assert isinstance(jumanpp(Document.from_raw_text(text)), Document)
     assert isinstance(jumanpp(Sentence.from_raw_text(text)), Sentence)
     with pytest.raises(TypeError):
-        jumanpp(1)  # type: ignore
+        jumanpp(1)  # ty: ignore[no-matching-overload]
 
 
 @pytest.mark.skipif(not is_jumanpp_available, reason="Juman++ is not available")
@@ -26,7 +26,7 @@ def test_apply() -> None:
     assert isinstance(jumanpp.apply(Document.from_raw_text(text)), Document)
     assert isinstance(jumanpp.apply(Sentence.from_raw_text(text)), Sentence)
     with pytest.raises(TypeError):
-        jumanpp.apply(1)  # type: ignore
+        jumanpp.apply(1)  # ty: ignore[no-matching-overload]
 
 
 @pytest.mark.skipif(not is_jumanpp_available, reason="Juman++ is not available")
