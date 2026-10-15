@@ -154,10 +154,7 @@ class Clause(Unit):
     @cached_property
     def head(self) -> BasePhrase:
         """節主辞の基本句．"""
-        heads: list[BasePhrase] = []
-        for base_phrase in self.base_phrases:
-            if "節-主辞" in base_phrase.features:
-                heads.append(base_phrase)
+        heads = [base_phrase for base_phrase in self.base_phrases if "節-主辞" in base_phrase.features]
         if len(heads) == 1:
             return heads[0]
         if len(heads) > 1:

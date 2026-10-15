@@ -137,17 +137,16 @@ class RelTagList(list[RelTag]):
     @classmethod
     def from_fstring(cls, fstring: str) -> "RelTagList":
         """KNP における素性文字列からオブジェクトを作成．"""
-        rel_tags = []
-        for match in RelTag.PAT.finditer(fstring):
-            rel_tags.append(
-                RelTag(
-                    type=match["type"],
-                    target=match["target"],
-                    sid=match["sid"],
-                    base_phrase_index=int(match["id"]) if match["id"] else None,
-                    mode=RelMode(match["mode"]) if match["mode"] else None,
-                )
+        rel_tags = [
+            RelTag(
+                type=match["type"],
+                target=match["target"],
+                sid=match["sid"],
+                base_phrase_index=int(match["id"]) if match["id"] else None,
+                mode=RelMode(match["mode"]) if match["mode"] else None,
             )
+            for match in RelTag.PAT.finditer(fstring)
+        ]
         return cls(rel_tags)
 
     def to_fstring(self) -> str:

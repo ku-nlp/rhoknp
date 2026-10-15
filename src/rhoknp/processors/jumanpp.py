@@ -111,9 +111,10 @@ class Jumanpp(Processor):
                 self.senter = RegexSenter()
             document = self.senter.apply_to_document(document, timeout=timeout - int(time.time() - start))
 
-        sentences: list[Sentence] = []
-        for sentence in document.sentences:
-            sentences.append(self.apply_to_sentence(sentence, timeout=timeout - int(time.time() - start)))
+        sentences = [
+            self.apply_to_sentence(sentence, timeout=timeout - int(time.time() - start))
+            for sentence in document.sentences
+        ]
         ret = Document.from_sentences(sentences)
         if doc_id != "":
             ret.doc_id = doc_id
