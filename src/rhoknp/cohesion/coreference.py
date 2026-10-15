@@ -75,10 +75,9 @@ class Entity:
             return str(self.exophora_referent)
         if self.mentions:
             return next(iter(self.mentions)).text
-        elif self.mentions_nonidentical:
+        if self.mentions_nonidentical:
             return next(iter(self.mentions_nonidentical)).text
-        else:
-            return ""
+        return ""
 
     def __repr__(self) -> str:
         items = [repr(self.eid)]
@@ -120,7 +119,7 @@ class EntityManager:
                 return entities[0]
         if eid in cls.entities:
             return cls.entities[eid]
-        elif eid is None:
+        if eid is None:
             eid = max(cls.entities.keys()) + 1 if cls.entities else 0
         entity = Entity(eid, exophora_referent=exophora_referent)
         cls.entities[eid] = entity

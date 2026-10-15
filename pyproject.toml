@@ -104,7 +104,7 @@ indent-width = 4
 src = ["src"]
 
 [tool.ruff.lint]
-select = ["F", "E", "W", "I", "B", "PL", "PD", "NPY", "RUF", "UP", "TID", "COM", "PT", "D", "ARG", "PYI", "ANN", "G", "FBT", "EM", "TRY", "PTH", "T", "INP", "C"]
+select = ["F", "E", "W", "I", "B", "PL", "PD", "NPY", "RUF", "UP", "TID", "COM", "PT", "D", "ARG", "PYI", "ANN", "G", "FBT", "EM", "TRY", "PTH", "T", "INP", "C", "RET"]
 #select = ["ALL"]
 ignore = [
     "E501",  # Line too long

@@ -160,12 +160,11 @@ class Clause(Unit):
                 heads.append(base_phrase)
         if len(heads) == 1:
             return heads[0]
-        elif len(heads) > 1:
+        if len(heads) > 1:
             logger.warning("found multiple heads in a clause; use the last base phrase as the head")
             return heads[-1]
-        else:
-            logger.warning("found no head in a clause; use the last base phrase as the head")
-            return self.base_phrases[-1]
+        logger.warning("found no head in a clause; use the last base phrase as the head")
+        return self.base_phrases[-1]
 
     @property
     def end(self) -> BasePhrase:

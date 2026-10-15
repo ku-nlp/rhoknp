@@ -112,10 +112,9 @@ def draw_tree(
 def _extend_horizontal(token: str) -> str:
     if token in ("╂", "┼", "┤", "┨", "┐", "─", "I", "A"):
         return "─"
-    elif token in ("╋", "┿", "━", "P"):
+    if token in ("╋", "┿", "━", "P"):
         return "━"
-    else:
-        return " "
+    return " "
 
 
 def _leaf_string(leaf: Phrase | BasePhrase, show_pos: bool) -> str:
