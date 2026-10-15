@@ -10,6 +10,10 @@ import pytest
 
 from rhoknp import KNP, KWJA, Jumanpp, Sentence
 
+# Windows venv launchers can retain pipe handles after the mock closes them.
+# The mock only needs the standard library, so launch the base interpreter directly.
+MOCK_PYTHON = sys._base_executable  # ty: ignore[unresolved-attribute]
+
 
 @pytest.fixture(params=["knp", "jumanpp", "kwja"])
 def analyzer(
@@ -24,11 +28,11 @@ def analyzer(
     ]
     processor: KNP | Jumanpp | KWJA
     if request.param == "knp":
-        processor = KNP(executable=sys.executable, options=[*options, "-tab"])
+        processor = KNP(executable=MOCK_PYTHON, options=[*options, "-tab"])
     elif request.param == "jumanpp":
-        processor = Jumanpp(executable=sys.executable, options=options)
+        processor = Jumanpp(executable=MOCK_PYTHON, options=options)
     else:
-        processor = KWJA(executable=sys.executable, options=[*options, "--tasks", "seq2seq"])
+        processor = KWJA(executable=MOCK_PYTHON, options=[*options, "--tasks", "seq2seq"])
     caplog.set_level(logging.DEBUG, logger=type(processor).__module__)
     try:
         yield processor
@@ -199,7 +203,7 @@ def test_output_line_endings(analyzer: KNP | Jumanpp | KWJA, case: str) -> None:
 
 def test_raw_crlf(tmp_path: Path) -> None:
     processor = KWJA(
-        executable=sys.executable,
+        executable=MOCK_PYTHON,
         options=[
             str(Path(__file__).parents[1] / "bin" / "processor-stderr-mock.py"),
             "--test-protocol",
@@ -235,7 +239,7 @@ def test_restart_closes_pipes(analyzer: KNP | Jumanpp | KWJA) -> None:
 def test_interpreter_shutdown(tmp_path: Path) -> None:
     code = (
         "import sys; from rhoknp import KWJA; "
-        "processor = KWJA(executable=sys.executable, options=sys.argv[1:]); "
+        "processor = KWJA(executable=sys._base_executable, options=sys.argv[1:]); "
         "assert processor.apply_to_document('silent').text == '猫'"
     )
     result = subprocess.run(
