@@ -575,7 +575,7 @@ def test_delete_entity() -> None:
     `mentions` と `mentions_nonidentical` は `add_mention` が重ならないようにするので，
     片方ずつたどれば全てのメンションを一度だけ見ることになる．
     """
-    document = Document.from_knp(Path("tests/data/w201106-0000060050.knp").read_text())
+    document = Document.from_knp(Path("tests/data/w201106-0000060050.knp").read_text(encoding="utf-8"))
     identical, nonidentical = document.base_phrases[0], document.base_phrases[1]
     entity = EntityManager.get_or_create_entity()
     entity.add_mention(identical)
