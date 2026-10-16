@@ -51,8 +51,8 @@ jobs:
 
   test-with-analyzer:
     name: Test with analyzer (Python ${{ matrix.python-version }}, ${{ matrix.resolution }})
-    container: kunlp/jumanpp-knp:ubuntu24.04
-    runs-on: ubuntu-24.04
+    container: kunlp/jumanpp-knp:ubuntu26.04
+    runs-on: ubuntu-26.04
     strategy:
       fail-fast: false
       matrix:
