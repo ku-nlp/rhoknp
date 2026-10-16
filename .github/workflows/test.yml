@@ -32,6 +32,7 @@ jobs:
       - uses: astral-sh/setup-uv@v7
         with:
           python-version: ${{ matrix.python-version }}
+          cache-suffix: ${{ matrix.resolution }}
       - name: Resolve and install dependencies
         run: uv sync --no-default-groups --group test --extra cli --resolution ${{ matrix.resolution }} --upgrade
       - name: Run tests with coverage
