@@ -28,6 +28,8 @@ def subprocess_io(process: Mock) -> Iterator[SubprocessIO]:
     io = SubprocessIO(process, "EOS", Mock(), "mock")
     io._stdout_reader.join(5)
     io._stderr_reader.join(5)
+    assert not io._stdout_reader.is_alive()
+    assert not io._stderr_reader.is_alive()
     try:
         yield io
     finally:
