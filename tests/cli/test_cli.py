@@ -1,5 +1,5 @@
-import tempfile
 import textwrap
+from pathlib import Path
 
 import pytest
 from typer.testing import CliRunner
@@ -42,13 +42,12 @@ def test_version() -> None:
     assert result.stdout.strip() == f"rhoknp version: {__version__}"
 
 
-def test_cat() -> None:
+def test_cat(tmp_path: Path) -> None:
     doc = Document.from_knp(knp_text)
-    with tempfile.NamedTemporaryFile("wt", encoding="utf-8") as f:
-        f.write(doc.to_knp())
-        f.flush()
-        result = runner.invoke(app, ["cat", f.name])
-        assert result.exit_code == 0
+    path = tmp_path / "input.knp"
+    path.write_text(doc.to_knp(), encoding="utf-8")
+    result = runner.invoke(app, ["cat", str(path)])
+    assert result.exit_code == 0
 
 
 @pytest.fixture
@@ -62,14 +61,13 @@ def test_cat_stdin() -> None:
     assert result.exit_code == 0
 
 
-def test_convert() -> None:
+def test_convert(tmp_path: Path) -> None:
     doc = Document.from_knp(knp_text)
-    with tempfile.NamedTemporaryFile("wt", encoding="utf-8") as f:
-        f.write(doc.to_knp())
-        f.flush()
-        for format_ in ("text", "jumanpp", "knp"):
-            result = runner.invoke(app, ["convert", f.name, "--format", format_])
-            assert result.exit_code == 0
+    path = tmp_path / "input.knp"
+    path.write_text(doc.to_knp(), encoding="utf-8")
+    for format_ in ("text", "jumanpp", "knp"):
+        result = runner.invoke(app, ["convert", str(path), "--format", format_])
+        assert result.exit_code == 0
 
 
 @pytest.mark.usefixtures("_mock_stdin")
@@ -79,22 +77,20 @@ def test_convert_stdin() -> None:
         assert result.exit_code == 0
 
 
-def test_convert_value_error() -> None:
+def test_convert_value_error(tmp_path: Path) -> None:
     doc = Document.from_knp(knp_text)
-    with tempfile.NamedTemporaryFile("wt", encoding="utf-8") as f:
-        f.write(doc.to_knp())
-        f.flush()
-        result = runner.invoke(app, ["convert", f.name, "--format", "foo"])  # Unknown format
-        assert result.exit_code == 1
+    path = tmp_path / "input.knp"
+    path.write_text(doc.to_knp(), encoding="utf-8")
+    result = runner.invoke(app, ["convert", str(path), "--format", "foo"])  # Unknown format
+    assert result.exit_code == 1
 
 
-def test_show() -> None:
+def test_show(tmp_path: Path) -> None:
     doc = Document.from_knp(knp_text)
-    with tempfile.NamedTemporaryFile("wt", encoding="utf-8") as f:
-        f.write(doc.to_knp())
-        f.flush()
-        result = runner.invoke(app, ["show", f.name])
-        assert result.exit_code == 0
+    path = tmp_path / "input.knp"
+    path.write_text(doc.to_knp(), encoding="utf-8")
+    result = runner.invoke(app, ["show", str(path)])
+    assert result.exit_code == 0
 
 
 def test_show_error() -> None:
@@ -102,21 +98,20 @@ def test_show_error() -> None:
     assert result.exit_code == 2
 
 
-def test_stats() -> None:
+def test_stats(tmp_path: Path) -> None:
     doc = Document.from_knp(knp_text)
-    with tempfile.NamedTemporaryFile("wt", encoding="utf-8") as f:
-        f.write(doc.to_knp())
-        f.flush()
-        result = runner.invoke(app, ["stats", f.name])
-        assert result.exit_code == 0
+    path = tmp_path / "input.knp"
+    path.write_text(doc.to_knp(), encoding="utf-8")
+    result = runner.invoke(app, ["stats", str(path)])
+    assert result.exit_code == 0
 
 
-def test_stats_json() -> None:
+def test_stats_json(tmp_path: Path) -> None:
     doc = Document.from_knp(knp_text)
-    with tempfile.NamedTemporaryFile("wt", encoding="utf-8") as f:
-        f.write(doc.to_knp())
-        result = runner.invoke(app, ["stats", f.name, "--json"])
-        assert result.exit_code == 0
+    path = tmp_path / "input.knp"
+    path.write_text(doc.to_knp(), encoding="utf-8")
+    result = runner.invoke(app, ["stats", str(path), "--json"])
+    assert result.exit_code == 0
 
 
 def test_stats_error() -> None:

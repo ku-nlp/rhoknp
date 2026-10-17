@@ -1,8 +1,11 @@
 import concurrent.futures
+import sys
 
 import pytest
 
 from rhoknp import KNP, Document, Jumanpp, RegexSenter, Sentence
+
+MOCK_PYTHON = sys._base_executable  # ty: ignore[unresolved-attribute]
 
 is_knp_available = KNP().is_available()
 
@@ -27,7 +30,7 @@ def test_call() -> None:
     assert isinstance(knp(knp(document)), Document)
 
     with pytest.raises(TypeError):
-        knp(1)  # type: ignore
+        knp(1)  # ty: ignore[no-matching-overload]
 
 
 @pytest.mark.skipif(not is_knp_available, reason="KNP is not available")
@@ -50,7 +53,7 @@ def test_apply() -> None:
     assert isinstance(knp.apply(knp.apply(document)), Document)
 
     with pytest.raises(TypeError):
-        knp.apply(1)  # type: ignore
+        knp.apply(1)  # ty: ignore[no-matching-overload]
 
 
 @pytest.mark.skipif(not is_knp_available, reason="KNP is not available")
@@ -175,15 +178,15 @@ def test_is_available() -> None:
 
 
 def test_timeout_error() -> None:
-    jumanpp = Jumanpp("tests/bin/jumanpp-mock.sh", skip_sanity_check=True)
-    knp = KNP("tests/bin/knp-mock.sh", jumanpp=jumanpp, skip_sanity_check=True)
+    jumanpp = Jumanpp(MOCK_PYTHON, options=["tests/bin/jumanpp-mock.py"], skip_sanity_check=True)
+    knp = KNP(MOCK_PYTHON, options=["tests/bin/knp-mock.py", "-tab"], jumanpp=jumanpp, skip_sanity_check=True)
     with pytest.raises(TimeoutError):
         _ = knp.apply_to_sentence("knp time consuming input", timeout=1)
 
 
 def test_runtime_error() -> None:
-    jumanpp = Jumanpp("tests/bin/jumanpp-mock.sh", skip_sanity_check=True)
-    knp = KNP("tests/bin/knp-mock.sh", jumanpp=jumanpp, skip_sanity_check=True)
+    jumanpp = Jumanpp(MOCK_PYTHON, options=["tests/bin/jumanpp-mock.py"], skip_sanity_check=True)
+    knp = KNP(MOCK_PYTHON, options=["tests/bin/knp-mock.py", "-tab"], jumanpp=jumanpp, skip_sanity_check=True)
     with pytest.raises(RuntimeError):
         _ = knp.apply_to_sentence("knp error causing input", timeout=1)
 

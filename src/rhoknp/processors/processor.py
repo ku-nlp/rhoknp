@@ -61,10 +61,9 @@ class Processor(ABC):
         """
         if isinstance(text, (Document, str)):
             return self.apply_to_document(text, timeout=timeout)
-        elif isinstance(text, Sentence):
+        if isinstance(text, Sentence):
             return self.apply_to_sentence(text, timeout=timeout)
-        else:
-            raise TypeError("Invalid type: text must be str, Sentence, or Document")
+        raise TypeError("Invalid type: text must be str, Sentence, or Document")
 
     @abstractmethod
     def apply_to_document(self, document: Document | str, timeout: int = 10) -> Document:

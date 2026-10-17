@@ -1,8 +1,11 @@
 import concurrent.futures
+import sys
 
 import pytest
 
 from rhoknp import Document, Jumanpp, RegexSenter, Sentence
+
+MOCK_PYTHON = sys._base_executable  # ty: ignore[unresolved-attribute]
 
 is_jumanpp_available = Jumanpp(options=["--juman"]).is_available()
 
@@ -15,7 +18,7 @@ def test_call() -> None:
     assert isinstance(jumanpp(Document.from_raw_text(text)), Document)
     assert isinstance(jumanpp(Sentence.from_raw_text(text)), Sentence)
     with pytest.raises(TypeError):
-        jumanpp(1)  # type: ignore
+        jumanpp(1)  # ty: ignore[no-matching-overload]
 
 
 @pytest.mark.skipif(not is_jumanpp_available, reason="Juman++ is not available")
@@ -26,7 +29,7 @@ def test_apply() -> None:
     assert isinstance(jumanpp.apply(Document.from_raw_text(text)), Document)
     assert isinstance(jumanpp.apply(Sentence.from_raw_text(text)), Sentence)
     with pytest.raises(TypeError):
-        jumanpp.apply(1)  # type: ignore
+        jumanpp.apply(1)  # ty: ignore[no-matching-overload]
 
 
 @pytest.mark.skipif(not is_jumanpp_available, reason="Juman++ is not available")
@@ -182,13 +185,13 @@ def test_is_available() -> None:
 
 
 def test_timeout_error() -> None:
-    jumanpp = Jumanpp("tests/bin/jumanpp-mock.sh", skip_sanity_check=True)
+    jumanpp = Jumanpp(MOCK_PYTHON, options=["tests/bin/jumanpp-mock.py"], skip_sanity_check=True)
     with pytest.raises(TimeoutError):
         _ = jumanpp.apply_to_sentence("time consuming input", timeout=1)
 
 
 def test_runtime_error() -> None:
-    jumanpp = Jumanpp("tests/bin/jumanpp-mock.sh", skip_sanity_check=True)
+    jumanpp = Jumanpp(MOCK_PYTHON, options=["tests/bin/jumanpp-mock.py"], skip_sanity_check=True)
     with pytest.raises(RuntimeError):
         _ = jumanpp.apply_to_sentence("error causing input")
 

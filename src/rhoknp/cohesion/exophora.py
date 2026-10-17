@@ -46,9 +46,8 @@ class ExophoraReferent:
         """外界照応の照応先を表すテキスト表現．"""
         if self.type != ExophoraReferentType.OTHER:
             return str(self.type.value) + str(self.index or "")
-        else:
-            assert self._other_text is not None
-            return self._other_text
+        assert self._other_text is not None
+        return self._other_text
 
     def is_singleton(self) -> bool:
         """文書中に1つしか存在しないエンティティであれば True．"""

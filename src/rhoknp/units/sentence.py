@@ -107,9 +107,9 @@ class Sentence(Unit):
         """
         if self._clauses is not None:
             return self._clauses
-        elif self._phrases is not None:
+        if self._phrases is not None:
             return self._phrases
-        elif self._morphemes is not None:
+        if self._morphemes is not None:
             return self._morphemes
         return None
 

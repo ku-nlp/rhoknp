@@ -112,10 +112,9 @@ def draw_tree(
 def _extend_horizontal(token: str) -> str:
     if token in ("╂", "┼", "┤", "┨", "┐", "─", "I", "A"):
         return "─"
-    elif token in ("╋", "┿", "━", "P"):
+    if token in ("╋", "┿", "━", "P"):
         return "━"
-    else:
-        return " "
+    return " "
 
 
 def _leaf_string(leaf: Phrase | BasePhrase, show_pos: bool) -> str:
@@ -137,8 +136,7 @@ def _str_real_length(string: str) -> int:
 def _feat_string(base_phrase: BasePhrase, show_rel: bool, show_pas: bool) -> str:
     tag_strings: list[str] = []
     if show_rel is True:
-        for tag in base_phrase.rel_tags:
-            tag_strings.append(f"{tag.type}:{tag.target}")
+        tag_strings.extend(f"{tag.type}:{tag.target}" for tag in base_phrase.rel_tags)
     if show_pas is True:
         for case, arguments in base_phrase.pas.get_all_arguments(relax=False).items():
             for arg in arguments:

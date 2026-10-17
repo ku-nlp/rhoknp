@@ -4,9 +4,56 @@ on: [push, pull_request, workflow_dispatch]
 
 jobs:
   test:
-    name: Run tests with pytest
-    container: kunlp/jumanpp-knp:ubuntu24.04
-    runs-on: ubuntu-24.04
+    name: Test (${{ matrix.os }}, Python ${{ matrix.python-version }}, ${{ matrix.resolution }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version:
+          [
+            "3.10",
+            "3.11",
+            "3.12",
+            "3.13",
+            "3.14",
+            "3.14t",
+            "3.15",
+            "3.15t",
+            "3.16",
+            "3.16t",
+          ]
+        resolution: [highest, lowest-direct]
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v7
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache-suffix: ${{ matrix.resolution }}
+      - name: Resolve and install dependencies
+        run: uv sync --no-default-groups --group test --extra cli --resolution ${{ matrix.resolution }} --upgrade
+      - name: Run tests with coverage
+        if: ${{ matrix.os == 'ubuntu-latest' && matrix.python-version == '3.10' && matrix.resolution == 'highest' }}
+        run: uv run --no-sync pytest --cov=./ --cov-report=xml -v -ra ./tests
+      - name: Run tests without coverage
+        if: ${{ !(matrix.os == 'ubuntu-latest' && matrix.python-version == '3.10' && matrix.resolution == 'highest') }}
+        run: uv run --no-sync pytest -v -ra ./tests
+      - name: Upload coverage to Codecov
+        if: ${{ matrix.os == 'ubuntu-latest' && matrix.python-version == '3.10' && matrix.resolution == 'highest' }}
+        uses: codecov/codecov-action@v7
+        with:
+          files: ./coverage.xml
+          name: test
+          token: ${{ secrets.CODECOV_TOKEN }}
+          verbose: true
+
+  test-with-analyzer:
+    name: Test with analyzer (Python ${{ matrix.python-version }}, ${{ matrix.resolution }})
+    container: kunlp/jumanpp-knp:ubuntu26.04
+    runs-on: ubuntu-26.04
     strategy:
       fail-fast: false
       matrix:
@@ -16,12 +63,14 @@ jobs:
             "3.11",
             "3.12",
             "3.13",
-            "3.13t",
             "3.14",
             "3.14t",
             "3.15",
             "3.15t",
+            "3.16",
+            "3.16t",
           ]
+        resolution: [highest, lowest-direct]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -38,22 +87,41 @@ jobs:
           python-version: ${{ matrix.python-version }}
           enable-cache: false
       - name: Install dependencies
-        run: uv sync --extra cli --no-cache
+        run: uv sync --no-default-groups --group test --extra cli --resolution ${{ matrix.resolution }} --upgrade --no-cache
       - name: Install KWJA
         run: |
           uv tool install kwja --python 3.12 --no-cache --with "torch==2.6.0+cpu" --extra-index-url https://download.pytorch.org/whl/cpu
           kwja --model-size tiny --tasks char,seq2seq,word --text "テスト"
+      - name: Verify analyzers are available
+        run: |
+          uv run --no-sync python - <<'PY'
+          from rhoknp import KNP, KWJA, Jumanpp
+
+          assert Jumanpp(options=["--juman"]).is_available(), "Juman++ is not available"
+          assert KNP().is_available(), "KNP is not available"
+          assert KWJA(options=["--model-size", "tiny", "--tasks", "typo"]).is_available(), "KWJA is not available"
+          PY
       - name: Run tests with coverage
-        if: ${{ matrix.python-version == '3.10' }}
-        run: uv run pytest --cov=./ --cov-report=xml -v ./tests
+        if: ${{ matrix.python-version == '3.10' && matrix.resolution == 'highest' }}
+        run: >-
+          uv run --no-sync pytest --cov=./ --cov-report=xml -v -ra
+          tests/processors/test_jumanpp.py
+          tests/processors/test_knp.py
+          tests/processors/test_kwja.py
+          tests/cli/test_serve.py
       - name: Run tests without coverage
-        if: ${{ matrix.python-version != '3.10' }}
-        run: uv run pytest -v ./tests
+        if: ${{ matrix.python-version != '3.10' || matrix.resolution != 'highest' }}
+        run: >-
+          uv run --no-sync pytest -v -ra
+          tests/processors/test_jumanpp.py
+          tests/processors/test_knp.py
+          tests/processors/test_kwja.py
+          tests/cli/test_serve.py
       - name: Upload coverage to Codecov
-        if: ${{ matrix.python-version == '3.10' }}
+        if: ${{ matrix.python-version == '3.10' && matrix.resolution == 'highest' }}
         uses: codecov/codecov-action@v7
         with:
           files: ./coverage.xml
-          name: codecov-umbrella
+          name: test-with-analyzer
           token: ${{ secrets.CODECOV_TOKEN }}
           verbose: true
