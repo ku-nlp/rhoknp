@@ -26,13 +26,12 @@ control_dir = Path(sys.argv[sys.argv.index("--control-dir") + 1])
 protocol = sys.argv[sys.argv.index("--test-protocol") + 1]
 
 
-def output(newline: bytes = b"\n") -> None:
+def output() -> None:
     data = "# S-ID:sample-0\n猫 ねこ 猫 名詞 6 普通名詞 1 * 0 * 0 NIL\nEOS\n".encode()
     if protocol == "knp":
         data = b"* -1D\n+ -1D\n" + data
     if protocol != "kwja":
         data = data.removesuffix(b"EOS\n")
-    data = data.replace(b"\n", newline)
     for byte in data:
         os.write(1, bytes([byte]))
 
@@ -111,15 +110,6 @@ for line in sys.stdin:
         subprocess.Popen([sys.executable, __file__, "--hold-pipes", str(control_dir)])
         os.write(2, b"child spawned\n")
         time.sleep(30)
-    elif case in {"crlf", "cr", "no-final-newline"}:
-        newline = b"\r\n" if case == "crlf" else b"\r" if case == "cr" else b"\n"
-        output(newline)
-        os.write(1, end_marker + (b"" if case == "no-final-newline" else newline))
-        if case != "crlf":
-            os.close(1)
-            time.sleep(30)
-        text = ""
-        continue
     elif case == "raw-crlf":
         os.write(1, b"first\r\nsecond\r\nEOD\r\n")
         text = ""

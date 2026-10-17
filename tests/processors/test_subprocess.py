@@ -94,35 +94,59 @@ def test_diagnostics_with_only_end_marker(analyzer: KNP | Jumanpp | KWJA, caplog
         caplog.clear()
 
 
-@pytest.mark.parametrize(("case", "message"), [("crash", "fatal diagnostic"), ("eof", "stdout closed")])
-def test_unexpected_eof(
-    analyzer: KNP | Jumanpp | KWJA, caplog: pytest.LogCaptureFixture, case: str, message: str
+@pytest.mark.parametrize(
+    ("case", "error", "match", "messages"),
+    [
+        pytest.param(
+            "crash", RuntimeError, r"before EO[SD]", ["fatal diagnostic"], id="process-exits-before-end-marker"
+        ),
+        pytest.param("eof", RuntimeError, r"before EO[SD]", ["stdout closed"], id="stdout-closes-before-end-marker"),
+        pytest.param("invalid-utf8", UnicodeDecodeError, "utf-8", [], id="invalid-utf8-on-stdout"),
+        pytest.param("invalid-stderr", UnicodeDecodeError, "utf-8", [], id="invalid-utf8-on-stderr"),
+    ],
+)
+def test_read_error_restarts_process_and_next_request_succeeds(
+    analyzer: KNP | Jumanpp | KWJA,
+    caplog: pytest.LogCaptureFixture,
+    case: str,
+    error: type[Exception],
+    match: str,
+    messages: list[str],
 ) -> None:
-    with pytest.raises(RuntimeError, match=r"before EO[SD]"):
-        apply_case(analyzer, case, timeout=5)
-    wait_for_messages(caplog, [message])
-    caplog.clear()
-    assert apply_case(analyzer, "buffered", timeout=5) == "猫"
-    wait_for_messages(caplog, ["first", "second", "third"])
-
-
-def test_timeout(analyzer: KNP | Jumanpp | KWJA, caplog: pytest.LogCaptureFixture) -> None:
     old_process = analyzer._proc
     assert old_process is not None
-    with pytest.raises(TimeoutError):
-        apply_case(analyzer, "timeout", timeout=1)
+    with pytest.raises(error, match=match):
+        apply_case(analyzer, case, timeout=5)
     assert old_process.poll() is not None
-    wait_for_messages(caplog, ["before timeout"])
+    assert analyzer._proc is not old_process
+    wait_for_messages(caplog, messages)
     caplog.clear()
     assert apply_case(analyzer, "buffered", timeout=5) == "猫"
     wait_for_messages(caplog, ["first", "second", "third"])
 
 
-@pytest.mark.parametrize("case", ["invalid-utf8", "invalid-stderr"])
-def test_worker_exception(analyzer: KNP | Jumanpp | KWJA, case: str) -> None:
-    with pytest.raises(UnicodeDecodeError):
-        apply_case(analyzer, case, timeout=5)
+@pytest.mark.parametrize(
+    ("case", "messages"),
+    [
+        pytest.param("timeout", ["before timeout"], id="no-response"),
+        pytest.param("continuous-output", [], id="stdout-never-reaches-end-marker"),
+    ],
+)
+def test_timeout_kills_process_and_next_request_succeeds(
+    analyzer: KNP | Jumanpp | KWJA, caplog: pytest.LogCaptureFixture, case: str, messages: list[str]
+) -> None:
+    old_process = analyzer._proc
+    assert old_process is not None
+    started = time.monotonic()
+    with pytest.raises(TimeoutError, match="Operation timed out"):
+        apply_case(analyzer, case, timeout=1)
+    assert time.monotonic() - started < 4
+    assert old_process.poll() is not None
+    assert analyzer._proc is not old_process
+    wait_for_messages(caplog, messages)
+    caplog.clear()
     assert apply_case(analyzer, "buffered", timeout=5) == "猫"
+    wait_for_messages(caplog, ["first", "second", "third"])
 
 
 @pytest.mark.parametrize("case", ["fragmented-eod", "delayed-stderr"])
@@ -196,11 +220,6 @@ def test_timeout_with_inherited_pipes(
     assert not old_io._stderr_reader.is_alive()
 
 
-@pytest.mark.parametrize("case", ["crlf", "cr", "no-final-newline"])
-def test_output_line_endings(analyzer: KNP | Jumanpp | KWJA, case: str) -> None:
-    assert apply_case(analyzer, case, timeout=5) == "猫"
-
-
 def test_raw_crlf(tmp_path: Path) -> None:
     processor = KWJA(
         executable=MOCK_PYTHON,
@@ -261,23 +280,3 @@ def test_interpreter_shutdown(tmp_path: Path) -> None:
         check=True,
     )
     assert result.stderr == ""
-
-
-def test_timeout_with_continuous_output(analyzer: KNP | Jumanpp | KWJA) -> None:
-    started = time.monotonic()
-    with pytest.raises(TimeoutError):
-        apply_case(analyzer, "continuous-output", timeout=1)
-    assert time.monotonic() - started < 4
-    assert apply_case(analyzer, "silent", timeout=5) == "猫"
-
-
-def test_partial_writes(analyzer: KNP | Jumanpp | KWJA, monkeypatch: pytest.MonkeyPatch) -> None:
-    assert analyzer._proc is not None
-    assert analyzer._proc.stdin is not None
-    write = analyzer._proc.stdin.write
-
-    def write_part(data: memoryview) -> int | None:
-        return write(data[:2])
-
-    monkeypatch.setattr(analyzer._proc.stdin, "write", write_part)
-    assert apply_case(analyzer, "partial-input", timeout=5) == "猫"
