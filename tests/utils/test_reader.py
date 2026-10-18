@@ -191,4 +191,4 @@ def test_chunk_by_document_value_error() -> None:
 
 def test_chunk_by_document_type_error() -> None:
     with pytest.raises(TypeError):
-        _ = list(chunk_by_document(StringIO(""), doc_id_format=1))  # type: ignore
+        _ = list(chunk_by_document(StringIO(""), doc_id_format=1))  # ty: ignore[invalid-argument-type]

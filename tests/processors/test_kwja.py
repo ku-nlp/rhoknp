@@ -1,6 +1,10 @@
+import sys
+
 import pytest
 
 from rhoknp import KNP, KWJA, Document, Jumanpp, Sentence
+
+MOCK_PYTHON = sys._base_executable  # ty: ignore[unresolved-attribute]
 
 is_kwja_available = KWJA(options=["--model-size", "tiny", "--tasks", "typo"]).is_available()
 
@@ -128,7 +132,7 @@ def test_apply() -> None:
     with pytest.raises(NotImplementedError):
         _ = kwja.apply(Sentence.from_raw_text(text))
     with pytest.raises(TypeError):
-        _ = kwja.apply(1)  # type: ignore
+        _ = kwja.apply(1)  # ty: ignore[no-matching-overload]
 
 
 @pytest.mark.skipif(not is_kwja_available, reason="KWJA is not available")
@@ -145,13 +149,13 @@ def test_keep_doc_id_document() -> None:
 
 
 def test_timeout_error() -> None:
-    kwja = KWJA("tests/bin/kwja-mock.sh", skip_sanity_check=True)
+    kwja = KWJA(MOCK_PYTHON, options=["tests/bin/kwja-mock.py"], skip_sanity_check=True)
     with pytest.raises(TimeoutError):
         _ = kwja.apply_to_document("time consuming input", timeout=1)
 
 
 def test_runtime_error() -> None:
-    kwja = KWJA("tests/bin/kwja-mock.sh", skip_sanity_check=True)
+    kwja = KWJA(MOCK_PYTHON, options=["tests/bin/kwja-mock.py"], skip_sanity_check=True)
     with pytest.raises(RuntimeError):
         _ = kwja.apply_to_document("error causing input")
 

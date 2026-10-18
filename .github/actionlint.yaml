@@ -1,0 +1,4 @@
+# https://github.com/rhysd/actionlint/issues/682#issuecomment-6203550186
+self-hosted-runner:
+  labels:
+    - ubuntu-26.04

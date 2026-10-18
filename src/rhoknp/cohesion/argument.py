@@ -147,12 +147,10 @@ class EndophoraArgument(BaseArgument):
             tail_morpheme = arg_base_phrase.morphemes[-1]
             if tail_morpheme.subpos == "格助詞" and tail_morpheme.text.translate(HIRA2KATA) == case:
                 return ArgumentType.CASE_EXPLICIT
-            else:
-                return ArgumentType.CASE_HIDDEN
-        elif predicate.base_phrase.parent and predicate.base_phrase.parent == arg_base_phrase:
             return ArgumentType.CASE_HIDDEN
-        else:
-            return ArgumentType.OMISSION
+        if predicate.base_phrase.parent and predicate.base_phrase.parent == arg_base_phrase:
+            return ArgumentType.CASE_HIDDEN
+        return ArgumentType.OMISSION
 
 
 class ExophoraArgument(BaseArgument):

@@ -63,39 +63,39 @@ class DiscourseRelationTag(Enum):
             DiscourseRelationTag.NO_RELATION,
         }:
             return DiscourseRelationLabel.NO_RELATION
-        elif self in {
+        if self in {
             DiscourseRelationTag.CAUSE_REASON,
             DiscourseRelationTag.CAUSE_REASON_FORWARD,
             DiscourseRelationTag.CAUSE_REASON_BACKWARD,
             DiscourseRelationTag.CAUSE_REASON_BACKWARD2,
         }:
             return DiscourseRelationLabel.CAUSE_REASON
-        elif self in {
+        if self in {
             DiscourseRelationTag.PURPOSE,
             DiscourseRelationTag.PURPOSE_FORWARD,
             DiscourseRelationTag.PURPOSE_BACKWARD,
         }:
             return DiscourseRelationLabel.PURPOSE
-        elif self in {
+        if self in {
             DiscourseRelationTag.CONDITION,
             DiscourseRelationTag.CONDITION_FORWARD,
             DiscourseRelationTag.CONDITION_BACKWARD,
             DiscourseRelationTag.NEGATIVE_CONDITION,
         }:
             return DiscourseRelationLabel.CONDITION
-        elif self in {
+        if self in {
             DiscourseRelationTag.CONTRAST,
             DiscourseRelationTag.CONTRAST_NO_DIRECTION,
         }:
             return DiscourseRelationLabel.CONTRAST
-        elif self in {
+        if self in {
             DiscourseRelationTag.CONCESSION,
             DiscourseRelationTag.CONCESSION_FORWARD,
             DiscourseRelationTag.CONCESSION_BACKWARD,
             DiscourseRelationTag.CONCESSIVE_CONDITION,
         }:
             return DiscourseRelationLabel.CONCESSION
-        elif self in {
+        if self in {
             DiscourseRelationTag.EVIDENCE,
             DiscourseRelationTag.EVIDENCE_FORWARD,
             DiscourseRelationTag.EVIDENCE_BACKWARD,
