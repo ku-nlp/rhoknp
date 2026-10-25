@@ -2,7 +2,9 @@ import logging
 import re
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import TYPE_CHECKING, ClassVar, Optional
+from typing import TYPE_CHECKING, Optional
+
+from rhoknp.props.feature import FeatureDict
 
 if TYPE_CHECKING:
     from rhoknp.units.morpheme import Morpheme
@@ -47,9 +49,6 @@ class NamedEntity:
         4 は肩書を含む慣用的な人名表現を表す．
     """
 
-    PAT: ClassVar[re.Pattern] = re.compile(r"<NE:(?P<cat>\w+):(?P<name>([^>\\]|\\>?)+)>")
-    OPTIONAL_PAT: ClassVar[re.Pattern] = re.compile(r"<NE-OPTIONAL:(?P<cats>\w+(?:,\w+)*):(?P<type>[0-4])>")
-
     category: NamedEntityCategory  #: 固有表現カテゴリ．
     morphemes: list["Morpheme"]  #: 固有表現を構成する形態素のリスト．
     possible_categories: list[NamedEntityCategory] = field(
@@ -66,28 +65,41 @@ class NamedEntity:
         return "".join(m.text for m in self.morphemes)
 
     @classmethod
-    def from_fstring(cls, fstring: str, candidate_morphemes: list["Morpheme"]) -> Optional["NamedEntity"]:
-        """NE と任意の NE-OPTIONAL を含む素性文字列からオブジェクトを作成．
+    def from_features(cls, features: FeatureDict, candidate_morphemes: list["Morpheme"]) -> Optional["NamedEntity"]:
+        """NE と NE-OPTIONAL の素性から固有表現を作成．
 
-        NE の直後にある NE-OPTIONAL を読み取る．
-        読み取った注釈に不整合がある場合は警告を出力し，None を返す．
+        Args:
+            features: 固有表現の末尾を含む基本句の素性．
+            candidate_morphemes: その基本句の末尾までの形態素列．
+
+        Returns:
+            固有表現．NE が存在しない場合や注釈を解析できない場合は None．
         """
-        match = cls.PAT.match(fstring)
+        ne_value = features.get("NE")
+        ne_optional_value = features.get("NE-OPTIONAL")
+        if ne_value is None:
+            return None
+        if not isinstance(ne_value, str):
+            logger.warning(f"{candidate_morphemes[0].sentence.sid}: NE feature must be a string, got {type(ne_value)}")
+            return None
+        match = re.fullmatch(r"(?P<cat>\w+):(?P<name>[\s\S]+)", ne_value)
         if match is None:
-            logger.warning(f"{fstring} is not a valid NE fstring")
+            logger.warning(f"{candidate_morphemes[0].sentence.sid}: {ne_value} is not a valid NE feature")
             return None
         category: str = match["cat"]
         if not NamedEntityCategory.has_value(category) or category == "NONE":
             logger.warning(f"{candidate_morphemes[0].sentence.sid}: invalid NE category: {category}")
             return None
-        name: str = match["name"].replace(r"\>", ">")
+        name: str = match["name"]
         span = cls._find_morpheme_span(name, candidate_morphemes)
         if span is None:
             logger.warning(f"{candidate_morphemes[0].sentence.sid}: morpheme span of '{name}' not found")
             return None
         possible_categories: list[NamedEntityCategory] = []
         optional_type: int | None = None
-        optional_match = cls.OPTIONAL_PAT.match(fstring, match.end())
+        optional_match: re.Match | None = None
+        if isinstance(ne_optional_value, str):
+            optional_match = re.fullmatch(r"(?P<cats>\w+(?:,\w+)*):(?P<type>[0-4])", ne_optional_value)
         if optional_match is not None:
             if category != "OPTIONAL":
                 logger.warning(f"{candidate_morphemes[0].sentence.sid}: NE-OPTIONAL requires the OPTIONAL category")
@@ -107,14 +119,34 @@ class NamedEntity:
             optional_type,
         )
 
-    def to_fstring(self) -> str:
-        """素性文字列に変換．"""
-        escaped_text = self.text.replace(">", r"\>")  # escape ">"
-        fstring = f"<NE:{self.category.value}:{escaped_text}>"
+    @classmethod
+    def from_fstring(cls, fstring: str, candidate_morphemes: list["Morpheme"]) -> Optional["NamedEntity"]:
+        """NE と任意の NE-OPTIONAL を含む素性文字列からオブジェクトを作成．
+
+        Args:
+            fstring: NE と任意の NE-OPTIONAL を含む素性文字列．他の素性は無視する．
+            candidate_morphemes: 固有表現の末尾を含む基本句の末尾までの形態素列．
+
+        Returns:
+            固有表現．NE が存在しない場合や注釈を解析できない場合は None．
+        """
+        return cls.from_features(FeatureDict.from_fstring(fstring), candidate_morphemes)
+
+    def to_features(self) -> FeatureDict:
+        """固有表現を素性辞書に変換．
+
+        Returns:
+            NE を含む新しい辞書．optional_type が設定されていれば NE-OPTIONAL も含む．
+        """
+        features = FeatureDict({"NE": f"{self.category.value}:{self.text}"})
         if self.optional_type is not None:
             categories = ",".join(category.value for category in self.possible_categories)
-            fstring += f"<NE-OPTIONAL:{categories}:{self.optional_type}>"
-        return fstring
+            features["NE-OPTIONAL"] = f"{categories}:{self.optional_type}"
+        return features
+
+    def to_fstring(self) -> str:
+        """素性文字列に変換．"""
+        return self.to_features().to_fstring()
 
     @staticmethod
     def _find_morpheme_span(name: str, candidates: list["Morpheme"]) -> range | None:
@@ -124,10 +156,8 @@ class NamedEntity:
             name: 固有表現の文字列
             candidates: 固有表現を構成する候補形態素のリスト
         """
-        stop = len(candidates)
-        while stop > 0:
+        for stop in range(len(candidates), 0, -1):
             for start in reversed(range(stop)):
                 if "".join(m.text for m in candidates[start:stop]) == name:
                     return range(start, stop)
-            stop -= 1
         return None

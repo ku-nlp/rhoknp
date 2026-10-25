@@ -5,7 +5,7 @@ from typing import Any
 import pytest
 
 from rhoknp import Document, Sentence
-from rhoknp.props import NamedEntity, NamedEntityCategory
+from rhoknp.props import FeatureDict, NamedEntity, NamedEntityCategory
 
 
 @pytest.mark.parametrize(
@@ -66,6 +66,38 @@ def test_from_fstring_malformed_line() -> None:
     fstring = "<MALFORMED LINE>"
     ne = NamedEntity.from_fstring(fstring, [])
     assert ne is None
+
+
+def test_features_modification() -> None:
+    sentence = Sentence.from_jumanpp("太郎 たろう 太郎 名詞 6 人名 5 * 0 * 0\nEOS\n")
+    features = FeatureDict({"NE-OPTIONAL": "PERSON,NONE:0", "体言": True, "NE": "OPTIONAL:太郎"})
+    original = features.copy()
+    ne = NamedEntity.from_features(features, sentence.morphemes)
+    assert ne is not None
+    assert ne.text == "太郎"
+    assert ne.morphemes == sentence.morphemes
+    expected = {"NE": "OPTIONAL:太郎", "NE-OPTIONAL": "PERSON,NONE:0"}
+    result = ne.to_features()
+    assert isinstance(result, FeatureDict)
+    assert result == expected
+    result["NE"] = "LOCATION:京都"
+    assert ne.to_features() == expected
+    assert features == original
+
+
+@pytest.mark.parametrize(
+    "features",
+    [
+        FeatureDict({"NE-OPTIONAL": "PERSON:0"}),
+        FeatureDict({"NE": True}),
+        FeatureDict({"NE": False}),
+        FeatureDict({"NE": "PERSON"}),
+        FeatureDict({"NE": "PERSON:"}),
+    ],
+)
+def test_from_features_missing_or_invalid(features: FeatureDict) -> None:
+    sentence = Sentence.from_jumanpp("太郎 たろう 太郎 名詞 6 人名 5 * 0 * 0\nEOS\n")
+    assert NamedEntity.from_features(features, sentence.morphemes) is None
 
 
 @pytest.mark.parametrize("category", ["UNKNOWN", "NONE"])
@@ -138,6 +170,8 @@ def test_ne_optional(optional_value: str, categories: list[str], optional_type: 
     assert [category.value for category in ne.possible_categories] == categories
     assert ne.optional_type == optional_type
     assert ne.to_fstring() == fstring
+    assert ne.to_features() == {"NE": "OPTIONAL:新幹線総局", "NE-OPTIONAL": optional_value}
+    assert NamedEntity.from_features(ne.to_features(), document.morphemes) == ne
     assert document.to_knp() == knp_text
 
     parsed_ne = NamedEntity.from_fstring(f"{fstring}<体言>", document.morphemes)
@@ -176,6 +210,24 @@ def test_ne_optional_unmatched(suffix: str) -> None:
     assert ne.to_fstring() == "<NE:OPTIONAL:アンノウン>"
 
 
+@pytest.mark.parametrize(
+    "fstring",
+    [
+        "<体言><NE:OPTIONAL:アンノウン><NE-OPTIONAL:PERSON:0>",
+        "<NE:OPTIONAL:アンノウン><体言><NE-OPTIONAL:PERSON:0>",
+        "<NE-OPTIONAL:PERSON:0><体言><NE:OPTIONAL:アンノウン>",
+    ],
+)
+def test_from_fstring_feature_order(fstring: str) -> None:
+    sentence = Sentence.from_jumanpp("アンノウン アンノウン アンノウン 名詞 6 普通名詞 1 * 0 * 0\nEOS\n")
+    ne = NamedEntity.from_fstring(fstring, sentence.morphemes)
+    assert ne is not None
+    assert ne.category == NamedEntityCategory.OPTIONAL
+    assert ne.text == "アンノウン"
+    assert ne.possible_categories == [NamedEntityCategory.PERSON]
+    assert ne.optional_type == 0
+
+
 def test_ne_optional_tag_in_name() -> None:
     text = "<NE-OPTIONAL:PERSON:3>"
     sentence = Sentence.from_jumanpp(f"{text} {text} {text} 名詞 6 普通名詞 1 * 0 * 0\nEOS\n")
@@ -186,6 +238,19 @@ def test_ne_optional_tag_in_name() -> None:
     assert ne.possible_categories == []
     assert ne.optional_type is None
     assert ne.to_fstring() == fstring
+    assert ne.to_features() == {"NE": f"OPTIONAL:{text}"}
+    assert NamedEntity.from_features(ne.to_features(), sentence.morphemes) == ne
+
+
+def test_features_unescaped_text() -> None:
+    text = r"バック\>スラッシュ"
+    sentence = Sentence.from_jumanpp(f"{text} {text} {text} 名詞 6 普通名詞 1 * 0 * 0\nEOS\n")
+    features = FeatureDict({"NE": f"OPTIONAL:{text}"})
+    ne = NamedEntity.from_features(features, sentence.morphemes)
+    assert ne is not None
+    assert ne.text == text
+    assert ne.to_features() == features
+    assert NamedEntity.from_fstring(ne.to_fstring(), sentence.morphemes) == ne
 
 
 @pytest.mark.parametrize(
@@ -254,6 +319,8 @@ def test_escape(case: dict[str, Any]) -> None:
     assert ne.category == case["category"]
     assert ne.text == case["text"]
     assert ne.to_fstring() == case["fstring"]
+    assert ne.to_features() == {"NE": f"{case['category'].value}:{case['text']}"}
+    assert NamedEntity.from_features(ne.to_features(), sentence.morphemes) == ne
 
 
 @pytest.mark.parametrize("optional_fstring", ["", "<NE-OPTIONAL:ARTIFACT,NONE:0>"])

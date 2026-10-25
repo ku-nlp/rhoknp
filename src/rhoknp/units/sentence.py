@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING, Optional
 
 from rhoknp._compat import override
 from rhoknp.cohesion import EntityManager, Pas
-from rhoknp.props.feature import FeatureDict
 from rhoknp.props.named_entity import NamedEntity
 from rhoknp.units.base_phrase import BasePhrase
 from rhoknp.units.clause import Clause
@@ -66,18 +65,15 @@ class Sentence(Unit):
 
         # Find named entities in the sentence.
         self.named_entities = []
-        if not self.is_knp_required():
-            for base_phrase in self.base_phrases:
-                if "NE" not in base_phrase.features:
-                    continue
-                assert isinstance(base_phrase.features["NE"], str)
-                features = FeatureDict({"NE": base_phrase.features["NE"]})
-                if "NE-OPTIONAL" in base_phrase.features:
-                    features["NE-OPTIONAL"] = base_phrase.features["NE-OPTIONAL"]
-                candidate_morphemes = self.morphemes[: base_phrase.morphemes[-1].index + 1]
-                named_entity = NamedEntity.from_fstring(features.to_fstring(), candidate_morphemes)
-                if named_entity is not None:
-                    self.named_entities.append(named_entity)
+        if self.is_knp_required():
+            return
+        for base_phrase in self.base_phrases:
+            if "NE" not in base_phrase.features:
+                continue
+            candidate_morphemes = self.morphemes[: base_phrase.morphemes[-1].index + 1]
+            named_entity = NamedEntity.from_features(base_phrase.features, candidate_morphemes)
+            if named_entity is not None:
+                self.named_entities.append(named_entity)
 
     @override
     def __hash__(self) -> int:
