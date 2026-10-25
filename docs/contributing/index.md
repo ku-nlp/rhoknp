@@ -6,7 +6,7 @@ We give an overview on contributing to the _rhoknp_ project.
 ## Development Environment
 
 Development should be done using the latest version of Python.
-As of this writing, it is Python 3.10.
+As of this writing, it is Python 3.11.
 
 Install the development dependencies using [uv](https://docs.astral.sh/uv/).
 

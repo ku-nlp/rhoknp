@@ -20,7 +20,6 @@ classifiers = [
     "Operating System :: Microsoft :: Windows",
     "Operating System :: POSIX :: Linux",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
@@ -33,7 +32,7 @@ classifiers = [
     "Topic :: Text Processing",
     "Topic :: Text Processing :: Linguistic",
 ]
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 
 dependencies = [
     "typing-extensions>=4.4; python_version < '3.12'"
@@ -77,15 +76,11 @@ test = [
     "httpx2>=2.14.0",
 ]
 docs = [
-    "Sphinx>=9.0.0; python_version >= '3.11'",
-    "Sphinx>=8.0,<9; python_version < '3.11'",
-    "sphinx-prompt>=1.10.0; python_version >= '3.11'",
-    "sphinx-prompt>=1.9,<1.10; python_version < '3.11'",
+    "Sphinx>=9.0.0",
+    "sphinx-prompt>=1.10.0",
     "sphinx-copybutton>=0.5.0",
-    "myst-parser>=5.0; python_version >= '3.11'",
-    "myst-parser>=4.0; python_version < '3.11'",
-    "markdown-it-py>=4.0.0; python_version >= '3.11'",
-    "markdown-it-py>=3.0,<4; python_version < '3.11'",
+    "myst-parser>=5.0",
+    "markdown-it-py>=4.0.0",
     "furo>=2025.12.19",
     "typing-extensions>=4.4",
 ]
@@ -178,7 +173,7 @@ max-args = 15
 max-complexity = 20  # default: 10
 
 [tool.ty.environment]
-python-version = "3.10"
+python-version = "3.11"
 
 [tool.coverage.run]
 omit = ["tests/*"]

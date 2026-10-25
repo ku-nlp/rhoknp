@@ -3,7 +3,7 @@
 ## Requirements
 
 - [Python](https://python.org/)
-  - Supported versions: 3.10+
+  - Supported versions: 3.11+
 - [Juman++](https://github.com/ku-nlp/jumanpp) (Optional)
   - Supported versions: v2.0.0-rc3+
 - [KNP](https://github.com/ku-nlp/knp) (Optional)
