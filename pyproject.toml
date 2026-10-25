@@ -74,7 +74,7 @@ test = [
     "pytest>=9.1.0",
     "coverage[toml]>=7.15.0",
     "pytest-cov>=7.1.0",
-    "httpx>=0.28.0",
+    "httpx2>=2.14.0",
 ]
 docs = [
     "Sphinx>=9.0.0; python_version >= '3.11'",

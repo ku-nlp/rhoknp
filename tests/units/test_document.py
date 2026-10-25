@@ -931,7 +931,7 @@ def test_pickle_unpickle(case: dict[str, str]) -> None:
     assert doc1.to_knp() == doc2.to_knp()
 
 
-@pytest.mark.parametrize("path", Path("tests/data").glob("*.knp"))
+@pytest.mark.parametrize("path", list(Path("tests/data").glob("*.knp")))
 def test_pickle_unpickle_annotated_corpora(path: Path) -> None:
     doc1 = Document.from_knp(path.read_text(encoding="utf-8"))
     doc2 = pickle.loads(pickle.dumps(doc1))  # nosec pickle
