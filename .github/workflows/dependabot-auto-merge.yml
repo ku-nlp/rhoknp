@@ -18,7 +18,7 @@ jobs:
         uses: lewagon/wait-on-check-action@v1.9.1
         with:
           ref: ${{ github.event.pull_request.head.sha }}
-          check-regexp: Run tests with pytest.*
+          check-regexp: "^Test"
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           wait-interval: 60 # Check every 60 seconds
       - name: Enable auto-merge for Dependabot PRs
