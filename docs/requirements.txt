@@ -7,7 +7,7 @@ beautifulsoup4==4.15.0
 certifi==2026.10.23
 charset-normalizer==3.5.2
 colorama==0.4.6 ; sys_platform == 'win32'
-docutils==0.23
+docutils==0.22.4
 furo==2025.12.19
 idna==3.20
 imagesize==2.0.1
