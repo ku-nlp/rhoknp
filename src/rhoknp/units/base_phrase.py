@@ -166,8 +166,13 @@ class BasePhrase(Unit):
 
     @property
     def phrase(self) -> "Phrase":
-        """文節．"""
-        assert self._phrase is not None
+        """文節．
+
+        Raises:
+            AttributeError: 解析結果にアクセスできない場合．
+        """
+        if self._phrase is None:
+            raise AttributeError("phrase has not been set")
         return self._phrase
 
     @phrase.setter

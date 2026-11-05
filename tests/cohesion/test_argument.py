@@ -42,13 +42,13 @@ def test_endophora_argument() -> None:
     assert argument.is_special() is False
     assert argument.pas == pas
     assert argument.base_phrase == argument_base_phrase
-    with pytest.raises(AssertionError):
+    with pytest.raises(AttributeError):
         _ = argument.document
-    with pytest.raises(AssertionError):
+    with pytest.raises(AttributeError):
         _ = argument.sentence
-    with pytest.raises(AssertionError):
+    with pytest.raises(AttributeError):
         _ = argument.clause
-    with pytest.raises(AssertionError):
+    with pytest.raises(AttributeError):
         _ = argument.phrase
 
     assert repr(argument) == "<rhoknp.cohesion.argument.EndophoraArgument: 'ガ', '彼は'>"
