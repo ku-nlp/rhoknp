@@ -111,8 +111,13 @@ class Clause(Unit):
 
     @property
     def sentence(self) -> "Sentence":
-        """文．"""
-        assert self._sentence is not None
+        """文．
+
+        Raises:
+            AttributeError: 解析結果にアクセスできない場合．
+        """
+        if self._sentence is None:
+            raise AttributeError("sentence has not been set")
         return self._sentence
 
     @sentence.setter

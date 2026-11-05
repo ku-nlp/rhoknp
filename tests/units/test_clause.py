@@ -322,6 +322,15 @@ def test_attr(case: dict[str, str], attr: str) -> None:
     assert GETTERS[attr](clause) == case[attr]
 
 
+@pytest.mark.parametrize("case", KNP_SNIPPETS)
+def test_detached(case: dict[str, str]) -> None:
+    clause = Clause.from_knp(case["knp"])
+    assert clause.parent_unit is None
+    for attr in ("document", "sentence"):
+        with pytest.raises(AttributeError):
+            _ = getattr(clause, attr)
+
+
 def test_invalid_head_0() -> None:
     clause = Clause.from_knp(
         textwrap.dedent(
