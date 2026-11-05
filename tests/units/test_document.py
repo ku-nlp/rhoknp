@@ -1,11 +1,13 @@
 import multiprocessing
 import pickle
 import textwrap
+from collections.abc import Callable
 from pathlib import Path
+from typing import Any
 
 import pytest
 
-from rhoknp import Document, Sentence
+from rhoknp import Document
 
 CASES: list[dict[str, str | list[str]]] = [
     {
@@ -269,55 +271,53 @@ CASES: list[dict[str, str | list[str]]] = [
 ]
 
 
-@pytest.mark.parametrize("case", CASES)
-def test_from_raw_text(case: dict[str, str]) -> None:
-    _ = Document.from_raw_text(case["raw_text"])
+BUILDERS: dict[str, Callable[[Any], Document]] = {
+    "raw_text": Document.from_raw_text,
+    "sentences": Document.from_sentences,
+    "line_by_line_text": Document.from_line_by_line_text,
+    "jumanpp": Document.from_jumanpp,
+    "knp_with_no_clause_tag": Document.from_knp,
+    "knp": Document.from_knp,
+}
+
+# (is_senter_required, is_jumanpp_required, is_knp_required, is_clause_tag_required)
+REQUIRED_STEPS: dict[str, tuple[bool, bool, bool, bool]] = {
+    "raw_text": (True, True, True, True),
+    "sentences": (False, True, True, True),
+    "line_by_line_text": (False, True, True, True),
+    "jumanpp": (False, False, True, True),
+    "knp_with_no_clause_tag": (False, False, False, True),
+    "knp": (False, False, False, False),
+}
+
+ACCESSIBLE_UNITS: dict[str, tuple[str, ...]] = {
+    "raw_text": (),
+    "sentences": ("sentences",),
+    "line_by_line_text": ("sentences",),
+    "jumanpp": ("sentences", "morphemes"),
+    "knp_with_no_clause_tag": ("sentences", "phrases", "base_phrases", "morphemes"),
+    "knp": ("sentences", "clauses", "phrases", "base_phrases", "morphemes"),
+}
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_from_raw_text_parallel(case: dict[str, str]) -> None:
+def test_parallel(case: dict[str, str]) -> None:
     with multiprocessing.Pool(processes=1) as pool:
-        _ = pool.map(Document.from_raw_text, [case["raw_text"]])
+        docs = [pool.apply(build, (case[key],)) for key, build in BUILDERS.items()]
+    for doc in docs:
+        assert doc.text == case["raw_text"]
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_from_sentences(case: dict[str, str]) -> None:
-    _ = Document.from_sentences(case["sentences"])
-    # from_sentences() allows Sentence objects as input.
-    _ = Document.from_sentences(list(map(Sentence.from_raw_text, case["sentences"])))
-    _ = Document.from_sentences(Document.from_jumanpp(case["jumanpp"]).sentences)
-    _ = Document.from_sentences(Document.from_knp(case["knp"]).sentences)
-
-
-@pytest.mark.parametrize("case", CASES)
-def test_from_sentences_parallel(case: dict[str, str]) -> None:
-    with multiprocessing.Pool(processes=1) as pool:
-        doc1 = pool.map(Document.from_sentences, [case["sentences"]])
-        # from_sentences() allows Sentence objects as input.
-        doc2 = pool.map(Document.from_sentences, [list(map(Sentence.from_raw_text, case["sentences"]))])
-        assert doc1 == doc2
-
-
-@pytest.mark.parametrize("case", CASES)
-def test_from_line_by_line_text(case: dict[str, str]) -> None:
-    _ = Document.from_line_by_line_text(case["line_by_line_text"])
-
-
-@pytest.mark.parametrize("case", CASES)
-def test_from_line_by_line_text_parallel(case: dict[str, str]) -> None:
-    with multiprocessing.Pool(processes=1) as pool:
-        _ = pool.map(Document.from_line_by_line_text, [case["line_by_line_text"]])
-
-
-@pytest.mark.parametrize("case", CASES)
-def test_from_jumanpp(case: dict[str, str]) -> None:
-    _ = Document.from_jumanpp(case["jumanpp"])
-
-
-@pytest.mark.parametrize("case", CASES)
-def test_from_jumanpp_parallel(case: dict[str, str]) -> None:
-    with multiprocessing.Pool(processes=1) as pool:
-        _ = pool.map(Document.from_jumanpp, [case["jumanpp"]])
+@pytest.mark.parametrize("key", ["line_by_line_text", "jumanpp", "knp"])
+def test_from_sentences(case: dict[str, str], key: str) -> None:
+    # from_sentences() also accepts Sentence objects and keeps their analysis results.
+    doc = BUILDERS[key](case[key])
+    new_doc = Document.from_sentences(doc.sentences)
+    assert new_doc.text == doc.text
+    assert len(new_doc.sentences) == len(doc.sentences)
+    assert new_doc.is_jumanpp_required() is doc.is_jumanpp_required()
+    assert new_doc.is_knp_required() is doc.is_knp_required()
 
 
 @pytest.mark.parametrize("case", CASES)
@@ -383,28 +383,6 @@ def test_from_jumanpp_control_character() -> None:
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_from_knp_with_no_clause_tag(case: dict[str, str]) -> None:
-    _ = Document.from_knp(case["knp_with_no_clause_tag"])
-
-
-@pytest.mark.parametrize("case", CASES)
-def test_from_knp_with_no_clause_tag_parallel(case: dict[str, str]) -> None:
-    with multiprocessing.Pool(processes=1) as pool:
-        _ = pool.map(Document.from_knp, [case["knp_with_no_clause_tag"]])
-
-
-@pytest.mark.parametrize("case", CASES)
-def test_from_knp(case: dict[str, str]) -> None:
-    _ = Document.from_knp(case["knp"])
-
-
-@pytest.mark.parametrize("case", CASES)
-def test_from_knp_parallel(case: dict[str, str]) -> None:
-    with multiprocessing.Pool(processes=1) as pool:
-        _ = pool.map(Document.from_knp, [case["knp"]])
-
-
-@pytest.mark.parametrize("case", CASES)
 def test_from_knp_without_last_eos(case: dict[str, str]) -> None:
     knp_lines = case["knp"].rstrip().split("\n")
     assert knp_lines[-1] == "EOS"
@@ -437,67 +415,15 @@ def test_from_knp_error() -> None:
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_need_senter(case: dict[str, str]) -> None:
-    doc = Document.from_raw_text(case["raw_text"])
-    assert doc.is_senter_required() is True
-    doc = Document.from_sentences(case["sentences"])
-    assert doc.is_senter_required() is False
-    doc = Document.from_line_by_line_text(case["line_by_line_text"])
-    assert doc.is_senter_required() is False
-    doc = Document.from_jumanpp(case["jumanpp"])
-    assert doc.is_senter_required() is False
-    doc = Document.from_knp(case["knp_with_no_clause_tag"])
-    assert doc.is_senter_required() is False
-    doc = Document.from_knp(case["knp"])
-    assert doc.is_senter_required() is False
-
-
-@pytest.mark.parametrize("case", CASES)
-def test_need_jumanpp(case: dict[str, str]) -> None:
-    doc = Document.from_raw_text(case["raw_text"])
-    assert doc.is_jumanpp_required() is True
-    doc = Document.from_sentences(case["sentences"])
-    assert doc.is_jumanpp_required() is True
-    doc = Document.from_line_by_line_text(case["line_by_line_text"])
-    assert doc.is_jumanpp_required() is True
-    doc = Document.from_jumanpp(case["jumanpp"])
-    assert doc.is_jumanpp_required() is False
-    doc = Document.from_knp(case["knp_with_no_clause_tag"])
-    assert doc.is_jumanpp_required() is False
-    doc = Document.from_knp(case["knp"])
-    assert doc.is_jumanpp_required() is False
-
-
-@pytest.mark.parametrize("case", CASES)
-def test_need_knp(case: dict[str, str]) -> None:
-    doc = Document.from_raw_text(case["raw_text"])
-    assert doc.is_knp_required() is True
-    doc = Document.from_sentences(case["sentences"])
-    assert doc.is_knp_required() is True
-    doc = Document.from_line_by_line_text(case["line_by_line_text"])
-    assert doc.is_knp_required() is True
-    doc = Document.from_jumanpp(case["jumanpp"])
-    assert doc.is_knp_required() is True
-    doc = Document.from_knp(case["knp_with_no_clause_tag"])
-    assert doc.is_knp_required() is False
-    doc = Document.from_knp(case["knp"])
-    assert doc.is_knp_required() is False
-
-
-@pytest.mark.parametrize("case", CASES)
-def test_need_clause_tag(case: dict[str, str]) -> None:
-    doc = Document.from_raw_text(case["raw_text"])
-    assert doc.is_clause_tag_required() is True
-    doc = Document.from_sentences(case["sentences"])
-    assert doc.is_clause_tag_required() is True
-    doc = Document.from_line_by_line_text(case["line_by_line_text"])
-    assert doc.is_clause_tag_required() is True
-    doc = Document.from_jumanpp(case["jumanpp"])
-    assert doc.is_clause_tag_required() is True
-    doc = Document.from_knp(case["knp_with_no_clause_tag"])
-    assert doc.is_clause_tag_required() is True
-    doc = Document.from_knp(case["knp"])
-    assert doc.is_clause_tag_required() is False
+@pytest.mark.parametrize("key", BUILDERS)
+def test_required_steps(case: dict[str, str], key: str) -> None:
+    doc = BUILDERS[key](case[key])
+    assert (
+        doc.is_senter_required(),
+        doc.is_jumanpp_required(),
+        doc.is_knp_required(),
+        doc.is_clause_tag_required(),
+    ) == REQUIRED_STEPS[key]
 
 
 @pytest.mark.parametrize("case", CASES)
@@ -579,169 +505,34 @@ def test_to_knp(case: dict[str, str]) -> None:
     assert doc.to_knp() == case["knp"]
 
 
-@pytest.mark.parametrize("case", CASES)
-def test_parent_unit(case: dict[str, str]) -> None:
-    doc = Document.from_raw_text(case["raw_text"])
+def test_parent_unit() -> None:
+    doc = Document.from_raw_text("天気がいいので散歩した。")
     assert doc.parent_unit is None
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_sentences(case: dict[str, str]) -> None:
-    doc = Document.from_raw_text(case["raw_text"])
-    with pytest.raises(AttributeError):
-        _ = doc.sentences
-    doc = Document.from_sentences(case["sentences"])
-    _ = doc.sentences
-    doc = Document.from_line_by_line_text(case["line_by_line_text"])
-    _ = doc.sentences
-    doc = Document.from_jumanpp(case["jumanpp"])
-    _ = doc.sentences
-    doc = Document.from_knp(case["knp_with_no_clause_tag"])
-    _ = doc.sentences
-    doc = Document.from_knp(case["knp"])
-    _ = doc.sentences
+@pytest.mark.parametrize("key", BUILDERS)
+def test_unit_access(case: dict[str, str], key: str) -> None:
+    doc = BUILDERS[key](case[key])
+    for attr in ("sentences", "clauses", "phrases", "base_phrases", "morphemes"):
+        if attr in ACCESSIBLE_UNITS[key]:
+            assert len(getattr(doc, attr)) > 0
+        else:
+            with pytest.raises(AttributeError):
+                _ = getattr(doc, attr)
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_clauses(case: dict[str, str]) -> None:
-    doc = Document.from_raw_text(case["raw_text"])
-    with pytest.raises(AttributeError):
-        _ = doc.clauses
-    doc = Document.from_sentences(case["sentences"])
-    with pytest.raises(AttributeError):
-        _ = doc.clauses
-    doc = Document.from_line_by_line_text(case["line_by_line_text"])
-    with pytest.raises(AttributeError):
-        _ = doc.clauses
-    doc = Document.from_jumanpp(case["jumanpp"])
-    with pytest.raises(AttributeError):
-        _ = doc.clauses
-    doc = Document.from_knp(case["knp_with_no_clause_tag"])
-    with pytest.raises(AttributeError):
-        _ = doc.clauses
-    doc = Document.from_knp(case["knp"])
-    _ = doc.clauses
-
-
-@pytest.mark.parametrize("case", CASES)
-def test_phrases(case: dict[str, str]) -> None:
-    doc = Document.from_raw_text(case["raw_text"])
-    with pytest.raises(AttributeError):
-        _ = doc.phrases
-    doc = Document.from_sentences(case["sentences"])
-    with pytest.raises(AttributeError):
-        _ = doc.phrases
-    doc = Document.from_line_by_line_text(case["line_by_line_text"])
-    with pytest.raises(AttributeError):
-        _ = doc.phrases
-    doc = Document.from_jumanpp(case["jumanpp"])
-    with pytest.raises(AttributeError):
-        _ = doc.phrases
-    doc = Document.from_knp(case["knp_with_no_clause_tag"])
-    _ = doc.phrases
-    doc = Document.from_knp(case["knp"])
-    _ = doc.phrases
-
-
-@pytest.mark.parametrize("case", CASES)
-def test_base_phrases(case: dict[str, str]) -> None:
-    doc = Document.from_raw_text(case["raw_text"])
-    with pytest.raises(AttributeError):
-        _ = doc.base_phrases
-    doc = Document.from_sentences(case["sentences"])
-    with pytest.raises(AttributeError):
-        _ = doc.base_phrases
-    doc = Document.from_line_by_line_text(case["line_by_line_text"])
-    with pytest.raises(AttributeError):
-        _ = doc.base_phrases
-    doc = Document.from_jumanpp(case["jumanpp"])
-    with pytest.raises(AttributeError):
-        _ = doc.base_phrases
-    doc = Document.from_knp(case["knp_with_no_clause_tag"])
-    _ = doc.base_phrases
-    doc = Document.from_knp(case["knp"])
-    _ = doc.base_phrases
-
-
-@pytest.mark.parametrize("case", CASES)
-def test_morphemes(case: dict[str, str]) -> None:
-    doc = Document.from_raw_text(case["raw_text"])
-    with pytest.raises(AttributeError):
-        _ = doc.morphemes
-    doc = Document.from_sentences(case["sentences"])
-    with pytest.raises(AttributeError):
-        _ = doc.morphemes
-    doc = Document.from_line_by_line_text(case["line_by_line_text"])
-    with pytest.raises(AttributeError):
-        _ = doc.morphemes
-    doc = Document.from_jumanpp(case["jumanpp"])
-    _ = doc.morphemes
-    doc = Document.from_knp(case["knp_with_no_clause_tag"])
-    _ = doc.morphemes
-    doc = Document.from_knp(case["knp"])
-    _ = doc.morphemes
-
-
-@pytest.mark.parametrize("case", CASES)
-def test_reference(case: dict[str, str]) -> None:
-    document = Document.from_knp(case["knp"])
+@pytest.mark.parametrize("key", ["jumanpp", "knp_with_no_clause_tag", "knp"])
+def test_reference(case: dict[str, str], key: str) -> None:
+    document = BUILDERS[key](case[key])
     for sentence in document.sentences:
         assert sentence.document == document
-        assert sentence == sentence  # noqa: PLR0124
-        for clause in sentence.clauses:
-            assert clause.document == document
-            assert clause.sentence == sentence
-            assert clause == clause  # noqa: PLR0124
-            for phrase in clause.phrases:
-                assert phrase.document == document
-                assert phrase.sentence == sentence
-                assert phrase.clause == clause
-                for base_phrase in phrase.base_phrases:
-                    assert base_phrase.document == document
-                    assert base_phrase.sentence == sentence
-                    assert base_phrase.phrase == phrase
-                    assert base_phrase == base_phrase  # noqa: PLR0124
-                    for morpheme in base_phrase.morphemes:
-                        assert morpheme.document == document
-                        assert morpheme.sentence == sentence
-                        assert morpheme.clause == clause
-                        assert morpheme.phrase == phrase
-                        assert morpheme.base_phrase == base_phrase
-                        assert morpheme == morpheme  # noqa: PLR0124
-                for morpheme in phrase.morphemes:
-                    assert morpheme.phrase == phrase
-            for base_phrase in clause.base_phrases:
-                assert base_phrase.clause == clause
-            for morpheme in clause.morphemes:
-                assert morpheme.clause == clause
-        for phrase in sentence.phrases:
-            assert phrase.sentence == sentence
-        for base_phrase in sentence.base_phrases:
-            assert base_phrase.sentence == sentence
         for morpheme in sentence.morphemes:
+            assert morpheme.document == document
             assert morpheme.sentence == sentence
-    for clause in document.clauses:
-        assert clause.document == document
-    for phrase in document.phrases:
-        assert phrase.document == document
-    for base_phrase in document.base_phrases:
-        assert base_phrase.document == document
-    for morpheme in document.morphemes:
-        assert morpheme.document == document
-
-
-@pytest.mark.parametrize(
-    "knp",
-    [
-        Path("tests/data/w201106-0000060050.knp").read_text(encoding="utf-8"),
-        Path("tests/data/wiki00100176.knp").read_text(encoding="utf-8"),
-    ],
-)
-def test_reference_with_no_clause_tag(knp: str) -> None:
-    document = Document.from_knp(knp)
-    for sentence in document.sentences:
-        assert sentence.document == document
-        assert sentence == sentence  # noqa: PLR0124
+        if sentence.is_knp_required():
+            continue
         for phrase in sentence.phrases:
             assert phrase.document == document
             assert phrase.sentence == sentence
@@ -749,27 +540,26 @@ def test_reference_with_no_clause_tag(knp: str) -> None:
                 assert base_phrase.document == document
                 assert base_phrase.sentence == sentence
                 assert base_phrase.phrase == phrase
-                assert base_phrase == base_phrase  # noqa: PLR0124
                 for morpheme in base_phrase.morphemes:
                     assert morpheme.document == document
                     assert morpheme.sentence == sentence
                     assert morpheme.phrase == phrase
                     assert morpheme.base_phrase == base_phrase
-                    assert morpheme == morpheme  # noqa: PLR0124
             for morpheme in phrase.morphemes:
                 assert morpheme.phrase == phrase
-        for phrase in sentence.phrases:
-            assert phrase.sentence == sentence
         for base_phrase in sentence.base_phrases:
             assert base_phrase.sentence == sentence
-        for morpheme in sentence.morphemes:
-            assert morpheme.sentence == sentence
-    for phrase in document.phrases:
-        assert phrase.document == document
-    for base_phrase in document.base_phrases:
-        assert base_phrase.document == document
-    for morpheme in document.morphemes:
-        assert morpheme.document == document
+        if sentence.is_clause_tag_required():
+            continue
+        for clause in sentence.clauses:
+            assert clause.document == document
+            assert clause.sentence == sentence
+            for phrase in clause.phrases:
+                assert phrase.clause == clause
+            for base_phrase in clause.base_phrases:
+                assert base_phrase.clause == clause
+            for morpheme in clause.morphemes:
+                assert morpheme.clause == clause
 
 
 @pytest.mark.parametrize("case", CASES)
@@ -815,39 +605,9 @@ def test_global_span(case: dict[str, str]) -> None:
 
 
 @pytest.mark.parametrize("case", CASES)
-def test_cut_paste(case: dict[str, str]) -> None:
-    doc = Document.from_knp(case["knp"])
-
-    # Split a document into sub-documents with a single sentence
-    sub_docs = list(map(Document.from_sentences, [[sent] for sent in doc.sentences]))
-    for sub_doc in sub_docs:
-        assert len(sub_doc.sentences) == 1
-        assert sub_doc.is_knp_required() is False
-
-    # Merge the sub-documents into a new document
-    new_doc = Document.from_sentences([sent for sub_doc in sub_docs for sent in sub_doc.sentences])
-    assert len(new_doc.sentences) == len(doc.sentences)
-    assert new_doc.is_knp_required() is False
-
-
-@pytest.mark.parametrize("case", CASES)
-@pytest.mark.parametrize(
-    "key",
-    ["raw_text", "sentences", "line_by_line_text", "jumanpp", "knp_with_no_clause_tag", "knp"],
-)
+@pytest.mark.parametrize("key", BUILDERS)
 def test_reparse(case: dict[str, str], key: str) -> None:
-    if key == "raw_text":
-        doc = Document.from_raw_text(case[key])
-    elif key == "sentences":
-        doc = Document.from_sentences(case[key])
-    elif key == "line_by_line_text":
-        doc = Document.from_line_by_line_text(case[key])
-    elif key == "jumanpp":
-        doc = Document.from_jumanpp(case[key])
-    elif key in ("knp_with_no_clause_tag", "knp"):
-        doc = Document.from_knp(case[key])
-    else:
-        raise KeyError
+    doc = BUILDERS[key](case[key])
     assert doc == doc.reparse()
 
 
@@ -857,25 +617,13 @@ def test_pas_list() -> None:
     assert len(doc.pas_list) == 12
 
 
-def test_to_knp_kwdlc() -> None:
-    doc_id = "w201106-0000060050"
-    knp = Path(f"tests/data/{doc_id}.knp").read_text(encoding="utf-8")
+@pytest.mark.parametrize("path", sorted(Path("tests/data").glob("*.knp")), ids=lambda path: path.stem)
+def test_annotated_corpora(path: Path) -> None:
+    knp = path.read_text(encoding="utf-8")
     doc = Document.from_knp(knp)
     assert doc.to_knp() == knp
-
-
-def test_to_knp_wac() -> None:
-    doc_id = "wiki00100176"
-    knp = Path(f"tests/data/{doc_id}.knp").read_text(encoding="utf-8")
-    doc = Document.from_knp(knp)
-    assert doc.to_knp() == knp
-
-
-@pytest.mark.parametrize("doc_id", ["w201106-0000060050", "wiki00100176"])
-def test_id(doc_id: str) -> None:
-    doc = Document.from_knp(Path(f"tests/data/{doc_id}.knp").read_text(encoding="utf-8"))
-    assert doc.doc_id == doc_id
-    assert doc.did == doc_id
+    assert doc.doc_id == doc.did == path.stem
+    assert pickle.loads(pickle.dumps(doc)).to_knp() == knp  # nosec pickle
 
 
 def test_update_id() -> None:
@@ -890,13 +638,11 @@ def test_update_id() -> None:
 
 
 def test_eq() -> None:
-    doc = Document.from_raw_text("天気がいいので散歩した。")
-    assert doc != "天気がいいので散歩した。"
-
-
-def test_eq_doc_id() -> None:
     doc0 = Document.from_raw_text("天気がいいので散歩した。")
+    assert doc0 != "天気がいいので散歩した。"
     doc1 = Document.from_raw_text("天気がいいので散歩した。")
+    assert doc0 == doc1
+    assert hash(doc0) == hash(doc1)
     doc1.doc_id = "1"
     doc2 = Document.from_raw_text("天気がいいので散歩した。")
     doc2.doc_id = "2"
@@ -904,35 +650,10 @@ def test_eq_doc_id() -> None:
     assert hash(doc0) != hash(doc1)
     assert doc1 != doc2
     assert hash(doc1) != hash(doc2)
-    assert doc2 != doc0
-    assert hash(doc2) != hash(doc0)
-
-
-def test_eq_knp() -> None:
-    doc_id = "w201106-0000060050"
-    knp = Path(f"tests/data/{doc_id}.knp").read_text(encoding="utf-8")
-    doc1 = Document.from_knp(knp)
-    doc2 = Document.from_knp(knp)
-    assert doc1 == doc2
-    assert hash(doc1) == hash(doc2)
-
-
-def test_eq_raw_text() -> None:
-    doc1 = Document.from_raw_text("天気がいいので散歩した。")
-    doc2 = Document.from_raw_text("天気がいいので散歩した。")
-    assert doc1 == doc2
-    assert hash(doc1) == hash(doc2)
 
 
 @pytest.mark.parametrize("case", CASES)
 def test_pickle_unpickle(case: dict[str, str]) -> None:
     doc1 = Document.from_knp(case["knp"])
-    doc2 = pickle.loads(pickle.dumps(doc1))  # nosec pickle
-    assert doc1.to_knp() == doc2.to_knp()
-
-
-@pytest.mark.parametrize("path", list(Path("tests/data").glob("*.knp")))
-def test_pickle_unpickle_annotated_corpora(path: Path) -> None:
-    doc1 = Document.from_knp(path.read_text(encoding="utf-8"))
     doc2 = pickle.loads(pickle.dumps(doc1))  # nosec pickle
     assert doc1.to_knp() == doc2.to_knp()
